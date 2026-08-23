@@ -82,20 +82,23 @@ namespace hal
             std::string res = "";
             res.reserve((bitsize + 2) / 3);
 
-            // deal with 0-3 leading bits
+            // deal with 1 or 2 leading bits
             for (u8 i = 0; i < first_bits; i++)
             {
                 v1    = value.at(i);
                 index = (index << 1) | v1;
                 mask |= v1;
             }
-            mask = -((mask >> 1) & 0x1);
+
             if (first_bits)
             {
-                res += (char_map[index] & ~mask) | ('X' & mask);
+                if ((mask & 0x80) > 0) // mask "sign" bit set if 'X' or 'Z' among first bits in vector
+                    res += 'X';
+                else
+                    res += (char_map[index]);
             }
 
-            // deal with 4-bit blocks (left to right)
+            // deal with 3-bit blocks (left to right)
             for (int i = bitsize % 3; i < bitsize; i += 3)
             {
                 v1 = value[i];
@@ -103,9 +106,12 @@ namespace hal
                 v3 = value[i + 2];
 
                 index = (v1 << 2) | (v2 << 1) | v3;    // cannot exceed char_map range as index always < 16, no further check required
-                mask  = -(((v1 | v2 | v3) >> 1) & 0x1);
+                mask  = (v1 | v2 | v3);
 
-                res += (char_map[index] & ~mask) | ('X' & mask);
+                if ((mask & 0x80) > 0) // mask "sign" bit set if 'X' or 'Z' among tested 3 bits
+                    res += 'X';
+                else
+                    res += (char_map[index]);
             }
             return OK(res);
         }
@@ -159,17 +165,20 @@ namespace hal
             std::string res = "";
             res.reserve((bitsize + 3) / 4);
 
-            // deal with 0-3 leading bits
+            // deal with 1-3 leading bits
             for (u8 i = 0; i < first_bits; i++)
             {
                 v1    = value.at(i);
                 index = (index << 1) | v1;
                 mask |= v1;
             }
-            mask = -((mask >> 1) & 0x1);
+
             if (first_bits)
             {
-                res += (char_map[index] & ~mask) | ('X' & mask);
+                if ((mask & 0x80) > 0) // mask "sign" bit set if 'X' or 'Z' among first bits in vector
+                    res += 'X';
+                else
+                    res += (char_map[index]);
             }
 
             // deal with 4-bit blocks (left to right)
@@ -181,9 +190,12 @@ namespace hal
                 v4 = value[i + 3];
 
                 index = ((v1 << 3) | (v2 << 2) | (v3 << 1) | v4) & 0xF;
-                mask  = -(((v1 | v2 | v3 | v4) >> 1) & 0x1);
+                mask  = (v1 | v2 | v3 | v4);
 
-                res += (char_map[index] & ~mask) | ('X' & mask);
+                if ((mask & 0x80) > 0) // mask "sign" bit set if 'X' or 'Z' among tested 4 bits
+                    res += 'X';
+                else
+                    res += (char_map[index]);
             }
 
             return OK(res);
