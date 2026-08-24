@@ -298,7 +298,7 @@ namespace hal
                     result.push_back(item);
                 }
             }
-            if (s.back() == delim)
+            if (!s.empty() && s.back() == delim)
             {
                 result.push_back("");
             }
