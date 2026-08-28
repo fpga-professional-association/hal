@@ -122,7 +122,7 @@ namespace hal
     :rtype: set[str]
     )" );
 
-        py::class_<cte::ClockTree, RawPtrWrapper<cte::ClockTree>>( m, "ClockTree", R"()" )
+        py::class_<cte::ClockTree>( m, "ClockTree", R"()" )
             .def_static(
                 "from_netlist",
                 []( const Netlist *netlist ) -> std::unique_ptr<cte::ClockTree> {
@@ -136,6 +136,7 @@ namespace hal
                     return nullptr;
                 },
                 py::arg( "netlist" ),
+                py::return_value_policy::move,
                 R"()" )
             .def(
                 "export",
@@ -187,6 +188,7 @@ namespace hal
                     }
                     return result;
                 },
+                borrowed(),
                 R"()" )
             .def(
                 "get_vertex_from_ptr",
@@ -222,6 +224,7 @@ namespace hal
                     return py::none();
                 },
                 py::arg( "vertex" ),
+                borrowed(),
                 R"()" )
             .def(
                 "get_vertices_from_ptrs",
@@ -295,6 +298,7 @@ namespace hal
                     return py::none();
                 },
                 py::arg( "ptr" ),
+                borrowed(),
                 R"()" )
             .def(
                 "get_childs",
@@ -325,10 +329,11 @@ namespace hal
                     return py::none();
                 },
                 py::arg( "ptr" ),
+                borrowed(),
                 R"()" )
-            .def( "get_gates", &cte::ClockTree::get_gates, R"()" )
-            .def( "get_nets", &cte::ClockTree::get_nets, R"()" )
-            .def( "get_netlist", &cte::ClockTree::get_netlist, R"()" );
+            .def( "get_gates", &cte::ClockTree::get_gates, borrowed(), R"()" )
+            .def( "get_nets", &cte::ClockTree::get_nets, borrowed(), R"()" )
+            .def( "get_netlist", &cte::ClockTree::get_netlist, borrowed(), R"()" );
 
 #ifndef PYBIND11_MODULE
         return m.ptr();
