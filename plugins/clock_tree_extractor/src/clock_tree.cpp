@@ -526,7 +526,7 @@ namespace hal
                     return ERR( igraph_strerror( ierror ) );
                 }
 
-                if( ( ierror = igraph_neighbors( m_igraph_ptr, &neighbors, vertex, IGRAPH_OUT ) ) != IGRAPH_SUCCESS )
+                if( ( ierror = igraph_neighbors( m_igraph_ptr, &neighbors, vertex, IGRAPH_OUT, IGRAPH_NO_LOOPS, IGRAPH_NO_MULTIPLE ) ) != IGRAPH_SUCCESS )
                 {
                     dot_fd.close();
                     igraph_vector_int_destroy( &neighbors );
@@ -574,7 +574,7 @@ namespace hal
                     return ERR( igraph_strerror( ierror ) );
                 }
 
-                if( ( ierror = igraph_neighbors( m_igraph_ptr, &parents, root, IGRAPH_IN ) ) != IGRAPH_SUCCESS )
+                if( ( ierror = igraph_neighbors( m_igraph_ptr, &parents, root, IGRAPH_IN, IGRAPH_NO_LOOPS, IGRAPH_NO_MULTIPLE ) ) != IGRAPH_SUCCESS )
                 {
                     igraph_vector_int_destroy( &parents );
                     return ERR( igraph_strerror( ierror ) );
@@ -812,7 +812,7 @@ namespace hal
                 return ERR( igraph_strerror( ierror ) );
             }
 
-            if( ( ierror = igraph_neighbors( m_igraph_ptr, &neighbors, it->second, direction ) ) != IGRAPH_SUCCESS )
+            if( ( ierror = igraph_neighbors( m_igraph_ptr, &neighbors, it->second, direction, IGRAPH_NO_LOOPS, IGRAPH_NO_MULTIPLE ) ) != IGRAPH_SUCCESS )
             {
                 igraph_vector_int_destroy( &neighbors );
                 return ERR( igraph_strerror( ierror ) );
