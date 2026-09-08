@@ -27,7 +27,7 @@
       "gate_library": {
         "name": "EXAMPLE_GATE_LIBRARY",
         "path": "plugins/gate_libraries/definitions/example_library.hgl",
-        "sha256": "f043da887bddc46e15c081192ec477d09bd5093fbbeee7102f4b20f51b31b365"
+        "sha256": "b854d9171f2e8abefcb6ca5bdfee44a4a7075e47f30497ef6a51a665ac8e6075"
       },
       "kind": "netlist",
       "net_count": 41,

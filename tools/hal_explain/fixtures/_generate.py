@@ -26,8 +26,11 @@ Run from the repository root::
 """
 
 import argparse
+import contextlib
 import os
+import shutil
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.dirname(os.path.dirname(HERE))
@@ -50,10 +53,14 @@ GATE_LIBRARY = os.path.join(
 
 #: The paths *recorded* in the documents are repository-relative and POSIX, so
 #: the committed fixtures are byte-identical on every machine and ``--check``
-#: means something in CI.  :func:`generate` runs with the repository root as its
-#: working directory so that the adapters can still hash the files they name.
+#: means something in CI.  :func:`generate` runs inside a mirror of those inputs
+#: (see :func:`_normalized_inputs`) so that the adapters can still hash the files
+#: they name.
 NETLIST_REL = "tools/hal_explain/fixtures/accumulator.v"
 GATE_LIBRARY_REL = "plugins/gate_libraries/definitions/example_library.hgl"
+
+#: The inputs the documents name and hash, as ``(recorded path, path on disk)``.
+INPUTS = ((NETLIST_REL, NETLIST), (GATE_LIBRARY_REL, GATE_LIBRARY))
 
 #: Frozen so that regenerating produces a byte-identical file.
 GENERATED_AT = "2026-01-01T00:00:00Z"
@@ -371,7 +378,7 @@ def build_fsm_document(netlist):
         "netlist",
         kind="netlist",
         path=NETLIST_REL,
-        sha256=findings_serialize.sha256_file(NETLIST),
+        sha256=findings_serialize.sha256_file(NETLIST_REL),
         design_name="accumulator_top",
         gate_count=len(netlist.get_gates()),
         net_count=len(netlist.get_nets()),
@@ -568,29 +575,64 @@ DOCUMENTS = (
 )
 
 
+def _copy_with_lf(source, destination):
+    """Copy ``source`` to ``destination``, rewriting CRLF line endings as LF."""
+    with open(source, "rb") as handle:
+        data = handle.read()
+    directory = os.path.dirname(destination)
+    if directory and not os.path.isdir(directory):
+        os.makedirs(directory)
+    with open(destination, "wb") as handle:
+        handle.write(data.replace(b"\r\n", b"\n"))
+
+
+@contextlib.contextmanager
+def _normalized_inputs():
+    """Yield a temporary mirror of the hashed inputs, with LF line endings.
+
+    The documents pin their inputs by digest, and a digest of a working-tree
+    file is only reproducible if the working tree is: git hands a Windows
+    checkout CRLF line endings, so hashing ``example_library.hgl`` where it lies
+    yields one digest on Windows and another on Linux, and the recorded fixtures
+    can then only ever match one of the two.  The generator therefore hashes the
+    canonical LF form of every input -- what the blob in git says, and what a
+    Linux checkout has on disk -- by mirroring the inputs into a scratch tree at
+    the same repository-relative paths and generating from there.
+    """
+    root = tempfile.mkdtemp(prefix="hal_explain_fixtures_")
+    try:
+        for relative, path in INPUTS:
+            _copy_with_lf(path, os.path.join(root, *relative.split("/")))
+        yield root
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
 def generate():
     """Return ``{filename: serialized document text}``.
 
-    The working directory is switched to the repository root for the duration:
-    the documents record repository-relative paths so they are byte-identical on
-    every machine, and ``hal_findings.adapters.common.netlist_artifact`` hashes
-    exactly the path it records.  Without the switch the artifact would silently
-    come out with an ``unhashed_reason`` instead of a digest, depending on where
-    the script happened to be run from.
+    The working directory is switched to the mirror of the inputs for the
+    duration: the documents record repository-relative paths so they are
+    byte-identical on every machine, and
+    ``hal_findings.adapters.common.netlist_artifact`` hashes exactly the path it
+    records.  Without the switch the artifact would silently come out with an
+    ``unhashed_reason`` instead of a digest, depending on where the script
+    happened to be run from.
     """
     previous = os.getcwd()
-    os.chdir(REPO_ROOT)
-    try:
-        view = load_fixture(NETLIST, GATE_LIBRARY)
-        netlist = _Netlist(view, NETLIST_REL, GATE_LIBRARY_REL)
-        output = {}
-        for filename, builder in DOCUMENTS:
-            document = builder(netlist)
-            findings_validate.validate_document(document)
-            output[filename] = findings_serialize.dumps(document)
-        return output
-    finally:
-        os.chdir(previous)
+    with _normalized_inputs() as root:
+        os.chdir(root)
+        try:
+            view = load_fixture(NETLIST_REL, GATE_LIBRARY_REL)
+            netlist = _Netlist(view, NETLIST_REL, GATE_LIBRARY_REL)
+            output = {}
+            for filename, builder in DOCUMENTS:
+                document = builder(netlist)
+                findings_validate.validate_document(document)
+                output[filename] = findings_serialize.dumps(document)
+            return output
+        finally:
+            os.chdir(previous)
 
 
 def main(argv=None):

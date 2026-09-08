@@ -13,6 +13,9 @@ the stubs do; that is
 ``tests/headless_smoke/explain_blocks_smoke.py``.
 """
 
+import contextlib
+import hashlib
+import io
 import json
 import os
 import shutil
@@ -608,6 +611,41 @@ class FixtureTest(unittest.TestCase):
             + completed.stderr.decode("utf-8", "replace"),
         )
 
+    def test_the_recorded_digests_do_not_depend_on_the_checkout(self):
+        """The recorded hashes are of the LF form of the inputs, on every OS.
+
+        A Windows checkout has CRLF line endings in the working tree, so hashing
+        the files where they lie would record a different digest there than on
+        Linux and the fixtures could only ever match one of the two.  The
+        generator hashes the canonical LF bytes instead; this pins that, and
+        fails on a Windows checkout if anyone reverts it.
+        """
+        recorded = {}
+        for path in DOCUMENTS:
+            document = findings_serialize.read_document(path)
+            for artifact in document["artifacts"]:
+                if artifact.get("sha256"):
+                    recorded[artifact["path"]] = artifact["sha256"]
+                library = artifact.get("gate_library") or {}
+                if library.get("sha256"):
+                    recorded[library["path"]] = library["sha256"]
+        self.assertEqual(
+            sorted(recorded),
+            [
+                "plugins/gate_libraries/definitions/example_library.hgl",
+                "tools/hal_explain/fixtures/accumulator.v",
+            ],
+        )
+        for relative, digest in sorted(recorded.items()):
+            source = os.path.join(REPO_ROOT, *relative.split("/"))
+            with open(source, "rb") as handle:
+                data = handle.read().replace(b"\r\n", b"\n")
+            self.assertEqual(
+                hashlib.sha256(data).hexdigest(),
+                digest,
+                relative + " is recorded with a digest of something else",
+            )
+
     def test_the_ground_truth_matches_the_fixture_netlist(self):
         truth = load_ground_truth()
         inventory = build_inventory()
@@ -626,6 +664,17 @@ class CliTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.inventory_path = os.path.join(self.tmp, "inventory.json")
         self.model_path = os.path.join(self.tmp, "blocks.json")
+        # Several of these tests drive the CLI down its *failure* paths on
+        # purpose, and the CLI is right to describe those failures on stderr.
+        # Captured rather than printed, so that a passing run stays quiet and
+        # the diagnostics can be asserted on instead of merely being read.
+        self.captured = io.StringIO()
+        patched = contextlib.redirect_stderr(self.captured)
+        patched.__enter__()
+        self.addCleanup(patched.__exit__, None, None, None)
+
+    def stderr(self):
+        return self.captured.getvalue()
 
     def _inventory(self):
         code = cli_main(
@@ -668,6 +717,7 @@ class CliTest(unittest.TestCase):
     def test_min_classified_below_the_threshold_exits_one(self):
         self._inventory()
         self.assertEqual(self._compose(["--min-classified", "0.99"]), 1)
+        self.assertIn("--min-classified", self.stderr())
         self.assertEqual(self._compose(["--min-classified", "0.5"]), 0)
 
     def test_a_missing_inventory_is_exit_two_not_exit_one(self):
@@ -682,11 +732,26 @@ class CliTest(unittest.TestCase):
             ]
         )
         self.assertEqual(code, 2)
+        self.assertIn("could not read the inventory", self.stderr())
 
     def test_an_invalid_model_fails_validation_with_exit_one(self):
+        """A hand-promoted confidence is caught -- the composer never emits one.
+
+        ``model.claim`` derives ``confidence`` from ``status``, so the only way
+        to get the contradiction the validator rejects is to edit the composed
+        document, which is what this test does.  The rejection message it
+        provokes is expected output, not a failure of the run.
+        """
         self._inventory()
         self.assertEqual(self._compose(), 0)
         document = serialize.read_document(self.model_path)
+        for block in document["blocks"]:
+            for claim in block["claims"]:
+                self.assertEqual(
+                    claim["confidence"],
+                    model.confidence_for_status(claim["status"]),
+                    "the composed model must derive confidence from status",
+                )
         promoted = [
             claim
             for block in document["blocks"]
@@ -697,6 +762,10 @@ class CliTest(unittest.TestCase):
         promoted[0]["confidence"] = "verified"
         serialize.write_document(document, self.model_path)
         self.assertEqual(cli_main(["--quiet", "validate", self.model_path]), 1)
+        self.assertIn(
+            "confidence is derived from the status and must be 'heuristic'",
+            self.stderr(),
+        )
 
     def test_prose_emits_a_bundle_and_calls_no_model(self):
         self._inventory()
