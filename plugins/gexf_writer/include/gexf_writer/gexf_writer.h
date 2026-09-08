@@ -28,11 +28,8 @@
 #include "hal_core/defines.h"
 #include "hal_core/netlist/netlist_writer/netlist_writer.h"
 
-#include <QString>
-#include <QXmlStreamWriter>
-#include <functional>
-#include <map>
 #include <sstream>
+#include <string>
 
 namespace hal
 {
@@ -49,7 +46,7 @@ namespace hal
     class NETLIST_API GexfWriter : public NetlistWriter
     {
     public:
-        GexfWriter();
+        GexfWriter()  = default;
         ~GexfWriter() = default;
 
         /**
@@ -62,17 +59,16 @@ namespace hal
         Result<std::monostate> write(Netlist* netlist, const std::filesystem::path& file_path) override;
 
     private:
-        Netlist* mNetlist;
-        int mEdgeId;
-        bool mGuiLoaded;
+        Netlist* mNetlist = nullptr;
+        int mEdgeId       = 0;
 
-        void writeMeta(QXmlStreamWriter& xmlOut) const;
-        void writeGraph(QXmlStreamWriter& xmlOut);
-        void writeNode(QXmlStreamWriter& xmlOut, const Gate* g) const;
-        void writeColor(QXmlStreamWriter& xmlOut, const Gate* g) const;
-        void writeEdge(QXmlStreamWriter& xmlOut, const Net* n);
-        void writeAttribute(QXmlStreamWriter& xmlOut, int id, const QString& title, const QString& type) const;
-        void writeNodeAttribute(QXmlStreamWriter& xmlOut, const Gate* g, int inx) const;
-        void writeEdgeAttribute(QXmlStreamWriter& xmlOut, const Net* n, int inx, const std::string pin = std::string()) const;
+        void writeMeta(std::stringstream& res_stream) const;
+        void writeGraph(std::stringstream& res_stream);
+        void writeNode(std::stringstream& res_stream, const Gate* g) const;
+        void writeColor(std::stringstream& res_stream, const Gate* g) const;
+        void writeEdge(std::stringstream& res_stream, const Net* n);
+        void writeAttribute(std::stringstream& res_stream, int id, const std::string& title, const std::string& type) const;
+        void writeNodeAttribute(std::stringstream& res_stream, const Gate* g, int inx) const;
+        void writeEdgeAttribute(std::stringstream& res_stream, const Net* n, int inx, const std::string& pin = std::string()) const;
     };
 }    // namespace hal
