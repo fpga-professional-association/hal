@@ -147,3 +147,7 @@ changelog
 hal_pass
 
 .claude/
+# ... but track shared Claude Code project skills
+!/.claude/
+/.claude/*
+!/.claude/skills/
