@@ -1,5 +1,5 @@
 # Welcome to HAL! 
-[![Ubuntu 22.04](https://github.com/emsec/hal/actions/workflows/ubuntu22.04.yml/badge.svg)](https://github.com/emsec/hal/actions/workflows/ubuntu22.04.yml)  [![Ubuntu 24.04](https://github.com/emsec/hal/actions/workflows/ubuntu24.04.yml/badge.svg)](https://github.com/emsec/hal/actions/workflows/ubuntu24.04.yml)  [![macOS](https://github.com/emsec/hal/actions/workflows/macOS.yml/badge.svg)](https://github.com/emsec/hal/actions/workflows/macOS.yml) [![Deploy Documentation](https://github.com/emsec/hal/actions/workflows/releaseDoc.yml/badge.svg)](https://github.com/emsec/hal/actions/workflows/releaseDoc.yml) [![Doc: C++](https://img.shields.io/badge/doc-c%2B%2B-orange)](https://emsec.github.io/hal/doc/) [![Doc: Python](https://img.shields.io/badge/doc-python-red)](https://emsec.github.io/hal/pydoc/)
+[![Ubuntu 22.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml)  [![Ubuntu 24.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml)  [![Ubuntu 26.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml)  [![macOS](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml) [![Deploy Documentation](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml) [![Doc: C++ (upstream)](https://img.shields.io/badge/doc-c%2B%2B_(upstream)-orange)](https://emsec.github.io/hal/doc/) [![Doc: Python (upstream)](https://img.shields.io/badge/doc-python_(upstream)-red)](https://emsec.github.io/hal/pydoc/)
 
 
 HAL \[/hel/\] is a comprehensive netlist reverse engineering and manipulation framework.
@@ -12,6 +12,7 @@ This is the [FPGA Professional Association](https://github.com/fpga-professional
 2. [Build Instructions](#build-instructions)
 3. [Quickstart Guide](#quickstart)
 4. [Academic Context](#academic-context)
+5. [Fork Capabilities and FPGA Support Matrix](CAPABILITIES.md)
 
 <a name="introduction"></a>
 # Introduction
@@ -33,16 +34,22 @@ Apart from multiple research projects, it is also used in our university lecture
 Note that we also have a set of **modern** state-of-the-art benchmark circuits for the evaluation of netlist reverse engineering techniques available in a seperate [repository](https://github.com/emsec/hal-benchmarks).
 
 ## Shipped Plugins
-This repository contains a selection of curated plugins:
-- **Netlist Simulator:** A simulator for arbitrary parts of a loaded netlist
-- **Dataflow Analysis:** Our dataflow analysis plugin [DANA](https://eprint.iacr.org/2020/751.pdf) that recovers high-level registers in an unstructured netlist
+This repository contains a selection of curated plugins, built by default unless noted:
+- **Netlist Simulator** (off by default): An event-based simulator for arbitrary parts of a loaded netlist, plus an optional Verilator-backed engine
+- **Dataflow Analysis** (off by default): Our dataflow analysis plugin [DANA](https://eprint.iacr.org/2020/751.pdf) that recovers high-level registers in an unstructured netlist
 - **Clock Tree Extractor:** A plugin to recover clock trees from an unstructured gate-level netlist
 - **Graph Algorithms:** [igraph](https://igraph.org) integration for direct access to common algorithms from graph-theory
 - **Python Shell:** A command-line plugin to spawn a Python shell preloaded with the HAL Python bindings
 - **VHDL & Verilog Parsers:** Adds support for parsing VHDL and Verilog files as netlist input formats
 - **Liberty Parser:** Adds support for arbitrary gate libraries in the standard `liberty` gate library format
-- **VHDL & Verilog Writers:** Adds support for serializing a (modified) netlist to synthesizable VHDL or Verilog files
-- **Gate Libraries:** Adds support for the XILINX Unisim and Simprim gate libraries
+- **Verilog Writer:** Adds support for serializing a (modified) netlist to synthesizable Verilog (there is no VHDL writer in this fork)
+- **Gate Libraries:** Adds support for the XILINX Unisim and Simprim gate libraries, plus Lattice iCE40 Ultra and a few ASIC libraries
+- **Module Identification** (off by default): SMT-verified recognition of arithmetic operations, currently dispatching only on the XILINX Unisim and Lattice iCE40 Ultra gate libraries
+
+This list is illustrative, not exhaustive, and does not distinguish parsing support from
+simulation, symbolic-execution, or recognition support for any given device. For the full
+plugin inventory (build flags and defaults) and a device/library support matrix that keeps
+those capabilities separate, see [`CAPABILITIES.md`](CAPABILITIES.md).
 
 
 ## Documentation
