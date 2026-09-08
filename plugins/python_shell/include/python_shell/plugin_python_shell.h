@@ -88,8 +88,13 @@ namespace hal
         /**
          * Excutes the plugin with given command line parameters.
          *
+         * Runs the script given by `--python-script`, or an interactive shell if there is none. As
+         * described in UIPluginInterface::exec, the result becomes the exit code of HAL, so it is `false`
+         * if the Python environment could not be set up, if the script path does not name a readable `.py`
+         * file, or if the code that ran raised an exception that was not caught.
+         *
          * @param[in] args - The command line parameters.
-         * @returns `true` on success, `false` otherwise.
+         * @returns `true` if the script or shell ran to completion, `false` on any error.
          */
         bool exec(ProgramArguments& args) override;
 

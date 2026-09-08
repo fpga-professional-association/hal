@@ -89,6 +89,10 @@ All notable changes to this project will be documented in this file.
     * fixed the documentation of `NetlistSimulatorController::initialize`, which described the behaviour of the legacy `NetlistSimulator`: it claimed that no gates or clocks may be added afterwards and that `simulate` calls it automatically, neither of which holds since its body became empty
   * dot viewer
     * added 'hover over node' feature in dot viewer
+  * python shell
+    * fixed a failed `--python-script` run leaving HAL with an exit code of 0, so that automated analysis could not tell a finished run from a broken one. The plugin discarded the status of every `PyRun_SimpleString` call and returned a falsy value after a successful run, while `main.cpp` inverted the result it got and turned a failure into `SUCCESS`. An uncaught exception, a Python environment that could not be set up, and a script path that does not name a readable `.py` file now all end HAL with a nonzero exit code, and a script that returns normally ends it with 0
+    * documented the result of `UIPluginInterface::exec` as the success flag of the whole HAL run, since it is what the exit code is made of
+    * fixed the decoded `--python-args` array leaking whenever `exec` returned early
 * GUI
   * fixed the GUI hanging for minutes when a module with many gates is selected, `ModuleModel` emitted a row insert signal per item while the model was already being reset, which made the attached filter proxy remap its rows once per item
   * fixed the GUI stalling when a large module is unfolded, the tree views measured every row individually and shaped the text of each gate name just to learn how tall the row is

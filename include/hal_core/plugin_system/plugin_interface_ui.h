@@ -45,8 +45,18 @@ namespace hal
         /**
          * Generic call to run the interactive UI.
          *
+         * The return value is the success flag of the whole HAL run: `hal` hands control to exactly one
+         * UI plugin and turns the result of this call directly into its process exit code, so
+         * `true` becomes an exit code of 0 and `false` becomes a nonzero exit code. Implementations must
+         * therefore report every condition that makes the requested work incomplete -- a UI that failed to
+         * start, a script that could not be located or read, and any error raised by the code it ran -- as
+         * `false`, and reserve `true` for a run that did what the user asked. Diagnostics belong in the log
+         * or on stderr; the flag alone is what the caller sees.
+         *
+         * A user closing an interactive session in the normal way is a success, not a failure.
+         *
          * @param[in] args - Program options for HAL.
-         * @returns `true` on success, `false` otherwise.
+         * @returns `true` if the requested work completed, `false` on any error.
          */
         virtual bool exec(ProgramArguments& args) = 0;
 

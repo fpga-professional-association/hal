@@ -171,6 +171,13 @@ docstrings (`help(hal_py.<Plugin>)`) for the exact call, don't guess.
   the `uictrl` branch in `app/main.cpp`. Your script must load the netlist
   itself via `hal_py.NetlistFactory.load_hal_project(...)` /
   `load_netlist(...)`; nothing is pre-loaded for you.
+- **The exit code of `--python-script` is trustworthy — check it.** `hal` exits
+  0 only if the script ran to completion; an uncaught exception, a Python
+  environment that failed to set up, and a script path that is missing, a
+  directory, or not a `.py` file all exit nonzero. (Before the fix for issue
+  #11 every one of those exited 0, so a wrapper that predates it may be
+  ignoring the status.) A script that calls `sys.exit(n)` ends the process with
+  `n`, as CPython handles `SystemExit` itself.
 - **No `__file__`, and `--python-args` becomes `sys.argv`.** The plugin calls
   `PySys_SetArgv` with the *contents* of `--python-args` (split on spaces),
   not the script path — `sys.argv[0]` is your first arg, not the script name.

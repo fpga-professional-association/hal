@@ -1,0 +1,1 @@
+This file exists but is not a python script, so --python-script must reject it.

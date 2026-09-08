@@ -213,9 +213,17 @@ int main(int argc, const char* argv[])
             /* add timestamp to log output */
             LogManager::get_instance()->set_format_pattern("[%d.%m.%Y %H:%M:%S] [%n] [%l] %v");
 
-            auto ret = plugin->exec(args);
+            /* UIPluginInterface::exec returns true when the requested work completed, so a failing
+             * plugin -- a script that raised, a path that could not be read, a UI that did not start --
+             * has to leave HAL with a nonzero exit code. */
+            const bool ui_plugin_succeeded = plugin->exec(args);
 
-            return cleanup(ret ? ERROR : SUCCESS);
+            if (!ui_plugin_succeeded)
+            {
+                log_error("core", "execution of '{}' failed", plugin_name);
+            }
+
+            return cleanup(ui_plugin_succeeded ? SUCCESS : ERROR);
         }
     }
 

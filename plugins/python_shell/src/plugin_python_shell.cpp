@@ -37,8 +37,71 @@ namespace hal
         return std::string("0.1");
     }
 
+    namespace
+    {
+        /**
+         * Runs a piece of Python code and reports whether it finished without an uncaught exception.
+         *
+         * `PyRun_SimpleString` returns 0 on success and -1 when an exception reached the top level; in the
+         * latter case it has already printed the traceback to stderr, so all that is left to do here is to
+         * turn the ignored status code into something the caller can act on. Note that `sys.exit()` never
+         * gets this far: CPython handles `SystemExit` by ending the process with the requested status.
+         */
+        bool run_python_code(const std::string& code)
+        {
+            return PyRun_SimpleString(code.c_str()) == 0;
+        }
+
+        /** Frees the first `count` decoded arguments and the array holding them. */
+        void free_python_argv(wchar_t** argv, int count)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                PyMem_RawFree(argv[i]);
+            }
+            delete[] argv;
+        }
+    }    // namespace
+
     bool PluginPythonShell::exec(ProgramArguments& args)
     {
+        /* The result of this call becomes the exit code of HAL (see UIPluginInterface::exec), so every
+         * error below has to travel back to the caller as false. */
+
+        // the script is located and read before the interpreter is touched, so that a bad path fails
+        // without any half-initialized Python state to clean up
+        const bool run_script = args.is_option_set("--python-script");
+        std::string script_source;
+        std::string file_path;
+
+        if (run_script)
+        {
+            file_path = args.get_parameter("--python-script");
+            if (!std::filesystem::exists(file_path) || std::filesystem::is_directory(file_path) || !utils::ends_with(file_path, std::string(".py")))
+            {
+                log_error(get_name(), "'{}' is not a python script file", file_path);
+                return false;
+            }
+
+            std::ifstream stream(file_path);
+            if (!stream.is_open())
+            {
+                log_error(get_name(), "cannot open python script file '{}'", file_path);
+                return false;
+            }
+
+            stream.seekg(0, std::ios::end);
+            script_source.reserve(stream.tellg());
+            stream.seekg(0, std::ios::beg);
+            script_source.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+
+            if (stream.bad())
+            {
+                log_error(get_name(), "cannot read python script file '{}'", file_path);
+                return false;
+            }
+        }
+
         int argc       = 0;
         wchar_t** argv = nullptr;
 
@@ -68,6 +131,7 @@ namespace hal
                 if (argv[i] == nullptr)
                 {
                     log_error(get_name(), "unable to convert argument '{}' for Python", py_args[i]);
+                    free_python_argv(argv, i);
                     return false;
                 }
             }
@@ -78,46 +142,59 @@ namespace hal
 
         PySys_SetArgv(argc, argv);
 
-        PyRun_SimpleString("import sys");
-        PyRun_SimpleString(std::string("sys.path.append(\"" + utils::get_library_directory().string() + "\")").c_str());
-        PyRun_SimpleString("from hal_py import *");
-        PyRun_SimpleString("import hal_py");
+        bool success = true;
+
+        // the shell is unusable without hal_py, so a failure here is reported instead of leaving the
+        // script to fail later with a confusing NameError
+        const std::vector<std::string> setup_statements = {
+            "import sys",
+            "sys.path.append(\"" + utils::get_library_directory().string() + "\")",
+            "from hal_py import *",
+            "import hal_py",
+        };
+
+        for (const auto& statement : setup_statements)
+        {
+            if (!run_python_code(statement))
+            {
+                log_error(get_name(), "cannot initialize the Python environment, '{}' raised an exception", statement);
+                success = false;
+                break;
+            }
+        }
 
         // changing cwd not required
         // PyRun_SimpleString("import os");
         // PyRun_SimpleString(("os.chdir(\""+ std::filesystem::current_path().string() +"\")").c_str());
 
-        if (args.is_option_set("--python-script"))
+        if (success)
         {
-            auto file_path = args.get_parameter("--python-script");
-            if (!std::filesystem::exists(file_path) || std::filesystem::is_directory(file_path) || !utils::ends_with(file_path, std::string(".py")))
+            if (run_script)
             {
-                log_error(get_name(), "'{}' is not a python script file", file_path);
-                return false;
+                if (!run_python_code(script_source))
+                {
+                    log_error(get_name(), "the python script '{}' terminated with an exception", file_path);
+                    success = false;
+                }
             }
-
-            std::ifstream stream(file_path);
-            std::string str;
-            stream.seekg(0, std::ios::end);
-            str.reserve(stream.tellg());
-            stream.seekg(0, std::ios::beg);
-            str.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-
-            PyRun_SimpleString(str.c_str());
-        }
-        else
-        {
-            Py_Main(argc, argv);
+            else
+            {
+                // the interactive shell keeps running until the user ends it; a normal exit yields 0,
+                // anything else is a failed run
+                const int py_main_status = Py_Main(argc, argv);
+                if (py_main_status != 0)
+                {
+                    log_error(get_name(), "the python shell terminated with status {}", py_main_status);
+                    success = false;
+                }
+            }
         }
 
         Py_Finalize();
 
         /* cleanup of copied command line interface options */
-        for (int i = 0; i < argc; ++i)
-        {
-            PyMem_RawFree(argv[i]);
-        }
-        delete[] argv;
-        return 0;
+        free_python_argv(argv, argc);
+
+        return success;
     }
 }    // namespace hal
