@@ -99,6 +99,15 @@ folds a solver `unknown` into that boolean, so only `True` **with**
 check itself (sequential gate name correspondence, gate types that are neither
 combinational nor sequential and therefore enter the queries as free variables).
 
+## Reading findings back
+
+`python tools/hal_viz report <documents> -o report.html` renders one or more of
+these documents — together with the artifacts they reference — into a single
+static HTML page for a human: status badges that keep the nine statuses apart,
+the assumptions and bounds of every claim, relative links to evidence and
+witnesses, and inlined scoped diagrams. It needs no HAL. See
+`tools/hal_viz/README.md`.
+
 ## Determinism
 
 `serialize.dumps` sorts keys, sorts every order-insensitive list

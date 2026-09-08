@@ -31,6 +31,7 @@ from .render import (
     render_dot,
     write_html_index,
 )
+from .report import ReportError, ReportOptions, load_documents, write_report
 
 __all__ = ["main", "build_parser"]
 
@@ -382,6 +383,66 @@ def cmd_clock_tree(args, reporter):
         unload_all_plugins(hal_py)
 
 
+def _resolve_report_output(output):
+    """Turn ``--output`` into the path of an .html file."""
+    output = str(output)
+    if output.endswith(("/", "\\")) or os.path.isdir(output) or os.path.basename(output) == "":
+        return os.path.abspath(os.path.join(output, "findings_report.html"))
+    if os.path.splitext(output)[1].lower() not in (".html", ".htm"):
+        output += ".html"
+    return os.path.abspath(output)
+
+
+def cmd_report(args, reporter):
+    """Render findings documents and hal_viz artifacts into one static HTML page.
+
+    This subcommand needs no HAL and no netlist: its inputs are the JSON
+    documents written against the tools/hal_findings schema plus whatever files
+    they point at.  Graphviz is used only to draw a ``.dot`` that has no
+    rendered sibling, and its absence is a visible marker, not an error.
+    """
+    documents = load_documents(args.documents)
+    invalid = [document for document in documents if document.validation_errors]
+    for document in invalid:
+        reporter.warn(
+            "{} does not validate against the findings schema ({} problem(s)); the report "
+            "marks it as such".format(document.path, len(document.validation_errors))
+        )
+
+    options = ReportOptions(
+        report_path=_resolve_report_output(args.output),
+        title=args.title,
+        embed=not args.no_embed,
+        max_embed_bytes=args.max_embed_bytes,
+        max_items=args.max_items,
+        render_dot=args.render_dot,
+        copy_evidence=args.copy_evidence,
+        dot_binary=args.dot_binary,
+        engine=args.engine,
+        render_timeout=args.render_timeout,
+        reporter=reporter,
+    )
+    path, builder = write_report(documents, options, args.artifact)
+    reporter.info(
+        "wrote {} ({} finding(s) from {} document(s), {} diagram(s) embedded, "
+        "{} missing artifact(s))".format(
+            path,
+            sum(len(document.findings) for document in documents),
+            len(documents),
+            builder.embedded,
+            builder.missing_evidence,
+        )
+    )
+    _print_paths([path])
+    if args.strict and invalid:
+        sys.stderr.write(
+            "[hal_viz] error: {} document(s) failed findings-schema validation "
+            "(--strict)\n".format(len(invalid))
+        )
+        return 1
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # argument parsing
 # ---------------------------------------------------------------------------
@@ -460,9 +521,10 @@ def build_parser():
         description="Headless, batch visualization of HAL netlist analyses. "
         "Always writes a Graphviz .dot file and additionally renders it with "
         "the 'dot' binary when one is available.",
-        epilog="Requires a built HAL whose library directory is importable as "
-        "hal_py (see --hal-lib / $HAL_PY_PATH). Paths of produced files are "
-        "printed to stdout, one per line.",
+        epilog="Every command except 'report' requires a built HAL whose library "
+        "directory is importable as hal_py (see --hal-lib / $HAL_PY_PATH); "
+        "'report' only reads findings documents and files. Paths of produced "
+        "files are printed to stdout, one per line.",
     )
     parser.add_argument("--version", action="version", version="hal_viz " + __version__)
     subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
@@ -625,6 +687,106 @@ def build_parser():
     _add_common(clock_parser, "clock_tree")
     clock_parser.set_defaults(func=cmd_clock_tree)
 
+    # -- report --------------------------------------------------------------
+    report_parser = subparsers.add_parser(
+        "report",
+        help="static HTML report from findings documents and hal_viz artifacts",
+        description="Turn one or more hal_findings JSON documents (see "
+        "tools/hal_findings) plus the artifacts they reference into a single "
+        "self-contained HTML page: status badges, assumptions, bounds, "
+        "truncation and coverage markers, relative evidence links and inlined "
+        "SVG diagrams. Needs neither HAL nor a netlist; the page opens offline.",
+    )
+    report_parser.add_argument(
+        "documents", nargs="+", metavar="DOCUMENT", help="findings JSON documents"
+    )
+    report_parser.add_argument(
+        "-o",
+        "--output",
+        default="findings_report.html",
+        metavar="PATH",
+        help="HTML file to write, or a directory when it ends with a separator "
+        "(default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "--title", default=None, metavar="TEXT", help="report title"
+    )
+    report_parser.add_argument(
+        "--artifact",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="an extra hal_viz output (.svg/.dot/.png) to attach to the report "
+        "even though no finding references it (repeatable)",
+    )
+    report_parser.add_argument(
+        "--no-embed",
+        action="store_true",
+        help="link diagrams instead of inlining them",
+    )
+    report_parser.add_argument(
+        "--max-embed-bytes",
+        type=int,
+        default=4 * 1024 * 1024,
+        metavar="N",
+        help="refuse to inline an SVG larger than this; it is linked with a "
+        "visible marker instead (default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "--max-items",
+        type=int,
+        default=25,
+        metavar="N",
+        help="how many gates/nets/assumptions/witness rows to list per finding "
+        "before an explicit truncation marker (default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "--render-dot",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="auto: render a .dot only when it has no .svg sibling; always: "
+        "always re-render; never: link the .dot untouched (default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "--copy-evidence",
+        action="store_true",
+        help="copy referenced files next to the report so the whole directory "
+        "can be moved or archived",
+    )
+    report_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit non-zero when a document fails findings-schema validation "
+        "(the report is still written, with the failure marked)",
+    )
+    report_parser.add_argument(
+        "--engine",
+        choices=LAYOUT_ENGINES,
+        default="dot",
+        help="Graphviz layout engine used for .dot evidence (default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "--dot-binary",
+        metavar="PATH",
+        help="path to the Graphviz 'dot' executable (default: $HAL_VIZ_DOT or PATH)",
+    )
+    report_parser.add_argument(
+        "--render-timeout",
+        type=int,
+        default=600,
+        metavar="SECONDS",
+        help="abort a Graphviz render after this long (default: %(default)s)",
+    )
+    report_parser.add_argument(
+        "-q", "--quiet", action="store_true", help="suppress progress messages"
+    )
+    report_parser.add_argument(
+        "--traceback",
+        action="store_true",
+        help="show the full Python traceback on error",
+    )
+    report_parser.set_defaults(func=cmd_report)
+
     return parser
 
 
@@ -639,7 +801,7 @@ def main(argv=None):
     reporter = _Reporter(quiet=args.quiet)
     try:
         return args.func(args, reporter)
-    except (HalUnavailable, NetlistLoadError, ScopeTooLarge, RenderError) as exc:
+    except (HalUnavailable, NetlistLoadError, ScopeTooLarge, RenderError, ReportError) as exc:
         if args.traceback:
             raise
         sys.stderr.write("[hal_viz] error: {}\n".format(exc))

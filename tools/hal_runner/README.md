@@ -204,6 +204,12 @@ reproduced removed (timestamps, durations, absolute paths, the machine's Python
 build), so two runs of the same configuration against the same HAL share a
 digest and CI can diff runs instead of eyeballing them.
 
+To read a finished run rather than diff it, hand its findings documents to
+`python tools/hal_viz report out/**/findings.json -o out/report.html`: one
+static HTML page with the status of every finding, its assumptions and bounds,
+and links to the artifacts the run produced. It needs no HAL and opens offline
+(see `tools/hal_viz/README.md`).
+
 ## Layout
 
 ```

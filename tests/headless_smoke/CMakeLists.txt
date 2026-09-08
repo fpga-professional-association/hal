@@ -1,8 +1,11 @@
-# The hal_viz graph builders are exercised with stub objects, so this suite needs neither a built
-# HAL nor Graphviz nor a netlist -- only a Python interpreter. Registering it here is what puts it in
-# front of anyone who runs ctest, instead of it only ever being run by hand.
+# The hal_viz graph builders are exercised with stub objects and the report generator with synthetic
+# findings documents, so this suite needs neither a built HAL nor Graphviz nor a netlist -- only a
+# Python interpreter. Registering it here is what puts it in front of anyone who runs ctest, instead
+# of it only ever being run by hand. Discovery (rather than naming test_hal_viz.py) is what makes a
+# newly added test file run without touching this file again.
 add_test(NAME runTest-hal_viz_standalone
-         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/hal_viz/test_hal_viz.py
+         COMMAND ${Python3_EXECUTABLE} -m unittest discover
+                 -s ${CMAKE_SOURCE_DIR}/tools/hal_viz -t ${CMAKE_SOURCE_DIR}/tools -p "test_*.py"
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Same story for hal_runner: the orchestrator talks to HAL through exactly one method

@@ -11,6 +11,9 @@ built HAL can be imported (and unit tested) with a plain Python interpreter:
     objects instead of real ``hal_py`` ones.
 ``hal_viz.render``
     Locates and drives the Graphviz ``dot`` binary, writes an HTML index.
+``hal_viz.report``
+    Turns ``hal_findings`` documents plus the artifacts they reference into one
+    static, self-contained HTML page.  Reads files, never a netlist.
 ``hal_viz.halenv``
     The only module that actually imports ``hal_py``.
 ``hal_viz.cli``

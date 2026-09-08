@@ -19,6 +19,10 @@ This script closes that gap. It needs a *built* HAL and it asserts results, not 
      analysis; the two results must be identical
   5. drive ``tools/hal_viz`` as a subprocess against the *reloaded* project and check the emitted
      Graphviz output: a scoped 7-gate neighbourhood and the module tree, by exact node ids
+  6. write a schema-valid ``tools/hal_findings`` document about that same neighbourhood, render it
+     with ``hal_viz report`` and check the resulting HTML: the finding is linked to the scoped
+     diagram (every gate of the scope appears in the embedded SVG), to a witness artifact, and the
+     heuristic/unsupported markers and escaping survive
 
 Nothing here is skipped when something is missing. A missing ``hal_py``, a missing plugin or a
 missing binding is a failure with an actionable message, because a smoke test that quietly turns
@@ -53,6 +57,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 EXAMPLE_ARCHIVE = REPO_ROOT / "examples" / "uart.zip"
 EXAMPLE_DIR_NAME = "uart"
 HAL_VIZ = REPO_ROOT / "tools" / "hal_viz"
+
+# tools/hal_findings and tools/hal_viz are plain packages; the report step below builds a findings
+# document with the former and renders it with the latter.
+if str(REPO_ROOT / "tools") not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
 
 # ---------------------------------------------------------------------------
 # Everything below was read out of examples/uart.zip (uart/uart.hal, serialization format 14) and is
@@ -581,6 +590,211 @@ def check_svg(project_dir, out_dir, hal_libs, require_graphviz, report):
 
 
 # ---------------------------------------------------------------------------
+# hal_viz report (findings + evidence)
+# ---------------------------------------------------------------------------
+
+
+def build_findings_document(netlist, scope_gates, svg_name, witness_name, netlist_file):
+    """A schema-valid findings document about the scope the diagram was drawn for.
+
+    The document is deliberately built with the shipped ``hal_findings`` builders and validated
+    before it is handed to the report, so a report that renders it is a report rendering the real
+    contract, not a hand-rolled look-alike.
+    """
+    from hal_findings import model, serialize
+
+    artifact = model.artifact(
+        "uart",
+        kind="hal_project",
+        path=str(netlist_file),
+        sha256=serialize.sha256_file(str(netlist_file)),
+        design_name=netlist.get_design_name(),
+        gate_count=len(netlist.get_gates()),
+        net_count=len(netlist.get_nets()),
+    )
+    gate_refs = [
+        model.gate_ref("uart", gate.get_id(), gate.get_name(), gate.get_type().get_name())
+        for gate in scope_gates
+    ]
+    method = model.method(
+        "neighbourhood inspection",
+        "structural",
+        False,
+        description="depth-1 fan-in/fan-out cone of one gate; structural evidence only",
+    )
+    evidence = [
+        model.evidence(
+            "file",
+            description="scoped gate-level diagram rendered by hal_viz netlist_graph",
+            path=svg_name,
+            media_type="image/svg+xml",
+        ),
+        model.evidence(
+            "trace",
+            description="witness values for the counter bits in this cone",
+            path=witness_name,
+        ),
+    ]
+    findings = [
+        model.finding(
+            "smoke/scoped-cone/0001",
+            "Counter cone around {}".format(SCOPE_SEED_GATE),
+            model.STATUS_HEURISTIC,
+            method,
+            model.scope(["uart"], description="depth-1 cone", gates=gate_refs),
+            summary="The gates in this cone form the receiver clock counter. Structural evidence "
+            "only: this is not a proof that they do.",
+            confidence=0.7,
+            evidence_list=evidence,
+            tags=["smoke"],
+        ),
+        model.finding(
+            "smoke/coverage/0001",
+            "Gate types this inspection does not model",
+            model.STATUS_UNSUPPORTED,
+            method,
+            model.scope(["uart"]),
+            summary="Absence of a finding for these gate types is not evidence about them.",
+            unsupported_dict=model.unsupported(
+                "primitive",
+                "the neighbourhood inspection does not model constant drivers",
+                [
+                    model.unsupported_primitive(
+                        "GND", "constant driver, carries no data"
+                    ),
+                    model.unsupported_primitive(
+                        "VCC", "constant driver, carries no data"
+                    ),
+                ],
+            ),
+        ),
+    ]
+    return model.document(
+        {"name": "real_netlist_smoke", "version": "1.0.0"},
+        [artifact],
+        {
+            "plugin": {"name": "hal_viz", "version": "1.0.0"},
+            "entry_point": "hal_viz.extract.collect_neighborhood",
+        },
+        findings,
+    )
+
+
+def check_findings_report(netlist, out_dir, svg_rendered, report):
+    report.step("rendering a findings report with hal_viz report")
+
+    from hal_findings import serialize, validate as findings_validate
+    from hal_viz import extract
+
+    seed = None
+    for gate in netlist.get_gates():
+        if gate.get_name() == SCOPE_SEED_GATE:
+            seed = gate
+            break
+    require(
+        seed is not None,
+        "the seed gate {} is not in the netlist; the example changed".format(SCOPE_SEED_GATE),
+    )
+    scope_gates = extract.collect_neighborhood([seed], 1, "both", 64)
+    scope_ids = {"g{}".format(gate.get_id()) for gate in scope_gates}
+    require(
+        scope_ids == EXPECTED_SCOPE_NODES,
+        "the report scope is {}, but the diagram was drawn for {}".format(
+            sorted(scope_ids), sorted(EXPECTED_SCOPE_NODES)
+        ),
+    )
+
+    # The SVG the report embeds is the one check_svg() already produced, so the picture in the
+    # report is the picture that was checked node by node above.
+    diagram = "scoped_svg.svg" if svg_rendered else "scoped.dot"
+    require(
+        (out_dir / diagram).is_file(),
+        "expected {} from the earlier hal_viz run".format(out_dir / diagram),
+    )
+
+    witness = out_dir / "witness.txt"
+    witness.write_text(
+        "# witness values recorded for the gates of the cone\n"
+        + "".join("{} = 1\n".format(gate.get_name()) for gate in scope_gates),
+        encoding="utf-8",
+    )
+
+    netlist_file = None
+    for candidate in sorted(Path(out_dir).parent.glob("**/uart.hal")):
+        netlist_file = candidate
+        break
+    require(netlist_file is not None, "could not find the unpacked uart.hal to hash")
+
+    document = build_findings_document(netlist, scope_gates, diagram, witness.name, netlist_file)
+    errors = findings_validate.collect_errors(document)
+    require(not errors, "the smoke findings document does not validate: {}".format(errors))
+    document_path = out_dir / "findings.json"
+    serialize.write_document(document, str(document_path))
+    report.ok("wrote a valid findings document with {} gate(s) in scope".format(len(scope_gates)))
+
+    html_path = out_dir / "report.html"
+    # No --hal-lib: 'report' reads JSON and files, it never imports hal_py.
+    run_hal_viz(
+        ["report", str(document_path), "-o", str(html_path), "--max-items", "5"],
+        [],
+        report,
+    )
+    require(html_path.is_file(), "hal_viz report did not write {}".format(html_path))
+    page = html_path.read_text(encoding="utf-8")
+
+    require(
+        "HEURISTIC" in page and "UNSUPPORTED" in page,
+        "the report lost the status badges; a heuristic must never be presented as a proof",
+    )
+    require(
+        "coverage gap" in page and "constant driver" in page,
+        "the report dropped the unsupported-primitive markers",
+    )
+    require(
+        'href="{}"'.format(witness.name) in page,
+        "the report does not link the witness artifact {}".format(witness.name),
+    )
+    require(SCOPE_SEED_GATE in page, "the report does not name the gate the finding is about")
+
+    if svg_rendered:
+        require("<svg" in page, "the scoped diagram was not embedded in the report")
+        for node in sorted(EXPECTED_SCOPE_NODES):
+            require(
+                ">{}<".format(node) in page,
+                "the embedded diagram has no node {}; the report is not showing the scope the "
+                "finding is about".format(node),
+            )
+        # Every gate of the finding is outlined in the picture, which is what makes the diagram
+        # demonstrably the scoped view of *this* finding rather than an unrelated graph.
+        outlined = page.count('class="hal-viz-scope')
+        require(
+            outlined == len(scope_ids),
+            "the report outlined {} of the {} gates in scope".format(outlined, len(scope_ids)),
+        )
+        require(
+            "{} node(s) of the finding scope are outlined".format(len(scope_ids)) in page,
+            "the report does not state how much of the scope the diagram covers",
+        )
+        report.ok(
+            "the report embeds the scoped diagram with all {} gates outlined".format(
+                len(scope_ids)
+            )
+        )
+    else:
+        report.note("Graphviz is missing, so the .dot was linked instead of drawn")
+
+    # Opening the report must not reach the network: the only http:// left is the SVG namespace.
+    without_namespaces = re.sub(r'xmlns(:\w+)?="[^"]*"', "", page)
+    for pattern in ("http://", "https://", "<script"):
+        require(
+            pattern not in without_namespaces,
+            "the report contains {!r}; it must open offline with no external "
+            "request".format(pattern),
+        )
+    report.ok("{}: {} bytes, offline, findings linked to evidence".format(html_path.name, len(page)))
+
+
+# ---------------------------------------------------------------------------
 # driver
 # ---------------------------------------------------------------------------
 
@@ -627,7 +841,8 @@ def run(args, report):
     saved_project = work_dir / "roundtrip_project"
     check_scoped_graph(saved_project, out_dir, hal_libs, report)
     check_module_tree(example_dir, out_dir, hal_libs, report)
-    check_svg(saved_project, out_dir, hal_libs, args.require_graphviz, report)
+    svg_rendered = check_svg(saved_project, out_dir, hal_libs, args.require_graphviz, report)
+    check_findings_report(reloaded, out_dir, svg_rendered, report)
 
 
 def main(argv=None):

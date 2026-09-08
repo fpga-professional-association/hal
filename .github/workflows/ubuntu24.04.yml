@@ -119,7 +119,10 @@ jobs:
       # ctest covers the C++ suites and the standalone hal_viz tests, but none of those load a real
       # netlist. This does: it unpacks examples/uart.zip, loads it through hal_py, runs the
       # graph_algorithm plugin, round-trips the project through ProjectManager and renders scoped
-      # Graphviz output with tools/hal_viz, asserting the results rather than the exit status.
+      # Graphviz output with tools/hal_viz, asserting the results rather than the exit status. It
+      # then writes a findings document about that same seven-gate cone and renders it with
+      # `hal_viz report`, checking that the finding, the embedded diagram and the witness link agree
+      # on the scope and that the page opens offline.
       # Everything runs headlessly; there is no display server on the runner. Graphviz comes from
       # install_dependencies.sh, so --require-graphviz makes the SVG check mandatory here.
       - name: Real-netlist headless smoke test

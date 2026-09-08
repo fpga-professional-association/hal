@@ -220,6 +220,21 @@ plus `--depth`) — a full netlist is rarely renderable, and `--max-gates`
 `dataflow_analysis`/`clock_tree_extractor` plugins and reuse their own DOT
 exporters rather than re-deriving the graph.
 
+To hand a *result* to a human rather than a picture, render the findings
+documents an analysis wrote (the `tools/hal_findings` schema) into one static
+HTML page. This subcommand needs neither HAL nor a netlist, and the page opens
+offline:
+
+```bash
+python tools/hal_viz report results/*.json --artifact out/top.svg -o out/report.html
+```
+
+It lists every finding with its status badge (proven / bounded / heuristic /
+unknown / timeout / error / unsupported stay visually distinct), its
+assumptions and bounds, relative links to evidence and witnesses, and inlines
+the scoped SVG a finding points at. Truncated lists, coverage gaps and missing
+artifacts are marked, never dropped.
+
 From inside `hal --python-script`, import `hal_viz.cli.main` instead of
 shelling out (remember `sys.argv[0]` isn't set the normal way — pass the
 argument list explicitly):

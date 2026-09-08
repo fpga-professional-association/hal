@@ -89,7 +89,10 @@ library and other useful tutorials, take a look at the [wiki](https://github.com
 To *look* at a netlist without a GUI, use the batch visualization tool in [`tools/hal_viz`](tools/hal_viz/README.md):
 `python tools/hal_viz module_tree <path/to/unzipped/project> -o out/` renders the module hierarchy (and its
 `netlist_graph`, `dataflow` and `clock_tree` subcommands render scoped gate-level graphs, DANA register groups and
-clock trees) to Graphviz `.dot` plus SVG/PNG files you can open in any viewer.
+clock trees) to Graphviz `.dot` plus SVG/PNG files you can open in any viewer. To hand *results* rather than pictures
+to a human, `python tools/hal_viz report <findings>.json -o out/report.html` turns the findings documents an analysis
+wrote into one static HTML page — status badges that keep a heuristic apart from a proof, assumptions, bounds, the
+scoped diagram with the finding's gates outlined, and download links for witnesses. It needs no HAL and opens offline.
 
 To write an analysis of your own, start with
 [`documentation/plugin_development.md`](documentation/plugin_development.md) — it says when a Python script over
