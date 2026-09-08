@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "decoder_base.v (build A) vs decoder_changed.v (build B): the address decode for SEL2/SEL3 was swapped. Same boundary, same register names.",
+  "netlist_a": {"label": "base", "path": "decoder_base.v"},
+  "netlist_b": {"label": "changed", "path": "decoder_changed.v"},
+  "top_inputs": {
+    "A0": "A0",
+    "A1": "A1",
+    "EN": "EN",
+    "CLK": "CLK",
+    "RST": "RST"
+  },
+  "top_outputs": {
+    "SEL0": "SEL0",
+    "SEL1": "SEL1",
+    "SEL2": "SEL2",
+    "SEL3": "SEL3",
+    "HIT": "HIT"
+  },
+  "sequential_gates": {
+    "sel_reg_0": "sel_reg_0",
+    "sel_reg_1": "sel_reg_1",
+    "sel_reg_2": "sel_reg_2",
+    "sel_reg_3": "sel_reg_3"
+  },
+  "notes": [
+    "Expected outcome: sel_reg_2.D and sel_reg_3.D are refuted with a witness; every other observation point is proven equivalent.",
+    "HIT is expected to be proven equivalent -- swapping two decode terms does not change the OR of all four, which is exactly why a top-level-output-only check would miss this regression."
+  ]
+}

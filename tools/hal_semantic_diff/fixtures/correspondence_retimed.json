@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "decoder_base.v vs decoder_retimed.v: the enable gating moved across the registers. The register names are unchanged, so the mapping is the identity -- and the model still does not cover this transformation.",
+  "netlist_a": {"label": "base", "path": "decoder_base.v"},
+  "netlist_b": {"label": "retimed", "path": "decoder_retimed.v"},
+  "top_inputs": {
+    "A0": "A0",
+    "A1": "A1",
+    "EN": "EN",
+    "CLK": "CLK",
+    "RST": "RST"
+  },
+  "top_outputs": {
+    "SEL0": "SEL0",
+    "SEL1": "SEL1",
+    "SEL2": "SEL2",
+    "SEL3": "SEL3",
+    "HIT": "HIT"
+  },
+  "sequential_gates": {
+    "sel_reg_0": "sel_reg_0",
+    "sel_reg_1": "sel_reg_1",
+    "sel_reg_2": "sel_reg_2",
+    "sel_reg_3": "sel_reg_3"
+  },
+  "notes": [
+    "Expected outcome: nine refuted observation points (four register inputs, four SEL output pins, HIT).",
+    "Retiming is explicitly out of scope for the MVP. The matched-state assumption is what it violates, and that assumption is attached to every finding, so the result reads as 'this transformation is outside the model', not as 'the retimed build is broken'."
+  ]
+}

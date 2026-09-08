@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "decoder_base.v vs decoder_renamed.v with the identity correspondence: sel_reg_3 was renamed to status_reg_3 and this mapping does not say so.",
+  "netlist_a": {"label": "base", "path": "decoder_base.v"},
+  "netlist_b": {"label": "renamed", "path": "decoder_renamed.v"},
+  "top_inputs": {
+    "A0": "A0",
+    "A1": "A1",
+    "EN": "EN",
+    "CLK": "CLK",
+    "RST": "RST"
+  },
+  "top_outputs": {
+    "SEL0": "SEL0",
+    "SEL1": "SEL1",
+    "SEL2": "SEL2",
+    "SEL3": "SEL3",
+    "HIT": "HIT"
+  },
+  "sequential_gates": {
+    "sel_reg_0": "sel_reg_0",
+    "sel_reg_1": "sel_reg_1",
+    "sel_reg_2": "sel_reg_2",
+    "sel_reg_3": "sel_reg_3"
+  },
+  "notes": [
+    "Expected outcome: two unsupported correspondence-gap findings (sel_reg_3 only in A, status_reg_3 only in B) and an 'unknown' summary.",
+    "A missing correspondence must never be reported as equivalence. It is also not, by itself, evidence of a behavioural change -- which is why the gap findings are 'unsupported' and not 'counterexample'."
+  ]
+}

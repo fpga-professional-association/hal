@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "decoder_base.v (build A) vs decoder_rewrite.v (build B): an equivalent combinational rewrite -- De Morgan'd decode, MUX-based enable gating, OR2 tree instead of OR4. Every register keeps its name.",
+  "netlist_a": {"label": "base", "path": "decoder_base.v"},
+  "netlist_b": {"label": "rewrite", "path": "decoder_rewrite.v"},
+  "top_inputs": {
+    "A0": "A0",
+    "A1": "A1",
+    "EN": "EN",
+    "CLK": "CLK",
+    "RST": "RST"
+  },
+  "top_outputs": {
+    "SEL0": "SEL0",
+    "SEL1": "SEL1",
+    "SEL2": "SEL2",
+    "SEL3": "SEL3",
+    "HIT": "HIT"
+  },
+  "sequential_gates": {
+    "sel_reg_0": "sel_reg_0",
+    "sel_reg_1": "sel_reg_1",
+    "sel_reg_2": "sel_reg_2",
+    "sel_reg_3": "sel_reg_3"
+  },
+  "notes": [
+    "The mapping is the identity, written out rather than inferred, so the run records exactly which registers it claimed to cover.",
+    "Because it is the identity, the z3_utils.compare_nets cross-check applies and is expected to agree at every point."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "decoder_base.v vs decoder_renamed.v with the rename declared: sel_reg_3 corresponds to status_reg_3.",
+  "netlist_a": {"label": "base", "path": "decoder_base.v"},
+  "netlist_b": {"label": "renamed", "path": "decoder_renamed.v"},
+  "top_inputs": {
+    "A0": "A0",
+    "A1": "A1",
+    "EN": "EN",
+    "CLK": "CLK",
+    "RST": "RST"
+  },
+  "top_outputs": {
+    "SEL0": "SEL0",
+    "SEL1": "SEL1",
+    "SEL2": "SEL2",
+    "SEL3": "SEL3",
+    "HIT": "HIT"
+  },
+  "sequential_gates": {
+    "sel_reg_0": "sel_reg_0",
+    "sel_reg_1": "sel_reg_1",
+    "sel_reg_2": "sel_reg_2",
+    "sel_reg_3": "status_reg_3"
+  },
+  "notes": [
+    "Expected outcome: every observation point proven equivalent. The boundary variable sel_reg_3_Q of build A is rewritten to status_reg_3_Q before the comparison, which is what makes the two functions comparable.",
+    "The z3_utils cross-check is skipped for this run: compare_nets matches sequential gates by name and has no renaming interface -- its C++ source carries a TODO for exactly this -- so it would report a difference that is not one."
+  ]
+}

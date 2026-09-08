@@ -1,0 +1,156 @@
+{
+  "description": "Hand-crafted fixtures for hal_semantic_diff and the expected result of every comparison. These numbers are properties of the .v files and the example gate library, not of a particular HAL build: if one of them changes, either a fixture was edited or the analysis changed, and both are worth a red build.",
+  "gate_library": "plugins/gate_libraries/definitions/example_library.hgl",
+  "top_module": "addr_decoder",
+  "designs": {
+    "decoder_base.v": {
+      "role": "build A -- the reference",
+      "gate_count": 16,
+      "gate_types": {"VCC": 1, "INV": 2, "AND2": 8, "OR4": 1, "FFR": 4},
+      "sequential_gates": ["sel_reg_0", "sel_reg_1", "sel_reg_2", "sel_reg_3"],
+      "top_inputs": ["A0", "A1", "CLK", "EN", "RST"],
+      "top_outputs": ["HIT", "SEL0", "SEL1", "SEL2", "SEL3"],
+      "behaviour": {
+        "sel_reg_0.D": "EN & ~A1 & ~A0",
+        "sel_reg_1.D": "EN & ~A1 &  A0",
+        "sel_reg_2.D": "EN &  A1 & ~A0",
+        "sel_reg_3.D": "EN &  A1 &  A0",
+        "HIT": "EN"
+      }
+    },
+    "decoder_rewrite.v": {
+      "role": "build B -- equivalent rewrite (De Morgan, MUX gating, OR2 tree)",
+      "gate_count": 23,
+      "gate_types": {"VCC": 1, "GND": 1, "INV": 6, "OR2": 7, "MUX": 4, "FFR": 4},
+      "sequential_gates": ["sel_reg_0", "sel_reg_1", "sel_reg_2", "sel_reg_3"],
+      "behaviour": "identical to decoder_base.v"
+    },
+    "decoder_changed.v": {
+      "role": "build B' -- changed address decoder (SEL2/SEL3 swapped)",
+      "gate_count": 23,
+      "sequential_gates": ["sel_reg_0", "sel_reg_1", "sel_reg_2", "sel_reg_3"],
+      "behaviour": {
+        "sel_reg_2.D": "EN & A1 &  A0   (was EN & A1 & ~A0)",
+        "sel_reg_3.D": "EN & A1 & ~A0   (was EN & A1 &  A0)",
+        "HIT": "EN  (unchanged -- the OR of all four terms is the same set)"
+      }
+    },
+    "decoder_renamed.v": {
+      "role": "build B'' -- decoder_rewrite.v with sel_reg_3 renamed to status_reg_3",
+      "gate_count": 23,
+      "sequential_gates": ["sel_reg_0", "sel_reg_1", "sel_reg_2", "status_reg_3"],
+      "behaviour": "identical to decoder_base.v"
+    },
+    "decoder_retimed.v": {
+      "role": "build B''' -- the enable gating moved across the registers (a REJECTED input)",
+      "gate_count": 16,
+      "sequential_gates": ["sel_reg_0", "sel_reg_1", "sel_reg_2", "sel_reg_3"],
+      "behaviour": {
+        "sel_reg_N.D": "sN  (ungated)",
+        "SELN": "sel_reg_N.Q & EN",
+        "HIT": "EN & (q0 | q1 | q2 | q3)"
+      }
+    }
+  },
+  "observation_point_model": {
+    "top_outputs": 5,
+    "sequential_input_pins_per_FFR": ["C", "CE", "D", "R"],
+    "points_when_all_four_registers_match": 21,
+    "note": "5 top-module output pins plus 4 registers x 4 connected input pins. SEL0..SEL3 are register outputs, so their cones are a single free variable and the information is carried by the sel_reg_N.D points."
+  },
+  "cases": [
+    {
+      "name": "equivalent_rewrite",
+      "netlist_a": "decoder_base.v",
+      "netlist_b": "decoder_rewrite.v",
+      "correspondence": "correspondence_equivalent.json",
+      "expect": {
+        "observation_points": 21,
+        "correspondence_gaps": 0,
+        "counts": {"equivalent": 21, "different": 0, "unknown": 0, "timeout": 0, "error": 0, "unsupported": 0},
+        "different_points": [],
+        "summary_status": "proven_under_assumptions",
+        "exit_code_fail_on_difference": 0,
+        "exit_code_fail_on_inconclusive": 0,
+        "cross_check": "applies and must agree at every point"
+      }
+    },
+    {
+      "name": "changed_decoder",
+      "netlist_a": "decoder_base.v",
+      "netlist_b": "decoder_changed.v",
+      "correspondence": "correspondence_changed.json",
+      "expect": {
+        "observation_points": 21,
+        "correspondence_gaps": 0,
+        "counts": {"equivalent": 19, "different": 2, "unknown": 0, "timeout": 0, "error": 0, "unsupported": 0},
+        "different_points": ["sequential:sel_reg_2.D", "sequential:sel_reg_3.D"],
+        "equivalent_points_include": ["output:HIT", "output:SEL0", "output:SEL3", "sequential:sel_reg_0.D", "sequential:sel_reg_1.D"],
+        "summary_status": "counterexample",
+        "witness_available": true,
+        "witness_constraints": {"GLOBAL_IN_EN": "1", "GLOBAL_IN_A1": "1"},
+        "witness_note": "the difference function of both changed points is exactly GLOBAL_IN_EN & GLOBAL_IN_A1, so every counterexample must set both to 1; GLOBAL_IN_A0 is free.",
+        "replay_confirmed": true,
+        "exit_code_fail_on_difference": 3,
+        "exit_code_fail_on_inconclusive": 3
+      }
+    },
+    {
+      "name": "renamed_register_without_mapping",
+      "netlist_a": "decoder_base.v",
+      "netlist_b": "decoder_renamed.v",
+      "correspondence": "correspondence_renamed_gap.json",
+      "expect": {
+        "observation_points": 17,
+        "correspondence_gaps": 2,
+        "counts": {"equivalent": 16, "different": 0, "unknown": 0, "timeout": 0, "error": 0, "unsupported": 1},
+        "unsupported_points": ["output:SEL3"],
+        "summary_status": "unknown",
+        "exit_code_fail_on_difference": 0,
+        "exit_code_fail_on_inconclusive": 3,
+        "note": "a rename is neither equivalence nor a behavioural difference; SEL3 depends on unmapped state and is reported as unsupported, not as a counterexample."
+      }
+    },
+    {
+      "name": "renamed_register_with_mapping",
+      "netlist_a": "decoder_base.v",
+      "netlist_b": "decoder_renamed.v",
+      "correspondence": "correspondence_renamed_mapped.json",
+      "expect": {
+        "observation_points": 21,
+        "correspondence_gaps": 0,
+        "counts": {"equivalent": 21, "different": 0, "unknown": 0, "timeout": 0, "error": 0, "unsupported": 0},
+        "summary_status": "proven_under_assumptions",
+        "exit_code_fail_on_difference": 0,
+        "exit_code_fail_on_inconclusive": 0,
+        "cross_check": "skipped -- z3_utils has no renaming interface"
+      }
+    },
+    {
+      "name": "retiming_is_rejected",
+      "netlist_a": "decoder_base.v",
+      "netlist_b": "decoder_retimed.v",
+      "correspondence": "correspondence_retimed.json",
+      "expect": {
+        "observation_points": 21,
+        "correspondence_gaps": 0,
+        "counts": {"equivalent": 12, "different": 9, "unknown": 0, "timeout": 0, "error": 0, "unsupported": 0},
+        "different_points": [
+          "output:HIT",
+          "output:SEL0",
+          "output:SEL1",
+          "output:SEL2",
+          "output:SEL3",
+          "sequential:sel_reg_0.D",
+          "sequential:sel_reg_1.D",
+          "sequential:sel_reg_2.D",
+          "sequential:sel_reg_3.D"
+        ],
+        "summary_status": "counterexample",
+        "exit_code_fail_on_difference": 3,
+        "exit_code_fail_on_inconclusive": 3,
+        "note": "retiming is outside the matched-state model. The tool reports what it can see -- differing next-state and output functions -- and the matched-state-correspondence assumption on every finding is what stops that from being read as 'the retimed build is broken'."
+      }
+    }
+  ]
+}
