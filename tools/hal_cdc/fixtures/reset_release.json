@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "description": "declarations for fixtures/reset_release.v",
+  "clocks": [
+    {"name": "clk_a", "net": "clk_a", "period_ns": 10.0},
+    {"name": "clk_b", "net": "clk_b", "period_ns": 7.0}
+  ],
+  "resets": [
+    {
+      "name": "arst",
+      "net": "arst",
+      "active_low": false,
+      "description": "board-level asynchronous reset; asserted by the power-on controller, released without reference to any clock"
+    }
+  ],
+  "inputs": [
+    {"net": "din_a", "clock": "clk_a"},
+    {"net": "din_b", "clock": "clk_b"}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "description": "declarations for fixtures/direct_crossing.v",
+  "clocks": [
+    {"name": "clk_a", "net": "clk_a", "period_ns": 10.0},
+    {"name": "clk_b", "net": "clk_b", "period_ns": 7.0}
+  ],
+  "inputs": [
+    {"net": "din", "clock": "clk_a"}
+  ]
+}
