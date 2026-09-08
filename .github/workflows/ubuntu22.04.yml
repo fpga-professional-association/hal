@@ -70,7 +70,7 @@ jobs:
           export BUILD_TYPE=Debug
           cp $GITHUB_WORKSPACE/documentation/index.html doc/
           $GITHUB_WORKSPACE/tools/genversion.py $GITHUB_WORKSPACE
-          cmake -G Ninja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON -DPL_GUI=ON -DBUILD_DOCUMENTATION=ON -DPACKAGE_DEB=OFF -DCMAKE_INSTALL_PREFIX=/usr/
+          cmake -G Ninja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON -DBUILD_DOCUMENTATION=ON -DPACKAGE_DEB=OFF -DCMAKE_INSTALL_PREFIX=/usr/
         env:
           CCACHE_DIR: ${{runner.workspace}}/.ccache
           CCACHE_COMPRESS: true
@@ -109,8 +109,6 @@ jobs:
         #  ninja -v hal_coverage
         # bash <(curl -s https://codecov.io/bash) -f hal_coverage.info.cleaned || echo "Codecov did not collect coverage reports"
         env:
-          LDFLAGS: "-L/usr/local/opt/qt/lib -L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
-          CPPFLAGS: "-I/usr/local/opt/qt/include -I/usr/local/opt/llvm/include"
           HAL_BASE_PATH: ${{runner.workspace}}/hal/build
           CCACHE_DIR: ${{runner.workspace}}/.ccache
           CCACHE_COMPRESS: true

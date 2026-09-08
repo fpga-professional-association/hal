@@ -1,5 +1,6 @@
 brew "pkgconfig"
 brew "lcov"
+# TODO(#6): qt@5 is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
 brew "qt@5"
 brew "ccache"
 brew "llvm"

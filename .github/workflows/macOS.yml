@@ -90,9 +90,10 @@ jobs:
         run: |
           mkdir -p build
           cd build
+          # TODO(#6): qt@5 is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
           export LDFLAGS="-L$(brew --prefix qt@5)/lib -Wl,-rpath,$(brew --prefix llvm)/lib"
-          cmake -G Ninja .. -DQt5_DIR="$(brew --prefix qt@5)/lib/cmake" -DCMAKE_BUILD_TYPE=Debug -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DPL_GUI=ON
+          cmake -G Ninja .. -DQt5_DIR="$(brew --prefix qt@5)/lib/cmake" -DCMAKE_BUILD_TYPE=Debug -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON
         env:
           HAL_BASE_PATH: ${{runner.workspace}}/hal/build
           CCACHE_DIR: ${{runner.workspace}}/.ccache

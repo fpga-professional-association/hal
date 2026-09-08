@@ -23,4 +23,4 @@ RUN make ${MAKE_OPTIONS}
 
 VOLUME [ "/projects" ]
 
-CMD ["./bin/hal", "-g"]
+CMD ["./bin/hal", "--help"]
