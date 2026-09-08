@@ -173,7 +173,7 @@ setting a release gate wants.
 | option | why |
 | --- | --- |
 | `--structural-fast-path` | skip the solver where the two cones are literally the same circuit over the same variables; those findings then report a `structural` method, not a formal one |
-| `--no-timings` | drop wall-clock values so two runs on identical inputs produce byte-identical `findings.json` |
+| `--no-timings` | drop wall-clock values -- including the `generated_at` stamp and the recorded `producer.command` -- so two runs on identical inputs produce byte-identical `findings.json` |
 | `--diagrams {changed,all,none}` | how many cone diagrams to draw (default: only the points that are not proven equivalent) |
 | `--no-cross-check` | do not also ask `z3_utils.compare_nets` about each point |
 | `--solver-timeout` | per-point SMT timeout; a point that hits it becomes `timeout`, never equivalence |

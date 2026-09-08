@@ -620,7 +620,13 @@ def build_document(
     """Assemble the complete findings document for one comparison run.
 
     With ``record_timings=False`` every wall-clock measurement is dropped, so
-    two runs on identical inputs produce byte-identical documents.
+    two runs on identical inputs produce byte-identical documents.  That covers
+    the fields ``hal_findings`` itself calls volatile
+    (``serialize.VOLATILE_FIELDS``): the ``generated_at`` stamp and the
+    ``producer.command``, which records the output directory and so differs
+    between two runs that write to different places.  An explicit
+    ``generated_at`` is still honoured -- a caller that pins the stamp wants it
+    in the document.
     """
     artifacts = [
         common.netlist_artifact(
@@ -727,15 +733,18 @@ def build_document(
         analysis["configuration"]["plugin_versions"] = dict(plugin_versions)
 
     producer = {"name": "hal_semantic_diff", "version": __version__}
-    if producer_command:
+    if producer_command and record_timings:
         producer["command"] = [str(entry) for entry in producer_command]
+
+    if generated_at is None and record_timings:
+        generated_at = common.utc_now()
 
     document = model.document(
         producer,
         artifacts,
         analysis,
         findings,
-        generated_at=generated_at if generated_at is not None else common.utc_now(),
+        generated_at=generated_at,
         notes=[
             "gate and net IDs are scoped to the artifact they are declared under; the "
             "two builds have independent ID spaces",

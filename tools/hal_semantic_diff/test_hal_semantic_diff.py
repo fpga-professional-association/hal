@@ -28,7 +28,7 @@ from hal_findings import model as findings_model
 from hal_findings import serialize as findings_serialize
 from hal_findings import validate as findings_validate
 
-from hal_semantic_diff import compare, cones, correspondence, diagrams, findings, report
+from hal_semantic_diff import cli, compare, cones, correspondence, diagrams, findings, report
 
 
 # ---------------------------------------------------------------------------
@@ -962,6 +962,58 @@ class FindingsTest(unittest.TestCase):
         document = self._document(build_base(), build_changed())
         self.assertIn("wall_time_s", findings_serialize.dumps(document))
 
+    def _run_document(self, out_dir, timings):
+        """A document as the CLI builds one: real stamp, real command line."""
+        outcomes, problems, coverage, mapping, options = run_comparison(
+            build_base(), build_changed()
+        )
+        document = findings.build_document(
+            build_base(),
+            build_changed(),
+            outcomes,
+            problems,
+            coverage,
+            mapping,
+            options,
+            producer_command=["hal_semantic_diff", "compare", "a.v", "b.v", "-o", out_dir],
+            record_timings=timings,
+        )
+        findings_validate.validate_document(document)
+        return document
+
+    def test_without_timings_two_real_runs_are_byte_identical(self):
+        # The smoke test runs the same comparison twice into two output
+        # directories.  A wall-clock stamp or the recorded command line would
+        # make the two documents differ, which is exactly what --no-timings
+        # promises not to do; hal_findings calls both fields volatile.
+        first = self._run_document("out/repro1", timings=False)
+        second = self._run_document("out/repro2", timings=False)
+        self.assertEqual(findings_serialize.dumps(first), findings_serialize.dumps(second))
+        self.assertNotIn("generated_at", first)
+        self.assertNotIn("command", first["producer"])
+
+    def test_with_timings_the_stamp_and_the_command_are_recorded(self):
+        document = self._run_document("out/run", timings=True)
+        self.assertTrue(document["generated_at"])
+        self.assertIn("-o", document["producer"]["command"])
+
+    def test_an_explicit_stamp_survives_no_timings(self):
+        outcomes, problems, coverage, mapping, options = run_comparison(
+            build_base(), build_changed()
+        )
+        document = findings.build_document(
+            build_base(),
+            build_changed(),
+            outcomes,
+            problems,
+            coverage,
+            mapping,
+            options,
+            generated_at="2026-01-01T00:00:00Z",
+            record_timings=False,
+        )
+        self.assertEqual(document["generated_at"], "2026-01-01T00:00:00Z")
+
     def test_the_correspondence_file_is_pinned_as_an_artifact(self):
         path = os.path.join(FIXTURES, "correspondence_changed.json")
         outcomes, problems, coverage, mapping, options = run_comparison(
@@ -1055,6 +1107,30 @@ class ReportTest(unittest.TestCase):
         report.write_report(self._document(build_base(), build_changed()), path)
         with open(path, encoding="utf-8") as handle:
             self.assertIn("Findings", handle.read())
+
+
+class ParserTest(unittest.TestCase):
+    """``-q`` must work where the sibling tools take it: after the subcommand."""
+
+    def setUp(self):
+        self.parser = cli.build_parser()
+
+    def _compare(self, extra):
+        return self.parser.parse_args(["compare", "a.v", "b.v"] + list(extra))
+
+    def test_quiet_after_the_subcommand(self):
+        self.assertTrue(self._compare(["-q"]).quiet)
+        self.assertTrue(self._compare(["--quiet"]).quiet)
+
+    def test_quiet_before_the_subcommand_still_works(self):
+        args = self.parser.parse_args(["-q", "compare", "a.v", "b.v"])
+        self.assertTrue(args.quiet)
+
+    def test_quiet_defaults_to_false(self):
+        self.assertFalse(self._compare([]).quiet)
+
+    def test_report_takes_quiet_too(self):
+        self.assertTrue(self.parser.parse_args(["report", "f.json", "-q"]).quiet)
 
 
 class GroundTruthTest(unittest.TestCase):

@@ -587,6 +587,14 @@ def build_parser():
         "--hal-lib", action="append", default=[], metavar="DIR",
         help="directory containing hal_py (repeatable; $HAL_PY_PATH works too)",
     )
+    # The sibling tools (hal_apb_recover, hal_migration, hal_fsm) all take -q
+    # after the subcommand, so accept it in both positions here too.  The
+    # suppressed default keeps a global "-q" from being reset to False when the
+    # flag is not repeated after the subcommand.
+    compare_parser.add_argument(
+        "-q", "--quiet", action="store_true", default=argparse.SUPPRESS,
+        help="no progress on stderr",
+    )
     compare_parser.set_defaults(func=cmd_compare)
 
     report_parser = subparsers.add_parser(
@@ -600,6 +608,10 @@ def build_parser():
     report_parser.add_argument("findings", help="a findings JSON document")
     report_parser.add_argument("-o", "--output", metavar="FILE", help="output HTML path")
     report_parser.add_argument("--title", metavar="TEXT", help="report title")
+    report_parser.add_argument(
+        "-q", "--quiet", action="store_true", default=argparse.SUPPRESS,
+        help="no progress on stderr",
+    )
     report_parser.set_defaults(func=cmd_report)
 
     return parser
