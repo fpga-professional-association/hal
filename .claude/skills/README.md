@@ -26,3 +26,9 @@ Instructions go here.
 
 Skills placed here are auto-discovered by Claude Code for anyone working in
 this repository, so they are shared with the whole team via git.
+
+## Available skills
+
+- [`using-hal`](using-hal/SKILL.md) — how to drive headless HAL: building,
+  the `hal` CLI, the `hal_py` Python bindings, the surviving plugins, and how
+  to generate human-viewable visualizations with `tools/hal_viz`.
