@@ -121,7 +121,7 @@ namespace hal
         )");
 
         auto log_manager = py::class_<LogManager, RawPtrWrapper<LogManager>>(m, "LogManager", R"(
-            The log manager takes care of the log channels of HAL and the sinks (e.g., stdout, log file, GUI) that they write to.
+            The log manager takes care of the log channels of HAL and the sinks (e.g., stdout, log file) that they write to.
         )");
 
         log_manager.def(py::init([]() {

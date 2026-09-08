@@ -99,7 +99,7 @@ namespace hal
     } while (0);
 
     /**
-     * The log manager takes care of the log channels of HAL and the sinks (e.g., stdout, log file, GUI) that they write to.
+     * The log manager takes care of the log channels of HAL and the sinks (e.g., stdout, log file) that they write to.
      *
      * @ingroup utilities 
      */
@@ -107,7 +107,7 @@ namespace hal
     {
     public:
         /**
-         * A single sink that a log channel writes to, e.g., stdout, a log file, or the GUI.
+         * A single sink that a log channel writes to, e.g., stdout or a log file.
          */
         struct log_sink
         {
@@ -226,13 +226,6 @@ namespace hal
         void deactivate_all_channels();
 
         /**
-         * Get the GUI callback hook for displaying log messages inside the GUI.
-         *
-         * @returns The GUI callback hook for (level, channel, message).
-         */
-        CallbackHook<void(const spdlog::level::level_enum&, const std::string&, const std::string&)>& get_gui_callback();
-
-        /**
          * Get the program options for the logging system.
          *
          * @returns The program options.
@@ -279,13 +272,6 @@ namespace hal
          */
         static std::shared_ptr<log_sink> create_file_sink(const std::filesystem::path& file_name = "", const bool truncate = false);
 
-        /**
-         * Create a new logging sink which prints to the GUI.
-         *
-         * @returns The new sink.
-         */
-        static std::shared_ptr<log_sink> create_gui_sink();
-
     private:
         static std::map<std::string, std::shared_ptr<log_sink>> m_file_sinks;
 
@@ -309,8 +295,6 @@ namespace hal
 
         std::map<std::string, std::vector<std::shared_ptr<log_sink>>> m_logger_sinks;
 
-        CallbackHook<void(const spdlog::level::level_enum&, const std::string&, const std::string&)> m_gui_callback;
-
         ProgramOptions m_descriptions;
 
         std::string m_enforce_level;
@@ -318,22 +302,5 @@ namespace hal
         std::vector<std::shared_ptr<hal::LogManager::log_sink>> m_default_sinks;
 
         static LogManager* m_instance;
-    };
-
-    /**
-     * A log sink that forwards every log message to the GUI so that it can be displayed in the log widget.
-     */
-    class log_gui_sink : public spdlog::sinks::base_sink<std::mutex>
-    {
-    public:
-        /** constructor (= default) */
-        log_gui_sink() = default;
-        /** destructor (= default) */
-        ~log_gui_sink() = default;
-
-    protected:
-        /** interface implementation: spdlog::sinks::base_sink */
-        void sink_it_(const spdlog::details::log_msg& msg) override;
-        void flush_() override;
     };
 }    // namespace hal

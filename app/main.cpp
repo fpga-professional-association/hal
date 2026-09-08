@@ -80,7 +80,7 @@ int main(int argc, const char* argv[])
                                     "python_context", "event", nullptr};
 
     for (int i=0; info_channels[i]; i++)
-        lm->add_channel(info_channels[i], {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+        lm->add_channel(info_channels[i], {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
 
     if (args.is_option_set("--logfile"))
     {
@@ -102,22 +102,22 @@ int main(int argc, const char* argv[])
         lm->deactivate_all_channels();
     }
 
-    plugin_manager::load("hal_gui");
-    // We need to check at an early stage (before CLI options are parsed) whether GUI will take control over HAL.
+    // We need to check at an early stage (before CLI options are parsed) whether an already loaded UI plugin
+    // (i.e., an interactive frontend such as the Python shell) will take control over HAL.
     //    if yes :    User determines which plugins get loaded
     //    if no  :    Need to load all plugins to have full range of CLI options available
-    bool guictrl = false;
+    bool uictrl = false;
     auto ui_plugin_flags = plugin_manager::get_ui_plugin_flags();
     for (int i=1; i<argc; i++)
     {
         std::string option(argv[i]);
         auto it = ui_plugin_flags.find(option);
         if (it != ui_plugin_flags.end()) {
-            guictrl = true;
+            uictrl = true;
             break;
         }
     }
-    if (!guictrl && !plugin_manager::load_all_plugins())
+    if (!uictrl && !plugin_manager::load_all_plugins())
     {
         // error loading all plugins
         return cleanup(ERROR);

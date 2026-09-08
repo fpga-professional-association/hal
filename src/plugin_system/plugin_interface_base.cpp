@@ -56,7 +56,7 @@ namespace hal
 
     void BasePluginInterface::initialize_logging()
     {
-        LogManager::get_instance()->add_channel(get_name(), {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+        LogManager::get_instance()->add_channel(get_name(), {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
     }
 
 }    // namespace hal

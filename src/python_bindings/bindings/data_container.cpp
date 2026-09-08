@@ -20,7 +20,7 @@ namespace hal
             :param str key: The data key.
             :param str data_type: The data type.
             :param str value: The data value.
-            :param bool log_with_info_level: Force explicit logging channel 'netlist' with log level 'info' to trace GUI events.
+            :param bool log_with_info_level: Force explicit logging channel 'netlist' with log level 'info' to trace data changes.
             :returns: ``True`` on success, ``False`` otherwise.
             :rtype: bool
         )");
@@ -48,7 +48,7 @@ namespace hal
 
             :param str category: The data category.
             :param str key: The data key.
-            :param bool log_with_info_level: Force explicit logging channel 'netlist' with log level 'info' to trace GUI events.
+            :param bool log_with_info_level: Force explicit logging channel 'netlist' with log level 'info' to trace data changes.
             :returns: ``True`` on success, ``False`` otherwise.
             :rtype: bool
         )");

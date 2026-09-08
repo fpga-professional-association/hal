@@ -29,9 +29,7 @@ namespace hal
             {"off", spdlog::level::level_enum::off},
         };
 
-        auto gui_sink = LogManager::create_gui_sink();
-
-        spdlog::sinks_init_list stdout_init_list = {std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(), gui_sink->spdlog_sink};
+        spdlog::sinks_init_list stdout_init_list = {std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>()};
 
         m_logger = {
             // initialize null channel
@@ -47,7 +45,7 @@ namespace hal
         //set_format_pattern("[%c %z] [%n] [%l] %v");
         set_format_pattern("[%n] [%l] %v");
 
-        m_default_sinks = {gui_sink, LogManager::create_stdout_sink(), LogManager::create_file_sink(m_file_path)};
+        m_default_sinks = {LogManager::create_stdout_sink(), LogManager::create_file_sink(m_file_path)};
     }
 
     LogManager::~LogManager()
@@ -271,15 +269,6 @@ namespace hal
         return sink;
     }
 
-    std::shared_ptr<LogManager::log_sink> LogManager::create_gui_sink()
-    {
-        auto sink          = std::make_shared<log_sink>();
-        sink->spdlog_sink  = std::make_shared<log_gui_sink>();
-        sink->is_file_sink = false;
-        sink->sink_type    = "gui";
-        return sink;
-    }
-
     std::set<std::string> LogManager::get_available_log_levels() const
     {
         std::set<std::string> levels;
@@ -428,22 +417,4 @@ namespace hal
         }
     }
 
-    CallbackHook<void(const spdlog::level::level_enum&, const std::string&, const std::string&)>& LogManager::get_gui_callback()
-    {
-        return m_gui_callback;
-    }
-
-    /*
-     * log gui sink implementation
-     */
-    void log_gui_sink::sink_it_(const spdlog::details::log_msg& msg)
-    {
-        spdlog::memory_buf_t formatted;
-        formatter_->format(msg, formatted);
-        LogManager::get_instance()->get_gui_callback()(msg.level, std::string(msg.logger_name.data()), std::string(formatted.data(), formatted.size()));
-    }
-
-    void log_gui_sink::flush_()
-    {
-    }
 }    // namespace hal

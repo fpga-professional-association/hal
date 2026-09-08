@@ -785,7 +785,7 @@ int main(int argc, const char* argv[])
     std::cout << std::endl;
     // initialize logging
     LogManager* lm = LogManager::get_instance();
-    lm->add_channel("core", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+    lm->add_channel("core", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
     lm->deactivate_all_channels();
 
     // initialize and parse options

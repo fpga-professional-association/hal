@@ -127,7 +127,7 @@ namespace hal
         virtual void initialize_logging();
 
         /**
-         * Get GUI/CLI/FAC extension functionality if implemented by derived class
+         * Get CLI/FAC extension functionality if implemented by derived class
          * @return pointer to instance implementing extensions
          */
         virtual std::vector<AbstractExtensionInterface*> get_extensions() const;

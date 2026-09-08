@@ -136,7 +136,7 @@ namespace hal
         )");
 
         py_plugin_manager.def("add_model_changed_callback", &plugin_manager::add_model_changed_callback, py::arg("callback"), R"(
-            Add a callback to notify the GUI about loaded or unloaded plugins.
+            Add a callback to notify about loaded or unloaded plugins.
             The callback takes a bool that is ``True`` on load and ``False`` on unload, the plugin name, and the plugin path.
 
             :param callback: The callback function.

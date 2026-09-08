@@ -33,7 +33,7 @@ namespace hal
             // ########################
 
             //Add a channel "test_channel"
-            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
 
             EXPECT_EQ(m_lm->get_channels().size(), current_channel_count + 1);
             EXPECT_NE(m_lm->get_channel("test_channel"), m_lm->get_channel("null"));
@@ -50,10 +50,10 @@ namespace hal
             NO_COUT_TEST_BLOCK;
             //Add the same channel twice (should not append the channel)
             current_channel_count = m_lm->get_channels().size();
-            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
             EXPECT_EQ(m_lm->get_channels().size(), current_channel_count + 1);
             current_channel_count = m_lm->get_channels().size();
-            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
             EXPECT_EQ(m_lm->get_channels().size(), current_channel_count);
 
             //Get an non existing channel
@@ -82,7 +82,7 @@ namespace hal
     TEST_F(LogTest, check_channel_activation)
     {
         TEST_START
-            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
             EXPECT_EQ(m_lm->get_level_of_channel("test_channel"), "info");
 
             // ########################
@@ -127,7 +127,7 @@ namespace hal
             // ########################
 
             //Adds a channel of level "info"
-            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink(), LogManager::create_gui_sink()}, "info");
+            m_lm->add_channel("test_channel", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
             EXPECT_EQ(m_lm->get_level_of_channel("test_channel"), "info");
 
             //Set a channel-level

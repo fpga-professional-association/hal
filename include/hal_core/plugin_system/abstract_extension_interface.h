@@ -28,7 +28,7 @@
 namespace hal  {
     /**
      * The base class for all plugin extension interfaces.
-     * An extension adds a specific capability, e.g., a command line interface or a GUI contribution, to a plugin.
+     * An extension adds a specific capability, e.g., a command line interface or a file-access factory, to a plugin.
      */
     class AbstractExtensionInterface
     {

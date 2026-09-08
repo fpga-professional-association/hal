@@ -175,7 +175,7 @@ namespace hal
         }
 
         /**
-         * Add a callback to notify the GUI about loaded or unloaded plugins.
+         * Add a callback to notify about loaded or unloaded plugins.
          *
          * @param[in] callback - The callback function. Parameters are:
          * * bool - `true` = load, `false` = unload.

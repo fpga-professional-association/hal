@@ -27,7 +27,6 @@
 
 #include "hal_core/defines.h"
 #include "hal_core/plugin_system/plugin_interface_base.h"
-#include "hal_core/plugin_system/gui_extension_interface.h"
 #include "hal_core/netlist/project_serializer.h"
 #include <QDir>
 
@@ -60,35 +59,11 @@ namespace hal
     class NetlistSimulatorControllerPlugin;
 
     /**
-     * The GUI contribution of the simulation controller plugin.
-     */
-    class GuiExtensionSimulator : public GuiExtensionInterface
-    {
-        NetlistSimulatorControllerPlugin* mParent;
-    public:
-        GuiExtensionSimulator(NetlistSimulatorControllerPlugin* p) { mParent = p; }
-
-        /**
-         * Get list of configurable parameter
-         *
-         * @returns  list of parameter
-         */
-        std::vector<PluginParameter> get_parameter() const override;
-
-        /**
-         * Set configurable parameter to values
-         * @param params The parameter with values
-         */
-        void set_parameter(const std::vector<PluginParameter>& params) override;
-    };
-
-    /**
      * The plugin that provides the simulation controller and the registry of simulation engines.
      */
     class PLUGIN_API NetlistSimulatorControllerPlugin : public BasePluginInterface
     {
         static u32 sMaxControllerId;
-        GuiExtensionSimulator* mGuiExtensions = nullptr;
     public:
         /**
          * Get the name of the plugin.

@@ -40,7 +40,7 @@ namespace hal
      *
      * The user interface is looked up at runtime through `plugin_manager::get_ui_plugin`, so all of this does nothing
      * when running from a script or from the command line, and no plugin needs to depend on the user interface to use
-     * it. In particular, a plugin does not need to provide a `GuiExtensionInterface` just to report progress.
+     * it. In particular, a plugin does not need to provide any extension interface just to report progress.
      *
      * @ingroup plugins
      */

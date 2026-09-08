@@ -71,7 +71,7 @@ namespace hal
             // stores the CLI parser option for plugins [0=base_plugin] [1=UI_plugin]
             std::unordered_map<std::string, std::string> m_cli_option_to_plugin_name[2];
 
-            // stores the GUI callback
+            // stores the model changed callbacks
             CallbackHook<void(bool, std::string const&, std::string const&)> m_hook;
 
             // stores the generic option parser
