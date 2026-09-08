@@ -4,7 +4,8 @@
 
 HAL \[/hel/\] is a comprehensive netlist reverse engineering and manipulation framework.
 
-[![HAL Screenshot](https://raw.githubusercontent.com/emsec/hal/master/hal_screenshot.png "HAL Screenshot")](https://emsec.github.io/hal/hal_screenshot.html)
+## About this fork
+This is the [FPGA Professional Association](https://github.com/fpga-professional-association)'s headless fork of [emsec/hal](https://github.com/emsec/hal). The GUI plugin and every GUI-only plugin have been removed by design — this fork is meant to be driven entirely by scripts and AI agents, through the `hal` command-line binary, the `python_shell` plugin's interactive shell, and the `hal_py` Python bindings. Upstream HAL, including its GUI, continues to be developed at https://github.com/emsec/hal.
 
 # Navigation
 1. [Introduction](#introduction)
@@ -33,11 +34,6 @@ Note that we also have a set of **modern** state-of-the-art benchmark circuits f
 
 ## Shipped Plugins
 This repository contains a selection of curated plugins:
-- **GUI:** A feature-rich GUI allowing for visual netlist inspection and interactive analysis
-  - Native integration of a Python shell with access to the HAL Python bindings
-  - Isolation of specific gates or modules for clutter-free inspection
-  - Interactive traversal of netlists
-  - Detailed widgets with information on all aspects of the inspected netlist
 - **Netlist Simulator:** A simulator for arbitrary parts of a loaded netlist
 - **Dataflow Analysis:** Our dataflow analysis plugin [DANA](https://eprint.iacr.org/2020/751.pdf) that recovers high-level registers in an unstructured netlist
 - **Clock Tree Extractor:** A plugin to recover clock trees from an unstructured gate-level netlist
@@ -60,20 +56,30 @@ For instructions on how to build HAL, please refer to the dedicated page in our 
 <a name="quickstart"></a>
 # Quickstart Guide 
 
-Install HAL or build HAL and start the GUI via `hal -g`. You can list all available options via `hal [--help|-h]`.
-We included some example projects in `examples` subdirectory. To get startet with an example project you need to import
-it via `Import Project` from main menu or by dropping the zipped file in the `OPEN PROJECT` area of the Welcome Screen.
-Doing so a popup will request a directory with write permissions where HAL will create the project directory and uncompress
-the files. Do not use external tools for uncompress since adaptions are made so that netlist and gate library
-are found the next time the project gets opened. 
+Install HAL or build HAL. HAL is a headless command-line tool; run `hal [--help|-h]` to list all available options.
 
-In case you want to open your own Verlog or VHDL netlist you have to run `Import Netlist` instead. This will only work if
-there is a matching gate library in `plugins/gate_libraries/definitions` or you provide the gate library manually.
-For instructions to create your own gate library and other useful tutorials, take a look at the [wiki](https://github.com/emsec/hal/wiki).
+We included some example projects as zip files in the `examples` subdirectory. To get started with an example, unzip it
+to a directory of your own choosing. HAL will use that directory to find the netlist and gate library the next time
+the project is opened, so do not rename or move the files inside it by hand.
+
+Start an interactive Python shell preloaded with the HAL Python bindings via `hal --python` (provided by the
+`python_shell` plugin), or run a script non-interactively via `hal --python-script my_script.py` (use
+`--python-args "..."` to pass arguments through to the script). Either way, `hal_py` is already imported for you, so
+load the unzipped example project from inside the shell or script with:
+```python
+netlist = hal_py.NetlistFactory.load_hal_project("<path/to/unzipped/project>")
+```
+`hal_py` can also be imported directly by any Python interpreter that has HAL's library directory on `sys.path`,
+without going through `hal --python` at all.
+
+In case you want to import your own Verilog or VHDL netlist instead of an existing project, call
+`hal_py.NetlistFactory.load_netlist("<path/to/netlist>", "<path/to/gate_library>")` the same way, or run
+`hal --import-netlist <path/to/netlist> --gate-library <path/to/gate_library> --project-dir <path/to/new/project>`
+from the command line to create a project directory for it non-interactively. Either approach requires a matching
+gate library, e.g. one of the ones in `plugins/gate_libraries/definitions`. For instructions to create your own gate
+library and other useful tutorials, take a look at the [wiki](https://github.com/emsec/hal/wiki).
 
 The following example code refers to the `fsm` example.
-
-Use the integrated Python shell or the Python script window to interact. Both feature (limited) autocomplete functionality.
 
 Let's list all lookup tables and print their Boolean functions:
 ```python

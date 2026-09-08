@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
   sub-heading per plugin), GUI, and Build and dependencies. Add a new entry under the group it
   belongs to rather than at the top of the section, and create the group if it is not there yet.
 -->
+* Headless conversion (FPGA Professional Association fork)
+  * removed the `gui` plugin along with every GUI-only plugin and asset: `gui_extension_demo`, `dot_viewer` (including the vendored `QGVCore`), `simulator/waveform_viewer`, `logic_evaluator`, the vendored `quazip-1.3` dependency, `wiki_images/`, `documentation/tagfiles/`, the `hal_screenshot.*` files, `tools/pydecorator_gui.py`, and the `gui_*.py` example scripts under `bitorder_propagation`, `netlist_preprocessing`, and `sequential_symbolic_execution`
+  * removed the GUI hooks from `hal_core` and the `hal` binary: the hardcoded `plugin_manager::load("hal_gui")` call and the GUI log sink in `app/main.cpp`, `GuiExtensionInterface` and the now-orphaned `PluginParameter`, and `log_gui_sink`/`LogManager::create_gui_sink()`/`get_gui_callback()` from the core logging system, while keeping the generic UI-plugin redirect so that `python_shell` still takes control of HAL
+  * ported the `gexf_writer` plugin off Qt to headless C++17, replacing `QFile`/`QString`/`QColor`/`QXmlStreamWriter` with `std::ofstream`, `std::string`, and hand-written XML emission, and its module coloring with a deterministic palette keyed by module ID
+  * stripped GUI/Qt from CI, packaging, and dependency manifests: removed `-DPL_GUI=ON`/`-DWITH_GUI=ON` from CI workflows and the PPA `debian/rules` generator, dropped the GUI-only Qt packages and `python3-jedi` from packaging and `install_dependencies.sh`, and removed the GUI-only `Doxyfile.in` entries
+  * this fork is now driven entirely by the `hal` CLI, the `python_shell` plugin, and `hal_py` scripts; see the README for headless usage
 * Core
   * fixed crash when passing a `nullptr` pin to `Net::remove_source` or `Net::remove_destination`, which is also reachable from Python
   * changed `Net` and `Gate` to identify a pin by pointer identity instead of by value when looking up an endpoint
