@@ -1,0 +1,108 @@
+{
+  "fixture_version": "1.0.0",
+  "design_name": "cone_fixture",
+  "netlist": "cone_fixture.v",
+  "gate_library": "plugins/gate_libraries/definitions/example_library.hgl",
+  "note": "Derived by hand from cone_fixture.v, not recorded from a run. The stub netlist in test_hal_analysis_api.py and the in-HAL check in tests/headless_smoke/analysis_api_smoke.py both assert against this file, so a change in either side has to be justified against the same numbers. Gate ids are assigned by HAL and are NOT part of the ground truth: everything here is by name.",
+  "gates": [
+    {"name": "clk_buf", "type": "BUF", "inputs": {"I": "CLK"}, "outputs": {"O": "clk_i"}},
+    {"name": "en_inv", "type": "INV", "inputs": {"I": "EN"}, "outputs": {"O": "en_n"}},
+    {"name": "ff0", "type": "FF", "inputs": {"C": "clk_i", "CE": "EN", "D": "d0"}, "outputs": {"Q": "q0"}},
+    {"name": "ff1", "type": "FF", "inputs": {"C": "clk_i", "CE": "EN", "D": "d1"}, "outputs": {"Q": "q1"}},
+    {"name": "and0", "type": "AND2", "inputs": {"I0": "q0", "I1": "en_n"}, "outputs": {"O": "d1"}},
+    {"name": "inv0", "type": "INV", "inputs": {"I": "q1"}, "outputs": {"O": "d0"}},
+    {"name": "out_buf", "type": "BUF", "inputs": {"I": "q1"}, "outputs": {"O": "OUT"}}
+  ],
+  "nets": [
+    {"name": "CLK", "global_input": true, "global_output": false},
+    {"name": "EN", "global_input": true, "global_output": false},
+    {"name": "OUT", "global_input": false, "global_output": true},
+    {"name": "clk_i", "global_input": false, "global_output": false},
+    {"name": "en_n", "global_input": false, "global_output": false},
+    {"name": "q0", "global_input": false, "global_output": false},
+    {"name": "q1", "global_input": false, "global_output": false},
+    {"name": "d0", "global_input": false, "global_output": false},
+    {"name": "d1", "global_input": false, "global_output": false}
+  ],
+  "expected": {
+    "counts": {"gates": 7, "nets": 9},
+    "gate_types": {"BUF": 2, "INV": 2, "FF": 2, "AND2": 1},
+    "global_inputs": 2,
+    "global_outputs": 1,
+    "gate_edges": [
+      ["clk_buf", "ff0", "clk_i"],
+      ["clk_buf", "ff1", "clk_i"],
+      ["en_inv", "and0", "en_n"],
+      ["ff0", "and0", "q0"],
+      ["and0", "ff1", "d1"],
+      ["ff1", "inv0", "q1"],
+      ["ff1", "out_buf", "q1"],
+      ["inv0", "ff0", "d0"]
+    ],
+    "cones": [
+      {
+        "id": "fan_in_out_buf_depth1",
+        "seeds": ["out_buf"],
+        "direction": "fan_in",
+        "depth": 1,
+        "max_gates": 200,
+        "gates": ["out_buf", "ff1"],
+        "truncated": true,
+        "truncation_kind": "depth"
+      },
+      {
+        "id": "fan_in_out_buf_depth2",
+        "seeds": ["out_buf"],
+        "direction": "fan_in",
+        "depth": 2,
+        "max_gates": 200,
+        "gates": ["out_buf", "ff1", "and0", "clk_buf"],
+        "truncated": true,
+        "truncation_kind": "depth"
+      },
+      {
+        "id": "fan_in_out_buf_depth4",
+        "seeds": ["out_buf"],
+        "direction": "fan_in",
+        "depth": 4,
+        "max_gates": 200,
+        "gates": ["out_buf", "ff1", "and0", "clk_buf", "ff0", "en_inv", "inv0"],
+        "truncated": false,
+        "truncation_kind": null
+      },
+      {
+        "id": "fan_out_ff0_depth3",
+        "seeds": ["ff0"],
+        "direction": "fan_out",
+        "depth": 3,
+        "max_gates": 200,
+        "gates": ["ff0", "and0", "ff1", "inv0", "out_buf"],
+        "truncated": false,
+        "truncation_kind": null,
+        "why": "clk_buf and en_inv only drive the cone, so a fan-out cone never reaches them"
+      },
+      {
+        "id": "both_and0_depth1",
+        "seeds": ["and0"],
+        "direction": "both",
+        "depth": 1,
+        "max_gates": 200,
+        "gates": ["and0", "ff0", "en_inv", "ff1"],
+        "truncated": true,
+        "truncation_kind": "depth"
+      },
+      {
+        "id": "fan_in_out_buf_budget3",
+        "seeds": ["out_buf"],
+        "direction": "fan_in",
+        "depth": 4,
+        "max_gates": 3,
+        "gate_count": 3,
+        "gates_contain": ["out_buf", "ff1"],
+        "truncated": true,
+        "truncation_kind": "gates",
+        "why": "the budget cuts the cone mid-hop; which third gate is kept is deterministic (lowest gate id first) but is a HAL id ordering, so only the count and the seeds are pinned"
+      }
+    ]
+  }
+}
