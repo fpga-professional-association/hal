@@ -223,3 +223,102 @@ sys.path.insert(0, "/path/to/hal/tools")
 from hal_viz.cli import main
 main(["module_tree", "/path/to/project", "-o", "/tmp/out/"])
 ```
+
+## Interactive waveform visualization (Saleae Logic 2)
+
+There is no HAL waveform viewer in this fork either. Pick by *what the human
+is doing*:
+
+| goal | use |
+| --- | --- |
+| interactively explore waveforms, drive a logic analyzer, decode a protocol live | **Saleae Logic 2 via the `logic2` MCP tools** |
+| a static artifact (image, report, diff) produced in batch | `tools/hal_viz`, `saleae` CLI, or a `.vcd` file |
+| look at *simulated* HAL waveforms | export **VCD** and open it in a VCD viewer (see below) — **not** Logic 2 |
+
+### Setup (user-facing)
+
+`.mcp.json` at the repo root already registers the server, so a Claude Code
+session started in this repo picks it up automatically. If the `logic2` tools
+are still missing, it is on the user's side:
+
+1. Launch Saleae Logic 2 and enable **Settings > Automation > MCP Server**
+   (or click **Automation** in the bottom bar). It listens on
+   `http://127.0.0.1:10530`.
+2. Outside this repo, register it manually:
+   `claude mcp add --transport http logic2 http://127.0.0.1:10530`
+
+Saleae documents the server as **experimental**, supporting Logic 8, Logic
+Pro 8 and Logic Pro 16 (docs: https://docs.saleae.com/mcp/guides/getting-started).
+Broadly it can start captures, run protocol decoders and export data — but
+**the tool surface is not documented and changes between releases. Inspect the
+live tool list at runtime and call only what is actually there; never invent a
+`logic2` tool name.** If the tools are absent, say so and fall back to VCD
+rather than guessing.
+
+### Data bridge: what actually works
+
+**Logic 2 → HAL (supported, this is the real path).** HAL's SALEAE support was
+written to ingest Logic 2's *binary export*. `SaleaeHeader::read()`
+(`plugins/simulator/netlist_simulator_controller/src/saleae_file.cpp`) accepts
+the `<SALEAE>` identifier with type `0` (digital, times as doubles in seconds);
+analog files (type `1`) are rejected as `UnsupportedType`. Workflow:
+
+1. In Logic 2, export raw data of the digital channels in **binary** format to
+   a directory. That writes one `digital_<n>.bin` per channel.
+2. Map HAL nets to those channel numbers and import:
+
+```python
+sim = hal_py.plugin_manager.get_plugin_instance("netlist_simulator_controller")
+ctrl = sim.create_simulator_controller("from_hardware")
+ctrl.add_gates(netlist.get_gates())
+# {net: channel index n from digital_<n>.bin}
+ctrl.import_saleae("/path/to/logic2_export_dir",
+                   {netlist.get_net_by_id(3): 0, netlist.get_net_by_id(7): 1},
+                   1000000000)   # timescale: multiplies the double seconds values
+ctrl.run_simulation()
+```
+
+`import_saleae` copies `<dirname>/digital_<their index>.bin` into the
+controller work directory and rebuilds `saleae.json`
+(`VcdSerializer::importSaleae`, `src/vcd_serializer.cpp`) — the source
+directory needs no `saleae.json` of its own. `import_simulation(dirname,
+filter)` is the sibling for a directory that *does* already carry HAL's
+`saleae.json`; `import_vcd` / `import_csv` take those formats and convert them
+to the same internal SALEAE store. All of them need the controller in an
+importable state (`can_import_data()`).
+
+**HAL → Logic 2: no supported path. Do not attempt it.** Two independent
+reasons, both checked:
+
+- Logic 2 only *opens* `.sal` captures. Saleae's own FAQ ("Is it possible to
+  import data into the Logic software?") says data cannot be imported —
+  no VCD, no CSV, no raw binary, and the MCP docs describe no load/import tool.
+- What HAL writes is not Saleae-format anyway. `SaleaeOutputFile` writes the
+  header with storage format `Uint64` (`0x206c6168`, `"hal "`) or `Coded`
+  (`0x786c6168`, `"halx"`) and 64-bit integer timestamps — HAL-private type
+  codes Saleae software does not know. Only the *read* path understands
+  genuine Saleae files.
+
+So there is no converter under `tools/` and none should be written. Keep
+Logic 2 for real-hardware capture and live exploration.
+
+### Viewing simulated waveforms instead
+
+Export VCD and open it in a VCD viewer (GTKWave, Surfer, Sigrok PulseView,
+VS Code WaveTrace — HAL ships none of them, so let the user pick):
+
+```python
+ctrl.generate_vcd("/tmp/sim.vcd", 0, 0)      # start_time, end_time; 0,0 = everything
+```
+
+Or from an existing SALEAE work directory, without Python — the `saleae` CLI
+built by `plugins/simulator/netlist_simulator_controller/saleae_cli`:
+
+```bash
+saleae ls -d <workdir>                    # list waveforms in saleae.json
+saleae cat digital_0.bin -d <workdir>     # dump one waveform's header + transitions
+saleae diff <other_workdir> -d <workdir>  # compare two waveform databases
+saleae export out.vcd -d <workdir>        # or out.csv; -i/--id and -r/--time-range filter
+```
+
+`saleae export` only accepts `.vcd` and `.csv` extensions.

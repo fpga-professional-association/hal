@@ -84,6 +84,11 @@ To *look* at a netlist without a GUI, use the batch visualization tool in [`tool
 `netlist_graph`, `dataflow` and `clock_tree` subcommands render scoped gate-level graphs, DANA register groups and
 clock trees) to Graphviz `.dot` plus SVG/PNG files you can open in any viewer.
 
+For *interactive* waveform work, HAL delegates to [Saleae Logic 2](https://docs.saleae.com/mcp/guides/getting-started):
+enable its MCP server (Settings > Automation > MCP Server) and the `logic2` entry in this repo's `.mcp.json` lets an
+agent drive real-hardware captures and protocol decodes; simulated waveforms are exported to VCD instead. See the
+[`using-hal` skill](.claude/skills/using-hal/SKILL.md) for the decision rule and the Logic 2 → HAL import path.
+
 The following example code refers to the `fsm` example.
 
 Let's list all lookup tables and print their Boolean functions:
