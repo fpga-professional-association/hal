@@ -3,8 +3,6 @@
 !hal_simulator/**/*
 !netlist_simulator_controller*
 !netlist_simulator_controller/**/*
-!waveform_viewer*
-!waveform_viewer/**/*
 !verilator*
 !verilator/**/*
 !.gitignore

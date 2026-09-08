@@ -51,9 +51,9 @@ if args.rebuild or args.rebuild_debug:
     os.system('rm -rf ' + path_to_hal_build + "/*")
     os.chdir(path_to_hal_build)
     if args.rebuild:
-        os.system("cmake ../ -GNinja -DPL_DATAFLOW=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_GUI=OFF")
+        os.system("cmake ../ -GNinja -DPL_DATAFLOW=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo")
     else:
-        os.system("cmake ../ -GNinja -DPL_DATAFLOW=ON -DCMAKE_BUILD_TYPE=Debug -DWITH_GUI=OFF")
+        os.system("cmake ../ -GNinja -DPL_DATAFLOW=ON -DCMAKE_BUILD_TYPE=Debug")
 
 expect(os.path.isdir(path_to_hal_build), "path to hal build '{}' does not exist".format(path_to_hal_build))
 
