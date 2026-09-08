@@ -78,6 +78,61 @@ def _clear_preset_state(behaviour):
     return None
 
 
+def _variable_names(boolean_function):
+    getter = getattr(boolean_function, "get_variable_names", None)
+    if getter is None:  # pragma: no cover - older bindings
+        return None
+    try:
+        return set(getter())
+    except Exception:  # pragma: no cover - defensive
+        return None
+
+
+def _pin_variable_function(gate, gate_type, pin, pin_names):
+    """Boolean function of ``pin`` expressed over *input pin name* variables.
+
+    ``Gate.get_resolved_boolean_function`` can return the function either over
+    pin names or over ``BooleanFunctionNetDecorator`` net variables, selected by
+    its ``use_net_variables`` flag -- and HAL's implementation of that flag has
+    historically been inverted with respect to its documentation.  The circuit
+    model feeds pin names, so instead of trusting the flag we ask for both forms
+    and keep the one that actually speaks pin names; ``get_boolean_function``
+    (always pin names, but not resolved through internal pins) is the fallback.
+    """
+    candidates = []
+    resolved = getattr(gate, "get_resolved_boolean_function", None)
+    if resolved is not None:
+        for use_net_variables in (True, False):
+            try:
+                candidate = resolved(pin, use_net_variables)
+            except Exception:  # pragma: no cover - older bindings
+                candidate = None
+            if candidate is not None:
+                candidates.append(candidate)
+    try:
+        candidates.append(gate.get_boolean_function(pin))
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+    fallback = None
+    for candidate in candidates:
+        if candidate is None:
+            continue
+        try:
+            if candidate.is_empty():
+                continue
+        except Exception:  # pragma: no cover - older bindings
+            pass
+        names = _variable_names(candidate)
+        if names is None:
+            if fallback is None:
+                fallback = candidate
+            continue
+        if names <= pin_names:
+            return candidate
+    return fallback
+
+
 def _pin_names_of_type(gate_type, wanted):
     names = []
     for pin in gate_type.get_pins():
@@ -228,15 +283,14 @@ def build_circuit(hal_py, netlist, name=None):
 
         functions = {}
         missing = []
+        pin_names = {pin.get_name() for pin in gate_type.get_pins()}
         for pin in gate_type.get_pins():
             if _enum_name(pin.get_direction()) != "output":
                 continue
             pin_name = pin.get_name()
             if pin_name not in outputs:
                 continue
-            boolean_function = gate.get_resolved_boolean_function(pin, False)
-            if boolean_function is None:
-                boolean_function = gate.get_boolean_function(pin)
+            boolean_function = _pin_variable_function(gate, gate_type, pin, pin_names)
             compiled = _optional_function(hal_py, boolean_function)
             if compiled is None:
                 missing.append(pin_name)
