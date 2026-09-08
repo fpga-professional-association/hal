@@ -143,3 +143,30 @@ jobs:
           path: ${{ github.workspace }}/build/headless_smoke
           if-no-files-found: warn
           retention-days: 7
+
+      # tools/hal_runner's unit tests (run by ctest above) drive the orchestrator with a stub
+      # executor, so they prove the bookkeeping and none of the analysis. This runs the documented
+      # command against examples/uart.zip through the real hal binary and checks the manifest, the
+      # findings (the UART's 68/50/15 feedback loops, reached through the runner), checkpoint reuse,
+      # stale-cache rejection and that a timed-out step fails the run and leaves a diagnostic.
+      - name: hal_runner end-to-end run
+        id: runner_smoke
+        shell: bash
+        run: |
+          python3 "$GITHUB_WORKSPACE/tests/headless_smoke/runner_smoke.py" \
+            --hal-binary "$GITHUB_WORKSPACE/build/bin/hal" \
+            --work-dir "$GITHUB_WORKSPACE/build/runner_smoke" \
+            --keep
+        env:
+          HAL_BASE_PATH: ${{runner.workspace}}/hal/build
+
+      # The manifest, the per-step logs and the findings documents are the whole point of the runner;
+      # keeping them is what makes a failure diagnosable after the job is gone.
+      - name: Upload hal_runner artifacts
+        if: always() && steps.runner_smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hal-runner-ubuntu-24.04
+          path: ${{ github.workspace }}/build/runner_smoke
+          if-no-files-found: warn
+          retention-days: 7

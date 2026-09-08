@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/tools/hal_runner/schema/run-config-1.0.0.schema.json",
+  "title": "HAL run configuration",
+  "description": "Declarative description of one reproducible headless HAL analysis run: the netlist and gate library to load, an ordered list of analysis steps with their configuration and resource limits, and where the results go. Paths are resolved relative to the directory holding this file unless they are absolute.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "config_version",
+    "name",
+    "netlist",
+    "steps"
+  ],
+  "properties": {
+    "config_version": {
+      "description": "Version of this configuration format. A configuration whose version this build does not know is rejected outright rather than parsed on a best-effort basis.",
+      "type": "string",
+      "enum": [
+        "1.0.0"
+      ]
+    },
+    "name": {
+      "description": "Identifier of the run; also the default output directory name.",
+      "$ref": "#/$defs/identifier"
+    },
+    "description": {
+      "type": "string"
+    },
+    "netlist": {
+      "description": "HAL project directory, HAL project .zip archive, .hal file, or an HDL netlist (the latter needs gate_library).",
+      "type": "string",
+      "minLength": 1
+    },
+    "gate_library": {
+      "description": "Gate library (.hgl/.lib). Required for HDL netlists, ignored by project directories and archives, which carry their own.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "output_dir": {
+      "description": "Where the manifest, per-step directories and logs are written. Defaults to ./<name> next to this file.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hal_binary": {
+      "description": "The hal executable steps are run with. Defaults to $HAL_RUNNER_HAL_BINARY, then $HAL_BASE_PATH/bin/hal, then 'hal' on PATH.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hal_args": {
+      "description": "Extra arguments passed to every hal invocation, before --python-script.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stop_on_failure": {
+      "description": "Stop the run at the first failed step (default true). Remaining steps are recorded as skipped, never as successful.",
+      "type": "boolean"
+    },
+    "defaults": {
+      "$ref": "#/$defs/limits"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"
+    },
+    "limits": {
+      "description": "Per-step resource limits. A step that exceeds its wall-clock limit is killed and recorded as a timeout; the memory limit is enforced with setrlimit where the platform supports it and reported as unenforced where it does not.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeout_s": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "memory_mb": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "analysis"
+      ],
+      "properties": {
+        "id": {
+          "description": "Unique within the run; also the step's directory name under <output_dir>/steps.",
+          "$ref": "#/$defs/identifier"
+        },
+        "analysis": {
+          "description": "Name of a registered analysis (see 'python tools/hal_runner analyses').",
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "config": {
+          "description": "Analysis-specific options. Unknown keys are rejected before the run starts.",
+          "type": "object"
+        },
+        "timeout_s": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "memory_mb": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "continue_on_failure": {
+          "description": "Run the remaining steps even when this one fails. The run still ends with a non-success status.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "config_version": "1.0.0",
+  "name": "uart-baseline",
+  "description": "Structural baseline for the shipped UART example: the feedback loops of the design (strongly connected components of the netlist graph) and the connectivity of the whole graph. Both steps are deterministic, so a second run of this configuration reuses their checkpoints instead of recomputing them.",
+  "netlist": "../../../examples/uart.zip",
+  "output_dir": "../../../build/hal_runner/uart-baseline",
+  "stop_on_failure": true,
+  "defaults": {
+    "timeout_s": 600
+  },
+  "steps": [
+    {
+      "id": "feedback-loops",
+      "analysis": "graph_algorithm.connected_components",
+      "description": "Strongly connected components of at least two gates: the sequential feedback paths of the design. For examples/uart.zip these are the receiver clock counter, the transmitter counter and the bit counter (68, 50 and 15 gates).",
+      "config": {
+        "strong": true,
+        "min_size": 2
+      },
+      "timeout_s": 300
+    },
+    {
+      "id": "connectivity",
+      "analysis": "graph_algorithm.connected_components",
+      "description": "Weakly connected components of the same graph: how many independent blocks the netlist falls apart into. The UART is one block of 407 gates.",
+      "config": {
+        "strong": false,
+        "min_size": 1,
+        "max_components": 8
+      },
+      "timeout_s": 300
+    }
+  ]
+}
