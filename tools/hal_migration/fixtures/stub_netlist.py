@@ -29,6 +29,7 @@ import os
 
 __all__ = [
     "StubPin",
+    "EmptyBooleanFunction",
     "StubComponent",
     "StubGateType",
     "StubGate",
@@ -54,6 +55,31 @@ class StubPin(object):
 
     def get_type(self):
         return self._type
+
+
+class EmptyBooleanFunction(object):
+    """What HAL returns for a function a gate type does not model.
+
+    ``FFComponent.get_async_reset_function()`` and friends never return
+    ``None``; a cell without a ``clear_on`` yields an *empty* BooleanFunction
+    whose ``str()`` is the literal ``"<empty>"``. The stub reproduces that so
+    the extractor is tested against HAL's actual return value rather than
+    against a missing attribute.
+    """
+
+    def __str__(self):
+        return "<empty>"
+
+    def __repr__(self):  # pragma: no cover - debugging aid
+        return "EmptyBooleanFunction()"
+
+    def is_empty(self):
+        return True
+
+
+def _function(expression):
+    """A gate library expression, or HAL's empty BooleanFunction if there is none."""
+    return expression if expression else EmptyBooleanFunction()
 
 
 class StubComponent(object):
@@ -248,10 +274,10 @@ def _components_for(cell):
         components.append(
             StubComponent(
                 "ff",
-                get_clock_function=ff_config.get("clocked_on"),
-                get_next_state_function=ff_config.get("next_state"),
-                get_async_reset_function=ff_config.get("clear_on"),
-                get_async_set_function=ff_config.get("preset_on"),
+                get_clock_function=_function(ff_config.get("clocked_on")),
+                get_next_state_function=_function(ff_config.get("next_state")),
+                get_async_reset_function=_function(ff_config.get("clear_on")),
+                get_async_set_function=_function(ff_config.get("preset_on")),
                 get_async_set_reset_behavior=(
                     list(ff_config["set_reset_behavior"])
                     if ff_config.get("set_reset_behavior")
@@ -279,10 +305,10 @@ def _components_for(cell):
         components.append(
             StubComponent(
                 "latch",
-                get_data_in_function=latch_config.get("data_in"),
-                get_enable_function=latch_config.get("enable_on"),
-                get_async_reset_function=latch_config.get("clear_on"),
-                get_async_set_function=latch_config.get("preset_on"),
+                get_data_in_function=_function(latch_config.get("data_in")),
+                get_enable_function=_function(latch_config.get("enable_on")),
+                get_async_reset_function=_function(latch_config.get("clear_on")),
+                get_async_set_function=_function(latch_config.get("preset_on")),
                 get_async_set_reset_behavior=(
                     list(latch_config["set_reset_behavior"])
                     if latch_config.get("set_reset_behavior")

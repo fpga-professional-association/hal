@@ -10,6 +10,13 @@ python tools/hal_migration/fixtures/_generate.py
 The unit tests fail if a generated file is stale, so the ground truth below and
 the files never drift apart silently.
 
+Regenerate on a checkout with LF line endings (the build/verification container
+and CI both have one). The inventory records the SHA-256 of
+`plugins/gate_libraries/definitions/ice40ultra.hgl`, and that file lives outside
+this directory, so the `-text` attribute in `.gitattributes` here cannot pin it:
+on a Windows checkout with `core.autocrlf=true` its bytes -- and therefore its
+hash -- differ from the committed content.
+
 | file | what it is |
 | --- | --- |
 | `ice40_mixed.v` | hand-written iCE40 UltraPlus netlist, parsed with `plugins/gate_libraries/definitions/ice40ultra.hgl` |
@@ -83,3 +90,7 @@ no source behaviour a target could be compared against.
 compares gate types, counts, categories, pin metadata, clock/reset signals and
 I/O ports against `ice40_mixed_inventory.json`. If HAL and this directory ever
 disagree, the fixture is wrong.
+
+Those tests need HAL's parsers, which are plugins: a run that does not call
+`halenv.load_all_plugins()` first has no parser registered for `.v` or `.hgl`
+and fails to load a perfectly valid netlist.

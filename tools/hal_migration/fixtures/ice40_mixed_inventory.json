@@ -1236,7 +1236,7 @@
     "gate_library": {
       "name": "ICE40ULTRA",
       "path": "plugins/gate_libraries/definitions/ice40ultra.hgl",
-      "sha256": "5e9f1e509194b2630eac13c736fbaa467bec4c169b4cdbd4bd5586e40d933f3b"
+      "sha256": "5cd862589b076f7da3cb364c4300d66d1cdf3a061120bed8989ac133cbad7383"
     },
     "module_count": 1,
     "net_count": 98,

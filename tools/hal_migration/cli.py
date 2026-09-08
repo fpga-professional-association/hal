@@ -51,6 +51,10 @@ def _load_netlist(args):
             "checkout so that 'tools' is on sys.path.".format(exc)
         )
     hal_py = halenv.import_hal_py(args.hal_lib)
+    # The netlist and gate library parsers (Verilog, VHDL, HGL, Liberty, ...) are
+    # HAL plugins: without loading them, HAL has no parser registered for '.hgl'
+    # or '.v' and load_netlist() fails on a perfectly valid file.
+    halenv.load_all_plugins(hal_py)
     netlist = halenv.load_netlist(hal_py, args.netlist, args.gate_library)
     # hal_py exposes no version attribute today; record one only if a future build
     # or the environment provides it, never a guess.

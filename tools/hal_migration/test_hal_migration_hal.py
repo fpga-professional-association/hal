@@ -95,6 +95,9 @@ class MigrationAssessmentIntegrationTest(unittest.TestCase):
             cls._temp = tempfile.TemporaryDirectory()
             cls.output_dir = cls._temp.name
 
+        # HAL's netlist and gate library parsers ship as plugins; nothing can be
+        # read from a '.v' or '.hgl' file until they are registered.
+        cls.halenv.load_all_plugins(cls.hal_py)
         netlist = cls.halenv.load_netlist(cls.hal_py, NETLIST, GATE_LIBRARY)
         cls.inventory = inventory_module.build_inventory(
             netlist,

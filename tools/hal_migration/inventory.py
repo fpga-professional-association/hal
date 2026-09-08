@@ -96,11 +96,31 @@ def _enum_name(value):
     return str(value).rsplit(".", 1)[-1]
 
 
+#: ``str()`` of a HAL BooleanFunction that carries no expression at all.
+_EMPTY_FUNCTION = "<empty>"
+
+
 def _text(value):
-    """Render a BooleanFunction (or anything else) as a plain string."""
+    """Render a BooleanFunction (or anything else) as a plain string.
+
+    HAL never returns ``None`` from ``get_async_reset_function()`` and friends:
+    a gate type that models no such function yields an *empty* BooleanFunction,
+    which stringifies to ``"<empty>"``. Recording that literal would claim the
+    gate library states something it does not, and would suppress the metadata
+    gap that says otherwise, so an empty function is reported as absent.
+    """
     if value is None:
         return None
+    is_empty = getattr(value, "is_empty", None)
+    if callable(is_empty):
+        try:
+            if is_empty():
+                return None
+        except Exception:  # pragma: no cover - defensive against binding changes
+            pass
     text = str(value)
+    if text == _EMPTY_FUNCTION:
+        return None
     return text or None
 
 

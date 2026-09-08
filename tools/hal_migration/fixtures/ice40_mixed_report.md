@@ -14,7 +14,7 @@
 - **source_netlist** (netlist) - sha256 `2a1624726241a670`
   - path: `tools/hal_migration/fixtures/ice40_mixed.v`
   - design: `ice40_mixed`
-  - gate library: `ICE40ULTRA` (sha256 `5e9f1e509194b263`)
+  - gate library: `ICE40ULTRA` (sha256 `5cd862589b076f7d`)
   - source technology: Lattice / iCE40 UltraPlus / iCE40UP5K; produced by hand-written fixture 1.0.0
 - **ice40ultra-to-generic-fpga** (other) - sha256 `719b3de627d188d3`
   - path: `tools/hal_migration/catalogues/ice40ultra-to-generic-fpga-1.0.0.json`
