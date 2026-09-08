@@ -1,0 +1,55 @@
+{
+  "config_version": "1.0.0",
+  "name": "parity-counter-long-window",
+  "description": "The same fixture, the same workload and the same nine registers as campaign_short_window.json, but each injection is judged over the four cycles starting at it, and the faults are a seeded random sample rather than the whole grid. Three faults that the short window calls 'unobserved' become externally observable, undetected corruptions here -- which is why 'unobserved in window' is never reported as masking.",
+  "netlist": "parity_counter.v",
+  "gate_library": "../../../plugins/gate_libraries/definitions/example_library.hgl",
+  "output_dir": "../../../build/hal_fault_campaign/parity-counter-long-window",
+  "engine": "hal_simulator",
+  "limits": {
+    "timeout_s": 900
+  },
+  "clock": {
+    "net": "CLK",
+    "period_ps": 8000
+  },
+  "workload": {
+    "cycles": 20,
+    "description": "One reset cycle, then a free-running counter and an irregular bit stream into the four-deep pipeline.",
+    "stimulus": [
+      {"cycle": 0, "inputs": {"RST": 1, "PIPE_IN": 0}},
+      {"cycle": 1, "inputs": {"RST": 0, "PIPE_IN": 1}},
+      {"cycle": 2, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 3, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 4, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 5, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 6, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 7, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 8, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 9, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 10, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 12, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 14, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 16, "inputs": {"PIPE_IN": 1}}
+    ]
+  },
+  "observation": {
+    "outputs": ["CNT0", "CNT1", "CNT2", "AUX_O", "PIPE_O"],
+    "detection_signals": ["ERR"],
+    "detection_active_value": 1,
+    "window": {
+      "mode": "relative",
+      "start_offset": 0,
+      "length": 4
+    }
+  },
+  "faults": {
+    "model": "register_output_transient_flip",
+    "hold_cycles": 1,
+    "sites": {
+      "include": ["*_reg_*_inst", "*_reg_inst"]
+    },
+    "cycles": {"from": 3, "to": 6},
+    "sampling": {"mode": "random", "count": 12, "seed": 20260907}
+  }
+}

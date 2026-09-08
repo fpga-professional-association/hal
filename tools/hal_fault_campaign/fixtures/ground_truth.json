@@ -1,0 +1,993 @@
+{
+  "baseline": {
+    "AUX_O": "01010101010101010101",
+    "CNT0": "01010101010101010101",
+    "CNT1": "00110011001100110011",
+    "CNT2": "00001111000011110000",
+    "ERR": "00000000000000000000",
+    "PIPE_O": "00001011010010011001"
+  },
+  "expected": {
+    "long_window": {
+      "verdicts": {
+        "AUX_reg_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "AUX_reg_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "AUX_reg_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "AUX_reg_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_0_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_1_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_1_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_1_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_1_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_2_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_2_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_2_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "CNT_reg_2_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 1
+        },
+        "PAR_reg_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_0_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 2
+        },
+        "PIPE_reg_0_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 2
+        },
+        "PIPE_reg_0_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 2
+        },
+        "PIPE_reg_0_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 2
+        },
+        "PIPE_reg_1_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "PIPE_reg_1_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "PIPE_reg_1_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "PIPE_reg_1_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 1
+        },
+        "PIPE_reg_2_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        }
+      },
+      "window": {
+        "length": 4,
+        "mode": "relative",
+        "start_offset": 0
+      }
+    },
+    "short_window": {
+      "verdicts": {
+        "AUX_reg_inst@3": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "AUX_reg_inst@4": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "AUX_reg_inst@5": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "AUX_reg_inst@6": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_0_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_0_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_1_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_1_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_1_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_1_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": 0
+        },
+        "CNT_reg_2_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_2_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_2_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "CNT_reg_2_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@3": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@4": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@5": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PAR_reg_inst@6": {
+          "classification": "detected",
+          "detection_latency_cycles": 0,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_0_inst@3": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_0_inst@4": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_0_inst@5": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_0_inst@6": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_1_inst@3": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_1_inst@4": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_1_inst@5": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_1_inst@6": {
+          "classification": "unobserved_in_window",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": null
+        },
+        "PIPE_reg_2_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_2_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@3": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@4": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@5": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        },
+        "PIPE_reg_3_inst@6": {
+          "classification": "silent_divergence",
+          "detection_latency_cycles": null,
+          "divergence_latency_cycles": 0
+        }
+      },
+      "window": {
+        "length": 1,
+        "mode": "relative",
+        "start_offset": 0
+      }
+    }
+  },
+  "faults": [
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "CNT_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01011010101010101010",
+        "CNT1": "00100110011001100110",
+        "CNT2": "00011110000111100001",
+        "ERR": "00010000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "CNT_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010010101010101010",
+        "CNT1": "00111001100110011001",
+        "CNT2": "00000111100001111000",
+        "ERR": "00001000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "CNT_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010110101010101010",
+        "CNT1": "00110110011001100110",
+        "CNT2": "00001110000111100001",
+        "ERR": "00000100000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "CNT_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010100101010101010",
+        "CNT1": "00110001100110011001",
+        "CNT2": "00001111100001111000",
+        "ERR": "00000010000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "CNT_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00111100110011001100",
+        "CNT2": "00000011110000111100",
+        "ERR": "00010000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "CNT_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110100110011001100",
+        "CNT2": "00000011110000111100",
+        "ERR": "00001000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "CNT_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110000110011001100",
+        "CNT2": "00001100001111000011",
+        "ERR": "00000100000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "CNT_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110010110011001100",
+        "CNT2": "00001100001111000011",
+        "ERR": "00000010000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "CNT_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00000000111100001111",
+        "ERR": "00010000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "CNT_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001000111100001111",
+        "ERR": "00001000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "CNT_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001100111100001111",
+        "ERR": "00000100000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "CNT_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001110111100001111",
+        "ERR": "00000010000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "PAR_reg_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00010000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "PAR_reg_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00001000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "PAR_reg_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000100000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "PAR_reg_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000010000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "AUX_reg_inst",
+      "trace": {
+        "AUX_O": "01011010101010101010",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "AUX_reg_inst",
+      "trace": {
+        "AUX_O": "01010010101010101010",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "AUX_reg_inst",
+      "trace": {
+        "AUX_O": "01010110101010101010",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "AUX_reg_inst",
+      "trace": {
+        "AUX_O": "01010100101010101010",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001011010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001111010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001001010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001010010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_0_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001011110010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00000011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001111010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001001010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_1_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001010010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00011011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00000011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001111010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_2_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001001010010011001"
+      }
+    },
+    {
+      "cycle": 3,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_3_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00011011010010011001"
+      }
+    },
+    {
+      "cycle": 4,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_3_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00000011010010011001"
+      }
+    },
+    {
+      "cycle": 5,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_3_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001111010010011001"
+      }
+    },
+    {
+      "cycle": 6,
+      "hold_cycles": 1,
+      "site": "PIPE_reg_3_inst",
+      "trace": {
+        "AUX_O": "01010101010101010101",
+        "CNT0": "01010101010101010101",
+        "CNT1": "00110011001100110011",
+        "CNT2": "00001111000011110000",
+        "ERR": "00000000000000000000",
+        "PIPE_O": "00001001010010011001"
+      }
+    }
+  ],
+  "fixture": "parity_counter.v",
+  "gate_library": "example_library.hgl",
+  "generated_by": "tools/hal_fault_campaign/fixtures/reference_model.py",
+  "ground_truth_version": "1.0.0",
+  "hold_cycles": 1,
+  "injection_cycles": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "note": "Produced by an independent model of parity_counter.v, not by HAL. The end-to-end test asserts that HAL's simulation of the same fixture reproduces these traces exactly.",
+  "observation": {
+    "detection_active_value": 1,
+    "detection_signals": [
+      "ERR"
+    ],
+    "outputs": [
+      "CNT0",
+      "CNT1",
+      "CNT2",
+      "AUX_O",
+      "PIPE_O"
+    ]
+  },
+  "registers": [
+    "CNT_reg_0_inst",
+    "CNT_reg_1_inst",
+    "CNT_reg_2_inst",
+    "PAR_reg_inst",
+    "AUX_reg_inst",
+    "PIPE_reg_0_inst",
+    "PIPE_reg_1_inst",
+    "PIPE_reg_2_inst",
+    "PIPE_reg_3_inst"
+  ],
+  "value_encoding": {
+    "0": "ZERO",
+    "1": "ONE",
+    "x": "X",
+    "z": "Z"
+  },
+  "workload": {
+    "cycles": 20,
+    "stimulus": [
+      {
+        "cycle": 0,
+        "inputs": {
+          "PIPE_IN": 0,
+          "RST": 1
+        }
+      },
+      {
+        "cycle": 1,
+        "inputs": {
+          "PIPE_IN": 1,
+          "RST": 0
+        }
+      },
+      {
+        "cycle": 2,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 3,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      },
+      {
+        "cycle": 4,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      },
+      {
+        "cycle": 5,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 6,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      },
+      {
+        "cycle": 7,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 8,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 9,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      },
+      {
+        "cycle": 10,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 12,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      },
+      {
+        "cycle": 14,
+        "inputs": {
+          "PIPE_IN": 0
+        }
+      },
+      {
+        "cycle": 16,
+        "inputs": {
+          "PIPE_IN": 1
+        }
+      }
+    ]
+  }
+}

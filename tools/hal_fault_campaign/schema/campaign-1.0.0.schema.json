@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/tools/hal_fault_campaign/schema/campaign-1.0.0.schema.json",
+  "title": "HAL fault-injection campaign configuration",
+  "description": "Declarative description of one reproducible register-bit fault-injection campaign: the netlist, the clock, the workload stimulus, the observed outputs and detection signals, the observation window, and which (register, cycle) pairs to inject at. Relative paths resolve against the directory holding this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "config_version",
+    "name",
+    "netlist",
+    "clock",
+    "workload",
+    "observation",
+    "faults"
+  ],
+  "properties": {
+    "config_version": {
+      "description": "Version of this configuration format. An unknown version is rejected rather than parsed on a best-effort basis.",
+      "type": "string",
+      "enum": [
+        "1.0.0"
+      ]
+    },
+    "name": {
+      "$ref": "#/$defs/identifier"
+    },
+    "description": {
+      "type": "string"
+    },
+    "netlist": {
+      "description": "HAL project directory, project .zip, .hal file, or an HDL netlist (the last needs gate_library).",
+      "type": "string",
+      "minLength": 1
+    },
+    "gate_library": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "output_dir": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hal_binary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hal_args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engine": {
+      "description": "Simulation engine registered with netlist_simulator_controller. 'hal_simulator' is HAL's built-in event-driven engine and needs no external tool; 'verilator' needs the verilator binary on PATH.",
+      "type": "string",
+      "minLength": 1
+    },
+    "limits": {
+      "$ref": "#/$defs/limits"
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "net",
+        "period_ps"
+      ],
+      "properties": {
+        "net": {
+          "description": "Name of the net carrying the clock.",
+          "type": "string",
+          "minLength": 1
+        },
+        "period_ps": {
+          "description": "Clock period in picoseconds. Must be divisible by 4 so that the edge (P/2) and sample (3P/4) points are whole picoseconds.",
+          "type": "integer",
+          "minimum": 4
+        }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cycles"
+      ],
+      "properties": {
+        "cycles": {
+          "description": "Number of clock cycles simulated, for the baseline and for every faulty run.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "stimulus": {
+          "description": "Primary-input assignments, applied at the start of the named cycle and held until changed.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "cycle",
+              "inputs"
+            ],
+            "properties": {
+              "cycle": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "inputs": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outputs"
+      ],
+      "properties": {
+        "outputs": {
+          "description": "Nets whose divergence from the fault-free baseline counts as externally observable corruption.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "detection_signals": {
+          "description": "Nets that signal 'a fault was detected'. Empty means the design has no detector, and every observable fault is then reported as a silent divergence.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "detection_active_value": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "record_signals": {
+          "description": "Extra nets recorded in the traces for evidence. They take no part in the classification.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "window": {
+          "$ref": "#/$defs/window"
+        }
+      }
+    },
+    "faults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "register_output_transient_flip"
+          ]
+        },
+        "hold_cycles": {
+          "description": "How many consecutive cycles the flip is held, starting at the injection cycle.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "sites": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "exclude": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "cycles": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "from": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "to": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "step": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sampling": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "exhaustive",
+                "random"
+              ]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "seed": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeout_s": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "memory_mb": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "window": {
+      "description": "Which cycles a fault is judged in. 'absolute' is the same window for every fault; 'relative' is anchored at the injection cycle.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "absolute",
+            "relative"
+          ]
+        },
+        "start_cycle": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end_cycle": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "start_offset": {
+          "type": "integer"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

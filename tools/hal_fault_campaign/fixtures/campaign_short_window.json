@@ -1,0 +1,55 @@
+{
+  "config_version": "1.0.0",
+  "name": "parity-counter-short-window",
+  "description": "Exhaustive single-bit transient campaign over all nine registers of the parity_counter fixture at cycles 3-6, judged in the injection cycle alone. The parity-protected counter is detected, the unprotected toggle and the last pipeline stages are not, and the early pipeline stages are unobserved because their corruption has not reached PIPE_O yet -- which is a fact about the window, not about masking. See campaign_long_window.json for the same faults judged over four cycles.",
+  "netlist": "parity_counter.v",
+  "gate_library": "../../../plugins/gate_libraries/definitions/example_library.hgl",
+  "output_dir": "../../../build/hal_fault_campaign/parity-counter-short-window",
+  "engine": "hal_simulator",
+  "limits": {
+    "timeout_s": 900
+  },
+  "clock": {
+    "net": "CLK",
+    "period_ps": 8000
+  },
+  "workload": {
+    "cycles": 20,
+    "description": "One reset cycle, then a free-running counter and an irregular bit stream into the four-deep pipeline.",
+    "stimulus": [
+      {"cycle": 0, "inputs": {"RST": 1, "PIPE_IN": 0}},
+      {"cycle": 1, "inputs": {"RST": 0, "PIPE_IN": 1}},
+      {"cycle": 2, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 3, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 4, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 5, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 6, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 7, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 8, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 9, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 10, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 12, "inputs": {"PIPE_IN": 1}},
+      {"cycle": 14, "inputs": {"PIPE_IN": 0}},
+      {"cycle": 16, "inputs": {"PIPE_IN": 1}}
+    ]
+  },
+  "observation": {
+    "outputs": ["CNT0", "CNT1", "CNT2", "AUX_O", "PIPE_O"],
+    "detection_signals": ["ERR"],
+    "detection_active_value": 1,
+    "window": {
+      "mode": "relative",
+      "start_offset": 0,
+      "length": 1
+    }
+  },
+  "faults": {
+    "model": "register_output_transient_flip",
+    "hold_cycles": 1,
+    "sites": {
+      "include": ["*_reg_*_inst", "*_reg_inst"]
+    },
+    "cycles": {"from": 3, "to": 6},
+    "sampling": {"mode": "exhaustive"}
+  }
+}
