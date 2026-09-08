@@ -1,0 +1,40 @@
+{
+  "mapping_version": "1.0",
+  "name": "apb_requester_broken_stability",
+  "description": "APB4 requester whose PADDR changes during SETUP-to-ACCESS and wait states; deliberately broken.",
+  "protocol": {
+    "family": "APB",
+    "revision": "APB4",
+    "dut_role": "requester"
+  },
+  "design": {
+    "netlist": "apb_requester_broken_stability.v",
+    "gate_library": "../../../plugins/gate_libraries/definitions/example_library.hgl"
+  },
+  "clock": {
+    "signal": "PCLK",
+    "edge": "rising"
+  },
+  "reset": {
+    "signal": "PRESETn",
+    "active_low": true,
+    "cycles": 2
+  },
+  "signals": {
+    "PRESETn": "PRESETn",
+    "PSEL": "PSEL",
+    "PENABLE": "PENABLE",
+    "PWRITE": "PWRITE",
+    "PADDR": [
+      "PADDR_0"
+    ],
+    "PWDATA": [
+      "PWDATA_0"
+    ],
+    "PREADY": "PREADY"
+  },
+  "options": {
+    "bound": 12,
+    "max_wait_states": 4
+  }
+}
