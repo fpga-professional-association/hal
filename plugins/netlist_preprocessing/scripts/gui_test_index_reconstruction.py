@@ -1,3 +1,0 @@
-from hal_plugins import netlist_preprocessing
-
-netlist_preprocessing.NetlistPreprocessingPlugin.reconstruct_indexed_ff_identifier(netlist)
