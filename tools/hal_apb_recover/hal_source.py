@@ -340,7 +340,9 @@ def build_circuit(hal_py, netlist, name=None):
         net_names,
         input_nets,
         output_nets,
-        source=netlist.get_input_filename() or None,
+        # get_input_filename() returns a pathlib.Path (std::filesystem::path
+        # binding); keep the circuit model JSON-serializable.
+        source=str(netlist.get_input_filename()) if netlist.get_input_filename() else None,
         gate_library=library_name,
         net_uids=net_uids,
     )
