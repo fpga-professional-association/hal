@@ -476,7 +476,13 @@ def check_scoped_graph(project_dir, out_dir, hal_libs, report):
     )
 
     dot_path = base.with_suffix(".dot")
-    printed = [line.strip() for line in stdout.splitlines() if line.strip()]
+    # hal_py plugin loading writes its log lines to stdout, so filter to the
+    # produced-file lines (hal_viz prints one path per line) before comparing.
+    printed = [
+        line.strip()
+        for line in stdout.splitlines()
+        if line.strip() and not line.lstrip().startswith("[") and Path(line.strip()).suffix in {".dot", ".svg", ".png", ".pdf", ".html"}
+    ]
     require(
         printed == [str(dot_path)],
         "hal_viz should print exactly the one .dot it produced with --format none, "
