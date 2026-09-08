@@ -1,0 +1,10 @@
+{
+  "config_version": "1.0.0",
+  "name": "wrong-candidate",
+  "description": "A deliberately wrong state register: one controller bit plus one counter bit. The two are not a machine -- the counter bit's next state does not depend on the controller bit and vice versa -- so the run must either fail loudly or produce a relation whose own consistency check fails. What it must never do is present the result as a recovered controller.",
+  "state_registers": ["nx_a1_reg", "cnt_r2"],
+  "solver": "smt",
+  "limits": {
+    "max_cycles": 8
+  }
+}

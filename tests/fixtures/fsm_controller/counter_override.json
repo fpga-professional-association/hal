@@ -1,0 +1,12 @@
+{
+  "config_version": "1.0.0",
+  "name": "counter-override",
+  "description": "Solve the decoy counter on purpose. Its asynchronous clear is driven by i_rst, which solve_fsm does not model, so the run must report that gap instead of presenting the recovered graph as the whole machine.",
+  "state_registers": ["cnt_r0", "cnt_r1", "cnt_r2"],
+  "targets": [7],
+  "solver": "smt",
+  "limits": {
+    "max_cycles": 16,
+    "smt_timeout_s": 60
+  }
+}

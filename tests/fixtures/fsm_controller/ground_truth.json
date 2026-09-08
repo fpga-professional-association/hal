@@ -1,0 +1,195 @@
+{
+  "reference_version": "1.0.0",
+  "name": "fsm_controller",
+  "description": "Ground truth for tests/fixtures/fsm_controller/controller.v, derived from the gate-level next-state functions of the fixture (see README.md). State bit i is the output of state_registers[i].",
+  "netlist": "controller.v",
+  "gate_library": "plugins/gate_libraries/definitions/example_library.hgl",
+  "machines": [
+    {
+      "id": "controller",
+      "description": "3-state controller with one unused encoding; the state bits are deliberately named nx_a1_reg / nx_b2_reg.",
+      "state_registers": [
+        "nx_a1_reg",
+        "nx_b2_reg"
+      ],
+      "state_names": {
+        "0": "IDLE",
+        "1": "RUN",
+        "2": "DONE",
+        "3": "UNUSED"
+      },
+      "initial_state": 0,
+      "inputs": [
+        "i_go",
+        "i_fin"
+      ],
+      "reset": {
+        "kind": "asynchronous_clear",
+        "pin": "R",
+        "driver": "constant 0 (GND)",
+        "modelled_by_solve_fsm": false,
+        "note": "tied inactive, so the assumption that it never fires is discharged structurally"
+      },
+      "transitions": [
+        {
+          "source": 0,
+          "target": 0,
+          "condition": "!i_go"
+        },
+        {
+          "source": 0,
+          "target": 1,
+          "condition": "i_go"
+        },
+        {
+          "source": 1,
+          "target": 1,
+          "condition": "!i_fin"
+        },
+        {
+          "source": 1,
+          "target": 2,
+          "condition": "i_fin"
+        },
+        {
+          "source": 2,
+          "target": 0,
+          "condition": "1"
+        },
+        {
+          "source": 3,
+          "target": 0,
+          "condition": "1"
+        }
+      ],
+      "reachable_states": [
+        0,
+        1,
+        2
+      ],
+      "unreachable_states": [
+        3
+      ],
+      "notes": [
+        "conditions are over the primary inputs i_go and i_fin",
+        "state 3 is not reachable from the initial state; only an exhaustive (brute force) run reports its outgoing transition"
+      ]
+    },
+    {
+      "id": "counter",
+      "description": "3-bit binary counter enabled by i_tick -- the decoy a candidate search must rank below the controller.",
+      "state_registers": [
+        "cnt_r0",
+        "cnt_r1",
+        "cnt_r2"
+      ],
+      "initial_state": 0,
+      "inputs": [
+        "i_tick"
+      ],
+      "reset": {
+        "kind": "asynchronous_clear",
+        "pin": "R",
+        "driver": "i_rst",
+        "modelled_by_solve_fsm": false,
+        "note": "driven by logic, so every recovered transition holds only while i_rst is inactive; solve_fsm never sees this pin"
+      },
+      "transitions": [
+        {
+          "source": 0,
+          "target": 0,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 0,
+          "target": 1,
+          "condition": "i_tick"
+        },
+        {
+          "source": 1,
+          "target": 1,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 1,
+          "target": 2,
+          "condition": "i_tick"
+        },
+        {
+          "source": 2,
+          "target": 2,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 2,
+          "target": 3,
+          "condition": "i_tick"
+        },
+        {
+          "source": 3,
+          "target": 3,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 3,
+          "target": 4,
+          "condition": "i_tick"
+        },
+        {
+          "source": 4,
+          "target": 4,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 4,
+          "target": 5,
+          "condition": "i_tick"
+        },
+        {
+          "source": 5,
+          "target": 5,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 5,
+          "target": 6,
+          "condition": "i_tick"
+        },
+        {
+          "source": 6,
+          "target": 6,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 6,
+          "target": 7,
+          "condition": "i_tick"
+        },
+        {
+          "source": 7,
+          "target": 7,
+          "condition": "!i_tick"
+        },
+        {
+          "source": 7,
+          "target": 0,
+          "condition": "i_tick"
+        }
+      ],
+      "reachable_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "unreachable_states": [],
+      "notes": [
+        "i_rst does not appear in any recovered condition: solve_fsm models only the library's next_state expression, which for FFR is (D & CE)"
+      ]
+    }
+  ]
+}

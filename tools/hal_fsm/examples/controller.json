@@ -1,0 +1,17 @@
+{
+  "config_version": "1.0.0",
+  "name": "controller",
+  "description": "Recover the 3-state controller of tests/fixtures/fsm_controller/controller.v and compare it against the recorded ground truth.",
+  "reference": "../../../tests/fixtures/fsm_controller/ground_truth.json",
+  "solver": "auto",
+  "solve": "best",
+  "targets": [2],
+  "ambiguity_margin": 0.05,
+  "diagram_base": 2,
+  "limits": {
+    "max_state_bits": 8,
+    "max_cycles": 16,
+    "smt_timeout_s": 60,
+    "brute_force_max_states": 256
+  }
+}
