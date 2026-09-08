@@ -1,0 +1,87 @@
+/**
+ * @file example_analysis.h
+ * @brief The analysis this plugin provides.
+ */
+
+#pragma once
+
+#include "hal_core/defines.h"
+#include "hal_core/utilities/result.h"
+
+#include <string>
+#include <vector>
+
+namespace hal
+{
+    class Gate;
+    class GateType;
+    class Net;
+    class Netlist;
+
+    namespace example_analysis
+    {
+        /**
+         * A set of sequential gates whose clock pins are driven by the same net.
+         *
+         * This is a *structural* clock domain: buffers and clock gating split one physical clock
+         * into several nets, so two domains here can be the same clock in silicon. Say that in the
+         * finding rather than letting a reader assume otherwise.
+         */
+        struct ClockDomain
+        {
+            /** The net driving the clock pins of every gate in `gates`. Never `nullptr`. */
+            Net* clock_net = nullptr;
+
+            /** The gates clocked by `clock_net`, ordered by gate ID. */
+            std::vector<Gate*> gates;
+        };
+
+        /**
+         * A gate type the analysis matched but could not evaluate.
+         *
+         * Reported explicitly, because "no result for these gates" and "no such gates" are
+         * different answers and only one of them is actionable.
+         */
+        struct UnsupportedGateType
+        {
+            /** The gate type that could not be evaluated. Never `nullptr`. */
+            const GateType* gate_type = nullptr;
+
+            /** How many gates of that type the netlist contains. */
+            u32 count = 0;
+
+            /** Why the analysis could not evaluate it, in a form a user can act on. */
+            std::string reason;
+        };
+
+        /**
+         * The result of one `analyze()` run.
+         */
+        struct Report
+        {
+            /** The structural clock domains, largest first, ties broken by clock net ID. */
+            std::vector<ClockDomain> domains;
+
+            /** Sequential gates whose clock pin exists but is driven by nothing, ordered by ID. */
+            std::vector<Gate*> unresolved_gates;
+
+            /** Sequential gate types without a clock pin, ordered by type name. */
+            std::vector<UnsupportedGateType> unsupported;
+
+            /** How many gates carried the `sequential` property in total. */
+            u32 sequential_gate_count = 0;
+        };
+
+        /**
+         * Group the sequential gates of a netlist by the net that drives their clock pin.
+         *
+         * Errors are returned, never logged-and-swallowed: a caller that gets an empty result must
+         * be able to tell "this design has no registers" from "this analysis cannot look at this
+         * design". The error message names what was missing and what to do about it.
+         *
+         * @param[in] netlist - The netlist to analyze.
+         * @returns The report on success, an error otherwise.
+         */
+        Result<Report> analyze(Netlist* netlist);
+    }    // namespace example_analysis
+}    // namespace hal

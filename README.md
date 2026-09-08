@@ -91,6 +91,14 @@ To *look* at a netlist without a GUI, use the batch visualization tool in [`tool
 `netlist_graph`, `dataflow` and `clock_tree` subcommands render scoped gate-level graphs, DANA register groups and
 clock trees) to Graphviz `.dot` plus SVG/PNG files you can open in any viewer.
 
+To write an analysis of your own, start with
+[`documentation/plugin_development.md`](documentation/plugin_development.md) — it says when a Python script over
+`hal_py` is enough and when a C++ plugin is actually warranted. When it is, `python tools/new_plugin.py <name>`
+generates a plugin that already builds, loads, is tested and emits [`tools/hal_findings`](tools/hal_findings/README.md)
+documents; `python tools/hal_capabilities list --probe --netlist <netlist>` then tells you which plugins are declared,
+built, loadable, and actually applicable to the design in front of you (see
+[`tools/hal_capabilities`](tools/hal_capabilities/README.md)).
+
 For *interactive* waveform work, HAL delegates to [Saleae Logic 2](https://docs.saleae.com/mcp/guides/getting-started):
 enable its MCP server (Settings > Automation > MCP Server) and the `logic2` entry in this repo's `.mcp.json` lets an
 agent drive real-hardware captures and protocol decodes; simulated waveforms are exported to VCD instead. See the

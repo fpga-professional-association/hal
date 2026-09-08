@@ -31,6 +31,7 @@ where noted; every plugin is also built if the umbrella `BUILD_ALL_PLUGINS` cach
 | `boolean_influence` | Computes Boolean influence of gate outputs on inputs | `PL_BOOLEAN_INFLUENCE` | OFF | `plugins/boolean_influence/CMakeLists.txt:1` |
 | `clock_tree_extractor` | Recovers clock trees from a gate-level netlist | `PL_CLOCK_TREE_EXTRACTOR` | ON | `plugins/clock_tree_extractor/CMakeLists.txt:1` |
 | `dataflow_analysis` | DANA: dataflow analysis / register-group recovery ([paper](https://eprint.iacr.org/2020/751.pdf)) | `PL_DATAFLOW` | OFF | `plugins/dataflow_analysis/CMakeLists.txt:1` |
+| `example_analysis` | Reference output of `tools/new_plugin.py`, kept so CI compiles the plugin template: groups sequential gates by the net driving their clock pin (structural clock domains) | `PL_EXAMPLE_ANALYSIS` | OFF | `plugins/example_analysis/CMakeLists.txt:1`, [walkthrough](documentation/plugin_development.md) |
 | `gate_libraries` | Installs the bundled `.hgl` gate-library definitions (no code, just copies files) | `PL_GATE_LIBRARIES` | ON | `plugins/gate_libraries/CMakeLists.txt:1-2` |
 | `genlib_writer` | Serializes a gate library to ABC `genlib` format | `PL_GENLIB_WRITER` | OFF | `plugins/genlib_writer/CMakeLists.txt:1` |
 | `gexf_writer` | Serializes a netlist graph to GEXF (for external graph tools, e.g. Gephi) | `PL_GEXF_WRITER` | ON | `plugins/gexf_writer/CMakeLists.txt:1` |

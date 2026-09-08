@@ -1,0 +1,65 @@
+{
+  "capabilities_version": "1.0.0",
+  "plugin": {
+    "name": "##LOWER##",
+    "version": "0.1",
+    "description": "##DESCRIPTION##",
+    "kind": "analysis",
+    "build_option": "PL_##UPPER##",
+    "maturity": "experimental",
+    "documentation": "plugins/##LOWER##/README.md"
+  },
+  "dependencies": {
+    "plugins": [],
+    "python_modules": [],
+    "external_tools": []
+  },
+  "requires": {
+    "gate_type_properties": {
+      "all_of": ["sequential"],
+      "any_of": []
+    },
+    "gate_type_pin_types": ["clock"],
+    "netlist": {
+      "min_gates": 1,
+      "needs_gate_library": true,
+      "description": "The analysis reads clock pins of sequential gate types, so a netlist whose gate library declares no sequential type is out of scope rather than clean."
+    }
+  },
+  "supported_gate_libraries": {
+    "mode": "any",
+    "verified": ["EXAMPLE_GATE_LIBRARY"],
+    "note": "Library independent: the analysis asks the gate types for their properties and pin types instead of matching type names."
+  },
+  "entry_points": [
+    {
+      "name": "analyze",
+      "language": "c++",
+      "symbol": "hal::##LOWER##::analyze",
+      "summary": "Group sequential gates by the net that drives their clock pin.",
+      "returns": "hal::Result<hal::##LOWER##::Report>"
+    },
+    {
+      "name": "analyze",
+      "language": "python",
+      "symbol": "hal_plugins.##LOWER##.analyze",
+      "summary": "Same entry point through the bindings, raising RuntimeError with the plugin error message.",
+      "returns": "##LOWER##.Report"
+    }
+  ],
+  "findings": {
+    "schema_version": "1.0.0",
+    "statuses": ["heuristic", "unsupported"],
+    "driver": "plugins/##LOWER##/python/run_##LOWER##.py"
+  },
+  "resources": {
+    "complexity": "linear in the number of gates",
+    "memory_hint_mb": 64,
+    "timeout_hint_s": 60,
+    "deterministic": true,
+    "parallel": false
+  },
+  "notes": [
+    "Structural only. A clock domain here is the set of gates whose clock pin is driven by the same net, which is not the same thing as a verified clock domain: buffers and gated clocks split one physical domain into several nets."
+  ]
+}

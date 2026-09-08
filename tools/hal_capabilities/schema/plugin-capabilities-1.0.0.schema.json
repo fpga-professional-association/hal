@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/schema/plugin-capabilities-1.0.0.schema.json",
+  "title": "HAL plugin capability declaration",
+  "description": "What a HAL plugin needs before it can say anything about a netlist: the plugins it depends on, the gate-type semantics it requires, the gate libraries it was written for, and what it costs to run. One document per plugin, shipped as plugins/<name>/capabilities.json and compiled into the plugin so the two can be compared.",
+  "type": "object",
+  "required": ["capabilities_version", "plugin", "dependencies", "requires", "supported_gate_libraries"],
+  "additionalProperties": false,
+  "properties": {
+    "capabilities_version": {
+      "description": "Version of this document format. Rejected outright if unknown, never parsed best-effort.",
+      "enum": ["1.0.0"]
+    },
+    "plugin": {"$ref": "#/$defs/plugin"},
+    "dependencies": {"$ref": "#/$defs/dependencies"},
+    "requires": {"$ref": "#/$defs/requires"},
+    "supported_gate_libraries": {"$ref": "#/$defs/supported_gate_libraries"},
+    "entry_points": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entry_point"}
+    },
+    "findings": {"$ref": "#/$defs/findings"},
+    "resources": {"$ref": "#/$defs/resources"},
+    "notes": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "plugin": {
+      "type": "object",
+      "required": ["name", "version", "description", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Must equal the plugin's BasePluginInterface::get_name() and its directory name under plugins/.",
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1},
+        "kind": {
+          "description": "analysis produces findings; utility is a library other plugins link; parser/writer register a FacExtensionInterface.",
+          "enum": ["analysis", "utility", "parser", "writer", "other"]
+        },
+        "build_option": {
+          "description": "The CMake option that turns the plugin on, e.g. PL_EXAMPLE_ANALYSIS.",
+          "type": "string",
+          "minLength": 1
+        },
+        "maturity": {
+          "enum": ["experimental", "beta", "stable"]
+        },
+        "documentation": {"type": "string", "minLength": 1}
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["plugins"],
+      "additionalProperties": false,
+      "properties": {
+        "plugins": {
+          "description": "HAL plugins that must be loaded first. Must match BasePluginInterface::get_dependencies() exactly; the discovery tool reports a mismatch as a defect.",
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "python_modules": {
+          "description": "Importable Python modules the shipped driver script needs (standard library excluded).",
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "external_tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "optional", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "optional": {"type": "boolean"},
+              "reason": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "requires": {
+      "description": "What the analysis needs from the netlist itself. Everything here is checkable against a loaded netlist, which is what turns 'unsupported' into an actionable message instead of an empty result.",
+      "type": "object",
+      "required": ["gate_type_properties"],
+      "additionalProperties": false,
+      "properties": {
+        "gate_type_properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "all_of": {
+              "description": "Each named GateTypeProperty must be carried by at least one gate in the netlist.",
+              "type": "array",
+              "items": {"$ref": "#/$defs/identifier"},
+              "uniqueItems": true
+            },
+            "any_of": {
+              "description": "At least one of these GateTypeProperty names must be carried by at least one gate.",
+              "type": "array",
+              "items": {"$ref": "#/$defs/identifier"},
+              "uniqueItems": true
+            }
+          }
+        },
+        "gate_type_pin_types": {
+          "description": "PinType names every matched gate type must expose; matched types that do not are reported as unsupported primitives rather than silently skipped.",
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "netlist": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min_gates": {"type": "integer", "minimum": 0},
+            "needs_gate_library": {"type": "boolean"},
+            "description": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "supported_gate_libraries": {
+      "description": "Which gate libraries the plugin has actually been exercised against. 'any' is a claim of library independence, not an absence of information.",
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"enum": ["any", "allow_list", "deny_list"]},
+        "names": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "verified": {
+          "description": "Libraries this plugin has a passing test or smoke run against.",
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "entry_point": {
+      "type": "object",
+      "required": ["name", "language", "symbol", "summary"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "language": {"enum": ["c++", "python"]},
+        "symbol": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1},
+        "returns": {"type": "string", "minLength": 1}
+      }
+    },
+    "findings": {
+      "description": "The findings contract this plugin's driver emits (see tools/hal_findings).",
+      "type": "object",
+      "required": ["schema_version", "statuses"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"type": "string", "minLength": 1},
+        "statuses": {
+          "description": "Every status this analysis can legitimately produce. A structural analysis that lists a proof status here is over-claiming.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "proven_under_assumptions",
+              "proven_bounded",
+              "counterexample",
+              "bounded_counterexample",
+              "heuristic",
+              "unknown",
+              "timeout",
+              "error",
+              "unsupported"
+            ]
+          }
+        },
+        "driver": {
+          "description": "Repository-relative path of the script that produces the findings document.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "complexity": {"type": "string", "minLength": 1},
+        "memory_hint_mb": {"type": "integer", "minimum": 0},
+        "timeout_hint_s": {"type": "integer", "minimum": 0},
+        "deterministic": {"type": "boolean"},
+        "parallel": {"type": "boolean"},
+        "note": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

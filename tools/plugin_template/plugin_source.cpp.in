@@ -1,0 +1,37 @@
+#include "##LOWER##/plugin_##LOWER##.h"
+
+#include "##LOWER##/capabilities_generated.h"
+
+namespace hal
+{
+    extern std::unique_ptr<BasePluginInterface> create_plugin_instance()
+    {
+        return std::make_unique<##CLASSNAME##Plugin>();
+    }
+
+    std::string ##CLASSNAME##Plugin::get_name() const
+    {
+        return std::string("##LOWER##");
+    }
+
+    std::string ##CLASSNAME##Plugin::get_version() const
+    {
+        return std::string("0.1");
+    }
+
+    std::string ##CLASSNAME##Plugin::get_description() const
+    {
+        return std::string("##DESCRIPTION##");
+    }
+
+    std::set<std::string> ##CLASSNAME##Plugin::get_dependencies() const
+    {
+        // Keep in sync with dependencies.plugins in capabilities.json.
+        return {};
+    }
+
+    std::string ##CLASSNAME##Plugin::get_capabilities()
+    {
+        return std::string(##LOWER##::CAPABILITIES_JSON);
+    }
+}    // namespace hal

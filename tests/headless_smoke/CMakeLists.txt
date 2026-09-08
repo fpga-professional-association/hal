@@ -14,7 +14,23 @@ add_test(NAME runTest-hal_runner_standalone
                  -s ${CMAKE_SOURCE_DIR}/tools/hal_runner -t ${CMAKE_SOURCE_DIR}/tools -p "test_*.py"
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-# real_netlist_smoke.py and runner_smoke.py in this directory are deliberately NOT registered here.
+# The plugin scaffold generator produces files, and hal_capabilities reasons about declarations and
+# stub netlists, so both are checkable without a build. Between them they cover the generated tree,
+# the capability schema and the supported/partial/unsupported verdict; what they cannot cover -- that
+# the generated C++ compiles and loads -- is what plugins/example_analysis (built by CI, with its own
+# runTest-example_analysis) and tests/headless_smoke/plugin_scaffold_smoke.py are for.
+add_test(NAME runTest-new_plugin_standalone
+         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_new_plugin.py
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_test(NAME runTest-hal_capabilities_standalone
+         COMMAND ${Python3_EXECUTABLE} -m unittest discover
+                 -s ${CMAKE_SOURCE_DIR}/tools/hal_capabilities -t ${CMAKE_SOURCE_DIR}/tools
+                 -p "test_*.py"
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# real_netlist_smoke.py, runner_smoke.py and plugin_scaffold_smoke.py in this directory are
+# deliberately NOT registered here.
 # They unpack an example, run plugins, round-trip a project and drive hal_viz / hal_runner, and when
 # one fails what you want is the whole work directory, not a ctest log line -- so CI runs them as
 # their own steps (see .github/workflows/ubuntu24.04.yml) with --work-dir and uploads that directory
@@ -27,3 +43,6 @@ add_test(NAME runTest-hal_runner_standalone
 #
 #   HAL_BASE_PATH=<build> \
 #       python3 tests/headless_smoke/runner_smoke.py --hal-binary <build>/bin/hal
+#
+#   HAL_BASE_PATH=<build> HAL_PY_PATH=<build>/lib \
+#       python3 tests/headless_smoke/plugin_scaffold_smoke.py --build-dir <build>

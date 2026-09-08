@@ -170,3 +170,31 @@ jobs:
           path: ${{ github.workspace }}/build/runner_smoke
           if-no-files-found: warn
           retention-days: 7
+
+      # plugins/example_analysis is the unmodified output of tools/new_plugin.py, so the build above
+      # (BUILD_ALL_PLUGINS=ON) is what compiles the scaffold template and ctest is what runs its
+      # gtest suite. This checks the rest of the promise: that the generated plugin loads, that the
+      # capability declaration compiled into it still matches plugins/example_analysis/capabilities.json,
+      # that it finds the UART's single clock domain (258 flip-flops on CLK_BUF_BUF), that its driver
+      # writes a schema-valid findings document, and that the discovery command tells declared, built,
+      # loadable and supported-for-this-netlist apart.
+      - name: Plugin scaffold end-to-end run
+        id: plugin_scaffold_smoke
+        shell: bash
+        run: |
+          python3 "$GITHUB_WORKSPACE/tests/headless_smoke/plugin_scaffold_smoke.py" \
+            --hal-lib "$GITHUB_WORKSPACE/build/lib" \
+            --build-dir "$GITHUB_WORKSPACE/build" \
+            --work-dir "$GITHUB_WORKSPACE/build/plugin_scaffold_smoke" \
+            --keep
+        env:
+          HAL_BASE_PATH: ${{runner.workspace}}/hal/build
+
+      - name: Upload plugin scaffold artifacts
+        if: always() && steps.plugin_scaffold_smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-scaffold-ubuntu-24.04
+          path: ${{ github.workspace }}/build/plugin_scaffold_smoke
+          if-no-files-found: warn
+          retention-days: 7
