@@ -46,7 +46,42 @@ __all__ = [
 ]
 
 #: Node types of a HAL Boolean function this checker can translate.
-_SUPPORTED_NODES = ("And", "Or", "Not", "Xor", "Variable", "Constant")
+_SUPPORTED_NODES = (
+    "And",
+    "Or",
+    "Not",
+    "Xor",
+    "Ite",
+    "Concat",
+    "Slice",
+    "Zext",
+    "Sext",
+    "Variable",
+    "Constant",
+    "Index",
+)
+
+#: ``BooleanFunction::NodeType`` ids, from ``include/hal_core/netlist/boolean_function.h``.
+#: The Python bindings expose ``node.type`` as the plain ``u16`` value, so a node's
+#: kind has to be recovered from the number (``4098`` is ``Variable``) rather than
+#: from ``str(node.type)``. The table is only a fallback: the values are read back
+#: from ``hal_py.BooleanFunction.NodeType`` whenever the bindings publish them.
+_NODE_TYPE_IDS = {
+    "And": 0x0000,
+    "Or": 0x0001,
+    "Not": 0x0002,
+    "Xor": 0x0003,
+    "Concat": 0x0100,
+    "Slice": 0x0101,
+    "Zext": 0x0102,
+    "Sext": 0x0103,
+    "Ite": 0x0405,
+    "Constant": 0x1000,
+    "Index": 0x1001,
+    "Variable": 0x1002,
+}
+
+_NODE_TYPE_NAMES = {}
 
 
 class NetlistFrontendError(RuntimeError):
@@ -138,67 +173,162 @@ def load(netlist_path=None, project_path=None, gate_library=None, hal_libs=()):
 # ---------------------------------------------------------------------------
 
 
-def _node_type_name(node):
-    return str(getattr(node, "type", "")).rsplit(".", 1)[-1]
+def _node_type_names(hal_py):
+    """``node.type`` value -> node type name, preferring what the bindings publish."""
+    key = id(hal_py)
+    cached = _NODE_TYPE_NAMES.get(key)
+    if cached is None:
+        by_name = dict(_NODE_TYPE_IDS)
+        node_type = getattr(getattr(hal_py, "BooleanFunction", None), "NodeType", None)
+        for attribute in dir(node_type) if node_type is not None else ():
+            if attribute.startswith("_"):
+                continue
+            value = getattr(node_type, attribute, None)
+            if isinstance(value, int) and not isinstance(value, bool):
+                by_name[attribute] = value
+        cached = {value: name for name, value in by_name.items()}
+        _NODE_TYPE_NAMES[key] = cached
+    return cached
+
+
+def _node_type_name(hal_py, node):
+    raw = getattr(node, "type", None)
+    if isinstance(raw, int) and not isinstance(raw, bool):
+        return _node_type_names(hal_py).get(raw, str(raw))
+    return str(raw).rsplit(".", 1)[-1]
+
+
+def _constant_bits(node, where):
+    """A ``Constant`` node's value as a list of terms, least significant bit first."""
+    bits = []
+    for value in node.constant:
+        name = str(value).rsplit(".", 1)[-1]
+        if name not in ("0", "1", "ZERO", "ONE"):
+            raise NetlistFrontendError(
+                "{}: constant bit {!r} is not 0 or 1 (X/Z are not modelled)".format(where, name)
+            )
+        bits.append(expr.const(name in ("1", "ONE")))
+    return bits
 
 
 def _translate(hal_py, function, variable_names, where):
     """HAL ``BooleanFunction`` (reverse polish) -> :mod:`hal_apb_check.expr` term.
 
-    Only single-bit And/Or/Not/Xor over variables and constants are translated.
-    Everything else raises, because a silently dropped operator would turn into
-    a confident, wrong verdict.
+    HAL Boolean functions are bit vectors, so every stack entry here is a list of
+    single-bit terms, least significant bit first -- exactly the ``Value`` vector
+    order HAL itself uses -- and ``Index`` nodes push a plain integer. That lets
+    the word-level node types a real gate library produces (``Concat``, ``Slice``,
+    ``Zext``, ``Sext``, and the ``Ite`` of a multiplexer) be bit-blasted exactly
+    instead of being refused.
+
+    The *result* still has to be a single bit, because a signal in the transition
+    system is one bit. Anything this checker cannot express -- arithmetic,
+    comparisons, shifts, a multi-bit variable -- raises, because a silently
+    dropped operator would turn into a confident, wrong verdict.
     """
     stack = []
     for node in function.get_nodes():
-        kind = _node_type_name(node)
-        if node.size != 1:
-            raise NetlistFrontendError(
-                "{}: {} is {} bits wide; this checker models single-bit APB signals only".format(
-                    where, function, node.size
+        kind = _node_type_name(hal_py, node)
+        arity = node.get_arity()
+        if len(stack) < arity:
+            raise NetlistFrontendError("{}: malformed Boolean function".format(where))
+        operands = stack[len(stack) - arity:] if arity else []
+        del stack[len(stack) - arity:]
+
+        def bits(position, operands=operands, kind=kind):
+            """Operand ``position`` as a bit vector, refusing an ``Index`` there."""
+            operand = operands[position]
+            if not isinstance(operand, list):
+                raise NetlistFrontendError(
+                    "{}: {} operand {} is an index, not a value".format(where, kind, position)
                 )
-            )
+            return operand
+
+        def index(position, operands=operands, kind=kind):
+            operand = operands[position]
+            if not isinstance(operand, int):
+                raise NetlistFrontendError(
+                    "{}: {} operand {} is not a constant index".format(where, kind, position)
+                )
+            return operand
+
+        if kind == "Index":
+            stack.append(int(node.index))
+            continue
+
         if kind == "Variable":
+            if node.size != 1:
+                raise NetlistFrontendError(
+                    "{}: variable {!r} is {} bits wide; this checker models single-bit signals "
+                    "only".format(where, node.variable, node.size)
+                )
             name = node.variable
             translated = variable_names.get(name)
             if translated is None:
                 raise NetlistFrontendError(
                     "{}: Boolean function refers to unknown variable {!r}".format(where, name)
                 )
-            stack.append(translated)
+            result = [translated]
         elif kind == "Constant":
-            values = [str(value) for value in node.constant]
-            if len(values) != 1 or values[0] not in ("0", "1", "ZERO", "ONE"):
+            result = _constant_bits(node, where)
+        elif kind == "Not":
+            result = [expr.not_(bit) for bit in bits(0)]
+        elif kind in ("And", "Or", "Xor"):
+            left, right = bits(0), bits(1)
+            if len(left) != len(right):
+                raise NetlistFrontendError("{}: malformed Boolean function".format(where))
+            combine = {"And": expr.and_, "Or": expr.or_, "Xor": expr.xor_}[kind]
+            result = [combine(a, b) for a, b in zip(left, right)]
+        elif kind == "Ite":
+            condition, if_true, if_false = bits(0), bits(1), bits(2)
+            if len(condition) != 1 or len(if_true) != len(if_false):
+                raise NetlistFrontendError("{}: malformed Boolean function".format(where))
+            select = condition[0]
+            result = [
+                expr.or_(expr.and_(select, a), expr.and_(expr.not_(select), b))
+                for a, b in zip(if_true, if_false)
+            ]
+        elif kind == "Concat":
+            # ``Concat(p0, p1)`` puts p0 in the high bits, p1 in the low ones.
+            result = list(bits(1)) + list(bits(0))
+        elif kind == "Slice":
+            value, start, end = bits(0), index(1), index(2)
+            if not 0 <= start <= end < len(value):
                 raise NetlistFrontendError(
-                    "{}: constant {} is not a single 0/1 bit (X/Z are not modelled)".format(
-                        where, values
+                    "{}: slice [{}:{}] is outside the {}-bit operand".format(
+                        where, start, end, len(value)
                     )
                 )
-            stack.append(expr.const(values[0] in ("1", "ONE")))
-        elif kind in ("And", "Or", "Xor", "Not"):
-            arity = node.get_arity()
-            if len(stack) < arity:
+            result = value[start:end + 1]
+        elif kind in ("Zext", "Sext"):
+            value = bits(0)
+            if not value or node.size < len(value):
                 raise NetlistFrontendError("{}: malformed Boolean function".format(where))
-            operands = [stack.pop() for _ in range(arity)]
-            if kind == "Not":
-                stack.append(expr.not_(operands[0]))
-            elif kind == "And":
-                stack.append(expr.and_(*operands))
-            elif kind == "Or":
-                stack.append(expr.or_(*operands))
-            else:
-                result = operands[0]
-                for operand in operands[1:]:
-                    result = expr.xor_(result, operand)
-                stack.append(result)
+            filler = expr.const(False) if kind == "Zext" else value[-1]
+            result = list(value) + [filler] * (node.size - len(value))
         else:
             raise NetlistFrontendError(
                 "{}: Boolean function node type {!r} is not modelled; this checker handles "
                 "{} only".format(where, kind, ", ".join(_SUPPORTED_NODES))
             )
-    if len(stack) != 1:
+
+        if len(result) != node.size:
+            raise NetlistFrontendError(
+                "{}: {} node produced {} bits but declares {}".format(
+                    where, kind, len(result), node.size
+                )
+            )
+        stack.append(result)
+
+    if len(stack) != 1 or not isinstance(stack[0], list):
         raise NetlistFrontendError("{}: malformed Boolean function".format(where))
-    return stack[0]
+    if len(stack[0]) != 1:
+        raise NetlistFrontendError(
+            "{}: {} is {} bits wide; this checker models single-bit APB signals only".format(
+                where, function, len(stack[0])
+            )
+        )
+    return stack[0][0]
 
 
 # ---------------------------------------------------------------------------
