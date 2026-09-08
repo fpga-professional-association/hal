@@ -1,0 +1,7 @@
+# The fixtures are hashed byte for byte in each MANIFEST.json, so git must not
+# rewrite their line endings on checkout or commit. Without this, a Windows
+# checkout (core.autocrlf=true) would produce different bytes than the Linux one
+# the hashes were taken on, and the manifest check would fail for a reason that
+# has nothing to do with the netlists.
+*.v  -text
+*.vo -text

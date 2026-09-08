@@ -1,0 +1,143 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 09:22:25"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module lut_logic (
+	y0,
+	y1,
+	y2,
+	a,
+	b,
+	c,
+	d,
+	e,
+	f);
+output 	y0;
+output 	y1;
+output 	y2;
+input 	a;
+input 	b;
+input 	c;
+input 	d;
+input 	e;
+input 	f;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \y0~1_combout ;
+wire \y1~1_combout ;
+wire \y2~1_combout ;
+
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h11F1FFFFFFFF11F1),
+  .shared_arith ("off"))
+\y0~1 (
+// Equation(s):
+// \y0~1_combout  = ( e & ( f & ( (!a & ( ((!c & d)))) | (a & ( ((!c & d)) | (b))) ) ) ) | ( !e & ( f ) ) | ( e & ( !f ) ) | ( !e & ( !f & ( (!a & ( ((!c & d)))) | (a & ( ((!c & d)) | (b))) ) ) )
+
+	.dataa(~a),
+	.datab(~b),
+	.datac(~c),
+	.datad(~d),
+	.datae(~e),
+	.dataf(~f),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\y0~1_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6969006969690069),
+  .shared_arith ("off"))
+\y1~1 (
+// Equation(s):
+// \y1~1_combout  = ( e & ( (d & ( !a ^ (!b ^ (c)))) ) ) | ( !e & ( !a ^ (!b ^ (c)) ) )
+
+	.dataa(~a),
+	.datab(~b),
+	.datac(~c),
+	.datad(~d),
+	.datae(~e),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\y1~1_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h040404FFAEAEAEAE),
+  .shared_arith ("off"))
+\y2~1 (
+// Equation(s):
+// \y2~1_combout  = ( e & ( f & ( (!a) | ((!b & c)) ) ) ) | ( !e & ( f & ( (!a) | ((!b & c)) ) ) ) | ( e & ( !f & ( ((a & (!b & c))) | (d) ) ) ) | ( !e & ( !f & ( (a & (!b & c)) ) ) )
+
+	.dataa(~a),
+	.datab(~b),
+	.datac(~c),
+	.datad(~d),
+	.datae(~e),
+	.dataf(~f),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\y2~1_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+assign y0 = \y0~1_combout ;
+
+assign y1 = \y1~1_combout ;
+
+assign y2 = \y2~1_combout ;
+
+endmodule

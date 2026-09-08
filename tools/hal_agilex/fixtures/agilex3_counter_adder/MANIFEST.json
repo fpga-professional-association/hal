@@ -1,0 +1,50 @@
+{
+  "description": "8-bit accumulating counter: LUT + carry chain + registers.",
+  "device": "A3CW135BM16AE6S",
+  "export_flow": [
+    "quartus_syn <revision> -c <revision>",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation <revision> -c <revision>"
+  ],
+  "export_stage": "post-synthesis (synthesized snapshot; no fitting was run)",
+  "family": "Agilex 3",
+  "files": {
+    "counter_adder.hal.v": {
+      "role": "imported",
+      "sha256": "77f0a725dff04c4c025d1b16e35c49771b6b23f07258bb800d11167ce8c213d8",
+      "size_bytes": 6604
+    },
+    "counter_adder.v": {
+      "role": "source",
+      "sha256": "b8afb66db157a502c5f2e8dfce97ce58dfedbc961e29680b8e9093aaea2373a1",
+      "size_bytes": 617
+    },
+    "counter_adder.vo": {
+      "role": "export",
+      "sha256": "c69f5e4bcd2d8cc377498eb220ff8096e43dd407dac82eda2b367e16def35a4b",
+      "size_bytes": 9804
+    }
+  },
+  "fixture": "agilex3_counter_adder",
+  "package": "MBGA896",
+  "qsf_assignments": [
+    "set_global_assignment -name FAMILY \"Agilex 3\"",
+    "set_global_assignment -name DEVICE A3CW135BM16AE6S",
+    "set_global_assignment -name TOP_LEVEL_ENTITY <top>",
+    "set_global_assignment -name VERILOG_FILE <top>.v",
+    "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files"
+  ],
+  "quartus_install": "C:/altera_pro/26.1 (Windows)",
+  "quartus_version": "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition",
+  "redistribution": "The exported netlist is tool output generated from FPGAPA-authored RTL. The Altera copyright header that quartus_eda writes is kept verbatim. No vendor simulation models, device databases or encrypted libraries are redistributed here; the Agilex atom simulation models shipped with Quartus (eda/sim_lib/fmica_atoms_ncrypt.sv) are encrypted and are neither used nor included. Regenerate with the commands above if your licence terms require you to produce the netlist yourself.",
+  "regenerate": [
+    "mkdir <scratch> && cd <scratch>",
+    "cp counter_adder.v .",
+    "write counter_adder.qpf and counter_adder.qsf with the assignments above",
+    "quartus_syn counter_adder -c counter_adder",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation counter_adder -c counter_adder",
+    "cp simulation/counter_adder.vo <fixture dir>",
+    "python tools/hal_agilex import <fixture dir>/counter_adder.vo -o <fixture dir>/counter_adder.hal.v"
+  ],
+  "top_level_entity": "counter_adder",
+  "vendor_tool": "Quartus Prime Pro Edition"
+}

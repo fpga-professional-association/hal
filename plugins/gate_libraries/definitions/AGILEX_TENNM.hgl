@@ -1,0 +1,473 @@
+{
+    "version": 4,
+    "library": "AGILEX_TENNM",
+    "cells": [
+        {
+            "name": "HAL_GND",
+            "types": [
+                "combinational",
+                "ground"
+            ],
+            "pin_groups": [
+                {
+                    "name": "O",
+                    "direction": "output",
+                    "type": "ground",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "O",
+                            "direction": "output",
+                            "type": "ground",
+                            "function": "0b0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HAL_VCC",
+            "types": [
+                "combinational",
+                "power"
+            ],
+            "pin_groups": [
+                {
+                    "name": "O",
+                    "direction": "output",
+                    "type": "power",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "O",
+                            "direction": "output",
+                            "type": "power",
+                            "function": "0b1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "tennm_ff",
+            "types": [
+                "sequential",
+                "ff"
+            ],
+            "ff_config": {
+                "state": "IQ",
+                "neg_state": "IQN",
+                "next_state": "((ena & d) | (IQ & (! ena)))",
+                "clocked_on": "clk",
+                "clear_on": "(! clrn)"
+            },
+            "pin_groups": [
+                {
+                    "name": "clk",
+                    "direction": "input",
+                    "type": "clock",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "clk",
+                            "direction": "input",
+                            "type": "clock"
+                        }
+                    ]
+                },
+                {
+                    "name": "d",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "d",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "asdata",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "asdata",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "clrn",
+                    "direction": "input",
+                    "type": "reset",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "clrn",
+                            "direction": "input",
+                            "type": "reset"
+                        }
+                    ]
+                },
+                {
+                    "name": "aload",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "aload",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "sclr",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "sclr",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "sload",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "sload",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "ena",
+                    "direction": "input",
+                    "type": "enable",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "ena",
+                            "direction": "input",
+                            "type": "enable"
+                        }
+                    ]
+                },
+                {
+                    "name": "sclr1",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "sclr1",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "devclrn",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "devclrn",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "devpor",
+                    "direction": "input",
+                    "type": "control",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "devpor",
+                            "direction": "input",
+                            "type": "control"
+                        }
+                    ]
+                },
+                {
+                    "name": "q",
+                    "direction": "output",
+                    "type": "state",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "q",
+                            "direction": "output",
+                            "type": "state",
+                            "function": "IQ"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "tennm_lcell_comb",
+            "types": [
+                "combinational",
+                "c_lut",
+                "c_carry"
+            ],
+            "pin_groups": [
+                {
+                    "name": "dataa",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "dataa",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datab",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datab",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datac",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datac",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datad",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datad",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datae",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datae",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "dataf",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "dataf",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datag",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datag",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "datah",
+                    "direction": "input",
+                    "type": "data",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "datah",
+                            "direction": "input",
+                            "type": "data"
+                        }
+                    ]
+                },
+                {
+                    "name": "cin",
+                    "direction": "input",
+                    "type": "carry",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "cin",
+                            "direction": "input",
+                            "type": "carry"
+                        }
+                    ]
+                },
+                {
+                    "name": "sharein",
+                    "direction": "input",
+                    "type": "carry",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "sharein",
+                            "direction": "input",
+                            "type": "carry"
+                        }
+                    ]
+                },
+                {
+                    "name": "combout",
+                    "direction": "output",
+                    "type": "none",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "combout",
+                            "direction": "output",
+                            "type": "none"
+                        }
+                    ]
+                },
+                {
+                    "name": "sumout",
+                    "direction": "output",
+                    "type": "sum",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "sumout",
+                            "direction": "output",
+                            "type": "sum"
+                        }
+                    ]
+                },
+                {
+                    "name": "cout",
+                    "direction": "output",
+                    "type": "carry",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "cout",
+                            "direction": "output",
+                            "type": "carry"
+                        }
+                    ]
+                },
+                {
+                    "name": "shareout",
+                    "direction": "output",
+                    "type": "carry",
+                    "ascending": false,
+                    "start_index": 0,
+                    "ordered": false,
+                    "pins": [
+                        {
+                            "name": "shareout",
+                            "direction": "output",
+                            "type": "carry"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

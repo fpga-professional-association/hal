@@ -1,0 +1,1427 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 09:22:42"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module mixed_blocks (
+	rdata,
+	product,
+	flag,
+	clk,
+	we,
+	waddr,
+	wdata,
+	raddr,
+	opa,
+	opb);
+output 	[7:0] rdata;
+output 	[15:0] product;
+output 	flag;
+input 	clk;
+input 	we;
+input 	[9:0] waddr;
+input 	[7:0] wdata;
+input 	[9:0] raddr;
+input 	[7:0] opa;
+input 	[7:0] opb;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \mult_0~DATAOUTA0_resulta ;
+wire \mult_0~DATAOUTA1 ;
+wire \mult_0~DATAOUTA2 ;
+wire \mult_0~DATAOUTA3 ;
+wire \mult_0~DATAOUTA4 ;
+wire \mult_0~DATAOUTA5 ;
+wire \mult_0~DATAOUTA6 ;
+wire \mult_0~DATAOUTA7 ;
+wire \mult_0~DATAOUTA8 ;
+wire \mult_0~DATAOUTA9 ;
+wire \mult_0~DATAOUTA10 ;
+wire \mult_0~DATAOUTA11 ;
+wire \mult_0~DATAOUTA12 ;
+wire \mult_0~DATAOUTA13 ;
+wire \mult_0~DATAOUTA14 ;
+wire mult_0;
+wire \mult_0~DATAOUTA16 ;
+wire \mult_0~DATAOUTA17 ;
+wire \mult_0~DATAOUTA18 ;
+wire \mult_0~DATAOUTA19 ;
+wire \mult_0~DATAOUTA20 ;
+wire \mult_0~DATAOUTA21 ;
+wire \mult_0~DATAOUTA22 ;
+wire \mult_0~DATAOUTA23 ;
+wire \mult_0~DATAOUTA24 ;
+wire \mult_0~DATAOUTA25 ;
+wire \mult_0~DATAOUTA26 ;
+wire \mult_0~DATAOUTA27 ;
+wire \mult_0~DATAOUTA28 ;
+wire \mult_0~DATAOUTA29 ;
+wire \mult_0~DATAOUTA30 ;
+wire \mult_0~DATAOUTA31 ;
+wire \mult_0~DATAOUTA32 ;
+wire \mult_0~DATAOUTA33 ;
+wire \mult_0~DATAOUTA34 ;
+wire \mult_0~DATAOUTA35 ;
+wire \mult_0~DATAOUTA36 ;
+wire \mult_0~DATAOUTA37 ;
+wire \mult_0~DATAOUTA38 ;
+wire \mult_0~DATAOUTA39 ;
+wire \mult_0~DATAOUTA40 ;
+wire \mult_0~DATAOUTA41 ;
+wire \mult_0~DATAOUTA42 ;
+wire \mult_0~DATAOUTA43 ;
+wire \mult_0~DATAOUTA44 ;
+wire \mult_0~DATAOUTA45 ;
+wire \mult_0~DATAOUTA46 ;
+wire \mult_0~DATAOUTA47 ;
+wire \mult_0~DATAOUTA48 ;
+wire \mult_0~DATAOUTA49 ;
+wire \mult_0~DATAOUTA50 ;
+wire \mult_0~DATAOUTA51 ;
+wire \mult_0~DATAOUTA52 ;
+wire \mult_0~DATAOUTA53 ;
+wire \mult_0~DATAOUTA54 ;
+wire \mult_0~DATAOUTA55 ;
+wire \mult_0~DATAOUTA56 ;
+wire \mult_0~DATAOUTA57 ;
+wire \mult_0~DATAOUTA58 ;
+wire \mult_0~DATAOUTA59 ;
+wire \mult_0~DATAOUTA60 ;
+wire \mult_0~DATAOUTA61 ;
+wire \mult_0~DATAOUTA62 ;
+wire \mult_0~DATAOUTA63 ;
+wire \product[0]~reg0_q ;
+wire \product[1]~reg0_q ;
+wire \product[2]~reg0_q ;
+wire \product[3]~reg0_q ;
+wire \product[4]~reg0_q ;
+wire \product[5]~reg0_q ;
+wire \product[6]~reg0_q ;
+wire \product[7]~reg0_q ;
+wire \product[8]~reg0_q ;
+wire \product[9]~reg0_q ;
+wire \product[10]~reg0_q ;
+wire \product[11]~reg0_q ;
+wire \product[12]~reg0_q ;
+wire \product[13]~reg0_q ;
+wire \product[14]~reg0_q ;
+wire \product[15]~reg0_q ;
+wire \flag~reg0_q ;
+wire \i7~combout ;
+wire [7:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b ;
+
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a0_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a1_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a2_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a3_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a4_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a5_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a6_PORTBDATAOUT_bus ;
+wire [0:0] \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a7_PORTBDATAOUT_bus ;
+wire [63:0] \mult_0~DATAOUTA0_RESULTA_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [0] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a0_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [1] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a1_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [2] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a2_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [3] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a3_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [4] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a4_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [5] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a5_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [6] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a6_PORTBDATAOUT_bus ;
+
+assign \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [7] = \mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a7_PORTBDATAOUT_bus ;
+
+assign \mult_0~DATAOUTA0_resulta  = \mult_0~DATAOUTA0_RESULTA_bus [0];
+assign \mult_0~DATAOUTA1  = \mult_0~DATAOUTA0_RESULTA_bus [1];
+assign \mult_0~DATAOUTA2  = \mult_0~DATAOUTA0_RESULTA_bus [2];
+assign \mult_0~DATAOUTA3  = \mult_0~DATAOUTA0_RESULTA_bus [3];
+assign \mult_0~DATAOUTA4  = \mult_0~DATAOUTA0_RESULTA_bus [4];
+assign \mult_0~DATAOUTA5  = \mult_0~DATAOUTA0_RESULTA_bus [5];
+assign \mult_0~DATAOUTA6  = \mult_0~DATAOUTA0_RESULTA_bus [6];
+assign \mult_0~DATAOUTA7  = \mult_0~DATAOUTA0_RESULTA_bus [7];
+assign \mult_0~DATAOUTA8  = \mult_0~DATAOUTA0_RESULTA_bus [8];
+assign \mult_0~DATAOUTA9  = \mult_0~DATAOUTA0_RESULTA_bus [9];
+assign \mult_0~DATAOUTA10  = \mult_0~DATAOUTA0_RESULTA_bus [10];
+assign \mult_0~DATAOUTA11  = \mult_0~DATAOUTA0_RESULTA_bus [11];
+assign \mult_0~DATAOUTA12  = \mult_0~DATAOUTA0_RESULTA_bus [12];
+assign \mult_0~DATAOUTA13  = \mult_0~DATAOUTA0_RESULTA_bus [13];
+assign \mult_0~DATAOUTA14  = \mult_0~DATAOUTA0_RESULTA_bus [14];
+assign mult_0 = \mult_0~DATAOUTA0_RESULTA_bus [15];
+assign \mult_0~DATAOUTA16  = \mult_0~DATAOUTA0_RESULTA_bus [16];
+assign \mult_0~DATAOUTA17  = \mult_0~DATAOUTA0_RESULTA_bus [17];
+assign \mult_0~DATAOUTA18  = \mult_0~DATAOUTA0_RESULTA_bus [18];
+assign \mult_0~DATAOUTA19  = \mult_0~DATAOUTA0_RESULTA_bus [19];
+assign \mult_0~DATAOUTA20  = \mult_0~DATAOUTA0_RESULTA_bus [20];
+assign \mult_0~DATAOUTA21  = \mult_0~DATAOUTA0_RESULTA_bus [21];
+assign \mult_0~DATAOUTA22  = \mult_0~DATAOUTA0_RESULTA_bus [22];
+assign \mult_0~DATAOUTA23  = \mult_0~DATAOUTA0_RESULTA_bus [23];
+assign \mult_0~DATAOUTA24  = \mult_0~DATAOUTA0_RESULTA_bus [24];
+assign \mult_0~DATAOUTA25  = \mult_0~DATAOUTA0_RESULTA_bus [25];
+assign \mult_0~DATAOUTA26  = \mult_0~DATAOUTA0_RESULTA_bus [26];
+assign \mult_0~DATAOUTA27  = \mult_0~DATAOUTA0_RESULTA_bus [27];
+assign \mult_0~DATAOUTA28  = \mult_0~DATAOUTA0_RESULTA_bus [28];
+assign \mult_0~DATAOUTA29  = \mult_0~DATAOUTA0_RESULTA_bus [29];
+assign \mult_0~DATAOUTA30  = \mult_0~DATAOUTA0_RESULTA_bus [30];
+assign \mult_0~DATAOUTA31  = \mult_0~DATAOUTA0_RESULTA_bus [31];
+assign \mult_0~DATAOUTA32  = \mult_0~DATAOUTA0_RESULTA_bus [32];
+assign \mult_0~DATAOUTA33  = \mult_0~DATAOUTA0_RESULTA_bus [33];
+assign \mult_0~DATAOUTA34  = \mult_0~DATAOUTA0_RESULTA_bus [34];
+assign \mult_0~DATAOUTA35  = \mult_0~DATAOUTA0_RESULTA_bus [35];
+assign \mult_0~DATAOUTA36  = \mult_0~DATAOUTA0_RESULTA_bus [36];
+assign \mult_0~DATAOUTA37  = \mult_0~DATAOUTA0_RESULTA_bus [37];
+assign \mult_0~DATAOUTA38  = \mult_0~DATAOUTA0_RESULTA_bus [38];
+assign \mult_0~DATAOUTA39  = \mult_0~DATAOUTA0_RESULTA_bus [39];
+assign \mult_0~DATAOUTA40  = \mult_0~DATAOUTA0_RESULTA_bus [40];
+assign \mult_0~DATAOUTA41  = \mult_0~DATAOUTA0_RESULTA_bus [41];
+assign \mult_0~DATAOUTA42  = \mult_0~DATAOUTA0_RESULTA_bus [42];
+assign \mult_0~DATAOUTA43  = \mult_0~DATAOUTA0_RESULTA_bus [43];
+assign \mult_0~DATAOUTA44  = \mult_0~DATAOUTA0_RESULTA_bus [44];
+assign \mult_0~DATAOUTA45  = \mult_0~DATAOUTA0_RESULTA_bus [45];
+assign \mult_0~DATAOUTA46  = \mult_0~DATAOUTA0_RESULTA_bus [46];
+assign \mult_0~DATAOUTA47  = \mult_0~DATAOUTA0_RESULTA_bus [47];
+assign \mult_0~DATAOUTA48  = \mult_0~DATAOUTA0_RESULTA_bus [48];
+assign \mult_0~DATAOUTA49  = \mult_0~DATAOUTA0_RESULTA_bus [49];
+assign \mult_0~DATAOUTA50  = \mult_0~DATAOUTA0_RESULTA_bus [50];
+assign \mult_0~DATAOUTA51  = \mult_0~DATAOUTA0_RESULTA_bus [51];
+assign \mult_0~DATAOUTA52  = \mult_0~DATAOUTA0_RESULTA_bus [52];
+assign \mult_0~DATAOUTA53  = \mult_0~DATAOUTA0_RESULTA_bus [53];
+assign \mult_0~DATAOUTA54  = \mult_0~DATAOUTA0_RESULTA_bus [54];
+assign \mult_0~DATAOUTA55  = \mult_0~DATAOUTA0_RESULTA_bus [55];
+assign \mult_0~DATAOUTA56  = \mult_0~DATAOUTA0_RESULTA_bus [56];
+assign \mult_0~DATAOUTA57  = \mult_0~DATAOUTA0_RESULTA_bus [57];
+assign \mult_0~DATAOUTA58  = \mult_0~DATAOUTA0_RESULTA_bus [58];
+assign \mult_0~DATAOUTA59  = \mult_0~DATAOUTA0_RESULTA_bus [59];
+assign \mult_0~DATAOUTA60  = \mult_0~DATAOUTA0_RESULTA_bus [60];
+assign \mult_0~DATAOUTA61  = \mult_0~DATAOUTA0_RESULTA_bus [61];
+assign \mult_0~DATAOUTA62  = \mult_0~DATAOUTA0_RESULTA_bus [62];
+assign \mult_0~DATAOUTA63  = \mult_0~DATAOUTA0_RESULTA_bus [63];
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (0),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (0),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a0 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[0]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a0_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (1),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (1),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a1 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[1]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a1_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (2),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (2),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a2 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[2]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a2_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (3),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (3),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a3 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[3]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a3_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (4),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (4),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a4 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[4]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a4_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (5),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (5),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a5 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[5]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a5_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (6),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (6),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a6 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[6]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a6_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_ram_block #(
+  .clk0_input_clock_enable ("none"),
+  .clk0_output_clock_enable ("none"),
+  .clk1_input_clock_enable ("none"),
+  .clk1_output_clock_enable ("none"),
+  .data_interleave_offset_in_bits (1),
+  .data_interleave_width_in_bits (1),
+  .enable_coherent_read ("false"),
+  .enable_ecc_encoder_bypass ("false"),
+  .enable_force_to_zero ("false"),
+  .enable_unoc ("false"),
+  .enable_unoc_place_contiguous ("true"),
+  .logical_ram_name ("mem_rtl_0|auto_generated|altera_syncram_impl1|ALTERA_SYNCRAM"),
+  .mixed_port_feed_through_mode ("old"),
+  .operation_mode ("dual_port"),
+  .optimization_option ("high_speed"),
+  .port_a_address_width (10),
+  .port_a_data_out_clear ("none"),
+  .port_a_data_out_clock ("none"),
+  .port_a_data_width (1),
+  .port_a_first_address (0),
+  .port_a_first_bit_number (7),
+  .port_a_last_address (1023),
+  .port_a_logical_ram_depth (1024),
+  .port_a_logical_ram_width (8),
+  .port_a_rdaddress_clear ("none"),
+  .port_b_address_clock ("clock0"),
+  .port_b_address_width (10),
+  .port_b_data_out_clear ("none"),
+  .port_b_data_out_clock ("none"),
+  .port_b_data_width (1),
+  .port_b_first_address (0),
+  .port_b_first_bit_number (7),
+  .port_b_last_address (1023),
+  .port_b_logical_ram_depth (1024),
+  .port_b_logical_ram_width (8),
+  .port_b_rdaddress_clear ("none"),
+  .ram_block_type ("auto"),
+  .unoc_beats_value (2'b11),
+  .unoc_clock_switchover_mode ("static_user_wr_rd"),
+  .unoc_data_latency (0),
+  .unoc_group_id (0),
+  .unoc_index_within_group (0),
+  .unoc_mcg_subgroup_id (0))
+\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a7 (
+	.clk0(clk),
+	.clk1(gnd),
+	.aclr(gnd),
+	.sclr(gnd),
+	.ena0(vcc),
+	.ena1(vcc),
+	.portaaddrstall(gnd),
+	.portaaddrstall2(gnd),
+	.portare(vcc),
+	.portawe(we),
+	.eccencbypass(gnd),
+	.portbaddrstall(gnd),
+	.portbaddrstall2(gnd),
+	.portbre(vcc),
+	.portbwe(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.unocclk(gnd),
+	.unocwe(vcc),
+	.unocre(vcc),
+	.unocbeatsrst(gnd),
+	.portaaddr({waddr[9],waddr[8],waddr[7],waddr[6],waddr[5],waddr[4],waddr[3],waddr[2],waddr[1],waddr[0]}),
+	.portaaddr2(1'b0),
+	.portabyteenamasks(1'b1),
+	.portadatain({wdata[7]}),
+	.eccencparity(1'b0),
+	.portbaddr({raddr[9],raddr[8],raddr[7],raddr[6],raddr[5],raddr[4],raddr[3],raddr[2],raddr[1],raddr[0]}),
+	.portbaddr2(1'b0),
+	.portbbyteenamasks(1'b1),
+	.portbdatain(1'b0),
+	.unocwdatain(1'b0),
+	.unocwaddr(1'b0),
+	.unocgroupid(1'b0),
+	.unocraddr(1'b0),
+	.unocnrvalidout(),
+	.unocnen(),
+	.unocnerr(),
+	.portadataout(),
+	.portbdataout(\mem_rtl_0|auto_generated|altera_syncram_impl1|ram_block2a7_PORTBDATAOUT_bus ),
+	.eccstatus(),
+	.dftout(),
+	.unocrdataout(),
+	.unocgraycnt());
+
+tennm_mac #(
+  .accum_2nd_pipeline_clken ("no_reg"),
+  .accum_pipeline_clken ("no_reg"),
+  .accumulate_clken ("no_reg"),
+  .ax_clken ("no_reg"),
+  .ax_width (8),
+  .ay_scan_in_clken ("no_reg"),
+  .ay_scan_in_width (8),
+  .ay_use_scan_in ("false"),
+  .az_clken ("no_reg"),
+  .bx_clken ("no_reg"),
+  .by_clken ("no_reg"),
+  .by_use_scan_in ("false"),
+  .bz_clken ("no_reg"),
+  .chain_inout_width (64),
+  .clear_type ("none"),
+  .coef_a_0 (0),
+  .coef_a_1 (0),
+  .coef_a_2 (0),
+  .coef_a_3 (0),
+  .coef_a_4 (0),
+  .coef_a_5 (0),
+  .coef_a_6 (0),
+  .coef_a_7 (0),
+  .coef_b_0 (0),
+  .coef_b_1 (0),
+  .coef_b_2 (0),
+  .coef_b_3 (0),
+  .coef_b_4 (0),
+  .coef_b_5 (0),
+  .coef_b_6 (0),
+  .coef_b_7 (0),
+  .coef_sel_a_clken ("no_reg"),
+  .coef_sel_b_clken ("no_reg"),
+  .cx_clken ("no_reg"),
+  .cy_clken ("no_reg"),
+  .delay_scan_out_ay ("false"),
+  .delay_scan_out_by ("false"),
+  .dx_clken ("no_reg"),
+  .dy_clken ("no_reg"),
+  .enable_double_accum ("false"),
+  .ex_clken ("no_reg"),
+  .ey_clken ("no_reg"),
+  .fx_clken ("no_reg"),
+  .fy_clken ("no_reg"),
+  .input_pipeline_clken ("no_reg"),
+  .input_systolic_clken ("no_reg"),
+  .load_const_2nd_pipeline_clken ("no_reg"),
+  .load_const_clken ("no_reg"),
+  .load_const_pipeline_clken ("no_reg"),
+  .load_const_value (0),
+  .negate_clken ("no_reg"),
+  .negate_systolic_reg ("no_reg"),
+  .operand_source_max ("input"),
+  .operand_source_may ("input"),
+  .operand_source_mbx ("input"),
+  .operand_source_mby ("input"),
+  .operation_mode ("m18x18_full"),
+  .output_clken ("no_reg"),
+  .preadder_subtract_a ("false"),
+  .preadder_subtract_b ("false"),
+  .result_a_width (64),
+  .second_pipeline_clken ("no_reg"),
+  .signed_max ("false"),
+  .signed_may ("false"),
+  .signed_mbx ("false"),
+  .signed_mby ("false"),
+  .signed_mcx ("false"),
+  .signed_mcy ("false"),
+  .signed_mdx ("false"),
+  .signed_mdy ("false"),
+  .signed_mex ("false"),
+  .signed_mey ("false"),
+  .signed_mfx ("false"),
+  .signed_mfy ("false"),
+  .sub_clken ("no_reg"),
+  .sub_systolic_reg ("no_reg"),
+  .use_chainadder ("false"))
+\mult_0~DATAOUTA0 (
+	.sub(gnd),
+	.negate(gnd),
+	.accumulate(gnd),
+	.loadconst(gnd),
+	.disable_scanin(gnd),
+	.disable_chainout(gnd),
+	.clk(gnd),
+	.dfxlfsrena(vcc),
+	.dfxmisrena(vcc),
+	.ax({opb[7],opb[6],opb[5],opb[4],opb[3],opb[2],opb[1],opb[0]}),
+	.ay({opa[7],opa[6],opa[5],opa[4],opa[3],opa[2],opa[1],opa[0]}),
+	.az(26'b00000000000000000000000000),
+	.bx(36'b000000000000000000000000000000000000),
+	.by(19'b0000000000000000000),
+	.bz(18'b000000000000000000),
+	.cx(9'b000000000),
+	.cy(9'b000000000),
+	.dx(9'b000000000),
+	.dy(9'b000000000),
+	.ex(9'b000000000),
+	.ey(9'b000000000),
+	.fx(9'b000000000),
+	.fy(9'b000000000),
+	.coefsela(3'b000),
+	.coefselb(3'b000),
+	.clr(2'b00),
+	.ena(3'b111),
+	.scanin(8'b00000000),
+	.chainin(64'b0000000000000000000000000000000000000000000000000000000000000000),
+	.resulta(\mult_0~DATAOUTA0_RESULTA_bus ),
+	.resultb(),
+	.scanout(),
+	.chainout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[0]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA0_resulta ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[0]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[1]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA1 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[1]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[2]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA2 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[2]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[3]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA3 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[3]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[4]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA4 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[4]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[5]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA5 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[5]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[6]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA6 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[6]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[7]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA7 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[7]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[8]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA8 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[8]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[9]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA9 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[9]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[10]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA10 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[10]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[11]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA11 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[11]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[12]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA12 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[12]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[13]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA13 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[13]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[14]~reg0 (
+	.clk(clk),
+	.d(\mult_0~DATAOUTA14 ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[14]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\product[15]~reg0 (
+	.clk(clk),
+	.d(mult_0),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\product[15]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\flag~reg0 (
+	.clk(clk),
+	.d(\i7~combout ),
+	.asdata(vcc),
+	.clrn(vcc),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\flag~reg0_q ));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'hABABABABABABABAB),
+  .shared_arith ("off"))
+i7(
+// Equation(s):
+// \i7~combout  = (!opa[2]) | ((opa[0] & opb[1]))
+
+	.dataa(~opa[2]),
+	.datab(~opa[0]),
+	.datac(~opb[1]),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i7~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+assign flag = \flag~reg0_q ;
+
+assign rdata[0] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [0];
+
+assign rdata[1] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [1];
+
+assign rdata[2] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [2];
+
+assign rdata[3] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [3];
+
+assign rdata[4] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [4];
+
+assign rdata[5] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [5];
+
+assign rdata[6] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [6];
+
+assign rdata[7] = \mem_rtl_0|auto_generated|altera_syncram_impl1|q_b [7];
+
+assign product[0] = \product[0]~reg0_q ;
+
+assign product[10] = \product[10]~reg0_q ;
+
+assign product[11] = \product[11]~reg0_q ;
+
+assign product[12] = \product[12]~reg0_q ;
+
+assign product[13] = \product[13]~reg0_q ;
+
+assign product[14] = \product[14]~reg0_q ;
+
+assign product[15] = \product[15]~reg0_q ;
+
+assign product[1] = \product[1]~reg0_q ;
+
+assign product[2] = \product[2]~reg0_q ;
+
+assign product[3] = \product[3]~reg0_q ;
+
+assign product[4] = \product[4]~reg0_q ;
+
+assign product[5] = \product[5]~reg0_q ;
+
+assign product[6] = \product[6]~reg0_q ;
+
+assign product[7] = \product[7]~reg0_q ;
+
+assign product[8] = \product[8]~reg0_q ;
+
+assign product[9] = \product[9]~reg0_q ;
+
+endmodule

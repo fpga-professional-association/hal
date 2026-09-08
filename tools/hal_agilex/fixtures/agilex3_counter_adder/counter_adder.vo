@@ -1,0 +1,453 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 09:19:21"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module counter_adder (
+	count,
+	carry_out,
+	clk,
+	rst_n,
+	en,
+	addend);
+output 	[7:0] count;
+output 	carry_out;
+input 	clk;
+input 	rst_n;
+input 	en;
+input 	[7:0] addend;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \add_0~1_sumout ;
+wire \add_0~6_sumout ;
+wire \add_0~7 ;
+wire \add_0~11_sumout ;
+wire \add_0~12 ;
+wire \add_0~16_sumout ;
+wire \add_0~17 ;
+wire \add_0~21_sumout ;
+wire \add_0~22 ;
+wire \add_0~26_sumout ;
+wire \add_0~27 ;
+wire \add_0~31_sumout ;
+wire \add_0~32 ;
+wire \add_0~36_sumout ;
+wire \add_0~37 ;
+wire \add_0~41_sumout ;
+wire \add_0~42 ;
+wire \count[0]~reg0_q ;
+wire \count[1]~reg0_q ;
+wire \count[2]~reg0_q ;
+wire \count[3]~reg0_q ;
+wire \count[4]~reg0_q ;
+wire \count[5]~reg0_q ;
+wire \count[6]~reg0_q ;
+wire \count[7]~reg0_q ;
+
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h0000000000000000),
+  .shared_arith ("off"))
+\add_0~1 (
+// Equation(s):
+// \add_0~1_sumout  = ( GND ) ^ (\add_0~42  )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~42 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~1_sumout ),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~6 (
+// Equation(s):
+// \add_0~6_sumout  = ( !\count[0]~reg0_q  ^ (!addend[0]) ) ^ (!VCC )
+// \add_0~7  = ( !\count[0]~reg0_q  ^ (!addend[0]) ) & !VCC | !( !\count[0]~reg0_q  ^ (!addend[0]) ) & ( (\count[0]~reg0_q  & addend[0]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[0]~reg0_q ),
+	.datad(~addend[0]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~6_sumout ),
+	.cout(\add_0~7 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~11 (
+// Equation(s):
+// \add_0~11_sumout  = ( !\count[1]~reg0_q  ^ (!addend[1]) ) ^ (\add_0~7  )
+// \add_0~12  = ( !\count[1]~reg0_q  ^ (!addend[1]) ) & \add_0~7  | !( !\count[1]~reg0_q  ^ (!addend[1]) ) & ( (\count[1]~reg0_q  & addend[1]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[1]~reg0_q ),
+	.datad(~addend[1]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~7 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~11_sumout ),
+	.cout(\add_0~12 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~16 (
+// Equation(s):
+// \add_0~16_sumout  = ( !\count[2]~reg0_q  ^ (!addend[2]) ) ^ (\add_0~12  )
+// \add_0~17  = ( !\count[2]~reg0_q  ^ (!addend[2]) ) & \add_0~12  | !( !\count[2]~reg0_q  ^ (!addend[2]) ) & ( (\count[2]~reg0_q  & addend[2]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[2]~reg0_q ),
+	.datad(~addend[2]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~12 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~16_sumout ),
+	.cout(\add_0~17 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~21 (
+// Equation(s):
+// \add_0~21_sumout  = ( !\count[3]~reg0_q  ^ (!addend[3]) ) ^ (\add_0~17  )
+// \add_0~22  = ( !\count[3]~reg0_q  ^ (!addend[3]) ) & \add_0~17  | !( !\count[3]~reg0_q  ^ (!addend[3]) ) & ( (\count[3]~reg0_q  & addend[3]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[3]~reg0_q ),
+	.datad(~addend[3]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~17 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~21_sumout ),
+	.cout(\add_0~22 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~26 (
+// Equation(s):
+// \add_0~26_sumout  = ( !\count[4]~reg0_q  ^ (!addend[4]) ) ^ (\add_0~22  )
+// \add_0~27  = ( !\count[4]~reg0_q  ^ (!addend[4]) ) & \add_0~22  | !( !\count[4]~reg0_q  ^ (!addend[4]) ) & ( (\count[4]~reg0_q  & addend[4]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[4]~reg0_q ),
+	.datad(~addend[4]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~22 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~26_sumout ),
+	.cout(\add_0~27 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~31 (
+// Equation(s):
+// \add_0~31_sumout  = ( !\count[5]~reg0_q  ^ (!addend[5]) ) ^ (\add_0~27  )
+// \add_0~32  = ( !\count[5]~reg0_q  ^ (!addend[5]) ) & \add_0~27  | !( !\count[5]~reg0_q  ^ (!addend[5]) ) & ( (\count[5]~reg0_q  & addend[5]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[5]~reg0_q ),
+	.datad(~addend[5]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~27 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~31_sumout ),
+	.cout(\add_0~32 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~36 (
+// Equation(s):
+// \add_0~36_sumout  = ( !\count[6]~reg0_q  ^ (!addend[6]) ) ^ (\add_0~32  )
+// \add_0~37  = ( !\count[6]~reg0_q  ^ (!addend[6]) ) & \add_0~32  | !( !\count[6]~reg0_q  ^ (!addend[6]) ) & ( (\count[6]~reg0_q  & addend[6]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[6]~reg0_q ),
+	.datad(~addend[6]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~32 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~36_sumout ),
+	.cout(\add_0~37 ),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h00000000000F0FF0),
+  .shared_arith ("off"))
+\add_0~41 (
+// Equation(s):
+// \add_0~41_sumout  = ( !\count[7]~reg0_q  ^ (!addend[7]) ) ^ (\add_0~37  )
+// \add_0~42  = ( !\count[7]~reg0_q  ^ (!addend[7]) ) & \add_0~37  | !( !\count[7]~reg0_q  ^ (!addend[7]) ) & ( (\count[7]~reg0_q  & addend[7]) )
+
+	.dataa(gnd),
+	.datab(gnd),
+	.datac(~\count[7]~reg0_q ),
+	.datad(~addend[7]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(\add_0~37 ),
+	.sharein(gnd),
+	.combout(),
+	.sumout(\add_0~41_sumout ),
+	.cout(\add_0~42 ),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[0]~reg0 (
+	.clk(clk),
+	.d(\add_0~6_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[0]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[1]~reg0 (
+	.clk(clk),
+	.d(\add_0~11_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[1]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[2]~reg0 (
+	.clk(clk),
+	.d(\add_0~16_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[2]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[3]~reg0 (
+	.clk(clk),
+	.d(\add_0~21_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[3]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[4]~reg0 (
+	.clk(clk),
+	.d(\add_0~26_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[4]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[5]~reg0 (
+	.clk(clk),
+	.d(\add_0~31_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[5]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[6]~reg0 (
+	.clk(clk),
+	.d(\add_0~36_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[6]~reg0_q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\count[7]~reg0 (
+	.clk(clk),
+	.d(\add_0~41_sumout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\count[7]~reg0_q ));
+
+assign carry_out = \add_0~1_sumout ;
+
+assign count[0] = \count[0]~reg0_q ;
+
+assign count[1] = \count[1]~reg0_q ;
+
+assign count[2] = \count[2]~reg0_q ;
+
+assign count[3] = \count[3]~reg0_q ;
+
+assign count[4] = \count[4]~reg0_q ;
+
+assign count[5] = \count[5]~reg0_q ;
+
+assign count[6] = \count[6]~reg0_q ;
+
+assign count[7] = \count[7]~reg0_q ;
+
+endmodule

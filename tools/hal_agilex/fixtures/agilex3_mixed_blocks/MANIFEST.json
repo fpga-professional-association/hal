@@ -1,0 +1,44 @@
+{
+  "description": "Inferred memory and a hard multiplier next to LUT/FF logic: the fixture for explicit unsupported-primitive reporting.",
+  "device": "A3CW135BM16AE6S",
+  "export_flow": [
+    "quartus_syn <revision> -c <revision>",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation <revision> -c <revision>"
+  ],
+  "export_stage": "post-synthesis (synthesized snapshot; no fitting was run)",
+  "family": "Agilex 3",
+  "files": {
+    "mixed_blocks.v": {
+      "role": "source",
+      "sha256": "57b3ff85ea89c357c420daaec4d46583ea40eb1faee23bd825453c19eaf34975",
+      "size_bytes": 734
+    },
+    "mixed_blocks.vo": {
+      "role": "export",
+      "sha256": "ce78bab2da1db3b7911c7374bd8252051557439834fc5af68e0ec295b3b93103",
+      "size_bytes": 40228
+    }
+  },
+  "fixture": "agilex3_mixed_blocks",
+  "package": "MBGA896",
+  "qsf_assignments": [
+    "set_global_assignment -name FAMILY \"Agilex 3\"",
+    "set_global_assignment -name DEVICE A3CW135BM16AE6S",
+    "set_global_assignment -name TOP_LEVEL_ENTITY <top>",
+    "set_global_assignment -name VERILOG_FILE <top>.v",
+    "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files"
+  ],
+  "quartus_install": "C:/altera_pro/26.1 (Windows)",
+  "quartus_version": "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition",
+  "redistribution": "The exported netlist is tool output generated from FPGAPA-authored RTL. The Altera copyright header that quartus_eda writes is kept verbatim. No vendor simulation models, device databases or encrypted libraries are redistributed here; the Agilex atom simulation models shipped with Quartus (eda/sim_lib/fmica_atoms_ncrypt.sv) are encrypted and are neither used nor included. Regenerate with the commands above if your licence terms require you to produce the netlist yourself.",
+  "regenerate": [
+    "mkdir <scratch> && cd <scratch>",
+    "cp mixed_blocks.v .",
+    "write mixed_blocks.qpf and mixed_blocks.qsf with the assignments above",
+    "quartus_syn mixed_blocks -c mixed_blocks",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation mixed_blocks -c mixed_blocks",
+    "cp simulation/mixed_blocks.vo <fixture dir>"
+  ],
+  "top_level_entity": "mixed_blocks",
+  "vendor_tool": "Quartus Prime Pro Edition"
+}

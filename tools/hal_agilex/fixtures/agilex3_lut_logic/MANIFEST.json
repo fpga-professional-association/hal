@@ -1,0 +1,50 @@
+{
+  "description": "Three 6-input combinational functions: normal-mode ALM LUTs only.",
+  "device": "A3CW135BM16AE6S",
+  "export_flow": [
+    "quartus_syn <revision> -c <revision>",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation <revision> -c <revision>"
+  ],
+  "export_stage": "post-synthesis (synthesized snapshot; no fitting was run)",
+  "family": "Agilex 3",
+  "files": {
+    "lut_logic.hal.v": {
+      "role": "imported",
+      "sha256": "2db641ef64c6614990ee946679e2753762c787a318cd74c88cb0e51309755fa4",
+      "size_bytes": 1585
+    },
+    "lut_logic.v": {
+      "role": "source",
+      "sha256": "cf79254ca545fa2556e3ea9ba7bd6a67f850aac8c86ac865b102cd1bdc32458e",
+      "size_bytes": 440
+    },
+    "lut_logic.vo": {
+      "role": "export",
+      "sha256": "67b62faea1e8ecac4f72ca122b93d66a2921c4558b0eb606b1cda2e44113cc5c",
+      "size_bytes": 3101
+    }
+  },
+  "fixture": "agilex3_lut_logic",
+  "package": "MBGA896",
+  "qsf_assignments": [
+    "set_global_assignment -name FAMILY \"Agilex 3\"",
+    "set_global_assignment -name DEVICE A3CW135BM16AE6S",
+    "set_global_assignment -name TOP_LEVEL_ENTITY <top>",
+    "set_global_assignment -name VERILOG_FILE <top>.v",
+    "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files"
+  ],
+  "quartus_install": "C:/altera_pro/26.1 (Windows)",
+  "quartus_version": "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition",
+  "redistribution": "The exported netlist is tool output generated from FPGAPA-authored RTL. The Altera copyright header that quartus_eda writes is kept verbatim. No vendor simulation models, device databases or encrypted libraries are redistributed here; the Agilex atom simulation models shipped with Quartus (eda/sim_lib/fmica_atoms_ncrypt.sv) are encrypted and are neither used nor included. Regenerate with the commands above if your licence terms require you to produce the netlist yourself.",
+  "regenerate": [
+    "mkdir <scratch> && cd <scratch>",
+    "cp lut_logic.v .",
+    "write lut_logic.qpf and lut_logic.qsf with the assignments above",
+    "quartus_syn lut_logic -c lut_logic",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation lut_logic -c lut_logic",
+    "cp simulation/lut_logic.vo <fixture dir>",
+    "python tools/hal_agilex import <fixture dir>/lut_logic.vo -o <fixture dir>/lut_logic.hal.v"
+  ],
+  "top_level_entity": "lut_logic",
+  "vendor_tool": "Quartus Prime Pro Edition"
+}
