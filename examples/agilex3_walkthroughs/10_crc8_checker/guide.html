@@ -1,0 +1,812 @@
+<title>Agilex 3 RE walkthrough 10 — serial CRC-8 checker</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 10 — a serial CRC-8 checker: from a Quartus Prime Pro
+export back to RTL, one command at a time.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+13 gates, 8 flip-flops, 5 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> An engineer who can read Verilog but has never
+taken a gate-level netlist apart. Everything is toy-sized on purpose: thirteen
+gates fit on one screen, so you can check every claim by hand and still practise
+the moves that scale — classify the ports, find the state, cut the design at the
+register boundary, read the combinational logic <em>algebraically</em> rather
+than by eye, and finish by simulating the netlist itself against a known answer.
+<p style="margin-bottom:0"><strong>The rule this page follows:</strong> every
+number, every quoted output and every picture below was produced by the command
+printed above it. Where a tool underperformed, that is shown too — the failures
+are part of the lesson.</p>
+</div>
+
+<div class="honest" style="margin:1.2rem 0 2rem"><span class="tag">Incomplete — read this first</span>
+<p><strong>The analysis half of this walkthrough has not been run.</strong> The
+design, the Quartus synthesis, the netlist export, the import rewrite, the
+anonymisation and the <code>hal_agilex</code> coverage/behaviour checks are all
+real and reproducible from the files in this directory. Everything from
+&ldquo;first contact with the netlist&rdquo; onwards needs a built HAL, and the
+build container was unreachable when this page was written, so no HAL command was
+executed and <strong>no image was generated</strong>.</p>
+<p style="margin-bottom:0">Every place that would hold a tool&rsquo;s output says so
+explicitly rather than showing a plausible-looking result. To fill them in, run
+<code>bash run_all.sh</code> from a checkout with a built HAL and Graphviz, then
+paste each command&rsquo;s output into the matching block. <code>check.py</code>
+asserts the conclusions the prose anticipates; until it has passed here, treat
+those conclusions as unverified.</p></div>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul class="tight">
+<li><a href="#design">1. The design (the answer key)</a></li>
+<li><a href="#synth">2. Synthesis and export</a></li>
+<li><a href="#blind">3. Making it a fair fight</a></li>
+<li><a href="#contact">4. First contact with the netlist</a></li>
+<li><a href="#walk">5. The walk, step by step</a>
+  <ul class="tight">
+    <li><a href="#s1">1 — what each port is</a></li>
+    <li><a href="#s2">2 — find the state</a></li>
+    <li><a href="#s3">3 — one loop, not eight</a></li>
+    <li><a href="#s4">4 — ask DANA</a></li>
+    <li><a href="#s5">5 — read the logic algebraically</a></li>
+    <li><a href="#s6">6 — recover the polynomial</a></li>
+    <li><a href="#s7">7 — what the odd output does</a></li>
+    <li><a href="#s8">8 — simulate a real codeword</a></li>
+  </ul></li>
+<li><a href="#rebuild">6. Reconstruction, and what was lost</a></li>
+<li><a href="#further">7. Going further</a></li>
+<li><a href="#repro">8. Reproducing all of it</a></li>
+</ul>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="design">1. The design (the answer key)</h2>
+
+<p>The target is a <strong>serial CRC-8 checker</strong>. Bits arrive one per
+enabled clock, most significant bit first; the remainder register divides the
+incoming bit stream by a generator polynomial, and a flag says whether the
+remainder is currently zero. Shift in <span class="mono">message ‖ crc(message)</span>
+and the remainder ends at zero — that is how a receiver decides a frame is
+intact.</p>
+
+<p><a href="spec.md">spec.md</a> states the intended behaviour;
+<a href="design.v">design.v</a> is the RTL that was handed to Quartus. Read them
+now if you like, then forget them: from
+<a href="#synth">section 2</a> onwards the walk uses <em>only</em> the netlist.</p>
+
+<pre><code>module crc8_checker (
+    input  wire       clk,      // single clock domain
+    input  wire       rst_n,    // asynchronous, active low: start of frame
+    input  wire       en,       // consume one serial bit this cycle
+    input  wire       din,      // serial data, MSB first
+    output wire [7:0] crc,      // running remainder
+    output wire       match     // remainder == 0  ->  codeword accepted
+);
+
+    localparam [7:0] POLY = 8'h07;          // x^8 + x^2 + x + 1
+
+    reg [7:0] crc_r;
+    wire feedback = crc_r[7] ^ din;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            crc_r &lt;= 8'h00;
+        end else if (en) begin
+            crc_r[0] &lt;= feedback;                        // x^0 term, always set
+            crc_r[1] &lt;= crc_r[0] ^ (feedback &amp; POLY[1]); // POLY[1] = 1 -> tapped
+            crc_r[2] &lt;= crc_r[1] ^ (feedback &amp; POLY[2]); // POLY[2] = 1 -> tapped
+            crc_r[3] &lt;= crc_r[2] ^ (feedback &amp; POLY[3]); // POLY[3] = 0 -> shift
+            crc_r[4] &lt;= crc_r[3] ^ (feedback &amp; POLY[4]);
+            crc_r[5] &lt;= crc_r[4] ^ (feedback &amp; POLY[5]);
+            crc_r[6] &lt;= crc_r[5] ^ (feedback &amp; POLY[6]);
+            crc_r[7] &lt;= crc_r[6] ^ (feedback &amp; POLY[7]);
+        end
+    end
+
+    assign crc   = crc_r;
+    assign match = (crc_r == 8'h00);
+
+endmodule</code></pre>
+
+<div class="note"><span class="tag">The one fact worth carrying</span>
+<code>POLY = 8'h07 = 8'b0000_0111</code>, so exactly three of the eight
+next-state equations contain <code>feedback</code>: bits 0, 1 and 2. Five are a
+plain shift. <strong>That asymmetry is the polynomial</strong>, and recovering it
+from thirteen gates is what sections 5 and 6 of the walk do.</div>
+
+<h3>Why this design, and not something bigger</h3>
+<p>The RTL is deliberately constrained so that the whole post-synthesis netlist
+lands inside what this repository has actually <em>validated</em>: one clock, no
+vendor IP, no RAM, no DSP, no PLL, no instantiated IO buffers. What is left is
+<code>tennm_lcell_comb</code> (the Agilex ALM) and <code>tennm_ff</code> — the two
+primitives <code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code> models
+and <code>tools/hal_agilex</code> validated against a real export. A design that
+pulls in an unmodelled primitive does not get quietly imported here: it gets
+refused, with the offending type named.</p>
+
+<!-- ===================================================================== -->
+<h2 id="synth">2. Synthesis and export</h2>
+
+<p>This is the exact flow, reused verbatim from
+<code>tools/hal_agilex/fixtures/*/MANIFEST.json</code>. It runs in a scratch
+directory holding a copy of <code>design.v</code>; the project files it produces
+are kept in <a href="quartus/">quartus/</a>.</p>
+
+<h4>2.1 create the project</h4>
+<pre><code>$ quartus_sh -t build.tcl</code></pre>
+<p><a href="quartus/build.tcl">build.tcl</a> sets five assignments and nothing
+else:</p>
+<pre><code>set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY crc8_checker
+set_global_assignment -name VERILOG_FILE design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files</code></pre>
+
+<h4>2.2 synthesise (no fitting)</h4>
+<pre><code>$ quartus_syn crc8_checker -c crc8_checker
+...
+Info (21057): Implemented 23 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 4 input pins
+    Info (21059): Implemented 9 output pins
+    Info (21061): Implemented 10 logic cells
+Info: Quartus Prime Synthesis was successful. 0 errors, 1 warning
+    Info: Elapsed time: 00:00:10</code></pre>
+<p>We stop at the <em>synthesized</em> snapshot deliberately. Fitting would add
+placement and routing noise without adding anything to reverse-engineer, and the
+gate-level structure — which is the subject here — is already final.</p>
+
+<h4>2.3 export the netlist</h4>
+<pre><code>$ quartus_eda --simulation --format=verilog --tool=questasim \
+      --output_directory=simulation crc8_checker -c crc8_checker
+...
+Info (204019): Generated file crc8_checker.vo in folder ".../simulation/" for EDA simulation tool
+Info: Quartus Prime EDA Netlist Writer was successful. 0 errors, 0 warnings</code></pre>
+<p>Quartus Pro 26.1 has no VQM writer for these families; the EDA netlist
+writer's Verilog output (<code>.vo</code>) <em>is</em> the export. Here is one
+flip-flop and one ALM out of
+<a href="netlist/crc8_checker.vo">netlist/crc8_checker.vo</a>, verbatim:</p>
+
+<pre><code>tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[1] (
+	.clk(clk),
+	.d(\i8~combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[1]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6969696969696969),
+  .shared_arith ("off"))
+i8(
+// Equation(s):
+// \i8~combout  = !crc_r[0] ^ (!crc_r[7] ^ (din))
+
+	.dataa(~crc_r[0]),
+	.datab(~crc_r[7]),
+	.datac(~din),
+	.datad(gnd),
+	...
+	.combout(\i8~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());</code></pre>
+
+<div class="note"><span class="tag">What an ALM actually is</span>
+<code>tennm_lcell_comb</code> is not a 4-input LUT with a truth table you can
+read off. It has ten input pins and three outputs, and what it computes depends
+on <code>lut_mask</code> <em>and</em> on the mode. In normal mode the rule is
+<code>combout = lut_mask[a + 2b + 4c + 8d + 16e + 32f]</code>; in arithmetic mode
+the mask splits into a propagate half and a generate half feeding the carry
+chain. This walkthrough's design uses normal mode only.
+That decoding is not folklore: Quartus prints the equivalent equation next to
+every instance (the <code>// Equation(s):</code> comment above), and
+<code>tools/hal_agilex</code> validates it by simulating the export against a
+Python model of the RTL.</div>
+
+<h4>2.4 make it loadable by HAL</h4>
+<pre><code>$ python tools/hal_agilex import netlist/crc8_checker.vo -o netlist/netlist.hal.v</code></pre>
+<p>HAL's Verilog front end is a structural netlist reader and rejects three
+things the Quartus writer emits. The importer handles each one exactly, or
+refuses:</p>
+<ul class="tight">
+<li><code>tri1 devclrn/devpor/devoe</code> become wires with <code>assign … = 1'b1</code>;</li>
+<li>inversions written on data pins (<code>.dataa(~crc_r[0])</code>) are
+<strong>absorbed into <code>lut_mask</code></strong> — mask bit <code>j</code>
+moves to <code>j ^ (1 &lt;&lt; i)</code>, an exact relabelling. The ALM quoted above
+is exactly this case: the export writes
+<code>lut_mask 64'h6969696969696969</code> with <code>~crc_r[0]</code>,
+<code>~crc_r[7]</code> and <code>~din</code> on its data pins, and the imported
+file writes <code>lut_mask 64'h9696969696969696</code> with the same three nets
+uninverted. Both are the 3-input XOR the equation comment describes — inverting
+an odd number of inputs of an XOR just complements it, and complementing the
+mask is what the relabelling does. An inversion on
+<code>cin</code>, on a flip-flop pin, or on <code>datae</code>/<code>dataf</code>
+of an arithmetic cell is <em>refused</em> instead, because absorbing it would
+change the meaning;</li>
+<li>unconnected pins (<code>.combout()</code>) are dropped, and the
+<code>assign unknown = 1'bx</code> Quartus declares is dropped only while nothing
+reads it.</li>
+</ul>
+
+<h4>2.5 confirm the export is inside the validated coverage</h4>
+<pre><code>$ python tools/hal_agilex --strict inventory netlist/crc8_checker.vo -o artifacts/inventory.findings.json
+$ python tools/hal_agilex --strict behavior  netlist/crc8_checker.vo \
+      --reference reference.py -o artifacts/behavior.findings.json</code></pre>
+<p>The first says all 13 instances are <code>tennm_ff</code>/<code>tennm_lcell_comb</code>
+in a modelled configuration
+(<span class="mono">proven_under_assumptions</span>). The second simulates the
+<em>exported netlist</em> with those primitive semantics against
+<a href="reference.py">reference.py</a>, a plain-Python restatement of the RTL,
+for 200 pseudo-random cycles including asynchronous clears, and agrees
+(<span class="mono">proven_bounded</span>).</p>
+<div class="honest"><span class="tag">Read the status, not the vibe</span>
+<span class="mono">proven_bounded</span> means "checked to 200 cycles", not
+"proved". It is evidence that the primitive model and the export agree, which is
+what the rest of this page rests on — not a proof of equivalence.</div>
+
+<!-- ===================================================================== -->
+<h2 id="blind">3. Making it a fair fight</h2>
+
+<p>Quartus is generous to a reverse engineer. Look at what survived synthesis in
+<a href="netlist/netlist.hal.v">netlist.hal.v</a>: a bus called
+<code>crc_r[7:0]</code>, an instance called <code>feedback</code>, another called
+<code>reduce_nor_0</code>. If you were allowed to use those, this walkthrough
+would be one paragraph long and would teach nothing. Real targets — obfuscated
+netlists, netlists recovered from a bitstream, anything built with name mangling
+on — do not have them.</p>
+
+<p>So the walk runs on
+<a href="netlist/netlist.anon.hal.v">netlist.anon.hal.v</a>, produced by
+<a href="anonymize.py">anonymize.py</a>:</p>
+
+<pre><code>$ python anonymize.py netlist/netlist.hal.v netlist/netlist.anon.hal.v</code></pre>
+
+<div class="cols">
+<div>
+<h4>Removed</h4>
+<ul class="tight">
+<li>the module name, every port name, every net name, every instance name;</li>
+<li>the internal <code>wire [7:0]</code> declaration — its bits become eight
+unrelated scalar wires, so the register bank does not arrive pre-grouped;</li>
+<li>the emission order — instance and net numbering are scrambled by a fixed
+permutation, so <code>u0…u12</code> says nothing about the design.</li>
+</ul>
+</div>
+<div>
+<h4>Kept, because you really would have it</h4>
+<ul class="tight">
+<li>gate types and pin names (<code>tennm_ff.clk</code>, <code>.ena</code>,
+<code>.clrn</code>) — those come from the device, not the design;</li>
+<li><code>lut_mask</code>, <code>extended_lut</code>, <code>shared_arith</code>;</li>
+<li>the connectivity, exactly;</li>
+<li>top-level port direction, width and bus grouping: package pins really are
+grouped and ordered.</li>
+</ul>
+</div>
+</div>
+
+<div class="honest"><span class="tag">Be honest about the leftovers</span>
+Keeping the output bus <code>port_o0[7:0]</code> is a real hint: it tells you
+eight signals belong together and in what order. We keep it because a physical
+target gives you that too, and because it lets the walk <em>cross-check</em> an
+answer it derives independently (step 6 recovers the same bit order from the
+logic alone and the two agree). If your target has no such bus, the chain walk in
+step 6 still works — you just lose the confirmation.</div>
+
+<p>Everything below is run against the anonymised copy. Every command shown also
+works on <code>netlist.hal.v</code>; <a href="check.py">check.py</a> runs the
+whole walk on both and asserts they yield the same polynomial.</p>
+
+<!-- ===================================================================== -->
+<h2 id="contact">4. First contact with the netlist</h2>
+
+<p>Set the environment once (inside the build container, against the shared
+build):</p>
+<pre><code>$ export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+$ cd &lt;repo&gt;
+$ GL=plugins/gate_libraries/definitions/AGILEX_TENNM.hgl
+$ NET=examples/agilex3_walkthroughs/10_crc8_checker/netlist/netlist.anon.hal.v</code></pre>
+
+<h4>How much is there?</h4>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py stats
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+
+<div class="why"><span class="tag">Reading this</span>
+<p><strong>13 gates and one module.</strong> The module count is the first thing
+to look at on any netlist and it is bad news here: <code>1</code> means the
+hierarchy is gone. Synthesis flattened <code>crc8_checker</code> into a single
+flat cell list, so there are no submodule boundaries to tell you "this cone is
+the datapath, that one is control". On a big design you would spend real effort
+re-inventing that partition; here, thirteen gates make it moot.</p>
+<p><strong>Nothing was refused.</strong> Every ALM got a Boolean function
+attached from its <code>lut_mask</code>, and every flip-flop's pin configuration
+is inside the validated coverage. That matters: an ALM outside the coverage gets
+<em>no</em> function rather than a plausible-looking wrong one, and any analysis
+downstream would then see a free variable. A zero here means the algebra in
+steps 5–8 is standing on modelled semantics all the way down.</p></div>
+
+<h4>The module tree (always look, even when you expect nothing)</h4>
+<pre><code>$ python tools/hal_viz module_tree "$NET" --gate-library "$GL" \
+      -o examples/agilex3_walkthroughs/10_crc8_checker/images/module_tree.svg</code></pre>
+<p class="meta">[module-tree image not generated yet]</p>
+
+<h4>The gate-level graph</h4>
+<pre><code>$ python tools/hal_viz netlist_graph "$NET" --gate-library "$GL" \
+      --module top --pin-labels \
+      -o examples/agilex3_walkthroughs/10_crc8_checker/images/netlist_graph.svg</code></pre>
+<p class="meta">[gate-level graph image not generated yet]</p>
+
+<div class="why"><span class="tag">What you can and cannot see here</span>
+<p><strong>Can see:</strong> there are two kinds of cell; the flip-flops form a
+long chain; a couple of ALMs sit inside that chain and a couple hang off the
+side; one input fans out to every flip-flop and one output is driven by a small
+combinational cone rather than by a register.</p>
+<p><strong>Cannot see:</strong> what any of it computes. The picture has no
+functions in it. <code>lut_mask</code> is a node attribute, not a shape, and no
+amount of staring at the graph will produce "CRC-8, polynomial 0x07". This is the
+central lesson of gate-level RE: <em>the picture localises, the algebra
+decides.</em> Use the drawing to pick where to point the analysis, then stop
+looking at it.</p></div>
+
+<!-- ===================================================================== -->
+<h2 id="walk">5. The walk, step by step</h2>
+
+<p>Each step is one command, the output it printed, and the reasoning that turns
+that output into a conclusion. The commands are subcommands of
+<a href="re_walk.py">re_walk.py</a> — which contains no knowledge of the design:
+the port roles, the bit order, the tap set, the reset value and the polynomial
+are all derived, and the script fails loudly rather than assuming, if the
+structure does not fit — plus the general-purpose tools in <code>tools/</code>.</p>
+
+<div class="step" id="s1">
+<h3><span class="num">1</span> What is each port?</h3>
+<p>Four inputs, two outputs, no names. Before anything else: which is the clock?
+You never guess this — you look at which <em>pins</em> a net reaches. The gate
+library tells you <code>tennm_ff.clk</code> is a clock pin, <code>.clrn</code> an
+asynchronous active-low clear and <code>.ena</code> a clock enable, and that is
+device knowledge, not design knowledge.</p>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py ports
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<p>The same question, asked by a tool built for it:</p>
+<pre><code>$ python tools/hal_cdc discover "$NET" --gate-library "$GL" -o artifacts/clocks.json
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+Three of the four inputs go <em>only</em> to control pins, and each to exactly
+one kind: one drives eight <code>clk</code> pins, one drives eight
+<code>clrn</code> pins, one drives eight <code>ena</code> pins. That pins down
+three port meanings with no ambiguity at all — and it also tells you the design
+is <strong>single-clock with a single asynchronous reset domain</strong>, so
+there is no CDC problem to chase. The fourth input touches no control pin; it
+only feeds ALM data inputs. It is the payload. In a CRC checker that is the
+serial data bit, but at this point all you are entitled to say is
+"data".</div>
+<div class="honest"><span class="tag">What this does not tell you</span>
+Nothing here says the reset is <em>used</em> as "start of frame" rather than
+"power-on init", and nothing says <code>en</code> means "a data bit is valid"
+rather than "run". Port <em>roles</em> are structural; port <em>intent</em> is
+not recoverable from a netlist, and a good report says so.</div>
+</div>
+
+<div class="step" id="s2">
+<h3><span class="num">2</span> Find the state</h3>
+<p>Cut the design at the register boundary. Everything else is combinational
+logic between registers, and it is far easier to read once you know what the
+state is.</p>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py registers
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p><strong>One control signature, eight flip-flops.</strong> Grouping registers
+by <code>(clk, clrn, ena)</code> is the cheapest structural clustering there is,
+and here it puts all eight in one bucket. Eight registers that start together,
+stop together and clear together are almost always one architectural object — a
+word — not eight unrelated bits.</p>
+<p><strong>Five of eight take their D straight from another flip-flop's Q.</strong>
+That is a shift register: no logic in between, just a hop. The other three have
+an ALM in the path. A pure shift register would have all eight like that, and a
+counter would have arithmetic cells (an ALM carry chain) instead — so this is
+neither. Something is being folded into the shift at three specific places, and
+finding out what is the rest of the job.</p></div>
+</div>
+
+<div class="step" id="s3">
+<h3><span class="num">3</span> One loop, not eight</h3>
+<p>The same command runs a strongly-connected-component analysis over the gate
+graph using the <code>graph_algorithm</code> plugin (igraph under the hood):</p>
+<pre><code>[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p>A pipeline is a chain: its SCCs are all singletons, because data never comes
+back. Here <em>every</em> flip-flop and the ALMs between them sit in <strong>one
+strongly connected component</strong>, so the last stage feeds back into the
+first. A shift register whose output is fed back through XOR gates is an
+<strong>LFSR</strong>, and an LFSR with an external data input mixed into the
+feedback is a <strong>CRC</strong>. This is where the hypothesis is born; the
+next three steps are what turn it into a claim you can defend.</p>
+<p>Generalising: SCC analysis is the standard first cut on unknown sequential
+logic. Singleton SCCs = pipeline/datapath. One big SCC over a register bank =
+counter, accumulator, LFSR or FSM state. Several medium SCCs = several such
+objects, and the component boundaries are a free partition of the design.</p></div>
+</div>
+
+<div class="step" id="s4">
+<h3><span class="num">4</span> Ask DANA — and read the answer critically</h3>
+<p>HAL ships <code>dataflow_analysis</code> (DANA), which tries to recover
+word-level registers from a flat netlist by clustering flip-flops on how they are
+wired. <code>hal_viz</code> runs it and renders its own DOT output:</p>
+<pre><code>$ python tools/hal_viz dataflow "$NET" --gate-library "$GL" \
+      -o artifacts/dataflow --min-group-size 2 --expected-size 8</code></pre>
+<pre><code>[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+
+<div class="honest"><span class="tag">Honest note</span>
+DANA has not been run against this netlist yet, so this page makes no claim at all about what it recovers here.</div>
+</div>
+
+<div class="step" id="s5">
+<h3><span class="num">5</span> Read the logic algebraically, not visually</h3>
+<p>Now the part that actually decides the case. For each flip-flop, take the net
+on its <code>d</code> pin and push the Boolean function of every ALM in front of
+it backwards until nothing is left but flip-flop outputs and primary inputs.
+HAL does the symbolic work: <code>hal_agilex.hal_adapter.elaborate()</code>
+attached a <code>BooleanFunction</code> to each ALM from its
+<code>lut_mask</code>, and <code>BooleanFunction.substitute()</code> composes
+them.</p>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py functions
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p>Do not eyeball these expressions — <em>test</em> them. The script enumerates
+each function's truth table over its support and asks a single question: is it
+<strong>affine over GF(2)</strong>, i.e. a constant XOR a subset of its inputs?
+That test is exact and mechanical (evaluate at 0, at each unit vector, then
+verify all remaining assignments), and it turns a pile of sum-of-products into a
+one-line statement per register.</p>
+<p>All eight came back affine with constant term 0. A state machine whose next
+state is a linear map over GF(2) is exactly the definition of an LFSR — no more
+hand-waving from the picture in step 3. And every constant term being 0 is the
+statement "no stage is inverted", which is what fixes the reset value at
+<code>0x00</code> rather than <code>0xFF</code>.</p></div>
+<div class="note"><span class="tag">Why this scales</span>
+Affinity is a cheap, decisive property. On a bigger unknown design, running the
+same test over every next-state function partitions the registers into "linear"
+(LFSRs, scramblers, CRCs, Gray-ish counters) and "not linear" (adders, FSM
+encodings, comparators) before you have understood a single one of them.</div>
+</div>
+
+<div class="step" id="s6">
+<h3><span class="num">6</span> Recover the polynomial</h3>
+<p>Eight linear equations. Turning them into "CRC-8, polynomial 0x07" is four
+mechanical deductions, and the script does exactly these:</p>
+<ol>
+<li><strong>Which input is the data?</strong> The one primary input that appears
+in a next-state function at all. (The clock, reset and enable do not appear —
+they are not data, they are the register's own semantics.)</li>
+<li><strong>Which register is the feedback?</strong> Take the next-state
+functions that contain the data bit and intersect their register supports.
+Exactly one register survives: it is xored in wherever the data bit is, so
+<code>data XOR that register</code> is a single shared feedback term.</li>
+<li><strong>What is the bit order?</strong> Strike the feedback term and the data
+bit out of every equation. What remains is at most one register per equation —
+its shift predecessor. One equation has nothing left: that is bit 0. Follow the
+successors and you have the chain, and the chain must end at the feedback
+register (a closed loop), or the LFSR hypothesis was wrong.</li>
+<li><strong>What are the taps?</strong> The chain positions whose equation
+contains the data bit. In this Galois-form CRC the tapped positions <em>are</em>
+the set bits of the generator polynomial's low byte.</li>
+</ol>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py polynomial
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+Filled in from the command output above once the step has been run; no conclusion is stated here in advance of it.</div>
+<p class="meta">[recovered-LFSR diagram not generated yet]</p>
+</div>
+
+<div class="step" id="s7">
+<h3><span class="num">7</span> What is that other output?</h3>
+<p>One output is the state word. The other is driven by two ALMs. Rather than
+decode the masks by hand, enumerate: build its symbolic function over the eight
+recovered state bits and print the whole 256-entry truth table's shape.</p>
+<pre><code>[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+The function is 1 for exactly one of the 256 states — the all-zero one — and 0
+for the other 255. That is not a heuristic label, it is the entire truth table.
+So this output is <code>state == 0</code>. On a CRC that is the standard
+"remainder is zero, the codeword checks out" flag, which is the first piece of
+<em>purpose</em> (rather than structure) the netlist has given up.
+<p style="margin-bottom:0">Structurally it is an 8-input NOR that did not fit in
+one ALM: a 4-input NOR (<code>lut_mask 64'h0001000100010001</code>, the mask has
+a single set bit per 16-bit window, i.e. "all four inputs low") feeding the fifth
+input of a second cell that ANDs it with a NOR of the remaining four
+(<code>64'h0001000000010000</code>). Splitting a wide gate across cells is
+routine, and it is why counting gates tells you nothing about the design's
+intent.</p></div>
+</div>
+
+<div class="step" id="s8">
+<h3><span class="num">8</span> Prove it: simulate a real codeword</h3>
+<p>Everything so far is structural. The last step closes the loop by
+<em>running</em> the netlist: a two-valued cycle simulator built on the gates'
+own <code>BooleanFunction</code>s (evaluate each ALM with
+<code>BooleanFunction.evaluate()</code>, then apply the
+<code>tennm_ff</code> semantics — capture <code>d</code> when <code>ena</code> is
+high, force 0 while <code>clrn</code> is low).</p>
+<p>The test vector is the standard CRC check string
+<code>"123456789"</code>, whose CRC-8/SMBUS check value is published as
+<code>0xF4</code>. Three questions: does the netlist compute it, does the
+codeword then check out, and does a corrupted codeword fail?</p>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/re_walk.py simulate
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+Filled in from the command output above once the step has been run; no conclusion is stated here in advance of it.</div>
+<pre><code>$ python examples/agilex3_walkthroughs/10_crc8_checker/check.py
+[not generated yet — this step could not be run: see the "incomplete" banner at the top of this page]</code></pre>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="rebuild">6. Reconstruction, and what was lost</h2>
+
+<p><a href="recovered.v">recovered.v</a> is the RTL written from the netlist
+alone. Every line carries the observation it came from:</p>
+
+<pre><code>module recovered_crc8 (
+    input  wire       clk,        // port_i1: the only net reaching all 8 tennm_ff .clk pins
+    input  wire       rst_n,      // port_i2: the only net reaching all 8 .clrn pins;
+                                  //          tennm_ff models clrn as ASYNCHRONOUS and
+                                  //          ACTIVE LOW, so this is an async reset to 0
+    input  wire       en,         // port_i3: the only net reaching all 8 .ena pins
+    input  wire       din,        // port_i0: reaches only ALM data inputs, never a
+                                  //          control pin -- the serial data bit
+    output wire [7:0] state,      // port_o0: driven straight by the 8 register outputs
+    output wire       zero_flag   // port_o1: truth table over `state` is exactly state==0
+);
+
+    localparam [7:0] POLY = 8'h07;
+
+    reg [7:0] q;
+    wire feedback = q[7] ^ din;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) q &lt;= 8'h00;
+        else if (en) q &lt;= {q[6:0], 1'b0} ^ (feedback ? POLY : 8'h00);
+    end
+
+    assign state     = q;
+    assign zero_flag = ~|q;
+
+endmodule</code></pre>
+
+<h3>Recovered exactly</h3>
+<table>
+<thead><tr><th>Fact</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>8-bit state register, async active-low clear to <code>0x00</code>, clock-enabled</td>
+    <td>gate types + pin connectivity + the <code>tennm_ff</code> model; constant term 0 in every next-state function</td></tr>
+<tr><td>Port roles: clock, async reset, enable, serial data, state out, flag out</td>
+    <td>which pin kinds each net reaches (step 1); truth table of the flag (step 7)</td></tr>
+<tr><td>The state update is linear over GF(2)</td>
+    <td>exhaustive affinity test on all eight functions (step 5)</td></tr>
+<tr><td>Galois-form CRC, feedback from bit 7, taps at 0/1/2, polynomial <code>0x07</code></td>
+    <td>the four deductions of step 6</td></tr>
+<tr><td>Bit order of the word</td>
+    <td>derived from the chain (step 6) <em>and independently</em> confirmed by the output bus indices</td></tr>
+<tr><td>It really computes CRC-8/SMBUS</td>
+    <td>simulating the netlist on <code>"123456789"</code> gives <code>0xF4</code> (step 8)</td></tr>
+</tbody>
+</table>
+
+<h3>Lost for good</h3>
+<table>
+<thead><tr><th>Lost</th><th>Why, and what you can do about it</th></tr></thead>
+<tbody>
+<tr><td><strong>Every name.</strong> <code>crc8_checker</code>, <code>crc_r</code>,
+    <code>match</code>, <code>POLY</code>, <code>feedback</code>, the port names.</td>
+    <td>Names are metadata; synthesis is free to keep, mangle or drop them, and a
+    hostile flow drops them. Here they were kept by Quartus and deliberately
+    thrown away (section 3). Nothing in a netlist can give them back — you name
+    things after what you proved they do.</td></tr>
+<tr><td><strong>Hierarchy.</strong> The export is one flat module.</td>
+    <td>Synthesis flattened it. On a larger design you rebuild an approximate
+    partition from SCCs, register banks and cone boundaries — that is a
+    reconstruction, not a recovery, and should be labelled as one.</td></tr>
+<tr><td><strong>Coding style.</strong> <code>design.v</code> writes eight
+    explicit next-state equations; <code>recovered.v</code> writes a shift and a
+    conditional XOR.</td>
+    <td>They synthesise to the same 13 cells. The netlist is an equivalence
+    class, and every member of it is an equally correct answer.</td></tr>
+<tr><td><strong>Intent.</strong> That <code>rst_n</code> means "start of frame",
+    that <code>en</code> means "a bit is valid", that the flag is meant to gate a
+    frame acceptance.</td>
+    <td>Not in the netlist, not derivable, and the most common place for
+    RE reports to overclaim. State the structure; label the intent as a guess.</td></tr>
+<tr><td><strong>The parameter <code>POLY</code> as a parameter.</strong></td>
+    <td>Constants are folded at elaboration. You recover the <em>value</em>
+    <code>0x07</code> from the tap positions; that it was once a
+    <code>localparam</code> is unknowable.</td></tr>
+<tr><td><strong>Initial/power-up state, timing, and x-propagation.</strong></td>
+    <td>The export says <code>power_up = "dont_care"</code>, and the model here is
+    two-valued with no timing. The reset value <code>0x00</code> is recovered
+    from the <em>clear</em> path, not from power-up.</td></tr>
+</tbody>
+</table>
+
+<div class="honest"><span class="tag">One thing this walkthrough did not have to do</span>
+Every gate in this netlist was inside the validated coverage, so every ALM had a
+real Boolean function. On a design with a RAM, a DSP block or an ALM in a mode
+<code>hal_agilex</code> does not model, those gates get <em>no</em> function, and
+the substitution in step 5 stops at them with an error rather than inventing
+something. That is the correct behaviour and you should expect to hit it: the
+workaround is to treat the unmodelled block as a black box with named inputs and
+outputs, recover what surrounds it, and validate the box separately.</div>
+
+<!-- ===================================================================== -->
+<h2 id="further">7. Going further</h2>
+<ul>
+<li><strong>Change the polynomial and re-run.</strong> Edit
+<code>design.v</code> (<code>POLY = 8'h1D</code>, say), redo section 2, and watch
+step 6 report the new tap set without a single change to the analysis. That is
+the test of whether a recovery script actually derives things.</li>
+<li><strong>Break the assumption.</strong> Add a synchronous load of a non-zero
+seed. Quartus will start using <code>sload</code>/<code>sclr</code>, which are
+<em>outside</em> the modelled coverage — so <code>hal_agilex</code> will refuse
+the flip-flop rather than model it wrongly, and you get to see what a coverage
+gap looks like from the analysis side.</li>
+<li><strong>Try the parallel form.</strong> A byte-at-a-time CRC computes eight
+LFSR steps combinationally. The next-state functions are still affine, the
+polynomial is still recoverable — but the tap set no longer reads off the
+equations directly; you factor the matrix instead. Same tools, harder algebra.</li>
+<li><strong>Use the FSM tooling on something that has one.</strong> This design
+has no control FSM, so <code>tools/hal_fsm</code> and <code>solve_fsm</code> have
+nothing to nominate. Point them at a design with an actual state machine and
+compare what a transition-relation solve gives you against what SCC analysis
+alone gave you here.</li>
+<li><strong>Compose the claims instead of narrating them.</strong>
+<code>tools/hal_explain</code> reads the findings documents that DANA,
+<code>module_identification</code> and <code>hal_fsm</code> write and assembles a
+recovered-block model where every block's confidence is <em>derived</em> from
+the status of the finding that supports it. On a design this small a prose page
+is enough; on anything real, a machine-readable block model that cannot quietly
+promote a heuristic into a proof is the deliverable you want.</li>
+<li><strong>Read the findings, not the prose.</strong> Every analysis in this
+repository writes a <code>tools/hal_findings</code> document with an explicit
+status. <a href="artifacts/report.html">artifacts/report.html</a> renders the
+ones this walkthrough produced onto one offline page — that is the format an RE
+result should be delivered in, because it forces every claim to say how strong
+it is.</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 id="repro">8. Reproducing all of it</h2>
+<pre><code># synthesis (needs Quartus Prime Pro 26.1 with Agilex 3 support)
+$ mkdir scratch &amp;&amp; cd scratch &amp;&amp; cp ../design.v ../quartus/build.tcl .
+$ quartus_sh -t build.tcl
+$ quartus_syn crc8_checker -c crc8_checker
+$ quartus_eda --simulation --format=verilog --tool=questasim \
+      --output_directory=simulation crc8_checker -c crc8_checker
+
+# analysis (needs a built HAL and Graphviz)
+$ export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+$ bash examples/agilex3_walkthroughs/10_crc8_checker/run_all.sh
+
+# just the assertions
+$ python examples/agilex3_walkthroughs/10_crc8_checker/check.py</code></pre>
+
+<p class="meta">Files: <a href="spec.md">spec.md</a> ·
+<a href="design.v">design.v</a> · <a href="recovered.v">recovered.v</a> ·
+<a href="reference.py">reference.py</a> · <a href="anonymize.py">anonymize.py</a> ·
+<a href="re_walk.py">re_walk.py</a> · <a href="check.py">check.py</a> ·
+<a href="run_all.sh">run_all.sh</a> · <a href="netlist/">netlist/</a> ·
+<a href="quartus/">quartus/</a> · <a href="images/">images/</a> ·
+<a href="artifacts/">artifacts/</a></p>

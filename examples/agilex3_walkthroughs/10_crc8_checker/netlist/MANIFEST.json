@@ -1,0 +1,43 @@
+{
+  "description": "Serial CRC-8 checker (polynomial 0x07) with a zero-remainder match flag.",
+  "device": "A3CW135BM16AE6S",
+  "package": "MBGA896",
+  "family": "Agilex 3",
+  "vendor_tool": "Quartus Prime Pro Edition",
+  "quartus_version": "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition",
+  "quartus_install": "C:/altera_pro/26.1 (Windows)",
+  "top_level_entity": "crc8_checker",
+  "export_stage": "post-synthesis (synthesized snapshot; no fitting was run)",
+  "export_flow": [
+    "quartus_sh -t build.tcl",
+    "quartus_syn crc8_checker -c crc8_checker",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation crc8_checker -c crc8_checker"
+  ],
+  "qsf_assignments": [
+    "set_global_assignment -name FAMILY \"Agilex 3\"",
+    "set_global_assignment -name DEVICE A3CW135BM16AE6S",
+    "set_global_assignment -name TOP_LEVEL_ENTITY crc8_checker",
+    "set_global_assignment -name VERILOG_FILE design.v",
+    "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files"
+  ],
+  "regenerate": [
+    "mkdir <scratch> && cd <scratch>",
+    "cp ../design.v ../quartus/build.tcl .",
+    "quartus_sh -t build.tcl",
+    "quartus_syn crc8_checker -c crc8_checker",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation crc8_checker -c crc8_checker",
+    "cp simulation/crc8_checker.vo <this dir>",
+    "python tools/hal_agilex import <this dir>/crc8_checker.vo -o <this dir>/netlist.hal.v",
+    "python ../anonymize.py <this dir>/netlist.hal.v <this dir>/netlist.anon.hal.v"
+  ],
+  "contents": {
+    "tennm_ff": 8,
+    "tennm_lcell_comb": 5
+  },
+  "redistribution": "The exported netlist is tool output generated from FPGAPA-authored RTL. The Altera copyright header that quartus_eda writes is kept verbatim. No vendor simulation models, device databases or encrypted libraries are redistributed.",
+  "files": {
+    "crc8_checker.vo": "export, verbatim",
+    "netlist.hal.v": "importable rewrite (tools/hal_agilex import)",
+    "netlist.anon.hal.v": "the same circuit with design names stripped (../anonymize.py)"
+  }
+}

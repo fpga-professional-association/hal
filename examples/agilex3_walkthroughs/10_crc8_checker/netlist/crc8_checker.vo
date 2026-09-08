@@ -1,0 +1,334 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 18:34:20"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module crc8_checker (
+	crc,
+	match,
+	din,
+	clk,
+	rst_n,
+	en);
+output 	[7:0] crc;
+output 	match;
+input 	din;
+input 	clk;
+input 	rst_n;
+input 	en;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \reduce_nor_0~0_combout ;
+wire \reduce_nor_0~combout ;
+wire \feedback~combout ;
+wire \i8~combout ;
+wire \i9~combout ;
+wire [7:0] crc_r;
+
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[0] (
+	.clk(clk),
+	.d(\feedback~combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[0]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[1] (
+	.clk(clk),
+	.d(\i8~combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[1]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[2] (
+	.clk(clk),
+	.d(\i9~combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[2]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[3] (
+	.clk(clk),
+	.d(crc_r[2]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[3]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[4] (
+	.clk(clk),
+	.d(crc_r[3]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[4]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[5] (
+	.clk(clk),
+	.d(crc_r[4]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[5]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[6] (
+	.clk(clk),
+	.d(crc_r[5]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[6]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\crc_r[7] (
+	.clk(clk),
+	.d(crc_r[6]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(en),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(crc_r[7]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h8000800080008000),
+  .shared_arith ("off"))
+\reduce_nor_0~0 (
+// Equation(s):
+// \reduce_nor_0~0_combout  = (!crc_r[0] & (!crc_r[1] & (!crc_r[2] & !crc_r[3])))
+
+	.dataa(~crc_r[0]),
+	.datab(~crc_r[1]),
+	.datac(~crc_r[2]),
+	.datad(~crc_r[3]),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\reduce_nor_0~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h0000800000008000),
+  .shared_arith ("off"))
+reduce_nor_0(
+// Equation(s):
+// \reduce_nor_0~combout  = ( \reduce_nor_0~0_combout  & ( (!crc_r[4] & (!crc_r[5] & (!crc_r[6] & !crc_r[7]))) ) )
+
+	.dataa(~crc_r[4]),
+	.datab(~crc_r[5]),
+	.datac(~crc_r[6]),
+	.datad(~crc_r[7]),
+	.datae(~\reduce_nor_0~0_combout ),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\reduce_nor_0~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6666666666666666),
+  .shared_arith ("off"))
+feedback(
+// Equation(s):
+// \feedback~combout  = !crc_r[7] ^ (!din)
+
+	.dataa(~crc_r[7]),
+	.datab(~din),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\feedback~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6969696969696969),
+  .shared_arith ("off"))
+i8(
+// Equation(s):
+// \i8~combout  = !crc_r[0] ^ (!crc_r[7] ^ (din))
+
+	.dataa(~crc_r[0]),
+	.datab(~crc_r[7]),
+	.datac(~din),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i8~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6969696969696969),
+  .shared_arith ("off"))
+i9(
+// Equation(s):
+// \i9~combout  = !crc_r[1] ^ (!crc_r[7] ^ (din))
+
+	.dataa(~crc_r[1]),
+	.datab(~crc_r[7]),
+	.datac(~din),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i9~combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+assign match = \reduce_nor_0~combout ;
+
+assign crc[0] = crc_r[0];
+
+assign crc[1] = crc_r[1];
+
+assign crc[2] = crc_r[2];
+
+assign crc[3] = crc_r[3];
+
+assign crc[4] = crc_r[4];
+
+assign crc[5] = crc_r[5];
+
+assign crc[6] = crc_r[6];
+
+assign crc[7] = crc_r[7];
+
+endmodule
