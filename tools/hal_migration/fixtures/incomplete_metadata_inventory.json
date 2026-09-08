@@ -1,0 +1,125 @@
+{
+  "clock_signals": [],
+  "generated_at": "2026-09-08T00:00:00Z",
+  "inventory_version": "1.0.0",
+  "io_ports": [],
+  "metadata_gaps": [
+    {
+      "detail": "the netlist declares no global input or output nets, so the design's I/O boundary could not be established",
+      "field": "io_ports",
+      "scope": "design"
+    },
+    {
+      "detail": "the synthesis tool and version that produced this netlist were not stated",
+      "field": "source.tool",
+      "scope": "design"
+    }
+  ],
+  "notes": [
+    "hand-written fixture: every primitive here is missing metadata that the bundled catalogue requires, so no mapping may be reported as supported"
+  ],
+  "primitives": [
+    {
+      "category": "register",
+      "count": 2,
+      "example_gates": [
+        {
+          "id": 1,
+          "name": "ff_a"
+        }
+      ],
+      "gate_type": "SB_DFF",
+      "metadata": {
+        "input_pin_count": 2,
+        "output_pin_count": 1
+      },
+      "metadata_gaps": [
+        "the gate library used to read this netlist assigns no pin types, so the clock pin of this register was not identified"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "combinational",
+      "count": 2,
+      "gate_type": "SB_LUT4",
+      "metadata": {
+        "input_pin_count": 4,
+        "output_pin_count": 1
+      },
+      "metadata_gaps": [
+        "no LUT component: the truth table encoding of this cell is unknown"
+      ],
+      "properties": [
+        "c_lut",
+        "combinational"
+      ]
+    },
+    {
+      "category": "memory",
+      "count": 1,
+      "gate_type": "SB_RAM40_4K",
+      "metadata": {
+        "input_pin_count": 61,
+        "output_pin_count": 16
+      },
+      "metadata_gaps": [
+        "no RAMComponent: the memory's bit size is not modelled",
+        "no RAMPortComponent: port structure and collision behaviour are not modelled"
+      ],
+      "properties": [
+        "ram",
+        "sequential"
+      ]
+    },
+    {
+      "category": "black_box",
+      "count": 1,
+      "gate_type": "CUSTOM_HARD_BLOCK",
+      "metadata_gaps": [
+        "the gate library assigns this type no properties at all: HAL knows its pins and nothing about its behaviour"
+      ],
+      "properties": []
+    }
+  ],
+  "producer": {
+    "name": "hal_migration.fixtures",
+    "version": "1.0.0"
+  },
+  "reset_signals": [],
+  "source": {
+    "artifact_id": "source_netlist",
+    "design_name": "incomplete_metadata",
+    "gate_count": 6,
+    "gate_library": {
+      "name": "ICE40ULTRA"
+    },
+    "net_count": 7,
+    "path": "fixtures/incomplete_metadata.v",
+    "unhashed_reason": "hand-written fixture; there is no netlist file to hash"
+  },
+  "totals": {
+    "black_box_types": 1,
+    "by_category": {
+      "black_box": 1,
+      "combinational": 2,
+      "memory": 1,
+      "register": 2
+    },
+    "clock_signals": 0,
+    "gate_types": 4,
+    "gate_types_by_category": {
+      "black_box": 1,
+      "combinational": 1,
+      "memory": 1,
+      "register": 1
+    },
+    "gates": 6,
+    "io_ports": 0,
+    "metadata_gaps": 2,
+    "nets": 7,
+    "reset_signals": 0
+  }
+}

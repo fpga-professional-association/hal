@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/tools/hal_migration/schema/target-catalogue-1.0.0.schema.json",
+  "title": "HAL migration target capability catalogue",
+  "description": "A manually reviewed, versioned statement of what a target technology offers for the primitives of one source gate library. Every mapping is a reviewed opinion, not a proof: it carries the category (supported/candidate/unresolved), the assumptions it rests on, the source metadata it needs before it may be believed, and the verification obligations it leaves open. A catalogue never asserts that a conversion succeeded.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalogue_version",
+    "catalogue_id",
+    "revision",
+    "review",
+    "source",
+    "target",
+    "mappings"
+  ],
+  "properties": {
+    "catalogue_version": {
+      "description": "Version of this catalogue format (not of the catalogue contents; see `revision`).",
+      "const": "1.0.0"
+    },
+    "catalogue_id": { "$ref": "#/$defs/identifier" },
+    "revision": {
+      "description": "Version of the catalogue contents. Bump it whenever a mapping changes, so an assessment can be traced to the exact table it used.",
+      "type": "string",
+      "minLength": 1
+    },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "review": { "$ref": "#/$defs/review" },
+    "source": { "$ref": "#/$defs/technology" },
+    "target": { "$ref": "#/$defs/technology" },
+    "capabilities": {
+      "description": "What the target offers, independently of any one source primitive.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/capability" }
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/mapping" }
+    },
+    "obligation_templates": {
+      "description": "Catalogue-specific verification obligations. Mappings may also reference the built-in obligations of hal_migration.obligations.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/obligation_template" }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$"
+    },
+    "obligation_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/-]{0,63}$"
+    },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+
+    "review": {
+      "description": "Who reviewed this table, when, and against what. A catalogue without a review record is not evidence of anything.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed_by", "reviewed_at", "method"],
+      "properties": {
+        "reviewed_by": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "$ref": "#/$defs/date" },
+        "method": { "type": "string", "minLength": 1 },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title"],
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "url": { "type": "string" },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "technology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vendor", "family"],
+      "properties": {
+        "vendor": { "type": "string", "minLength": 1 },
+        "family": { "type": "string", "minLength": 1 },
+        "devices": { "type": "array", "items": { "type": "string" } },
+        "gate_library": {
+          "description": "For the source side: the HAL gate library the mappings are written against, so a mismatch is detectable.",
+          "type": "string"
+        },
+        "toolchain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 },
+            "note": { "type": "string" }
+          }
+        },
+        "note": { "type": "string" }
+      }
+    },
+
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "kind": {
+          "type": "string",
+          "enum": ["logic", "register", "memory", "arithmetic", "io", "clocking", "hard_ip", "constant"]
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object" },
+        "quantity": {
+          "description": "How many of these the target device provides, if the catalogue states it.",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "category", "rationale"],
+      "properties": {
+        "source_type": { "type": "string", "minLength": 1 },
+        "category": {
+          "description": "supported: a target primitive with equivalent documented behaviour exists and the reviewer found no open semantic difference (verification is still owed). candidate: a plausible target primitive exists but behaviour, parameters or resources differ. unresolved: no mapping the reviewer is willing to propose.",
+          "type": "string",
+          "enum": ["supported", "candidate", "unresolved"]
+        },
+        "target_capability": { "$ref": "#/$defs/identifier" },
+        "target_primitive": { "type": "string" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "requires_metadata": {
+          "description": "Inventory metadata fields that must be present before this mapping may be believed. A primitive whose inventory lacks one of them is reported as unresolved, never as supported.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "assumptions": {
+          "description": "What the mapping assumes about the target. None of these are checked by this tool.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "description"],
+            "properties": {
+              "id": { "$ref": "#/$defs/identifier" },
+              "description": { "type": "string", "minLength": 1 },
+              "kind": {
+                "type": "string",
+                "enum": ["structural", "naming", "environment", "library", "initial_state", "user_provided", "tool"]
+              }
+            }
+          }
+        },
+        "obligations": {
+          "description": "Verification obligations this mapping leaves open, by obligation id.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/obligation_id" }
+        },
+        "unresolved_reasons": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "category": { "enum": ["supported", "candidate"] } },
+            "required": ["category"]
+          },
+          "then": {
+            "required": ["target_primitive", "obligations"],
+            "properties": { "obligations": { "minItems": 1 } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "category": { "const": "unresolved" } },
+            "required": ["category"]
+          },
+          "then": {
+            "required": ["unresolved_reasons"],
+            "properties": { "unresolved_reasons": { "minItems": 1 } }
+          }
+        }
+      ]
+    },
+
+    "obligation_template": {
+      "description": "A verification obligation: something that must be checked before the mapping may be trusted. Obligations are produced, never discharged, by this tool.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "check"],
+      "properties": {
+        "id": { "$ref": "#/$defs/obligation_id" },
+        "kind": {
+          "description": "semantic: a behavioural difference that must be checked functionally. physical: a resource, placement, I/O or timing property that must be checked in the target implementation flow.",
+          "type": "string",
+          "enum": ["semantic", "physical"]
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "check": {
+          "description": "What has to be done to discharge the obligation.",
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "low", "medium", "high", "critical"]
+        },
+        "target_assumption": {
+          "description": "The property of the target that is assumed while the obligation is open.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

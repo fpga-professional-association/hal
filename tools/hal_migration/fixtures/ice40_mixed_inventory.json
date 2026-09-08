@@ -1,0 +1,1282 @@
+{
+  "clock_signals": [
+    {
+      "driver": {
+        "gate_id": 3,
+        "gate_name": "osc_inst",
+        "gate_type": "SB_HFOSC",
+        "kind": "gate",
+        "pin": "CLKHF"
+      },
+      "net_id": 38,
+      "net_name": "osc_clk",
+      "pin_types": [
+        "clock",
+        "clock_source"
+      ],
+      "sink_count": 1,
+      "sink_gate_types": [
+        "SB_DFFNSR"
+      ]
+    },
+    {
+      "driver": {
+        "gate_id": 4,
+        "gate_name": "clk_buffer",
+        "gate_type": "SB_GB",
+        "kind": "gate",
+        "pin": "GLOBAL_BUFFER_OUTPUT"
+      },
+      "net_id": 39,
+      "net_name": "clk_g",
+      "pin_types": [
+        "clock"
+      ],
+      "sink_count": 10,
+      "sink_gate_types": [
+        "SB_DFF",
+        "SB_DFFE",
+        "SB_DFFR",
+        "SB_DFFSR",
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ]
+    }
+  ],
+  "generated_at": "2026-09-08T00:00:00Z",
+  "inventory_version": "1.0.0",
+  "io_ports": [
+    {
+      "connected_gate_types": [
+        "SB_IO"
+      ],
+      "direction": "inout",
+      "net_id": 35,
+      "net_name": "pad",
+      "through_io_primitive": true
+    },
+    {
+      "connected_gate_types": [
+        "SB_GB"
+      ],
+      "direction": "input",
+      "net_id": 1,
+      "net_name": "clk_pin",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_DFFNSR",
+        "SB_DFFR",
+        "SB_DFFSR"
+      ],
+      "direction": "input",
+      "net_id": 2,
+      "net_name": "rst",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_LUT4"
+      ],
+      "direction": "input",
+      "net_id": 3,
+      "net_name": "d_in",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_DFFE",
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 4,
+      "net_name": "ce",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_I2C"
+      ],
+      "direction": "input",
+      "net_id": 5,
+      "net_name": "i2c_scl",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 6,
+      "net_name": "ram_addr(0)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 7,
+      "net_name": "ram_addr(1)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 8,
+      "net_name": "ram_addr(2)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 9,
+      "net_name": "ram_addr(3)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 10,
+      "net_name": "ram_addr(4)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 11,
+      "net_name": "ram_addr(5)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 12,
+      "net_name": "ram_addr(6)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 13,
+      "net_name": "ram_addr(7)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 14,
+      "net_name": "ram_addr(8)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 15,
+      "net_name": "ram_addr(9)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 16,
+      "net_name": "ram_addr(10)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 17,
+      "net_name": "ram_wdata(0)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 18,
+      "net_name": "ram_wdata(1)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 19,
+      "net_name": "ram_wdata(2)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 20,
+      "net_name": "ram_wdata(3)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 21,
+      "net_name": "ram_wdata(4)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 22,
+      "net_name": "ram_wdata(5)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 23,
+      "net_name": "ram_wdata(6)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 24,
+      "net_name": "ram_wdata(7)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 25,
+      "net_name": "ram_wdata(8)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 26,
+      "net_name": "ram_wdata(9)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 27,
+      "net_name": "ram_wdata(10)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 28,
+      "net_name": "ram_wdata(11)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 29,
+      "net_name": "ram_wdata(12)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 30,
+      "net_name": "ram_wdata(13)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 31,
+      "net_name": "ram_wdata(14)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_MAC16",
+        "SB_RAM40_4K"
+      ],
+      "direction": "input",
+      "net_id": 32,
+      "net_name": "ram_wdata(15)",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_DFF"
+      ],
+      "direction": "output",
+      "net_id": 33,
+      "net_name": "q_out",
+      "through_io_primitive": false
+    },
+    {
+      "connected_gate_types": [
+        "SB_I2C"
+      ],
+      "direction": "output",
+      "net_id": 34,
+      "net_name": "i2c_sda_out",
+      "through_io_primitive": false
+    }
+  ],
+  "metadata_gaps": [
+    {
+      "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+      "scope": "SB_DFF"
+    },
+    {
+      "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+      "scope": "SB_DFFE"
+    },
+    {
+      "detail": "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+      "scope": "SB_DFFNSR"
+    },
+    {
+      "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+      "scope": "SB_DFFNSR"
+    },
+    {
+      "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+      "scope": "SB_DFFR"
+    },
+    {
+      "detail": "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+      "scope": "SB_DFFSR"
+    },
+    {
+      "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+      "scope": "SB_DFFSR"
+    },
+    {
+      "detail": "the gate library marks this type as sequential but models no flip-flop, latch or RAM component, so its state behaviour is not described at all",
+      "scope": "SB_I2C"
+    },
+    {
+      "detail": "I/O standard, drive strength, slew, termination and pin assignment are constraint-file properties and are not present in the netlist",
+      "scope": "SB_IO"
+    },
+    {
+      "detail": "DSP internals (pipeline registers, rounding, saturation, accumulator width) are not modelled by the gate library",
+      "scope": "SB_MAC16"
+    },
+    {
+      "detail": "no RAMComponent: the memory's bit size is not modelled by the gate library, so depth/width and target block-RAM fit cannot be derived",
+      "scope": "SB_RAM40_4K"
+    },
+    {
+      "detail": "no RAMPortComponent: port structure, write-enable semantics and read-during-write (collision) behaviour are not modelled by the gate library and must be taken from the vendor documentation",
+      "scope": "SB_RAM40_4K"
+    },
+    {
+      "detail": "address and data widths would have to be inferred from pin types alone, which cannot distinguish read from write ports; left unstated",
+      "scope": "SB_RAM40_4K"
+    }
+  ],
+  "notes": [
+    "categories are derived from HAL gate type properties only; gate type names are never interpreted",
+    "this inventory describes the source design; it names no target technology and proposes no mapping"
+  ],
+  "primitives": [
+    {
+      "category": "constant",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 1,
+          "module": "top_module",
+          "name": "gnd_inst"
+        }
+      ],
+      "gate_type": "GND",
+      "metadata": {
+        "output_pin_count": 1,
+        "pin_directions": [
+          "output"
+        ]
+      },
+      "properties": [
+        "combinational",
+        "ground"
+      ]
+    },
+    {
+      "category": "arithmetic",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 7,
+          "module": "top_module",
+          "name": "carry_a"
+        }
+      ],
+      "gate_type": "SB_CARRY",
+      "metadata": {
+        "input_pin_count": 3,
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "properties": [
+        "c_carry",
+        "combinational"
+      ]
+    },
+    {
+      "category": "register",
+      "count": 3,
+      "example_gates": [
+        {
+          "id": 8,
+          "module": "top_module",
+          "name": "ff_a"
+        },
+        {
+          "id": 9,
+          "module": "top_module",
+          "name": "ff_b"
+        },
+        {
+          "id": 19,
+          "module": "top_module",
+          "name": "ff_out"
+        }
+      ],
+      "gate_type": "SB_DFF",
+      "metadata": {
+        "async_set_reset_behavior": [
+          "undef",
+          "undef"
+        ],
+        "clock_function": "C",
+        "clock_pins": [
+          "C"
+        ],
+        "components": [
+          "ff",
+          "init",
+          "state"
+        ],
+        "data_pins": [
+          "D"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "INIT"
+          ]
+        },
+        "input_pin_count": 2,
+        "next_state_function": "D",
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ],
+        "state_pins": [
+          "Q"
+        ]
+      },
+      "metadata_gaps": [
+        "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "register",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 10,
+          "module": "top_module",
+          "name": "ff_enable"
+        }
+      ],
+      "gate_type": "SB_DFFE",
+      "metadata": {
+        "async_set_reset_behavior": [
+          "undef",
+          "undef"
+        ],
+        "clock_function": "C",
+        "clock_pins": [
+          "C"
+        ],
+        "components": [
+          "ff",
+          "init",
+          "state"
+        ],
+        "data_pins": [
+          "D"
+        ],
+        "enable_pins": [
+          "E"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "INIT"
+          ]
+        },
+        "input_pin_count": 3,
+        "next_state_function": "((E & D) | ((! E) & IQ))",
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ],
+        "state_pins": [
+          "Q"
+        ]
+      },
+      "metadata_gaps": [
+        "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "register",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 14,
+          "module": "top_module",
+          "name": "ff_negedge"
+        }
+      ],
+      "gate_type": "SB_DFFNSR",
+      "metadata": {
+        "async_set_reset_behavior": [
+          "undef",
+          "undef"
+        ],
+        "clock_function": "(! C)",
+        "clock_pins": [
+          "C"
+        ],
+        "components": [
+          "ff",
+          "init",
+          "state"
+        ],
+        "data_pins": [
+          "D"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "INIT"
+          ]
+        },
+        "input_pin_count": 3,
+        "next_state_function": "(D & (! R))",
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ],
+        "reset_pins": [
+          "R"
+        ],
+        "state_pins": [
+          "Q"
+        ]
+      },
+      "metadata_gaps": [
+        "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+        "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "register",
+      "count": 2,
+      "example_gates": [
+        {
+          "id": 11,
+          "module": "top_module",
+          "name": "ff_async_reset_a"
+        },
+        {
+          "id": 12,
+          "module": "top_module",
+          "name": "ff_async_reset_b"
+        }
+      ],
+      "gate_type": "SB_DFFR",
+      "metadata": {
+        "async_reset_function": "R",
+        "async_set_reset_behavior": [
+          "undef",
+          "undef"
+        ],
+        "clock_function": "C",
+        "clock_pins": [
+          "C"
+        ],
+        "components": [
+          "ff",
+          "init",
+          "state"
+        ],
+        "data_pins": [
+          "D"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "INIT"
+          ]
+        },
+        "input_pin_count": 3,
+        "next_state_function": "D",
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ],
+        "reset_pins": [
+          "R"
+        ],
+        "state_pins": [
+          "Q"
+        ]
+      },
+      "metadata_gaps": [
+        "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "register",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 13,
+          "module": "top_module",
+          "name": "ff_sync_reset"
+        }
+      ],
+      "gate_type": "SB_DFFSR",
+      "metadata": {
+        "async_set_reset_behavior": [
+          "undef",
+          "undef"
+        ],
+        "clock_function": "C",
+        "clock_pins": [
+          "C"
+        ],
+        "components": [
+          "ff",
+          "init",
+          "state"
+        ],
+        "data_pins": [
+          "D"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "INIT"
+          ]
+        },
+        "input_pin_count": 3,
+        "next_state_function": "(D & (! R))",
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ],
+        "reset_pins": [
+          "R"
+        ],
+        "state_pins": [
+          "Q"
+        ]
+      },
+      "metadata_gaps": [
+        "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+        "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+      ],
+      "properties": [
+        "ff",
+        "sequential"
+      ]
+    },
+    {
+      "category": "combinational",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 4,
+          "module": "top_module",
+          "name": "clk_buffer"
+        }
+      ],
+      "gate_type": "SB_GB",
+      "metadata": {
+        "input_pin_count": 1,
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "properties": [
+        "c_buffer",
+        "combinational"
+      ]
+    },
+    {
+      "category": "combinational",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 3,
+          "module": "top_module",
+          "name": "osc_inst"
+        }
+      ],
+      "gate_type": "SB_HFOSC",
+      "metadata": {
+        "clock_pins": [
+          "CLKHF"
+        ],
+        "enable_pins": [
+          "CLKHFEN"
+        ],
+        "input_pin_count": 2,
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "properties": [
+        "combinational"
+      ]
+    },
+    {
+      "category": "sequential_other",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 18,
+          "module": "top_module",
+          "name": "i2c_inst"
+        }
+      ],
+      "gate_type": "SB_I2C",
+      "metadata": {
+        "input_pin_count": 21,
+        "output_pin_count": 15,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "metadata_gaps": [
+        "the gate library marks this type as sequential but models no flip-flop, latch or RAM component, so its state behaviour is not described at all"
+      ],
+      "properties": [
+        "sequential"
+      ]
+    },
+    {
+      "category": "io",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 17,
+          "module": "top_module",
+          "name": "io_inst"
+        }
+      ],
+      "gate_type": "SB_IO",
+      "metadata": {
+        "clock_pins": [
+          "INPUT_CLK",
+          "OUTPUT_CLK"
+        ],
+        "data_pins": [
+          "D_IN_0",
+          "D_IN_1",
+          "D_OUT_0",
+          "D_OUT_1",
+          "LATCH_INPUT_VALUE"
+        ],
+        "enable_pins": [
+          "CLOCK_ENABLE",
+          "OUTPUT_ENABLE"
+        ],
+        "input_pin_count": 7,
+        "io_pad_pins": [
+          "PACKAGE_PIN"
+        ],
+        "output_pin_count": 2,
+        "pin_directions": [
+          "inout",
+          "input",
+          "output"
+        ]
+      },
+      "metadata_gaps": [
+        "I/O standard, drive strength, slew, termination and pin assignment are constraint-file properties and are not present in the netlist"
+      ],
+      "properties": [
+        "io"
+      ]
+    },
+    {
+      "category": "combinational",
+      "count": 2,
+      "example_gates": [
+        {
+          "id": 5,
+          "module": "top_module",
+          "name": "lut_a"
+        },
+        {
+          "id": 6,
+          "module": "top_module",
+          "name": "lut_b"
+        }
+      ],
+      "gate_type": "SB_LUT4",
+      "metadata": {
+        "components": [
+          "init",
+          "lut"
+        ],
+        "init": {
+          "category": "generic",
+          "identifiers": [
+            "LUT_INIT"
+          ]
+        },
+        "input_pin_count": 4,
+        "lut_init_ascending": false,
+        "lut_input_count": 4,
+        "output_pin_count": 1,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "properties": [
+        "c_lut",
+        "combinational"
+      ]
+    },
+    {
+      "category": "arithmetic",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 16,
+          "module": "top_module",
+          "name": "mac_inst"
+        }
+      ],
+      "gate_type": "SB_MAC16",
+      "metadata": {
+        "clock_pins": [
+          "CLK"
+        ],
+        "data_pins": [
+          "A(0)",
+          "A(1)",
+          "A(10)",
+          "A(11)",
+          "A(12)",
+          "A(13)",
+          "A(14)",
+          "A(15)",
+          "A(2)",
+          "A(3)",
+          "A(4)",
+          "A(5)",
+          "A(6)",
+          "A(7)",
+          "A(8)",
+          "A(9)",
+          "B(0)",
+          "B(1)",
+          "B(10)",
+          "B(11)",
+          "B(12)",
+          "B(13)",
+          "B(14)",
+          "B(15)",
+          "B(2)",
+          "B(3)",
+          "B(4)",
+          "B(5)",
+          "B(6)",
+          "B(7)",
+          "B(8)",
+          "B(9)",
+          "C(0)",
+          "C(1)",
+          "C(10)",
+          "C(11)",
+          "C(12)",
+          "C(13)",
+          "C(14)",
+          "C(15)",
+          "C(2)",
+          "C(3)",
+          "C(4)",
+          "C(5)",
+          "C(6)",
+          "C(7)",
+          "C(8)",
+          "C(9)",
+          "CI",
+          "CO",
+          "D(0)",
+          "D(1)",
+          "D(10)",
+          "D(11)",
+          "D(12)",
+          "D(13)",
+          "D(14)",
+          "D(15)",
+          "D(2)",
+          "D(3)",
+          "D(4)",
+          "D(5)",
+          "D(6)",
+          "D(7)",
+          "D(8)",
+          "D(9)",
+          "O(0)",
+          "O(1)",
+          "O(10)",
+          "O(11)",
+          "O(12)",
+          "O(13)",
+          "O(14)",
+          "O(15)",
+          "O(16)",
+          "O(17)",
+          "O(18)",
+          "O(19)",
+          "O(2)",
+          "O(20)",
+          "O(21)",
+          "O(22)",
+          "O(23)",
+          "O(24)",
+          "O(25)",
+          "O(26)",
+          "O(27)",
+          "O(28)",
+          "O(29)",
+          "O(3)",
+          "O(30)",
+          "O(31)",
+          "O(4)",
+          "O(5)",
+          "O(6)",
+          "O(7)",
+          "O(8)",
+          "O(9)"
+        ],
+        "enable_pins": [
+          "CE"
+        ],
+        "input_pin_count": 83,
+        "output_pin_count": 35,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "metadata_gaps": [
+        "DSP internals (pipeline registers, rounding, saturation, accumulator width) are not modelled by the gate library"
+      ],
+      "properties": [
+        "dsp",
+        "sequential"
+      ]
+    },
+    {
+      "category": "memory",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 15,
+          "module": "top_module",
+          "name": "ram_inst"
+        }
+      ],
+      "gate_type": "SB_RAM40_4K",
+      "metadata": {
+        "address_pins": [
+          "RADDR(0)",
+          "RADDR(1)",
+          "RADDR(10)",
+          "RADDR(2)",
+          "RADDR(3)",
+          "RADDR(4)",
+          "RADDR(5)",
+          "RADDR(6)",
+          "RADDR(7)",
+          "RADDR(8)",
+          "RADDR(9)",
+          "WADDR(0)",
+          "WADDR(1)",
+          "WADDR(10)",
+          "WADDR(2)",
+          "WADDR(3)",
+          "WADDR(4)",
+          "WADDR(5)",
+          "WADDR(6)",
+          "WADDR(7)",
+          "WADDR(8)",
+          "WADDR(9)"
+        ],
+        "clock_pins": [
+          "RCLK",
+          "WCLK"
+        ],
+        "data_pins": [
+          "RDATA(0)",
+          "RDATA(1)",
+          "RDATA(10)",
+          "RDATA(11)",
+          "RDATA(12)",
+          "RDATA(13)",
+          "RDATA(14)",
+          "RDATA(15)",
+          "RDATA(2)",
+          "RDATA(3)",
+          "RDATA(4)",
+          "RDATA(5)",
+          "RDATA(6)",
+          "RDATA(7)",
+          "RDATA(8)",
+          "RDATA(9)",
+          "WDATA(0)",
+          "WDATA(1)",
+          "WDATA(10)",
+          "WDATA(11)",
+          "WDATA(12)",
+          "WDATA(13)",
+          "WDATA(14)",
+          "WDATA(15)",
+          "WDATA(2)",
+          "WDATA(3)",
+          "WDATA(4)",
+          "WDATA(5)",
+          "WDATA(6)",
+          "WDATA(7)",
+          "WDATA(8)",
+          "WDATA(9)"
+        ],
+        "enable_pins": [
+          "RCLKE",
+          "RE",
+          "WCLKE",
+          "WE"
+        ],
+        "input_pin_count": 60,
+        "output_pin_count": 16,
+        "pin_directions": [
+          "input",
+          "output"
+        ]
+      },
+      "metadata_gaps": [
+        "no RAMComponent: the memory's bit size is not modelled by the gate library, so depth/width and target block-RAM fit cannot be derived",
+        "no RAMPortComponent: port structure, write-enable semantics and read-during-write (collision) behaviour are not modelled by the gate library and must be taken from the vendor documentation",
+        "address and data widths would have to be inferred from pin types alone, which cannot distinguish read from write ports; left unstated"
+      ],
+      "properties": [
+        "ram",
+        "sequential"
+      ]
+    },
+    {
+      "category": "constant",
+      "count": 1,
+      "example_gates": [
+        {
+          "id": 2,
+          "module": "top_module",
+          "name": "vcc_inst"
+        }
+      ],
+      "gate_type": "VCC",
+      "metadata": {
+        "output_pin_count": 1,
+        "pin_directions": [
+          "output"
+        ]
+      },
+      "properties": [
+        "combinational",
+        "power"
+      ]
+    }
+  ],
+  "producer": {
+    "command": [
+      "python",
+      "tools/hal_migration/fixtures/_generate.py"
+    ],
+    "name": "hal_migration.inventory",
+    "version": "1.0.0"
+  },
+  "reset_signals": [
+    {
+      "driver": {
+        "kind": "undriven"
+      },
+      "is_global_input": true,
+      "net_id": 2,
+      "net_name": "rst",
+      "pin_types": [
+        "reset_or_set"
+      ],
+      "sink_count": 4,
+      "sink_gate_types": [
+        "SB_DFFNSR",
+        "SB_DFFR",
+        "SB_DFFSR"
+      ]
+    }
+  ],
+  "source": {
+    "artifact_id": "source_netlist",
+    "design_name": "ice40_mixed",
+    "device": "iCE40UP5K",
+    "family": "iCE40 UltraPlus",
+    "gate_count": 19,
+    "gate_library": {
+      "name": "ICE40ULTRA",
+      "path": "plugins/gate_libraries/definitions/ice40ultra.hgl",
+      "sha256": "5e9f1e509194b2630eac13c736fbaa467bec4c169b4cdbd4bd5586e40d933f3b"
+    },
+    "module_count": 1,
+    "net_count": 98,
+    "netlist_id": 1,
+    "path": "tools/hal_migration/fixtures/ice40_mixed.v",
+    "sha256": "2a1624726241a6709e7c2f4969461601ed7be14c60c35685e4802d37c0cafbbb",
+    "size_bytes": 5202,
+    "tool": {
+      "name": "hand-written fixture",
+      "source": "user",
+      "version": "1.0.0"
+    },
+    "vendor": "Lattice"
+  },
+  "totals": {
+    "black_box_types": 0,
+    "by_category": {
+      "arithmetic": 2,
+      "combinational": 4,
+      "constant": 2,
+      "io": 1,
+      "memory": 1,
+      "register": 8,
+      "sequential_other": 1
+    },
+    "clock_signals": 2,
+    "gate_types": 15,
+    "gate_types_by_category": {
+      "arithmetic": 2,
+      "combinational": 3,
+      "constant": 2,
+      "io": 1,
+      "memory": 1,
+      "register": 5,
+      "sequential_other": 1
+    },
+    "gates": 19,
+    "io_ports": 35,
+    "metadata_gaps": 13,
+    "nets": 98,
+    "reset_signals": 1
+  }
+}

@@ -1,0 +1,570 @@
+{
+  "catalogue_version": "1.0.0",
+  "catalogue_id": "ice40ultra-to-generic-fpga",
+  "revision": "2026-09-08.1",
+  "title": "ICE40ULTRA primitives against a generic SRAM-FPGA capability profile",
+  "description": "A worked example of the target-catalogue format, written against the ICE40ULTRA gate library that ships in plugins/gate_libraries/definitions. The target is a deliberately GENERIC capability profile (6-input LUTs, dual-port block RAM, DSP blocks, I/O buffers, global clock buffers) and not a specific device: every statement about the target is a profile assumption, and a real migration must replace this file with a device-specific catalogue reviewed against the target vendor's documentation.",
+  "review": {
+    "reviewed_by": "FPGAPA HAL fork maintainers",
+    "reviewed_at": "2026-09-08",
+    "method": "Manual review of every cell in plugins/gate_libraries/definitions/ice40ultra.hgl (cell properties, pin types and ff_config/lut_config) against a generic SRAM-FPGA capability profile. Source-side statements are taken from the gate library itself; target-side statements are profile assumptions.",
+    "sources": [
+      {
+        "title": "plugins/gate_libraries/definitions/ice40ultra.hgl",
+        "note": "the HAL gate library this catalogue's source_type names come from; the only source of primitive semantics used here"
+      }
+    ],
+    "limitations": [
+      "No vendor datasheet, device model or toolchain was consulted for either side; nothing in this catalogue is a vendor statement.",
+      "The target is a capability profile, not a device: it has no resource counts, no speed grade and no I/O bank rules, so resource fit and timing cannot be assessed against it at all.",
+      "The negative-edge flip-flop family (SB_DFFN, SB_DFFNE, SB_DFFNR, SB_DFFNS, SB_DFFNSR, SB_DFFNSS, SB_DFFNER, SB_DFFNES, SB_DFFNESR, SB_DFFNESS) is deliberately NOT covered in this revision: falling-edge capture interacts with the target's clocking rules and was not reviewed. Designs using it are reported as unresolved, which is the intended outcome, not an oversight.",
+      "SB_LFOSC, SB_HFOSC, SB_I2C and SB_SPI are hard IP with no generic equivalent and are unresolved by construction."
+    ]
+  },
+  "source": {
+    "vendor": "Lattice",
+    "family": "iCE40 UltraPlus",
+    "gate_library": "ICE40ULTRA",
+    "note": "source semantics are read from the HAL gate library, never from the primitive names"
+  },
+  "target": {
+    "vendor": "generic",
+    "family": "generic SRAM FPGA capability profile",
+    "toolchain": {
+      "name": "generic-fpga-flow",
+      "version": "profile-2026.1",
+      "note": "a placeholder identifying the profile revision; replace with the real toolchain name and version in a device-specific catalogue"
+    },
+    "note": "6-input LUTs with configurable INIT, flip-flops with clock enable and one asynchronous or synchronous reset, dual-port block RAM, DSP/MAC blocks, general purpose I/O buffers and global clock buffers. No hard I2C/SPI, no on-chip oscillator, no PLL is assumed."
+  },
+  "capabilities": [
+    {
+      "id": "lut6",
+      "kind": "logic",
+      "description": "6-input look-up table with a configurable INIT truth table."
+    },
+    {
+      "id": "ff",
+      "kind": "register",
+      "description": "Rising-edge D flip-flop with optional clock enable and one reset or set input, synchronous or asynchronous."
+    },
+    {
+      "id": "bram",
+      "kind": "memory",
+      "description": "Configurable dual-port block RAM with per-port clock, enable and write enable."
+    },
+    {
+      "id": "dsp",
+      "kind": "arithmetic",
+      "description": "Multiply-accumulate block with optional input, pipeline and output registers."
+    },
+    {
+      "id": "carry",
+      "kind": "arithmetic",
+      "description": "Dedicated carry logic inside the logic element."
+    },
+    {
+      "id": "io",
+      "kind": "io",
+      "description": "General purpose I/O buffer with optional input and output registers."
+    },
+    {
+      "id": "clock_buffer",
+      "kind": "clocking",
+      "description": "Global clock buffer driving a low-skew clock network."
+    },
+    {
+      "id": "constant",
+      "kind": "constant",
+      "description": "Constant 0/1 sources, usually absorbed by the target synthesis flow."
+    }
+  ],
+  "obligation_templates": [
+    {
+      "id": "semantic/lut4-into-lut6-init-order",
+      "kind": "semantic",
+      "title": "LUT INIT width and bit order",
+      "description": "The ICE40ULTRA gate library declares LUT_INIT with descending bit order for SB_LUT4. A 6-input target LUT holds a wider INIT and may number its bits the other way round, so a copied INIT value is a different function.",
+      "check": "Re-derive the target INIT from the source truth table (extend the 16-bit function to the target width and apply the target's bit order), then compare the two truth tables exhaustively - 64 input combinations is a complete check.",
+      "severity": "high",
+      "target_assumption": "the target LUT is a strict superset of a 4-input LUT and its INIT encoding is documented"
+    }
+  ],
+  "mappings": [
+    {
+      "source_type": "SB_LUT4",
+      "category": "supported",
+      "target_capability": "lut6",
+      "target_primitive": "LUT6",
+      "rationale": "A 4-input LUT is a subset of a 6-input LUT; the gate library marks SB_LUT4 as c_lut with a LUT_INIT attribute, so the function is fully described by its truth table and carries over.",
+      "requires_metadata": ["lut_input_count"],
+      "assumptions": [
+        {
+          "id": "target.lut6-superset",
+          "description": "The target LUT has at least four inputs and an INIT-configurable truth table.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/combinational-equivalence",
+        "semantic/lut4-into-lut6-init-order"
+      ]
+    },
+    {
+      "source_type": "SB_CARRY",
+      "category": "candidate",
+      "target_capability": "carry",
+      "target_primitive": "CARRY",
+      "rationale": "The target has dedicated carry logic, but carry primitives are placement-constrained and their carry-in/carry-out conventions differ. Re-inferring the arithmetic and letting the target flow implement it is normally preferable to a one-to-one mapping.",
+      "requires_metadata": [],
+      "assumptions": [
+        {
+          "id": "target.carry-chain",
+          "description": "The target provides dedicated carry logic reachable from its synthesis flow.",
+          "kind": "library"
+        }
+      ],
+      "obligations": ["semantic/arithmetic-carry-chain"],
+      "notes": [
+        "the ICE40ULTRA library types SB_CARRY's pins as 'none', so the carry direction is not readable from the netlist"
+      ]
+    },
+    {
+      "source_type": "SB_DFF",
+      "category": "supported",
+      "target_capability": "ff",
+      "target_primitive": "DFF",
+      "rationale": "A plain rising-edge D flip-flop; the gate library gives next_state = D and clocked_on = C, both of which the target flip-flop provides.",
+      "requires_metadata": ["clock_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-rising-edge",
+          "description": "The target flip-flop captures on the rising clock edge.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFE",
+      "category": "supported",
+      "target_capability": "ff",
+      "target_primitive": "DFF_CE",
+      "rationale": "Clock enable is folded into the next-state function (E & D | !E & IQ) in the gate library, which is exactly the behaviour of a target flip-flop with clock enable.",
+      "requires_metadata": ["clock_pins", "enable_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-clock-enable",
+          "description": "The target flip-flop has a clock enable that holds the state when deasserted.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFR",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_ASYNC_RESET",
+      "rationale": "The gate library models R with clear_on, i.e. as an asynchronous clear. The target flip-flop offers an asynchronous reset, but polarity, recovery/removal timing and whether the target flow prefers a synchronous reset are all open questions.",
+      "requires_metadata": ["clock_pins", "reset_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-async-reset",
+          "description": "The target flip-flop provides an asynchronous reset with the same active level.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFS",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_ASYNC_SET",
+      "rationale": "The gate library models S with preset_on, i.e. as an asynchronous preset. Many target families implement set by inverting a reset flip-flop, which changes the power-up state.",
+      "requires_metadata": ["clock_pins", "set_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-async-set",
+          "description": "The target flip-flop provides an asynchronous set, or a reset flip-flop plus inversion that preserves the observable behaviour.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFSR",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_SYNC_RESET",
+      "rationale": "The gate library folds R into the next-state function (D & !R) rather than into clear_on, i.e. it models a synchronous reset. Confirm against the vendor documentation before choosing the target reset flavour.",
+      "requires_metadata": ["clock_pins", "reset_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-sync-reset",
+          "description": "The target flip-flop provides a synchronous reset, or the reset can be folded into the target's data path without a timing penalty.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFSS",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_SYNC_SET",
+      "rationale": "Synchronous set, folded into the next-state function by the gate library.",
+      "requires_metadata": ["clock_pins", "set_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-sync-set",
+          "description": "The target flip-flop provides a synchronous set or an equivalent data-path transformation.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFER",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_CE_ASYNC_RESET",
+      "rationale": "Clock enable plus the asynchronous clear the gate library models with clear_on. The relative priority of enable and reset must be checked in the target primitive.",
+      "requires_metadata": ["clock_pins", "reset_pins", "enable_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-ce-async-reset",
+          "description": "The target flip-flop's asynchronous reset is independent of its clock enable.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFES",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_CE_ASYNC_SET",
+      "rationale": "Clock enable plus the asynchronous preset the gate library models with preset_on.",
+      "requires_metadata": ["clock_pins", "set_pins", "enable_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-ce-async-set",
+          "description": "The target flip-flop's asynchronous set is independent of its clock enable.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFESR",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_CE_SYNC_RESET",
+      "rationale": "Clock enable plus a reset folded into the next-state function; enable/reset priority is a target property.",
+      "requires_metadata": ["clock_pins", "reset_pins", "enable_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-ce-sync-reset",
+          "description": "The target flip-flop's synchronous reset takes priority over its clock enable in the same way as the source.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_DFFESS",
+      "category": "candidate",
+      "target_capability": "ff",
+      "target_primitive": "DFF_CE_SYNC_SET",
+      "rationale": "Clock enable plus a set folded into the next-state function.",
+      "requires_metadata": ["clock_pins", "set_pins", "enable_pins"],
+      "assumptions": [
+        {
+          "id": "target.ff-ce-sync-set",
+          "description": "The target flip-flop's synchronous set takes priority over its clock enable in the same way as the source.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/register-clocking",
+        "semantic/async-set-reset-priority",
+        "semantic/power-up-and-init-state"
+      ]
+    },
+    {
+      "source_type": "SB_RAM40_4K",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_DUAL_PORT",
+      "rationale": "A 4 kbit dual-port block RAM maps onto a target block RAM in principle, but the geometry, the write-mask behaviour and the read-during-write mode all have to come from documentation: the gate library models neither a RAMComponent nor RAMPortComponents for this cell.",
+      "requires_metadata": ["bit_size", "ram_ports"],
+      "assumptions": [
+        {
+          "id": "target.bram-dual-port",
+          "description": "The target provides a dual-port block RAM that can be configured to the required depth and width.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ],
+      "notes": [
+        "with the ICE40ULTRA library as shipped this mapping is reported as unresolved, because the bit size and port structure it requires are not modelled"
+      ]
+    },
+    {
+      "source_type": "SB_SPRAM256KA",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_SINGLE_PORT",
+      "rationale": "A 256 kbit single-port RAM with byte-masked writes and power-management inputs. The memory itself has a plausible target equivalent; the STANDBY/SLEEP/POWEROFF controls do not.",
+      "requires_metadata": ["bit_size"],
+      "assumptions": [
+        {
+          "id": "target.spram-equivalent",
+          "description": "The target provides a single-port memory of at least the same capacity, and the power-management inputs can be tied off without changing behaviour.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ]
+    },
+    {
+      "source_type": "SB_RAM256x16",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_DUAL_PORT",
+      "rationale": "A fixed-geometry view of the 4 kbit block RAM; the same collision and initialisation questions apply.",
+      "requires_metadata": ["bit_size", "ram_ports"],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ]
+    },
+    {
+      "source_type": "SB_RAM512x8",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_DUAL_PORT",
+      "rationale": "A fixed-geometry view of the 4 kbit block RAM; the same collision and initialisation questions apply.",
+      "requires_metadata": ["bit_size", "ram_ports"],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ]
+    },
+    {
+      "source_type": "SB_RAM1024x4",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_DUAL_PORT",
+      "rationale": "A fixed-geometry view of the 4 kbit block RAM; the same collision and initialisation questions apply.",
+      "requires_metadata": ["bit_size", "ram_ports"],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ]
+    },
+    {
+      "source_type": "SB_RAM2048x2",
+      "category": "candidate",
+      "target_capability": "bram",
+      "target_primitive": "BRAM_DUAL_PORT",
+      "rationale": "A fixed-geometry view of the 4 kbit block RAM; the same collision and initialisation questions apply.",
+      "requires_metadata": ["bit_size", "ram_ports"],
+      "obligations": [
+        "semantic/memory-collision-mode",
+        "semantic/memory-init-contents",
+        "physical/memory-depth-width-fit"
+      ]
+    },
+    {
+      "source_type": "SB_MAC16",
+      "category": "candidate",
+      "target_capability": "dsp",
+      "target_primitive": "DSP_MAC",
+      "rationale": "A 16x16 MAC block with configurable input/output registers, accumulator and sign extension. A target DSP block can usually be configured to match, but pipeline depth, rounding, saturation and the hold/load controls are configuration, not structure, and none of it is in the netlist.",
+      "requires_metadata": ["clock_pins"],
+      "assumptions": [
+        {
+          "id": "target.dsp-configurable",
+          "description": "The target DSP block can be configured to the same operand width, latency and accumulation behaviour.",
+          "kind": "library"
+        }
+      ],
+      "obligations": [
+        "semantic/dsp-behaviour",
+        "semantic/arithmetic-carry-chain",
+        "semantic/register-clocking"
+      ]
+    },
+    {
+      "source_type": "SB_IO",
+      "category": "candidate",
+      "target_capability": "io",
+      "target_primitive": "IO_BUFFER",
+      "rationale": "A general purpose I/O primitive with optional input/output registers and DDR paths. The buffer maps, the constraints do not: I/O standard, drive strength, termination and pin assignment live outside the netlist.",
+      "requires_metadata": ["io_pad_pins"],
+      "assumptions": [
+        {
+          "id": "target.io-standard-available",
+          "description": "The target device offers a compatible I/O standard in the bank the pin is assigned to.",
+          "kind": "environment"
+        }
+      ],
+      "obligations": [
+        "physical/io-standard-and-drive",
+        "physical/io-pin-assignment",
+        "semantic/io-registered-path"
+      ]
+    },
+    {
+      "source_type": "SB_GB_IO",
+      "category": "candidate",
+      "target_capability": "io",
+      "target_primitive": "IO_BUFFER_CLOCK_CAPABLE",
+      "rationale": "An I/O primitive that additionally drives a global clock network. Both halves have to hold in the target: a clock-capable pin in the right bank, and enough global clock resources.",
+      "requires_metadata": ["io_pad_pins"],
+      "assumptions": [
+        {
+          "id": "target.clock-capable-pin",
+          "description": "The target package offers a clock-capable pin that can reach the required clock region.",
+          "kind": "environment"
+        }
+      ],
+      "obligations": [
+        "physical/io-standard-and-drive",
+        "physical/io-pin-assignment",
+        "physical/clock-network-and-buffering"
+      ]
+    },
+    {
+      "source_type": "SB_GB",
+      "category": "candidate",
+      "target_capability": "clock_buffer",
+      "target_primitive": "GLOBAL_CLOCK_BUFFER",
+      "rationale": "A global clock buffer has a target counterpart, but the number of global networks, their reach and the skew they guarantee are device properties. A one-to-one buffer substitution is not a clocking plan.",
+      "requires_metadata": [],
+      "assumptions": [
+        {
+          "id": "target.global-buffer-count",
+          "description": "The target device has at least as many usable global clock networks as the source design consumes.",
+          "kind": "environment"
+        }
+      ],
+      "obligations": ["physical/clock-network-and-buffering"]
+    },
+    {
+      "source_type": "GND",
+      "category": "supported",
+      "target_capability": "constant",
+      "target_primitive": "GND",
+      "rationale": "A constant-0 driver; every target technology has one and synthesis usually absorbs it.",
+      "requires_metadata": [],
+      "obligations": ["semantic/combinational-equivalence"]
+    },
+    {
+      "source_type": "VCC",
+      "category": "supported",
+      "target_capability": "constant",
+      "target_primitive": "VCC",
+      "rationale": "A constant-1 driver; every target technology has one and synthesis usually absorbs it.",
+      "requires_metadata": [],
+      "obligations": ["semantic/combinational-equivalence"]
+    },
+    {
+      "source_type": "SB_HFOSC",
+      "category": "unresolved",
+      "rationale": "An on-chip high-frequency oscillator. The generic target profile assumes no internal oscillator, and frequency accuracy, start-up time and trimming are device properties that no structural match can supply.",
+      "unresolved_reasons": [
+        "the target profile provides no on-chip oscillator, so the design would need an external clock source or a target-specific hard block",
+        "the source oscillator's frequency, tolerance and start-up behaviour are not in the netlist"
+      ],
+      "obligations": [
+        "physical/clock-source-availability",
+        "semantic/hard-ip-replacement"
+      ]
+    },
+    {
+      "source_type": "SB_LFOSC",
+      "category": "unresolved",
+      "rationale": "An on-chip low-frequency oscillator; same reasoning as SB_HFOSC.",
+      "unresolved_reasons": [
+        "the target profile provides no on-chip oscillator",
+        "the source oscillator's frequency and tolerance are not in the netlist"
+      ],
+      "obligations": [
+        "physical/clock-source-availability",
+        "semantic/hard-ip-replacement"
+      ]
+    },
+    {
+      "source_type": "SB_I2C",
+      "category": "unresolved",
+      "rationale": "A hard I2C controller. Replacing it with a soft core changes the register map, the interrupt behaviour and the protocol timing; there is no structural mapping to propose.",
+      "unresolved_reasons": [
+        "the target profile has no hard I2C block",
+        "a soft replacement changes the software-visible register map and must be re-verified against the I2C specification"
+      ],
+      "obligations": ["semantic/hard-ip-replacement"]
+    },
+    {
+      "source_type": "SB_SPI",
+      "category": "unresolved",
+      "rationale": "A hard SPI controller; same reasoning as SB_I2C.",
+      "unresolved_reasons": [
+        "the target profile has no hard SPI block",
+        "a soft replacement changes the software-visible register map and must be re-verified against the SPI specification"
+      ],
+      "obligations": ["semantic/hard-ip-replacement"]
+    }
+  ],
+  "notes": [
+    "a source primitive that is absent from this table is reported as unresolved: silence is not approval",
+    "no entry in this catalogue is a claim that a conversion was performed or that it would meet timing"
+  ]
+}

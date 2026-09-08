@@ -1,0 +1,7 @@
+# ice40_mixed_inventory.json records the sha256 of ice40_mixed.v, and
+# test_hal_migration.py regenerates the inventory to check the fixture is not
+# stale. That comparison is only meaningful if every checkout sees the same
+# bytes, so keep these files exactly as committed (LF) on every platform.
+ice40_mixed.v -text
+*.json -text
+*.md -text

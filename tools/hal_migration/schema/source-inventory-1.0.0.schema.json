@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/tools/hal_migration/schema/source-inventory-1.0.0.schema.json",
+  "title": "HAL migration source inventory",
+  "description": "What a netlist actually contains, as read out of HAL: primitive counts per gate type with the memory/clock/reset/I-O metadata HAL can see, the clock and reset nets, the top-level ports, and an explicit list of the metadata HAL could NOT determine. It is a description of the source design only: it names no target technology, proposes no mapping and makes no claim about convertibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["inventory_version", "producer", "source", "primitives", "totals"],
+  "properties": {
+    "inventory_version": {
+      "description": "Version of this inventory format. An inventory whose version a build does not know is rejected outright instead of being parsed on a best-effort basis.",
+      "const": "1.0.0"
+    },
+    "generated_at": { "$ref": "#/$defs/timestamp" },
+    "producer": { "$ref": "#/$defs/producer" },
+    "source": { "$ref": "#/$defs/source" },
+    "primitives": {
+      "description": "One entry per gate type present in the netlist, sorted by gate type.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/primitive" }
+    },
+    "clock_signals": {
+      "description": "Nets that drive at least one pin of type 'clock'.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/signal" }
+    },
+    "reset_signals": {
+      "description": "Nets that drive at least one pin of type 'reset' or 'set'.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/signal" }
+    },
+    "io_ports": {
+      "description": "Top-level ports of the design (global input/output/inout nets).",
+      "type": "array",
+      "items": { "$ref": "#/$defs/io_port" }
+    },
+    "metadata_gaps": {
+      "description": "Everything the extractor could not determine. An empty list means 'nothing was missing', never 'nothing was checked'.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/metadata_gap" }
+    },
+    "totals": { "$ref": "#/$defs/totals" },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$"
+    },
+    "category": {
+      "description": "Coarse role of a gate type, derived only from the gate type properties HAL reports -- never from its name.",
+      "type": "string",
+      "enum": [
+        "register",
+        "latch",
+        "memory",
+        "arithmetic",
+        "io",
+        "clock_resource",
+        "combinational",
+        "constant",
+        "sequential_other",
+        "black_box"
+      ]
+    },
+
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "command": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "source": {
+      "description": "The exact artifact the inventory was read from, plus the tool and device versions that produced it. Gate IDs in this document are only meaningful relative to `artifact_id`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id"],
+      "anyOf": [{ "required": ["sha256"] }, { "required": ["unhashed_reason"] }],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "path": { "type": "string" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "unhashed_reason": { "type": "string", "minLength": 1 },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "design_name": { "type": "string" },
+        "device_name": { "type": "string" },
+        "netlist_id": { "type": "integer" },
+        "gate_count": { "type": "integer", "minimum": 0 },
+        "net_count": { "type": "integer", "minimum": 0 },
+        "module_count": { "type": "integer", "minimum": 0 },
+        "gate_library": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "path": { "type": "string" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "vendor": {
+          "description": "Source silicon vendor, if the caller stated one. Never guessed from gate type names.",
+          "type": "string"
+        },
+        "family": { "type": "string" },
+        "device": { "type": "string" },
+        "tool": {
+          "description": "The tool that produced the netlist HAL read, as far as it is known (synthesis tool and version). Unknown fields are omitted, not defaulted.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "commit": { "type": "string" },
+            "source": {
+              "description": "Where the version came from: 'user' (stated on the command line) or 'netlist' (read out of the design).",
+              "type": "string",
+              "enum": ["user", "netlist"]
+            }
+          }
+        },
+        "hal": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": { "type": "string" },
+            "commit": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "gate_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "module": { "type": "string" }
+      }
+    },
+
+    "pin_list": { "type": "array", "items": { "type": "string" } },
+
+    "ram_port": {
+      "description": "One RAM port as described by the gate library's RAMPortComponent.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data_group": { "type": "string" },
+        "address_group": { "type": "string" },
+        "is_write_port": { "type": "boolean" },
+        "data_bits": { "type": "integer", "minimum": 0 },
+        "address_bits": { "type": "integer", "minimum": 0 },
+        "clock_function": { "type": "string" },
+        "enable_function": { "type": "string" }
+      }
+    },
+
+    "metadata": {
+      "description": "What HAL reports about a gate type. Every field is optional; a missing field means 'HAL does not know', which is recorded in `metadata_gaps` rather than defaulted.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clock_pins": { "$ref": "#/$defs/pin_list" },
+        "reset_pins": { "$ref": "#/$defs/pin_list" },
+        "set_pins": { "$ref": "#/$defs/pin_list" },
+        "enable_pins": { "$ref": "#/$defs/pin_list" },
+        "data_pins": { "$ref": "#/$defs/pin_list" },
+        "address_pins": { "$ref": "#/$defs/pin_list" },
+        "io_pad_pins": { "$ref": "#/$defs/pin_list" },
+        "state_pins": { "$ref": "#/$defs/pin_list" },
+        "carry_pins": { "$ref": "#/$defs/pin_list" },
+        "select_pins": { "$ref": "#/$defs/pin_list" },
+        "input_pin_count": { "type": "integer", "minimum": 0 },
+        "output_pin_count": { "type": "integer", "minimum": 0 },
+        "pin_directions": {
+          "description": "Which pin directions the type has (input/output/inout).",
+          "$ref": "#/$defs/pin_list"
+        },
+        "components": {
+          "description": "Gate type components the gate library defines (LUTComponent, FFComponent, RAMComponent, ...).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "async_set_reset_behavior": {
+          "description": "The (set, reset) behaviour of a flip-flop when both are active, as reported by FFComponent.get_async_set_reset_behavior().",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "clock_function": { "type": "string" },
+        "next_state_function": { "type": "string" },
+        "async_reset_function": { "type": "string" },
+        "async_set_function": { "type": "string" },
+        "enable_function": { "type": "string" },
+        "lut_init_ascending": { "type": "boolean" },
+        "lut_input_count": { "type": "integer", "minimum": 0 },
+        "bit_size": {
+          "description": "RAMComponent.get_bit_size(), i.e. the memory depth*width in bits.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "ram_ports": { "type": "array", "items": { "$ref": "#/$defs/ram_port" } },
+        "address_bits": { "type": "integer", "minimum": 0 },
+        "data_bits": { "type": "integer", "minimum": 0 },
+        "init": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "category": { "type": "string" },
+            "identifiers": { "type": "array", "items": { "type": "string" } },
+            "instances_with_init": { "type": "integer", "minimum": 0 },
+            "distinct_values": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "instance_data_keys": {
+          "description": "Data keys carried by the instances themselves (attributes preserved by the parser), as 'category/key'.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "primitive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_type", "count", "category", "properties"],
+      "properties": {
+        "gate_type": { "type": "string", "minLength": 1 },
+        "count": { "type": "integer", "minimum": 1 },
+        "category": { "$ref": "#/$defs/category" },
+        "properties": {
+          "description": "Gate type properties exactly as HAL reports them (combinational, sequential, ff, ram, io, dsp, ...).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "gate_library": { "type": "string" },
+        "metadata": { "$ref": "#/$defs/metadata" },
+        "metadata_gaps": { "type": "array", "items": { "type": "string" } },
+        "example_gates": { "type": "array", "items": { "$ref": "#/$defs/gate_ref" } }
+      }
+    },
+
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["net_id", "net_name", "pin_types", "sink_count"],
+      "properties": {
+        "net_id": { "type": "integer", "minimum": 1 },
+        "net_name": { "type": "string" },
+        "pin_types": {
+          "description": "The pin types this net is connected to (clock, reset, set, ...).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sink_count": { "type": "integer", "minimum": 0 },
+        "sink_gate_types": { "type": "array", "items": { "type": "string" } },
+        "is_global_input": { "type": "boolean" },
+        "driver": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["gate", "port", "undriven", "multiple"] },
+            "gate_id": { "type": "integer", "minimum": 1 },
+            "gate_name": { "type": "string" },
+            "gate_type": { "type": "string" },
+            "pin": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "io_port": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["net_id", "net_name", "direction"],
+      "properties": {
+        "net_id": { "type": "integer", "minimum": 1 },
+        "net_name": { "type": "string" },
+        "direction": { "type": "string", "enum": ["input", "output", "inout"] },
+        "connected_gate_types": { "type": "array", "items": { "type": "string" } },
+        "connected_pin_types": { "type": "array", "items": { "type": "string" } },
+        "through_io_primitive": {
+          "description": "True when the port is connected to a gate type carrying the 'io' property, i.e. an explicit I/O primitive rather than a bare net.",
+          "type": "boolean"
+        }
+      }
+    },
+
+    "metadata_gap": {
+      "description": "Something the extractor could not determine. Recorded so that a later assessment can refuse to categorise a primitive as supported on incomplete information.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "detail"],
+      "properties": {
+        "scope": {
+          "description": "'design' for a design-wide gap, otherwise the gate type it concerns.",
+          "type": "string",
+          "minLength": 1
+        },
+        "field": { "type": "string" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gates", "gate_types"],
+      "properties": {
+        "gates": { "type": "integer", "minimum": 0 },
+        "nets": { "type": "integer", "minimum": 0 },
+        "gate_types": { "type": "integer", "minimum": 0 },
+        "by_category": {
+          "description": "Gate instance counts per category.",
+          "type": "object"
+        },
+        "gate_types_by_category": { "type": "object" },
+        "clock_signals": { "type": "integer", "minimum": 0 },
+        "reset_signals": { "type": "integer", "minimum": 0 },
+        "io_ports": { "type": "integer", "minimum": 0 },
+        "black_box_types": { "type": "integer", "minimum": 0 },
+        "metadata_gaps": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

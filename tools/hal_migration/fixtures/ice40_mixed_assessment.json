@@ -1,0 +1,3877 @@
+{
+  "analysis": {
+    "configuration": {
+      "catalogue_id": "ice40ultra-to-generic-fpga",
+      "catalogue_revision": "2026-09-08.1",
+      "catalogue_version": "1.0.0",
+      "inventory_version": "1.0.0",
+      "source_tool": {
+        "name": "hand-written fixture",
+        "source": "user",
+        "version": "1.0.0"
+      },
+      "target": {
+        "family": "generic SRAM FPGA capability profile",
+        "note": "6-input LUTs with configurable INIT, flip-flops with clock enable and one asynchronous or synchronous reset, dual-port block RAM, DSP/MAC blocks, general purpose I/O buffers and global clock buffers. No hard I2C/SPI, no on-chip oscillator, no PLL is assumed.",
+        "toolchain": {
+          "name": "generic-fpga-flow",
+          "note": "a placeholder identifying the profile revision; replace with the real toolchain name and version in a device-specific catalogue",
+          "version": "profile-2026.1"
+        },
+        "vendor": "generic"
+      }
+    },
+    "entry_point": "hal_migration.assess.build_document",
+    "plugin": {
+      "description": "FPGA vendor migration assessment (a tool, not a HAL plugin)",
+      "name": "hal_migration",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "ice40ultra-to-generic-fpga",
+      "description": "target capability catalogue revision 2026-09-08.1, target generic SRAM FPGA capability profile with generic-fpga-flow profile-2026.1; reviewed by FPGAPA HAL fork maintainers on 2026-09-08",
+      "kind": "other",
+      "path": "tools/hal_migration/catalogues/ice40ultra-to-generic-fpga-1.0.0.json",
+      "sha256": "719b3de627d188d3c46f62b9e7803bcbf4751afd469c4b07b599a61c160d8ac6"
+    },
+    {
+      "artifact_id": "source_netlist",
+      "description": "source technology: Lattice / iCE40 UltraPlus / iCE40UP5K; produced by hand-written fixture 1.0.0",
+      "design_name": "ice40_mixed",
+      "gate_count": 19,
+      "gate_library": {
+        "name": "ICE40ULTRA",
+        "path": "plugins/gate_libraries/definitions/ice40ultra.hgl",
+        "sha256": "5e9f1e509194b2630eac13c736fbaa467bec4c169b4cdbd4bd5586e40d933f3b"
+      },
+      "kind": "netlist",
+      "net_count": 98,
+      "netlist_id": 1,
+      "path": "tools/hal_migration/fixtures/ice40_mixed.v",
+      "sha256": "2a1624726241a6709e7c2f4969461601ed7be14c60c35685e4802d37c0cafbbb",
+      "size_bytes": 5202
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Enumerate the crossings between the inventoried clock domains and check each synchroniser against the target metastability guidance.",
+            "description": "Every crossing between the clock domains found in the inventory must be re-verified after migration; synchroniser depth is technology dependent.",
+            "id": "semantic/clock-domain-crossings",
+            "kind": "semantic",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target technology's metastability behaviour is covered by the existing synchronisers",
+            "title": "Clock domain crossings"
+          }
+        ],
+        "signals": [
+          {
+            "driver": {
+              "gate_id": 3,
+              "gate_name": "osc_inst",
+              "gate_type": "SB_HFOSC",
+              "kind": "gate",
+              "pin": "CLKHF"
+            },
+            "net_id": 38,
+            "net_name": "osc_clk",
+            "pin_types": [
+              "clock",
+              "clock_source"
+            ],
+            "sink_count": 1,
+            "sink_gate_types": [
+              "SB_DFFNSR"
+            ]
+          },
+          {
+            "driver": {
+              "gate_id": 4,
+              "gate_name": "clk_buffer",
+              "gate_type": "SB_GB",
+              "kind": "gate",
+              "pin": "GLOBAL_BUFFER_OUTPUT"
+            },
+            "net_id": 39,
+            "net_name": "clk_g",
+            "pin_types": [
+              "clock"
+            ],
+            "sink_count": 10,
+            "sink_gate_types": [
+              "SB_DFF",
+              "SB_DFFE",
+              "SB_DFFR",
+              "SB_DFFSR",
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ]
+          }
+        ]
+      },
+      "id": "migration/clocking/signals",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "obligations": 2,
+        "signals": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "Clock signals to re-plan in the target device",
+        "nets": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 38,
+            "name": "osc_clk",
+            "role": "clock"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 39,
+            "name": "clk_g",
+            "role": "clock"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "2 net(s) drive clock pins in the source design. Clock resources, buffering and skew are device properties and are not assessed here; the number of nets is not the number of clock domains.",
+      "tags": [
+        "clocking",
+        "migration"
+      ],
+      "title": "Clock signals to re-plan in the target device"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "obligations": [
+          {
+            "check": "Re-do pin assignment for the target package and check bank voltage compatibility and dedicated-pin usage.",
+            "description": "Pin numbers, bank voltages and dedicated-pin rules are device specific.",
+            "id": "physical/io-pin-assignment",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target package can host the same interface with compatible banking",
+            "title": "Pin assignment and bank rules"
+          },
+          {
+            "check": "Carry the source I/O constraints over explicitly and check each standard, drive strength, slew rate and termination against the target bank rules.",
+            "description": "I/O electrical properties live in constraint files, not in the netlist, and target banks support a different set of standards.",
+            "id": "physical/io-standard-and-drive",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device offers a compatible I/O standard in the assigned bank",
+            "title": "I/O standard, drive strength and termination"
+          },
+          {
+            "check": "Compare the registered/DDR configuration of the source I/O primitive with the target I/O block and check the resulting latency.",
+            "description": "I/O primitives can contain input/output registers and DDR modes whose presence changes latency by a cycle.",
+            "id": "semantic/io-registered-path",
+            "kind": "semantic",
+            "severity": "medium",
+            "status": "open",
+            "target_assumption": "the target I/O block provides the same registered/DDR structure",
+            "title": "Registered and DDR I/O paths"
+          }
+        ],
+        "ports": [
+          {
+            "connected_gate_types": [
+              "SB_IO"
+            ],
+            "direction": "inout",
+            "net_id": 35,
+            "net_name": "pad",
+            "through_io_primitive": true
+          },
+          {
+            "connected_gate_types": [
+              "SB_GB"
+            ],
+            "direction": "input",
+            "net_id": 1,
+            "net_name": "clk_pin",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_DFFNSR",
+              "SB_DFFR",
+              "SB_DFFSR"
+            ],
+            "direction": "input",
+            "net_id": 2,
+            "net_name": "rst",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_LUT4"
+            ],
+            "direction": "input",
+            "net_id": 3,
+            "net_name": "d_in",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_DFFE",
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 4,
+            "net_name": "ce",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_I2C"
+            ],
+            "direction": "input",
+            "net_id": 5,
+            "net_name": "i2c_scl",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 6,
+            "net_name": "ram_addr(0)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 7,
+            "net_name": "ram_addr(1)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 8,
+            "net_name": "ram_addr(2)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 9,
+            "net_name": "ram_addr(3)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 10,
+            "net_name": "ram_addr(4)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 11,
+            "net_name": "ram_addr(5)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 12,
+            "net_name": "ram_addr(6)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 13,
+            "net_name": "ram_addr(7)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 14,
+            "net_name": "ram_addr(8)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 15,
+            "net_name": "ram_addr(9)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 16,
+            "net_name": "ram_addr(10)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 17,
+            "net_name": "ram_wdata(0)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 18,
+            "net_name": "ram_wdata(1)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 19,
+            "net_name": "ram_wdata(2)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 20,
+            "net_name": "ram_wdata(3)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 21,
+            "net_name": "ram_wdata(4)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 22,
+            "net_name": "ram_wdata(5)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 23,
+            "net_name": "ram_wdata(6)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 24,
+            "net_name": "ram_wdata(7)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 25,
+            "net_name": "ram_wdata(8)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 26,
+            "net_name": "ram_wdata(9)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 27,
+            "net_name": "ram_wdata(10)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 28,
+            "net_name": "ram_wdata(11)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 29,
+            "net_name": "ram_wdata(12)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 30,
+            "net_name": "ram_wdata(13)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 31,
+            "net_name": "ram_wdata(14)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_MAC16",
+              "SB_RAM40_4K"
+            ],
+            "direction": "input",
+            "net_id": 32,
+            "net_name": "ram_wdata(15)",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_DFF"
+            ],
+            "direction": "output",
+            "net_id": 33,
+            "net_name": "q_out",
+            "through_io_primitive": false
+          },
+          {
+            "connected_gate_types": [
+              "SB_I2C"
+            ],
+            "direction": "output",
+            "net_id": 34,
+            "net_name": "i2c_sda_out",
+            "through_io_primitive": false
+          }
+        ]
+      },
+      "id": "migration/io/ports",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "obligations": 3,
+        "ports": 35
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "top-level ports of the source design",
+        "nets": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 1,
+            "name": "clk_pin",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 2,
+            "name": "rst",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 3,
+            "name": "d_in",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 4,
+            "name": "ce",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 5,
+            "name": "i2c_scl",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 6,
+            "name": "ram_addr(0)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 7,
+            "name": "ram_addr(1)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 8,
+            "name": "ram_addr(2)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 9,
+            "name": "ram_addr(3)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 10,
+            "name": "ram_addr(4)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 11,
+            "name": "ram_addr(5)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 12,
+            "name": "ram_addr(6)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 13,
+            "name": "ram_addr(7)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 14,
+            "name": "ram_addr(8)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 15,
+            "name": "ram_addr(9)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 16,
+            "name": "ram_addr(10)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 17,
+            "name": "ram_wdata(0)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 18,
+            "name": "ram_wdata(1)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 19,
+            "name": "ram_wdata(2)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 20,
+            "name": "ram_wdata(3)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 21,
+            "name": "ram_wdata(4)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 22,
+            "name": "ram_wdata(5)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 23,
+            "name": "ram_wdata(6)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 24,
+            "name": "ram_wdata(7)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 25,
+            "name": "ram_wdata(8)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 26,
+            "name": "ram_wdata(9)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 27,
+            "name": "ram_wdata(10)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 28,
+            "name": "ram_wdata(11)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 29,
+            "name": "ram_wdata(12)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 30,
+            "name": "ram_wdata(13)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 31,
+            "name": "ram_wdata(14)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 32,
+            "name": "ram_wdata(15)",
+            "role": "input"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 33,
+            "name": "q_out",
+            "role": "output"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 34,
+            "name": "i2c_sda_out",
+            "role": "output"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 35,
+            "name": "pad",
+            "role": "inout"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "35 top-level port(s). I/O standards, drive strength, termination and pin assignment are not in the netlist and must be migrated from the constraint files.",
+      "tags": [
+        "io",
+        "migration"
+      ],
+      "title": "Top-level I/O ports and their constraints"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        }
+      ],
+      "data": {
+        "metadata_gaps": [
+          {
+            "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+            "scope": "SB_DFF"
+          },
+          {
+            "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+            "scope": "SB_DFFE"
+          },
+          {
+            "detail": "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+            "scope": "SB_DFFNSR"
+          },
+          {
+            "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+            "scope": "SB_DFFNSR"
+          },
+          {
+            "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+            "scope": "SB_DFFR"
+          },
+          {
+            "detail": "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+            "scope": "SB_DFFSR"
+          },
+          {
+            "detail": "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source",
+            "scope": "SB_DFFSR"
+          },
+          {
+            "detail": "the gate library marks this type as sequential but models no flip-flop, latch or RAM component, so its state behaviour is not described at all",
+            "scope": "SB_I2C"
+          },
+          {
+            "detail": "I/O standard, drive strength, slew, termination and pin assignment are constraint-file properties and are not present in the netlist",
+            "scope": "SB_IO"
+          },
+          {
+            "detail": "DSP internals (pipeline registers, rounding, saturation, accumulator width) are not modelled by the gate library",
+            "scope": "SB_MAC16"
+          },
+          {
+            "detail": "no RAMComponent: the memory's bit size is not modelled by the gate library, so depth/width and target block-RAM fit cannot be derived",
+            "scope": "SB_RAM40_4K"
+          },
+          {
+            "detail": "no RAMPortComponent: port structure, write-enable semantics and read-during-write (collision) behaviour are not modelled by the gate library and must be taken from the vendor documentation",
+            "scope": "SB_RAM40_4K"
+          },
+          {
+            "detail": "address and data widths would have to be inferred from pin types alone, which cannot distinguish read from write ports; left unstated",
+            "scope": "SB_RAM40_4K"
+          }
+        ]
+      },
+      "id": "migration/metadata/gaps",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "gaps": 13
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "information required for a migration decision that could not be read from the source",
+        "gate_types": [
+          "SB_DFF",
+          "SB_DFFE",
+          "SB_DFFNSR",
+          "SB_DFFR",
+          "SB_DFFSR",
+          "SB_I2C",
+          "SB_IO",
+          "SB_MAC16",
+          "SB_RAM40_4K"
+        ]
+      },
+      "severity": "medium",
+      "status": "unsupported",
+      "summary": "13 metadata gap(s). Where a gap blocks a mapping, the affected primitive is reported as unresolved rather than assessed on incomplete information.",
+      "tags": [
+        "coverage",
+        "metadata",
+        "migration"
+      ],
+      "title": "Metadata the source netlist and gate library do not provide",
+      "unsupported": {
+        "kind": "configuration",
+        "primitives": [],
+        "reason": "the source netlist and gate library do not describe these properties, so they cannot be compared against any target"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        }
+      ],
+      "data": {
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Re-do pin assignment for the target package and check bank voltage compatibility and dedicated-pin usage.",
+            "description": "Pin numbers, bank voltages and dedicated-pin rules are device specific.",
+            "id": "physical/io-pin-assignment",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target package can host the same interface with compatible banking",
+            "title": "Pin assignment and bank rules"
+          },
+          {
+            "check": "Carry the source I/O constraints over explicitly and check each standard, drive strength, slew rate and termination against the target bank rules.",
+            "description": "I/O electrical properties live in constraint files, not in the netlist, and target banks support a different set of standards.",
+            "id": "physical/io-standard-and-drive",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device offers a compatible I/O standard in the assigned bank",
+            "title": "I/O standard, drive strength and termination"
+          },
+          {
+            "check": "Map the inventory onto the target device's resource budget and confirm the design fits with the intended utilisation margin.",
+            "description": "Primitive counts in the source do not translate one-to-one into target resources; LUT size, register packing and hard-block counts all differ.",
+            "id": "physical/resource-fit",
+            "kind": "physical",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough resources of each kind",
+            "title": "Resource fit in the target device"
+          },
+          {
+            "check": "Re-run synthesis, placement and static timing analysis for the target device with the migrated constraints.",
+            "description": "Timing is a property of the target implementation, not of a structural mapping. No result in this report is evidence that the design will meet timing after migration.",
+            "id": "physical/timing-closure",
+            "kind": "physical",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: timing was not assessed",
+            "title": "Timing closure in the target device"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Enumerate the crossings between the inventoried clock domains and check each synchroniser against the target metastability guidance.",
+            "description": "Every crossing between the clock domains found in the inventory must be re-verified after migration; synchroniser depth is technology dependent.",
+            "id": "semantic/clock-domain-crossings",
+            "kind": "semantic",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target technology's metastability behaviour is covered by the existing synchronisers",
+            "title": "Clock domain crossings"
+          },
+          {
+            "check": "Run an equivalence check or a directed regression between the source design and the migrated design once a conversion exists.",
+            "description": "Per-primitive mappings do not compose into a proof about the design.",
+            "id": "semantic/functional-equivalence",
+            "kind": "semantic",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: no conversion was performed, so nothing was compared",
+            "title": "Whole-design functional equivalence"
+          },
+          {
+            "check": "Obtain the source block's collision mode from the vendor documentation or the synthesis attributes, select the matching target mode explicitly, and simulate simultaneous read and write at the same address.",
+            "description": "Read-during-write behaviour (old data, new data, undefined) and cross-port collision behaviour are memory-block properties that a netlist does not record.",
+            "id": "semantic/memory-collision-mode",
+            "kind": "semantic",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "the target memory can be configured with the same read-during-write and collision behaviour",
+            "title": "Memory read-during-write / collision behaviour"
+          }
+        ]
+      },
+      "id": "migration/obligations/design-level",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "obligations": 9
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "the design as a whole"
+      },
+      "severity": "high",
+      "status": "unknown",
+      "summary": "9 design-level obligation(s) are open, including timing closure, resource fit and whole-design functional equivalence. This tool performs no conversion, no synthesis and no timing analysis, so none of them can be discharged by anything in this document.",
+      "tags": [
+        "migration",
+        "obligations"
+      ],
+      "title": "Design-level verification obligations (none of them assessed here)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "supported",
+          "declared_category": "supported",
+          "rationale": "A constant-0 driver; every target technology has one and synthesis usually absorbs it.",
+          "target_capability": "constant",
+          "target_primitive": "GND"
+        },
+        "metadata": {
+          "output_pin_count": 1,
+          "pin_directions": [
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Prove equivalence of the source and target cell functions (for LUTs: compare the truth tables after applying the target's INIT bit order), or run an equivalence check over the converted netlist.",
+            "description": "The source primitive's Boolean function must be reproduced by the target primitive, including the bit order of any INIT/truth-table encoding.",
+            "id": "semantic/combinational-equivalence",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT/gate implements exactly the same Boolean function",
+            "title": "Combinational function equivalence"
+          }
+        ],
+        "source": {
+          "category": "constant",
+          "gate_type": "GND",
+          "instances": 1,
+          "properties": [
+            "combinational",
+            "ground"
+          ]
+        }
+      },
+      "id": "migration/primitive/GND",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 1,
+        "open_obligations": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type GND",
+        "gate_types": [
+          "GND"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 1,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "gnd_inst",
+            "type": "GND"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes GND -> GND as supported. Structural, by gate type: 1 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "mapping",
+        "migration",
+        "supported"
+      ],
+      "title": "Supported mapping GND -> GND (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target provides dedicated carry logic reachable from its synthesis flow.",
+          "discharged": false,
+          "id": "target.carry-chain",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "notes": [
+            "the ICE40ULTRA library types SB_CARRY's pins as 'none', so the carry direction is not readable from the netlist"
+          ],
+          "rationale": "The target has dedicated carry logic, but carry primitives are placement-constrained and their carry-in/carry-out conventions differ. Re-inferring the arithmetic and letting the target flow implement it is normally preferable to a one-to-one mapping.",
+          "target_capability": "carry",
+          "target_primitive": "CARRY"
+        },
+        "metadata": {
+          "input_pin_count": 3,
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Re-infer the arithmetic from the source netlist and let the target toolchain implement it, then check equivalence of the arithmetic function.",
+            "description": "Carry-chain primitives are placement-constrained and their carry-in/out conventions differ; a structural match does not preserve arithmetic.",
+            "id": "semantic/arithmetic-carry-chain",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target technology implements the same arithmetic with its own carry structure",
+            "title": "Carry chain and arithmetic semantics"
+          }
+        ],
+        "source": {
+          "category": "arithmetic",
+          "gate_type": "SB_CARRY",
+          "instances": 1,
+          "properties": [
+            "c_carry",
+            "combinational"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_CARRY",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 1,
+        "open_obligations": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_CARRY",
+        "gate_types": [
+          "SB_CARRY"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 7,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "carry_a",
+            "type": "SB_CARRY"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_CARRY -> CARRY as candidate. Structural, by gate type: 1 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_CARRY -> CARRY (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target flip-flop captures on the rising clock edge.",
+          "discharged": false,
+          "id": "target.ff-rising-edge",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "supported",
+          "declared_category": "supported",
+          "rationale": "A plain rising-edge D flip-flop; the gate library gives next_state = D and clocked_on = C, both of which the target flip-flop provides.",
+          "target_capability": "ff",
+          "target_primitive": "DFF"
+        },
+        "metadata": {
+          "async_set_reset_behavior": [
+            "undef",
+            "undef"
+          ],
+          "clock_function": "C",
+          "clock_pins": [
+            "C"
+          ],
+          "components": [
+            "ff",
+            "init",
+            "state"
+          ],
+          "data_pins": [
+            "D"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "INIT"
+            ]
+          },
+          "input_pin_count": 2,
+          "next_state_function": "D",
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ],
+          "state_pins": [
+            "Q"
+          ]
+        },
+        "metadata_gaps": [
+          "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "register",
+          "gate_type": "SB_DFF",
+          "instances": 3,
+          "properties": [
+            "ff",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_DFF",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 3,
+        "obligations": 4,
+        "open_obligations": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 3 instance(s) of source gate type SB_DFF",
+        "gate_types": [
+          "SB_DFF"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 8,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_a",
+            "type": "SB_DFF"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 9,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_b",
+            "type": "SB_DFF"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 19,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_out",
+            "type": "SB_DFF"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_DFF -> DFF as supported. Structural, by gate type: 4 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "mapping",
+        "migration",
+        "supported"
+      ],
+      "title": "Supported mapping SB_DFF -> DFF (3 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target flip-flop has a clock enable that holds the state when deasserted.",
+          "discharged": false,
+          "id": "target.ff-clock-enable",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "supported",
+          "declared_category": "supported",
+          "rationale": "Clock enable is folded into the next-state function (E & D | !E & IQ) in the gate library, which is exactly the behaviour of a target flip-flop with clock enable.",
+          "target_capability": "ff",
+          "target_primitive": "DFF_CE"
+        },
+        "metadata": {
+          "async_set_reset_behavior": [
+            "undef",
+            "undef"
+          ],
+          "clock_function": "C",
+          "clock_pins": [
+            "C"
+          ],
+          "components": [
+            "ff",
+            "init",
+            "state"
+          ],
+          "data_pins": [
+            "D"
+          ],
+          "enable_pins": [
+            "E"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "INIT"
+            ]
+          },
+          "input_pin_count": 3,
+          "next_state_function": "((E & D) | ((! E) & IQ))",
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ],
+          "state_pins": [
+            "Q"
+          ]
+        },
+        "metadata_gaps": [
+          "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "register",
+          "gate_type": "SB_DFFE",
+          "instances": 1,
+          "properties": [
+            "ff",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_DFFE",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 4,
+        "open_obligations": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_DFFE",
+        "gate_types": [
+          "SB_DFFE"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 10,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_enable",
+            "type": "SB_DFFE"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_DFFE -> DFF_CE as supported. Structural, by gate type: 4 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "mapping",
+        "migration",
+        "supported"
+      ],
+      "title": "Supported mapping SB_DFFE -> DFF_CE (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "unresolved",
+          "declared_category": null,
+          "reasons": [
+            "gate type 'SB_DFFNSR' has no entry in this catalogue; an unlisted primitive is unresolved, not supported"
+          ]
+        },
+        "metadata": {
+          "async_set_reset_behavior": [
+            "undef",
+            "undef"
+          ],
+          "clock_function": "(! C)",
+          "clock_pins": [
+            "C"
+          ],
+          "components": [
+            "ff",
+            "init",
+            "state"
+          ],
+          "data_pins": [
+            "D"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "INIT"
+            ]
+          },
+          "input_pin_count": 3,
+          "next_state_function": "(D & (! R))",
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ],
+          "reset_pins": [
+            "R"
+          ],
+          "state_pins": [
+            "Q"
+          ]
+        },
+        "metadata_gaps": [
+          "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+          "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Run an equivalence check or a directed regression between the source design and the migrated design once a conversion exists.",
+            "description": "Per-primitive mappings do not compose into a proof about the design.",
+            "id": "semantic/functional-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: no conversion was performed, so nothing was compared",
+            "title": "Whole-design functional equivalence"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "register",
+          "gate_type": "SB_DFFNSR",
+          "instances": 1,
+          "properties": [
+            "ff",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_DFFNSR",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 5,
+        "open_obligations": 5
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_DFFNSR",
+        "gate_types": [
+          "SB_DFFNSR"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 14,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_negedge",
+            "type": "SB_DFFNSR"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "No mapping for SB_DFFNSR can be proposed against catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1. gate type 'SB_DFFNSR' has no entry in this catalogue; an unlisted primitive is unresolved, not supported",
+      "tags": [
+        "mapping",
+        "migration",
+        "unresolved"
+      ],
+      "title": "Unresolved source primitive SB_DFFNSR (1 instance(s))",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 1,
+            "example_gates": [
+              {
+                "artifact_id": "source_netlist",
+                "id": 14,
+                "module": {
+                  "name": "top_module"
+                },
+                "name": "ff_negedge",
+                "type": "SB_DFFNSR"
+              }
+            ],
+            "gate_type": "SB_DFFNSR",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "gate type 'SB_DFFNSR' has no entry in this catalogue; an unlisted primitive is unresolved, not supported"
+          }
+        ],
+        "reason": "the target capability catalogue proposes no usable mapping for this source primitive; the migration effort for it is unquantified"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target flip-flop provides an asynchronous reset with the same active level.",
+          "discharged": false,
+          "id": "target.ff-async-reset",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "rationale": "The gate library models R with clear_on, i.e. as an asynchronous clear. The target flip-flop offers an asynchronous reset, but polarity, recovery/removal timing and whether the target flow prefers a synchronous reset are all open questions.",
+          "target_capability": "ff",
+          "target_primitive": "DFF_ASYNC_RESET"
+        },
+        "metadata": {
+          "async_reset_function": "R",
+          "async_set_reset_behavior": [
+            "undef",
+            "undef"
+          ],
+          "clock_function": "C",
+          "clock_pins": [
+            "C"
+          ],
+          "components": [
+            "ff",
+            "init",
+            "state"
+          ],
+          "data_pins": [
+            "D"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "INIT"
+            ]
+          },
+          "input_pin_count": 3,
+          "next_state_function": "D",
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ],
+          "reset_pins": [
+            "R"
+          ],
+          "state_pins": [
+            "Q"
+          ]
+        },
+        "metadata_gaps": [
+          "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "register",
+          "gate_type": "SB_DFFR",
+          "instances": 2,
+          "properties": [
+            "ff",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_DFFR",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 2,
+        "obligations": 4,
+        "open_obligations": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 2 instance(s) of source gate type SB_DFFR",
+        "gate_types": [
+          "SB_DFFR"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 11,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_async_reset_a",
+            "type": "SB_DFFR"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 12,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_async_reset_b",
+            "type": "SB_DFFR"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_DFFR -> DFF_ASYNC_RESET as candidate. Structural, by gate type: 4 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_DFFR -> DFF_ASYNC_RESET (2 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target flip-flop provides a synchronous reset, or the reset can be folded into the target's data path without a timing penalty.",
+          "discharged": false,
+          "id": "target.ff-sync-reset",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "rationale": "The gate library folds R into the next-state function (D & !R) rather than into clear_on, i.e. it models a synchronous reset. Confirm against the vendor documentation before choosing the target reset flavour.",
+          "target_capability": "ff",
+          "target_primitive": "DFF_SYNC_RESET"
+        },
+        "metadata": {
+          "async_set_reset_behavior": [
+            "undef",
+            "undef"
+          ],
+          "clock_function": "C",
+          "clock_pins": [
+            "C"
+          ],
+          "components": [
+            "ff",
+            "init",
+            "state"
+          ],
+          "data_pins": [
+            "D"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "INIT"
+            ]
+          },
+          "input_pin_count": 3,
+          "next_state_function": "(D & (! R))",
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ],
+          "reset_pins": [
+            "R"
+          ],
+          "state_pins": [
+            "Q"
+          ]
+        },
+        "metadata_gaps": [
+          "the reset pin(s) R are not modelled as an asynchronous clear; the gate library encodes the reset in the next-state function only, so whether the reset is synchronous must be confirmed against the vendor documentation",
+          "the gate type carries an INIT attribute (INIT) but no instance in this netlist sets one; the power-up state of these registers is unspecified in the source"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "register",
+          "gate_type": "SB_DFFSR",
+          "instances": 1,
+          "properties": [
+            "ff",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_DFFSR",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 4,
+        "open_obligations": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_DFFSR",
+        "gate_types": [
+          "SB_DFFSR"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 13,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ff_sync_reset",
+            "type": "SB_DFFSR"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_DFFSR -> DFF_SYNC_RESET as candidate. Structural, by gate type: 4 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_DFFSR -> DFF_SYNC_RESET (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target device has at least as many usable global clock networks as the source design consumes.",
+          "discharged": false,
+          "id": "target.global-buffer-count",
+          "kind": "environment"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "rationale": "A global clock buffer has a target counterpart, but the number of global networks, their reach and the skew they guarantee are device properties. A one-to-one buffer substitution is not a clocking plan.",
+          "target_capability": "clock_buffer",
+          "target_primitive": "GLOBAL_CLOCK_BUFFER"
+        },
+        "metadata": {
+          "input_pin_count": 1,
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Prove equivalence of the source and target cell functions (for LUTs: compare the truth tables after applying the target's INIT bit order), or run an equivalence check over the converted netlist.",
+            "description": "The source primitive's Boolean function must be reproduced by the target primitive, including the bit order of any INIT/truth-table encoding.",
+            "id": "semantic/combinational-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT/gate implements exactly the same Boolean function",
+            "title": "Combinational function equivalence"
+          }
+        ],
+        "source": {
+          "category": "combinational",
+          "gate_type": "SB_GB",
+          "instances": 1,
+          "properties": [
+            "c_buffer",
+            "combinational"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_GB",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 2,
+        "open_obligations": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_GB",
+        "gate_types": [
+          "SB_GB"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 4,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "clk_buffer",
+            "type": "SB_GB"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_GB -> GLOBAL_CLOCK_BUFFER as candidate. Structural, by gate type: 2 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_GB -> GLOBAL_CLOCK_BUFFER (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "unresolved",
+          "declared_category": "unresolved",
+          "rationale": "An on-chip high-frequency oscillator. The generic target profile assumes no internal oscillator, and frequency accuracy, start-up time and trimming are device properties that no structural match can supply.",
+          "reasons": [
+            "the target profile provides no on-chip oscillator, so the design would need an external clock source or a target-specific hard block",
+            "the source oscillator's frequency, tolerance and start-up behaviour are not in the netlist"
+          ],
+          "target_capability": null,
+          "target_primitive": null
+        },
+        "metadata": {
+          "clock_pins": [
+            "CLKHF"
+          ],
+          "enable_pins": [
+            "CLKHFEN"
+          ],
+          "input_pin_count": 2,
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Confirm the target device provides an equivalent clock source, including frequency tolerance and start-up time, or plan an external source.",
+            "description": "Internal oscillators and PLLs have device-specific frequencies, accuracy and start-up behaviour.",
+            "id": "physical/clock-source-availability",
+            "kind": "physical",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device provides a clock source with acceptable frequency and accuracy",
+            "title": "On-chip clock source availability"
+          },
+          {
+            "check": "Prove equivalence of the source and target cell functions (for LUTs: compare the truth tables after applying the target's INIT bit order), or run an equivalence check over the converted netlist.",
+            "description": "The source primitive's Boolean function must be reproduced by the target primitive, including the bit order of any INIT/truth-table encoding.",
+            "id": "semantic/combinational-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT/gate implements exactly the same Boolean function",
+            "title": "Combinational function equivalence"
+          },
+          {
+            "check": "Run an equivalence check or a directed regression between the source design and the migrated design once a conversion exists.",
+            "description": "Per-primitive mappings do not compose into a proof about the design.",
+            "id": "semantic/functional-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: no conversion was performed, so nothing was compared",
+            "title": "Whole-design functional equivalence"
+          },
+          {
+            "check": "Choose a target implementation (hard block or soft core), re-verify the protocol against the specification, and check the software-visible register map.",
+            "description": "Hard IP blocks (I2C, SPI, PLL, oscillators, ...) have no portable equivalent; replacing them changes the register map and the protocol timing.",
+            "id": "semantic/hard-ip-replacement",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "a target implementation with an equivalent programming model exists",
+            "title": "Hard IP replacement"
+          }
+        ],
+        "source": {
+          "category": "combinational",
+          "gate_type": "SB_HFOSC",
+          "instances": 1,
+          "properties": [
+            "combinational"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_HFOSC",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 5,
+        "open_obligations": 5
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_HFOSC",
+        "gate_types": [
+          "SB_HFOSC"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 3,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "osc_inst",
+            "type": "SB_HFOSC"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "No mapping for SB_HFOSC can be proposed against catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1. the target profile provides no on-chip oscillator, so the design would need an external clock source or a target-specific hard block the source oscillator's frequency, tolerance and start-up behaviour are not in the netlist",
+      "tags": [
+        "mapping",
+        "migration",
+        "unresolved"
+      ],
+      "title": "Unresolved source primitive SB_HFOSC (1 instance(s))",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 1,
+            "example_gates": [
+              {
+                "artifact_id": "source_netlist",
+                "id": 3,
+                "module": {
+                  "name": "top_module"
+                },
+                "name": "osc_inst",
+                "type": "SB_HFOSC"
+              }
+            ],
+            "gate_type": "SB_HFOSC",
+            "properties": [
+              "combinational"
+            ],
+            "reason": "the target profile provides no on-chip oscillator, so the design would need an external clock source or a target-specific hard block the source oscillator's frequency, tolerance and start-up behaviour are not in the netlist"
+          }
+        ],
+        "reason": "the target capability catalogue proposes no usable mapping for this source primitive; the migration effort for it is unquantified"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "unresolved",
+          "declared_category": "unresolved",
+          "rationale": "A hard I2C controller. Replacing it with a soft core changes the register map, the interrupt behaviour and the protocol timing; there is no structural mapping to propose.",
+          "reasons": [
+            "the target profile has no hard I2C block",
+            "a soft replacement changes the software-visible register map and must be re-verified against the I2C specification"
+          ],
+          "target_capability": null,
+          "target_primitive": null
+        },
+        "metadata": {
+          "input_pin_count": 21,
+          "output_pin_count": 15,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "metadata_gaps": [
+          "the gate library marks this type as sequential but models no flip-flop, latch or RAM component, so its state behaviour is not described at all"
+        ],
+        "obligations": [
+          {
+            "check": "Run an equivalence check or a directed regression between the source design and the migrated design once a conversion exists.",
+            "description": "Per-primitive mappings do not compose into a proof about the design.",
+            "id": "semantic/functional-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: no conversion was performed, so nothing was compared",
+            "title": "Whole-design functional equivalence"
+          },
+          {
+            "check": "Choose a target implementation (hard block or soft core), re-verify the protocol against the specification, and check the software-visible register map.",
+            "description": "Hard IP blocks (I2C, SPI, PLL, oscillators, ...) have no portable equivalent; replacing them changes the register map and the protocol timing.",
+            "id": "semantic/hard-ip-replacement",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "a target implementation with an equivalent programming model exists",
+            "title": "Hard IP replacement"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          }
+        ],
+        "source": {
+          "category": "sequential_other",
+          "gate_type": "SB_I2C",
+          "instances": 1,
+          "properties": [
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_I2C",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 3,
+        "open_obligations": 3
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_I2C",
+        "gate_types": [
+          "SB_I2C"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 18,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "i2c_inst",
+            "type": "SB_I2C"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "No mapping for SB_I2C can be proposed against catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1. the target profile has no hard I2C block a soft replacement changes the software-visible register map and must be re-verified against the I2C specification",
+      "tags": [
+        "mapping",
+        "migration",
+        "unresolved"
+      ],
+      "title": "Unresolved source primitive SB_I2C (1 instance(s))",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 1,
+            "example_gates": [
+              {
+                "artifact_id": "source_netlist",
+                "id": 18,
+                "module": {
+                  "name": "top_module"
+                },
+                "name": "i2c_inst",
+                "type": "SB_I2C"
+              }
+            ],
+            "gate_type": "SB_I2C",
+            "properties": [
+              "sequential"
+            ],
+            "reason": "the target profile has no hard I2C block a soft replacement changes the software-visible register map and must be re-verified against the I2C specification"
+          }
+        ],
+        "reason": "the target capability catalogue proposes no usable mapping for this source primitive; the migration effort for it is unquantified"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target device offers a compatible I/O standard in the bank the pin is assigned to.",
+          "discharged": false,
+          "id": "target.io-standard-available",
+          "kind": "environment"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "rationale": "A general purpose I/O primitive with optional input/output registers and DDR paths. The buffer maps, the constraints do not: I/O standard, drive strength, termination and pin assignment live outside the netlist.",
+          "target_capability": "io",
+          "target_primitive": "IO_BUFFER"
+        },
+        "metadata": {
+          "clock_pins": [
+            "INPUT_CLK",
+            "OUTPUT_CLK"
+          ],
+          "data_pins": [
+            "D_IN_0",
+            "D_IN_1",
+            "D_OUT_0",
+            "D_OUT_1",
+            "LATCH_INPUT_VALUE"
+          ],
+          "enable_pins": [
+            "CLOCK_ENABLE",
+            "OUTPUT_ENABLE"
+          ],
+          "input_pin_count": 7,
+          "io_pad_pins": [
+            "PACKAGE_PIN"
+          ],
+          "output_pin_count": 2,
+          "pin_directions": [
+            "inout",
+            "input",
+            "output"
+          ]
+        },
+        "metadata_gaps": [
+          "I/O standard, drive strength, slew, termination and pin assignment are constraint-file properties and are not present in the netlist"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Re-do pin assignment for the target package and check bank voltage compatibility and dedicated-pin usage.",
+            "description": "Pin numbers, bank voltages and dedicated-pin rules are device specific.",
+            "id": "physical/io-pin-assignment",
+            "kind": "physical",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target package can host the same interface with compatible banking",
+            "title": "Pin assignment and bank rules"
+          },
+          {
+            "check": "Carry the source I/O constraints over explicitly and check each standard, drive strength, slew rate and termination against the target bank rules.",
+            "description": "I/O electrical properties live in constraint files, not in the netlist, and target banks support a different set of standards.",
+            "id": "physical/io-standard-and-drive",
+            "kind": "physical",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device offers a compatible I/O standard in the assigned bank",
+            "title": "I/O standard, drive strength and termination"
+          },
+          {
+            "check": "Compare the registered/DDR configuration of the source I/O primitive with the target I/O block and check the resulting latency.",
+            "description": "I/O primitives can contain input/output registers and DDR modes whose presence changes latency by a cycle.",
+            "id": "semantic/io-registered-path",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "medium",
+            "status": "open",
+            "target_assumption": "the target I/O block provides the same registered/DDR structure",
+            "title": "Registered and DDR I/O paths"
+          }
+        ],
+        "source": {
+          "category": "io",
+          "gate_type": "SB_IO",
+          "instances": 1,
+          "properties": [
+            "io"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_IO",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 4,
+        "open_obligations": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_IO",
+        "gate_types": [
+          "SB_IO"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 17,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "io_inst",
+            "type": "SB_IO"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_IO -> IO_BUFFER as candidate. Structural, by gate type: 4 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_IO -> IO_BUFFER (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target LUT has at least four inputs and an INIT-configurable truth table.",
+          "discharged": false,
+          "id": "target.lut6-superset",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "supported",
+          "declared_category": "supported",
+          "rationale": "A 4-input LUT is a subset of a 6-input LUT; the gate library marks SB_LUT4 as c_lut with a LUT_INIT attribute, so the function is fully described by its truth table and carries over.",
+          "target_capability": "lut6",
+          "target_primitive": "LUT6"
+        },
+        "metadata": {
+          "components": [
+            "init",
+            "lut"
+          ],
+          "init": {
+            "category": "generic",
+            "identifiers": [
+              "LUT_INIT"
+            ]
+          },
+          "input_pin_count": 4,
+          "lut_init_ascending": false,
+          "lut_input_count": 4,
+          "output_pin_count": 1,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Prove equivalence of the source and target cell functions (for LUTs: compare the truth tables after applying the target's INIT bit order), or run an equivalence check over the converted netlist.",
+            "description": "The source primitive's Boolean function must be reproduced by the target primitive, including the bit order of any INIT/truth-table encoding.",
+            "id": "semantic/combinational-equivalence",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT/gate implements exactly the same Boolean function",
+            "title": "Combinational function equivalence"
+          },
+          {
+            "check": "Re-derive the target INIT from the source truth table (extend the 16-bit function to the target width and apply the target's bit order), then compare the two truth tables exhaustively - 64 input combinations is a complete check.",
+            "description": "The ICE40ULTRA gate library declares LUT_INIT with descending bit order for SB_LUT4. A 6-input target LUT holds a wider INIT and may number its bits the other way round, so a copied INIT value is a different function.",
+            "id": "semantic/lut4-into-lut6-init-order",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT is a strict superset of a 4-input LUT and its INIT encoding is documented",
+            "title": "LUT INIT width and bit order"
+          }
+        ],
+        "source": {
+          "category": "combinational",
+          "gate_type": "SB_LUT4",
+          "instances": 2,
+          "properties": [
+            "c_lut",
+            "combinational"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_LUT4",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 2,
+        "obligations": 2,
+        "open_obligations": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 2 instance(s) of source gate type SB_LUT4",
+        "gate_types": [
+          "SB_LUT4"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 5,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "lut_a",
+            "type": "SB_LUT4"
+          },
+          {
+            "artifact_id": "source_netlist",
+            "id": 6,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "lut_b",
+            "type": "SB_LUT4"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_LUT4 -> LUT6 as supported. Structural, by gate type: 2 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "mapping",
+        "migration",
+        "supported"
+      ],
+      "title": "Supported mapping SB_LUT4 -> LUT6 (2 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target DSP block can be configured to the same operand width, latency and accumulation behaviour.",
+          "discharged": false,
+          "id": "target.dsp-configurable",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "candidate",
+          "declared_category": "candidate",
+          "rationale": "A 16x16 MAC block with configurable input/output registers, accumulator and sign extension. A target DSP block can usually be configured to match, but pipeline depth, rounding, saturation and the hold/load controls are configuration, not structure, and none of it is in the netlist.",
+          "target_capability": "dsp",
+          "target_primitive": "DSP_MAC"
+        },
+        "metadata": {
+          "clock_pins": [
+            "CLK"
+          ],
+          "data_pins": [
+            "A(0)",
+            "A(1)",
+            "A(10)",
+            "A(11)",
+            "A(12)",
+            "A(13)",
+            "A(14)",
+            "A(15)",
+            "A(2)",
+            "A(3)",
+            "A(4)",
+            "A(5)",
+            "A(6)",
+            "A(7)",
+            "A(8)",
+            "A(9)",
+            "B(0)",
+            "B(1)",
+            "B(10)",
+            "B(11)",
+            "B(12)",
+            "B(13)",
+            "B(14)",
+            "B(15)",
+            "B(2)",
+            "B(3)",
+            "B(4)",
+            "B(5)",
+            "B(6)",
+            "B(7)",
+            "B(8)",
+            "B(9)",
+            "C(0)",
+            "C(1)",
+            "C(10)",
+            "C(11)",
+            "C(12)",
+            "C(13)",
+            "C(14)",
+            "C(15)",
+            "C(2)",
+            "C(3)",
+            "C(4)",
+            "C(5)",
+            "C(6)",
+            "C(7)",
+            "C(8)",
+            "C(9)",
+            "CI",
+            "CO",
+            "D(0)",
+            "D(1)",
+            "D(10)",
+            "D(11)",
+            "D(12)",
+            "D(13)",
+            "D(14)",
+            "D(15)",
+            "D(2)",
+            "D(3)",
+            "D(4)",
+            "D(5)",
+            "D(6)",
+            "D(7)",
+            "D(8)",
+            "D(9)",
+            "O(0)",
+            "O(1)",
+            "O(10)",
+            "O(11)",
+            "O(12)",
+            "O(13)",
+            "O(14)",
+            "O(15)",
+            "O(16)",
+            "O(17)",
+            "O(18)",
+            "O(19)",
+            "O(2)",
+            "O(20)",
+            "O(21)",
+            "O(22)",
+            "O(23)",
+            "O(24)",
+            "O(25)",
+            "O(26)",
+            "O(27)",
+            "O(28)",
+            "O(29)",
+            "O(3)",
+            "O(30)",
+            "O(31)",
+            "O(4)",
+            "O(5)",
+            "O(6)",
+            "O(7)",
+            "O(8)",
+            "O(9)"
+          ],
+          "enable_pins": [
+            "CE"
+          ],
+          "input_pin_count": 83,
+          "output_pin_count": 35,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "metadata_gaps": [
+          "DSP internals (pipeline registers, rounding, saturation, accumulator width) are not modelled by the gate library"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Re-infer the arithmetic from the source netlist and let the target toolchain implement it, then check equivalence of the arithmetic function.",
+            "description": "Carry-chain primitives are placement-constrained and their carry-in/out conventions differ; a structural match does not preserve arithmetic.",
+            "id": "semantic/arithmetic-carry-chain",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target technology implements the same arithmetic with its own carry structure",
+            "title": "Carry chain and arithmetic semantics"
+          },
+          {
+            "check": "Extract the source block's configuration from the vendor documentation and attributes, configure the target DSP accordingly, and compare cycle-accurate behaviour including latency.",
+            "description": "Pipeline depth, rounding, saturation, accumulator width and hold/load controls of a hard MAC block are not modelled in the netlist.",
+            "id": "semantic/dsp-behaviour",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "the target DSP can be configured to the same latency, width and rounding behaviour",
+            "title": "DSP/MAC block behaviour"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "arithmetic",
+          "gate_type": "SB_MAC16",
+          "instances": 1,
+          "properties": [
+            "dsp",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_MAC16",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 5,
+        "open_obligations": 5
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_MAC16",
+        "gate_types": [
+          "SB_MAC16"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 16,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "mac_inst",
+            "type": "SB_MAC16"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes SB_MAC16 -> DSP_MAC as candidate. Structural, by gate type: 5 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "candidate",
+        "mapping",
+        "migration"
+      ],
+      "title": "Candidate mapping SB_MAC16 -> DSP_MAC (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The target provides a dual-port block RAM that can be configured to the required depth and width.",
+          "discharged": false,
+          "id": "target.bram-dual-port",
+          "kind": "library"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "unresolved",
+          "declared_category": "candidate",
+          "downgraded_from": "candidate",
+          "missing_metadata": [
+            "bit_size",
+            "ram_ports"
+          ],
+          "notes": [
+            "with the ICE40ULTRA library as shipped this mapping is reported as unresolved, because the bit size and port structure it requires are not modelled"
+          ],
+          "rationale": "A 4 kbit dual-port block RAM maps onto a target block RAM in principle, but the geometry, the write-mask behaviour and the read-during-write mode all have to come from documentation: the gate library models neither a RAMComponent nor RAMPortComponents for this cell.",
+          "reasons": [
+            "the inventory does not carry the metadata this mapping requires (bit_size, ram_ports); the source netlist or gate library does not describe it, so the mapping cannot be assessed"
+          ],
+          "target_capability": "bram",
+          "target_primitive": "BRAM_DUAL_PORT"
+        },
+        "metadata": {
+          "address_pins": [
+            "RADDR(0)",
+            "RADDR(1)",
+            "RADDR(10)",
+            "RADDR(2)",
+            "RADDR(3)",
+            "RADDR(4)",
+            "RADDR(5)",
+            "RADDR(6)",
+            "RADDR(7)",
+            "RADDR(8)",
+            "RADDR(9)",
+            "WADDR(0)",
+            "WADDR(1)",
+            "WADDR(10)",
+            "WADDR(2)",
+            "WADDR(3)",
+            "WADDR(4)",
+            "WADDR(5)",
+            "WADDR(6)",
+            "WADDR(7)",
+            "WADDR(8)",
+            "WADDR(9)"
+          ],
+          "clock_pins": [
+            "RCLK",
+            "WCLK"
+          ],
+          "data_pins": [
+            "RDATA(0)",
+            "RDATA(1)",
+            "RDATA(10)",
+            "RDATA(11)",
+            "RDATA(12)",
+            "RDATA(13)",
+            "RDATA(14)",
+            "RDATA(15)",
+            "RDATA(2)",
+            "RDATA(3)",
+            "RDATA(4)",
+            "RDATA(5)",
+            "RDATA(6)",
+            "RDATA(7)",
+            "RDATA(8)",
+            "RDATA(9)",
+            "WDATA(0)",
+            "WDATA(1)",
+            "WDATA(10)",
+            "WDATA(11)",
+            "WDATA(12)",
+            "WDATA(13)",
+            "WDATA(14)",
+            "WDATA(15)",
+            "WDATA(2)",
+            "WDATA(3)",
+            "WDATA(4)",
+            "WDATA(5)",
+            "WDATA(6)",
+            "WDATA(7)",
+            "WDATA(8)",
+            "WDATA(9)"
+          ],
+          "enable_pins": [
+            "RCLKE",
+            "RE",
+            "WCLKE",
+            "WE"
+          ],
+          "input_pin_count": 60,
+          "output_pin_count": 16,
+          "pin_directions": [
+            "input",
+            "output"
+          ]
+        },
+        "metadata_gaps": [
+          "no RAMComponent: the memory's bit size is not modelled by the gate library, so depth/width and target block-RAM fit cannot be derived",
+          "no RAMPortComponent: port structure, write-enable semantics and read-during-write (collision) behaviour are not modelled by the gate library and must be taken from the vendor documentation",
+          "address and data widths would have to be inferred from pin types alone, which cannot distinguish read from write ports; left unstated"
+        ],
+        "obligations": [
+          {
+            "check": "Re-plan the clock network for the target device: number of global resources, region reach, and insertion of target clock buffers.",
+            "description": "Global buffers, clock regions and skew budgets differ per device; a one-to-one buffer mapping is not a clocking strategy.",
+            "id": "physical/clock-network-and-buffering",
+            "kind": "physical",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device has enough global clock resources with acceptable skew",
+            "title": "Clock network, buffering and skew"
+          },
+          {
+            "check": "Map the required depth and width onto the target block RAM geometry and record how many blocks and what cascade logic result.",
+            "description": "A target memory block of a different depth/width forces cascading or padding, which changes resource count and timing.",
+            "id": "physical/memory-depth-width-fit",
+            "kind": "physical",
+            "origin": "required by the catalogue mapping",
+            "severity": "medium",
+            "status": "open",
+            "target_assumption": "the required memory geometry fits the target blocks without changing behaviour",
+            "title": "Memory depth/width fit and cascading"
+          },
+          {
+            "check": "Run an equivalence check or a directed regression between the source design and the migrated design once a conversion exists.",
+            "description": "Per-primitive mappings do not compose into a proof about the design.",
+            "id": "semantic/functional-equivalence",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "none: no conversion was performed, so nothing was compared",
+            "title": "Whole-design functional equivalence"
+          },
+          {
+            "check": "Obtain the source block's collision mode from the vendor documentation or the synthesis attributes, select the matching target mode explicitly, and simulate simultaneous read and write at the same address.",
+            "description": "Read-during-write behaviour (old data, new data, undefined) and cross-port collision behaviour are memory-block properties that a netlist does not record.",
+            "id": "semantic/memory-collision-mode",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "critical",
+            "status": "open",
+            "target_assumption": "the target memory can be configured with the same read-during-write and collision behaviour",
+            "title": "Memory read-during-write / collision behaviour"
+          },
+          {
+            "check": "Compare the source INIT attributes with the target memory's expected initialisation format, including word order and bit order.",
+            "description": "Initial memory contents are carried as attributes and are re-encoded differently by each vendor's memory primitive.",
+            "id": "semantic/memory-init-contents",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target memory accepts the same initialisation contents in a convertible encoding",
+            "title": "Memory initialisation contents"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          },
+          {
+            "check": "Compare the source and target flip-flop definitions (clock function, enable function) and simulate a register with enable deasserted across a clock edge.",
+            "description": "Active clock edge, clock-enable priority and the behaviour of a disabled register must match between source and target flip-flop.",
+            "id": "semantic/register-clocking",
+            "kind": "semantic",
+            "origin": "derived from the inventory",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop samples on the same clock edge and treats enable with the same priority",
+            "title": "Register clock edge and enable semantics"
+          }
+        ],
+        "source": {
+          "category": "memory",
+          "gate_type": "SB_RAM40_4K",
+          "instances": 1,
+          "properties": [
+            "ram",
+            "sequential"
+          ]
+        }
+      },
+      "id": "migration/primitive/SB_RAM40_4K",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 7,
+        "open_obligations": 7
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type SB_RAM40_4K",
+        "gate_types": [
+          "SB_RAM40_4K"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 15,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "ram_inst",
+            "type": "SB_RAM40_4K"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "No mapping for SB_RAM40_4K can be proposed against catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1. the inventory does not carry the metadata this mapping requires (bit_size, ram_ports); the source netlist or gate library does not describe it, so the mapping cannot be assessed",
+      "tags": [
+        "mapping",
+        "migration",
+        "unresolved"
+      ],
+      "title": "Unresolved source primitive SB_RAM40_4K (1 instance(s))",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 1,
+            "example_gates": [
+              {
+                "artifact_id": "source_netlist",
+                "id": 15,
+                "module": {
+                  "name": "top_module"
+                },
+                "name": "ram_inst",
+                "type": "SB_RAM40_4K"
+              }
+            ],
+            "gate_type": "SB_RAM40_4K",
+            "properties": [
+              "ram",
+              "sequential"
+            ],
+            "reason": "the inventory does not carry the metadata this mapping requires (bit_size, ram_ports); the source netlist or gate library does not describe it, so the mapping cannot be assessed"
+          }
+        ],
+        "reason": "the target capability catalogue proposes no usable mapping for this source primitive; the migration effort for it is unquantified"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "mapping": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "category": "supported",
+          "declared_category": "supported",
+          "rationale": "A constant-1 driver; every target technology has one and synthesis usually absorbs it.",
+          "target_capability": "constant",
+          "target_primitive": "VCC"
+        },
+        "metadata": {
+          "output_pin_count": 1,
+          "pin_directions": [
+            "output"
+          ]
+        },
+        "obligations": [
+          {
+            "check": "Prove equivalence of the source and target cell functions (for LUTs: compare the truth tables after applying the target's INIT bit order), or run an equivalence check over the converted netlist.",
+            "description": "The source primitive's Boolean function must be reproduced by the target primitive, including the bit order of any INIT/truth-table encoding.",
+            "id": "semantic/combinational-equivalence",
+            "kind": "semantic",
+            "origin": "required by the catalogue mapping",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target LUT/gate implements exactly the same Boolean function",
+            "title": "Combinational function equivalence"
+          }
+        ],
+        "source": {
+          "category": "constant",
+          "gate_type": "VCC",
+          "instances": 1,
+          "properties": [
+            "combinational",
+            "power"
+          ]
+        }
+      },
+      "id": "migration/primitive/VCC",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "instances": 1,
+        "obligations": 1,
+        "open_obligations": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "all 1 instance(s) of source gate type VCC",
+        "gate_types": [
+          "VCC"
+        ],
+        "gates": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 2,
+            "module": {
+              "name": "top_module"
+            },
+            "name": "vcc_inst",
+            "type": "VCC"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 proposes VCC -> VCC as supported. Structural, by gate type: 1 verification obligation(s) remain open and nothing was converted or verified.",
+      "tags": [
+        "mapping",
+        "migration",
+        "supported"
+      ],
+      "title": "Supported mapping VCC -> VCC (1 instance(s))"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "obligations": [
+          {
+            "check": "Compare the source FFComponent set/reset behaviour with the target primitive's documented behaviour and simulate simultaneous assertion; check recovery/removal timing in the target flow.",
+            "description": "Polarity, synchronous vs asynchronous behaviour, and the state taken when set and reset are asserted together differ between technologies.",
+            "id": "semantic/async-set-reset-priority",
+            "kind": "semantic",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target flip-flop resolves simultaneous set and reset the same way and has the same reset polarity",
+            "title": "Asynchronous set/reset polarity, priority and recovery"
+          },
+          {
+            "check": "Confirm the target primitive supports the same initial value, and that the target flow preserves it; simulate reset-free start-up.",
+            "description": "The state a register or memory holds before the first clock edge is a device property; INIT attributes may not survive a technology change.",
+            "id": "semantic/power-up-and-init-state",
+            "kind": "semantic",
+            "severity": "high",
+            "status": "open",
+            "target_assumption": "the target device powers up in the same state and honours the same INIT attribute",
+            "title": "Power-up and INIT state"
+          }
+        ],
+        "signals": [
+          {
+            "driver": {
+              "kind": "undriven"
+            },
+            "is_global_input": true,
+            "net_id": 2,
+            "net_name": "rst",
+            "pin_types": [
+              "reset_or_set"
+            ],
+            "sink_count": 4,
+            "sink_gate_types": [
+              "SB_DFFNSR",
+              "SB_DFFR",
+              "SB_DFFSR"
+            ]
+          }
+        ]
+      },
+      "id": "migration/reset/signals",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "obligations": 2,
+        "signals": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "Reset and set signals whose semantics must be re-checked",
+        "nets": [
+          {
+            "artifact_id": "source_netlist",
+            "id": 2,
+            "name": "rst",
+            "role": "reset_or_set"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "1 net(s) drive reset or set pins. Polarity, synchronicity, priority and the power-up state are technology properties and are carried over as obligations, not as results.",
+      "tags": [
+        "migration",
+        "reset"
+      ],
+      "title": "Reset and set signals whose semantics must be re-checked"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "No netlist was converted, rewritten or re-synthesised. Every statement is about the source inventory and a reviewed table, not about a migrated design.",
+          "discharged": false,
+          "id": "assessment.no-conversion",
+          "kind": "tool"
+        },
+        {
+          "description": "The target capability catalogue is accurate for the target family and toolchain version it names. This tool does not check the catalogue against any vendor documentation or device model.",
+          "discharged": false,
+          "id": "catalogue.reviewed",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "by_category": {
+          "candidate": 6,
+          "supported": 5,
+          "unresolved": 4
+        },
+        "catalogue_review": {
+          "limitations": [
+            "No vendor datasheet, device model or toolchain was consulted for either side; nothing in this catalogue is a vendor statement.",
+            "The target is a capability profile, not a device: it has no resource counts, no speed grade and no I/O bank rules, so resource fit and timing cannot be assessed against it at all.",
+            "The negative-edge flip-flop family (SB_DFFN, SB_DFFNE, SB_DFFNR, SB_DFFNS, SB_DFFNSR, SB_DFFNSS, SB_DFFNER, SB_DFFNES, SB_DFFNESR, SB_DFFNESS) is deliberately NOT covered in this revision: falling-edge capture interacts with the target's clocking rules and was not reviewed. Designs using it are reported as unresolved, which is the intended outcome, not an oversight.",
+            "SB_LFOSC, SB_HFOSC, SB_I2C and SB_SPI are hard IP with no generic equivalent and are unresolved by construction."
+          ],
+          "method": "Manual review of every cell in plugins/gate_libraries/definitions/ice40ultra.hgl (cell properties, pin types and ff_config/lut_config) against a generic SRAM-FPGA capability profile. Source-side statements are taken from the gate library itself; target-side statements are profile assumptions.",
+          "reviewed_at": "2026-09-08",
+          "reviewed_by": "FPGAPA HAL fork maintainers",
+          "sources": [
+            {
+              "note": "the HAL gate library this catalogue's source_type names come from; the only source of primitive semantics used here",
+              "title": "plugins/gate_libraries/definitions/ice40ultra.hgl"
+            }
+          ]
+        },
+        "downgraded_by_missing_metadata": [
+          "SB_RAM40_4K"
+        ],
+        "instances_by_category": {
+          "candidate": 7,
+          "supported": 8,
+          "unresolved": 4
+        },
+        "not_in_catalogue": [
+          "SB_DFFNSR"
+        ],
+        "source_tool": {
+          "name": "hand-written fixture",
+          "source": "user",
+          "version": "1.0.0"
+        }
+      },
+      "id": "migration/summary/inventory",
+      "method": {
+        "bounded": false,
+        "description": "Each source gate type from the inventory is looked up in a manually reviewed target capability catalogue. The comparison is structural and by gate type: it reads no Boolean function, simulates nothing and proves nothing. A 'supported' mapping means a reviewer proposed it and the inventory carried the metadata the mapping requires -- it does not mean the primitive was converted, that the behaviour matches, or that the design would meet timing in the target device.",
+        "kind": "structural",
+        "name": "source/target primitive inventory comparison",
+        "parameters": {
+          "catalogue_id": "ice40ultra-to-generic-fpga",
+          "catalogue_revision": "2026-09-08.1",
+          "catalogue_version": "1.0.0",
+          "inventory_version": "1.0.0"
+        }
+      },
+      "metrics": {
+        "candidate_instances": 7,
+        "candidate_types": 6,
+        "gate_instances": 19,
+        "gate_types": 15,
+        "supported_instances": 8,
+        "supported_types": 5,
+        "unresolved_instances": 4,
+        "unresolved_types": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "ice40ultra-to-generic-fpga",
+          "source_netlist"
+        ],
+        "description": "every gate type of the source design",
+        "gate_types": [
+          "GND",
+          "SB_CARRY",
+          "SB_DFF",
+          "SB_DFFE",
+          "SB_DFFNSR",
+          "SB_DFFR",
+          "SB_DFFSR",
+          "SB_GB",
+          "SB_HFOSC",
+          "SB_I2C",
+          "SB_IO",
+          "SB_LUT4",
+          "SB_MAC16",
+          "SB_RAM40_4K",
+          "VCC"
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "15 gate type(s), 19 gate instance(s): 5 supported, 6 candidate, 4 unresolved by gate type. Categories describe reviewed mapping proposals, not conversions.",
+      "tags": [
+        "migration",
+        "summary"
+      ],
+      "title": "Source inventory assessed against catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1"
+    }
+  ],
+  "generated_at": "2026-09-08T00:00:00Z",
+  "notes": [
+    "no netlist was converted: this document compares a source inventory with a reviewed target capability table",
+    "'supported' means a reviewer proposed the mapping and the required source metadata was present; it is not a claim that behaviour matches",
+    "timing closure and resource fit are not assessed by any part of this tool",
+    "catalogue ice40ultra-to-generic-fpga revision 2026-09-08.1 reviewed by FPGAPA HAL fork maintainers on 2026-09-08",
+    "1 gate type(s) are absent from the catalogue and are reported as unresolved: SB_DFFNSR",
+    "1 mapping(s) were downgraded to unresolved because the inventory lacked the metadata they require: SB_RAM40_4K"
+  ],
+  "producer": {
+    "command": [
+      "python",
+      "tools/hal_migration/fixtures/_generate.py"
+    ],
+    "name": "hal_migration.assess",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
