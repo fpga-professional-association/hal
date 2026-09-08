@@ -13,7 +13,7 @@ coverage instead of attaching something plausible.
 This is the only module in the package that needs a built HAL.
 """
 
-from . import primitives
+from . import library, primitives
 
 from hal_findings import model
 from hal_findings.adapters.common import netlist_artifact, utc_now
@@ -30,7 +30,13 @@ PRODUCER = {"name": "hal_agilex.hal_adapter", "version": "1.0.0"}
 
 
 def import_hal(library_directories=()):
-    """Import ``hal_py``, optionally after extending ``sys.path``."""
+    """Import ``hal_py``, optionally after extending ``sys.path``.
+
+    The HGL gate library parser and the Verilog netlist parser are HAL
+    *plugins*: without ``plugin_manager.load_all_plugins()`` nothing is
+    registered for ``.hgl``/``.v`` and every load silently returns ``None``.
+    Loading them here is what makes :func:`load_netlist` work at all.
+    """
     import os
     import sys
 
@@ -40,6 +46,13 @@ def import_hal(library_directories=()):
             sys.path.insert(0, path)
     import hal_py
 
+    load_plugins(hal_py)
+    return hal_py
+
+
+def load_plugins(hal_py):
+    """Register HAL's parser plugins; idempotent, so callers need not track it."""
+    hal_py.plugin_manager.load_all_plugins()
     return hal_py
 
 
@@ -138,11 +151,19 @@ def elaborate(hal_py, netlist):
     that was refused, with the reason.  Refused gates keep no function at all --
     an empty function is honest, a guessed one is not.
     """
-    report = {"elaborated": 0, "refused": [], "checked_ff": 0, "types": {}}
+    report = {"elaborated": 0, "refused": [], "checked_ff": 0, "constants": 0, "types": {}}
 
     for gate in netlist.get_gates():
         type_name = gate.get_type().get_name()
         report["types"][type_name] = report["types"].get(type_name, 0) + 1
+
+        if type_name in library.CONSTANT_GATE_TYPES:
+            # HAL synthesises these for the 1'b0/1'b1 literals of the export.
+            # They are not vendor primitives and they already carry their
+            # function from the gate library, so there is nothing to attach and
+            # nothing to refuse.
+            report["constants"] += 1
+            continue
 
         if type_name not in primitives.COVERED_PRIMITIVES:
             report["refused"].append(

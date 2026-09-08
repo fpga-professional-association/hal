@@ -61,3 +61,15 @@ cout   = ( !count[0] ^ (!addend[0]) ) & !VCC
 which is the propagate/generate form `hal_agilex.primitives` implements:
 `f0 = lut_mask[a+2b+4c+8d]`, `f1 = lut_mask[16+a+2b+4c+8d]`,
 `sumout = f0 ^ cin`, `cout = f0 ? cin : f1`.
+
+## Import rewrite
+
+The eight adder slices drive `datac`/`datad` inverted, so the import absorbs
+those two inversions into the mask: bit `j` moves to bit `j ^ 0b1100` inside
+each 16-bit half. `64'h00000000000F0FF0` therefore becomes
+`64'h00000000F0000FF0` in `counter_adder.hal.v` — the propagate half `0x0FF0`
+(`datac ^ datad`) is symmetric under that permutation and stays put, while the
+generate half moves from `0x000F` (`!datac & !datad`, i.e. `count & addend` on
+the inverted inputs) to `0xF000` (`datac & datad`). The carry tap `add_0~1`
+keeps `lut_mask = 0`. Both forms are the same full adder; the test suite
+re-simulates them and requires identical outputs.

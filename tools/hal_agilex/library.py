@@ -35,9 +35,25 @@ import os
 
 from . import primitives
 
-__all__ = ["LIBRARY_NAME", "LIBRARY_PATH", "build_library", "dumps", "write"]
+__all__ = [
+    "LIBRARY_NAME",
+    "LIBRARY_PATH",
+    "GND_GATE_TYPE",
+    "VCC_GATE_TYPE",
+    "CONSTANT_GATE_TYPES",
+    "build_library",
+    "dumps",
+    "write",
+]
 
 LIBRARY_NAME = "AGILEX_TENNM"
+
+#: HAL's own constant gate types.  They are scaffolding for the ``1'b0``/``1'b1``
+#: literals in the export, not Quartus atoms, so consumers must not treat them
+#: as uncovered vendor primitives.
+GND_GATE_TYPE = "HAL_GND"
+VCC_GATE_TYPE = "HAL_VCC"
+CONSTANT_GATE_TYPES = (GND_GATE_TYPE, VCC_GATE_TYPE)
 
 #: Where the generated library is committed, relative to the repository root.
 LIBRARY_PATH = os.path.join(
@@ -138,8 +154,8 @@ def build_library():
         "version": _HGL_VERSION,
         "library": LIBRARY_NAME,
         "cells": [
-            _constant("HAL_GND", "ground", "ground"),
-            _constant("HAL_VCC", "power", "power"),
+            _constant(GND_GATE_TYPE, "ground", "ground"),
+            _constant(VCC_GATE_TYPE, "power", "power"),
             _ff(),
             _lcell(),
         ],

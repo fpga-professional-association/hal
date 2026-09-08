@@ -45,7 +45,11 @@ def _import_hal():
     except ImportError as exc:
         return None, "tools/hal_viz is not importable: {}".format(exc)
     try:
-        return halenv.import_hal_py(), None
+        hal_py = halenv.import_hal_py()
+        # The HGL and Verilog parsers are plugins; without loading them HAL has
+        # no parser registered for '.hgl'/'.v' and every load returns None.
+        hal_adapter.load_plugins(hal_py)
+        return hal_py, None
     except Exception as exc:  # noqa: BLE001 - any failure means "no HAL here"
         return None, "hal_py unavailable: {}".format(exc)
 
@@ -107,8 +111,11 @@ class AgilexHalIntegrationTest(unittest.TestCase):
             value = gate.get_data("generic", "lut_mask")
             self.assertTrue(value and value[1], gate.get_name())
             masks.add(int(str(value[1]), 16))
-        # Eight adder slices with the same mask, plus the carry tap.
-        self.assertEqual(masks, {0x000F0FF0, 0x0})
+        # Eight adder slices with the same mask, plus the carry tap.  The
+        # export's 0x000F0FF0 addresses inverted datac/datad; the import
+        # absorbed those inversions, which maps mask bit j to bit j ^ 0b1100
+        # within each 16-bit half and gives 0xF0000FF0.
+        self.assertEqual(masks, {0xF0000FF0, 0x0})
 
     # -- elaboration ------------------------------------------------------
 
@@ -123,7 +130,7 @@ class AgilexHalIntegrationTest(unittest.TestCase):
             gate
             for gate in netlist.get_gates()
             if gate.get_type().get_name() == primitives.LCELL
-            and int(str(gate.get_data("generic", "lut_mask")[1]), 16) == 0x000F0FF0
+            and int(str(gate.get_data("generic", "lut_mask")[1]), 16) == 0xF0000FF0
         ]
         self.assertEqual(len(slices), 8)
         gate = slices[0]
@@ -146,7 +153,7 @@ class AgilexHalIntegrationTest(unittest.TestCase):
             candidate
             for candidate in netlist.get_gates()
             if candidate.get_type().get_name() == primitives.LCELL
-            and int(str(candidate.get_data("generic", "lut_mask")[1]), 16) == 0x000F0FF0
+            and int(str(candidate.get_data("generic", "lut_mask")[1]), 16) == 0xF0000FF0
         )
         # After the import rewrite the operands are non-inverted, so the slice
         # must be the plain full adder of datac, datad and cin -- with dataa and
