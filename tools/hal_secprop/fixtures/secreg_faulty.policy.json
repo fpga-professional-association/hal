@@ -1,0 +1,160 @@
+{
+  "clock": {
+    "description": "the only clock in the design; one model step is one rising edge",
+    "edge": "rising",
+    "signal": "io_00"
+  },
+  "description": "Analyst-supplied security policy for the name-stripped secreg_faulty fixture. Nothing in the netlist says which flip-flop is the lock or which four hold the secret; this file is the input that makes the question well posed, and it is the same list tools/hal_apb_recover produces when it recovers a register map from a netlist of this kind.",
+  "design": {
+    "gate_library": "../../../plugins/gate_libraries/definitions/NangateOpenCellLibrary.hgl",
+    "netlist": "secreg_faulty.v"
+  },
+  "environment": {
+    "notes": [
+      "No input is pinned quiescent: dbg_en in particular is left free, because an attacker who can reach the bus can reach it too, and pinning it would assume the defect away."
+    ]
+  },
+  "external_write_controls": {
+    "accesses": [
+      {
+        "condition": {
+          "paddr": [
+            0,
+            0,
+            0
+          ],
+          "penable": 1,
+          "psel": 1,
+          "pwrite": 1
+        },
+        "description": "a bus write to slot 0, which engages the lock",
+        "id": "lock_write"
+      },
+      {
+        "condition": {
+          "paddr": [
+            1,
+            0,
+            0
+          ],
+          "penable": 1,
+          "psel": 1,
+          "pwrite": 1
+        },
+        "description": "a bus write to slot 1, the SECRET register",
+        "id": "apb_write"
+      },
+      {
+        "condition": {
+          "dbg_en": 1,
+          "paddr": [
+            0,
+            1,
+            0
+          ],
+          "penable": 1,
+          "psel": 1,
+          "pwrite": 1
+        },
+        "description": "the second write path: a bus write to slot 2 with the debug enable asserted",
+        "id": "debug_write"
+      }
+    ],
+    "description": "the pins an attacker with bus access can drive",
+    "signals": {
+      "dbg_en": "io_05",
+      "paddr": [
+        "io_06",
+        "io_07",
+        "io_08"
+      ],
+      "penable": "io_03",
+      "psel": "io_02",
+      "pwdata": [
+        "io_09",
+        "io_10",
+        "io_11",
+        "io_12"
+      ],
+      "pwrite": "io_04"
+    }
+  },
+  "lock": {
+    "description": "the lockdown bit at slot 0: written to 1 through the bus and cleared only by reset",
+    "locked_value": 1,
+    "signal": "n013"
+  },
+  "name": "secreg_faulty",
+  "notes": [
+    "SECRET is readable at slot 1 by design. Read-side confidentiality is not a property this analysis checks; see the declared exclusions."
+  ],
+  "observation_points": [
+    {
+      "description": "read data bit, recorded in every witness",
+      "name": "PRDATA[0]",
+      "signal": "io_13"
+    },
+    {
+      "description": "read data bit, recorded in every witness",
+      "name": "PRDATA[1]",
+      "signal": "io_14"
+    },
+    {
+      "description": "read data bit, recorded in every witness",
+      "name": "PRDATA[2]",
+      "signal": "io_15"
+    },
+    {
+      "description": "read data bit, recorded in every witness",
+      "name": "PRDATA[3]",
+      "signal": "io_16"
+    }
+  ],
+  "options": {
+    "bound": 10
+  },
+  "reset": {
+    "active_low": true,
+    "cycles": 2,
+    "description": "asynchronous, active low, held for the first two cycles of every run and released afterwards",
+    "signal": "io_01"
+  },
+  "schema": "fpgapa.security-policy",
+  "schema_version": "1.0.0",
+  "sensitive_registers": [
+    {
+      "bits": [
+        {
+          "name": "SECRET[0]",
+          "reset_value": 0,
+          "signal": "n023"
+        },
+        {
+          "name": "SECRET[1]",
+          "reset_value": 0,
+          "signal": "n024"
+        },
+        {
+          "name": "SECRET[2]",
+          "reset_value": 0,
+          "signal": "n025"
+        },
+        {
+          "name": "SECRET[3]",
+          "reset_value": 0,
+          "signal": "n026"
+        }
+      ],
+      "description": "the protected register at slot 1",
+      "name": "SECRET",
+      "properties": [
+        "locked_write",
+        "reset_clears"
+      ],
+      "write_accesses": [
+        "apb_write",
+        "debug_write"
+      ]
+    }
+  ]
+}

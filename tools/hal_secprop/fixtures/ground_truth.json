@@ -1,0 +1,157 @@
+{
+  "bounded_results_are_not_proofs": "Every 'holds_bounded' above means 'no violating run of at most 10 cycles exists'. Nothing here is an unbounded proof, and no finding claims one.",
+  "bus": {
+    "address_width": 3,
+    "data_width": 4,
+    "slots": {
+      "DEBUG": 2,
+      "LOCK": 0,
+      "SECRET": 1
+    }
+  },
+  "description": "Ground truth for the hal_secprop access-control fixtures, written alongside the generator. The tool must reproduce these verdicts from the netlist and the policy alone.",
+  "designs": {
+    "secreg_blackbox": {
+      "defects": [
+        {
+          "description": "PREADY is driven by a DLH_X1 transparent latch; neither front end models a latch",
+          "id": "unmodelled-primitive",
+          "violates": null
+        }
+      ],
+      "expected": {
+        "exit_code": 0,
+        "front_end": "raises UnsupportedPrimitives on both the offline and the hal_py path",
+        "obligations": {
+          "secprop/lock-integrity": {
+            "status": "unsupported"
+          },
+          "secprop/locked-write-blocked/SECRET": {
+            "status": "unsupported"
+          },
+          "secprop/reset-clears/SECRET": {
+            "status": "unsupported"
+          }
+        },
+        "unsupported_primitives": [
+          "DLH_X1"
+        ]
+      }
+    },
+    "secreg_faulty": {
+      "defects": [
+        {
+          "description": "the slot-2 debug write path does not consult the lock, so SECRET can be written while locked",
+          "id": "missing-lock-check-on-debug-path",
+          "violates": "secprop/locked-write-blocked/SECRET"
+        },
+        {
+          "description": "SECRET[3] is a DFFS and comes out of reset as 1 while the policy declares a reset value of 0",
+          "id": "secret-bit-3-resets-to-one",
+          "violates": "secprop/reset-clears/SECRET"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "obligations": {
+          "secprop/lock-integrity": {
+            "outcome": "holds_bounded",
+            "status": "proven_bounded",
+            "why": "the lock itself is not defective in this variant"
+          },
+          "secprop/locked-write-blocked/SECRET": {
+            "outcome": "violated",
+            "status": "bounded_counterexample",
+            "witness": {
+              "min_violation_cycle": 3,
+              "replays": true,
+              "requires_accesses": [
+                "lock_write",
+                "debug_write"
+              ],
+              "why": "reset is released at cycle 2, the lock can be engaged by a write at cycle 2 at the earliest, so the first cycle at which a locked debug write can happen is 3. Which cycle >= 3 the solver picks is its own business and is not part of the ground truth."
+            }
+          },
+          "secprop/reset-clears/SECRET": {
+            "outcome": "violated",
+            "status": "bounded_counterexample",
+            "witness": {
+              "failing_bits": [
+                "SECRET[3]"
+              ],
+              "min_violation_cycle": 1,
+              "replays": true,
+              "why": "reset is asserted for cycles 0 and 1 and obligations are instantiated from cycle 1"
+            }
+          }
+        }
+      }
+    },
+    "secreg_ok": {
+      "defects": [],
+      "expected": {
+        "exit_code": 0,
+        "obligations": {
+          "secprop/lock-integrity": {
+            "outcome": "holds_bounded",
+            "status": "proven_bounded",
+            "why": "the lock bit is set-only until reset"
+          },
+          "secprop/locked-write-blocked/SECRET": {
+            "exercised": true,
+            "outcome": "holds_bounded",
+            "status": "proven_bounded",
+            "why": "both write paths consult the lock, and a write while locked is reachable inside the bound, so the pass is not vacuous"
+          },
+          "secprop/reset-clears/SECRET": {
+            "outcome": "holds_bounded",
+            "status": "proven_bounded",
+            "why": "every SECRET bit is a DFFR and comes out of reset as 0"
+          }
+        }
+      }
+    }
+  },
+  "gate_library": "NangateOpenCellLibrary",
+  "signals": {
+    "secreg_blackbox": {
+      "lock": "n013",
+      "secret": [
+        "n024",
+        "n025",
+        "n026",
+        "n027"
+      ]
+    },
+    "secreg_faulty": {
+      "lock": "n013",
+      "secret": [
+        "n023",
+        "n024",
+        "n025",
+        "n026"
+      ]
+    },
+    "secreg_ok": {
+      "lock": "n013",
+      "secret": [
+        "n024",
+        "n025",
+        "n026",
+        "n027"
+      ]
+    }
+  },
+  "structural_claim": {
+    "expected_cone": {
+      "external_controls_in_cone": 11,
+      "input_count": 12,
+      "lock_in_cone": true,
+      "max_external_control_depth": 1,
+      "state_count": 5,
+      "target": "SECRET"
+    },
+    "statement": "the fan-in cones of SECRET in secreg_ok and secreg_faulty are identical -- same inputs, same depths, same external controls, and the lock is in both",
+    "why_it_matters": "structural reachability cannot distinguish the correct design from the broken one, which is why cone results are reported as candidate paths with status 'heuristic' and never as a verdict"
+  }
+}
