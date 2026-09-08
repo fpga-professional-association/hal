@@ -311,6 +311,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/hal.pc.in ${CMAKE_BINARY_DIR}/hal.pc 
 # ########################################
 set(HAL_CMAKECONFIG_INSTALL_DIR "share/cmake/${PROJECT_NAME}" CACHE STRING "install path for halConfig.cmake")
 
+# The global (read-only) configuration directory returned by utils::get_config_directory().
+# It used to be created as a side effect of the GUI plugin writing its guidefaults.ini into
+# it. The headless build has no GUI, so core has to make sure the directory exists, both for
+# the build tree and for the install rule below.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/share/hal/defaults)
+
 install(FILES ${CMAKE_BINARY_DIR}/hal_version.h DESTINATION ${INCLUDE_INSTALL_DIRECTORY}/hal_core/)
 install(FILES ${CMAKE_BINARY_DIR}/hal_config.h DESTINATION ${INCLUDE_INSTALL_DIRECTORY}/hal_core/)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${INCLUDE_INSTALL_DIRECTORY})
