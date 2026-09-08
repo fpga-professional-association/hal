@@ -24,7 +24,9 @@ Three independent generators propose candidates:
 
 ``dataflow``
     DANA's register groups, intersected with the flip-flops that have feedback.
-    Optional: it needs the ``dataflow`` plugin.
+    One-bit groups whose next-state functions read each other are closed up
+    first -- DANA sees a counter as a chain of one-bit groups, and a third of a
+    register is not a candidate.  Optional: it needs the ``dataflow`` plugin.
 
 Identical proposals from different generators are merged, and agreement raises
 the score slightly.  Nothing here proves anything; every candidate becomes a
@@ -244,6 +246,35 @@ def _weak_components(nodes, edges):
     return sorted(components)
 
 
+def _merge_connected_singletons(groups, edges):
+    """Merge one-flip-flop dataflow groups whose next-state functions read each other.
+
+    DANA groups registers by data-flow *shape*, and a counter is a chain rather
+    than a word: ``cnt_r1``'s next state reads ``cnt_r0``, but ``cnt_r0``'s
+    never reads ``cnt_r1``.  Real DANA therefore hands back one group per
+    counter bit, and proposing those singletons proposes a third of a register
+    each -- fragments that then compete with the whole counter and, being
+    smaller, sort ahead of it on a tie.  A flip-flop whose next-state function
+    is read by another proposed flip-flop is a *bit* of a state register, not a
+    state register, so the singletons that reach each other through the
+    next-state dependency graph are closed up into the register they came from.
+
+    Groups of two or more flip-flops are left exactly as DANA reported them: a
+    multi-bit group is the plugin's own answer, and joining two of those would
+    merge, say, a controller with the counter it enables.  Returns
+    ``(groups, merged)`` where ``merged`` lists only the components that were
+    actually closed up, so the caller can say so in a note.
+    """
+    singletons = sorted(group[0] for group in groups if len(group) == 1)
+    result = [sorted(group) for group in groups if len(group) != 1]
+    merged = []
+    for component in _weak_components(set(singletons), edges):
+        result.append(sorted(component))
+        if len(component) > 1:
+            merged.append(sorted(component))
+    return result, merged
+
+
 #: Feature weights.  They sum to 1 so the score reads as a confidence in
 #: ``[0, 1]``; they are published because a hidden weighting is not a heuristic,
 #: it is a magic number.
@@ -450,11 +481,25 @@ def propose(graph, dataflow_groups=None, limits=None):
             continue
         record(component, "self_loop_cluster")
 
+    dataflow_proposals = []
     for group_id, group_gate_ids in sorted((dataflow_groups or {}).items()):
         filtered = sorted(set(int(x) for x in group_gate_ids) & (self_dependent | covered_by_scc))
         if not filtered:
             continue
-        record(filtered, "dataflow")
+        dataflow_proposals.append(filtered)
+    dataflow_proposals, merged_groups = _merge_connected_singletons(dataflow_proposals, edges)
+    for component in merged_groups:
+        notes.append(
+            "{} single-flip-flop dataflow group(s) were closed up into one candidate "
+            "because their next-state functions read each other: {}. A counter is a "
+            "chain of one-bit groups to DANA, and its bits are not separate state "
+            "registers".format(
+                len(component),
+                ", ".join(graph.gates[gate_id].name for gate_id in component),
+            )
+        )
+    for group in dataflow_proposals:
+        record(group, "dataflow")
 
     no_feedback = sorted(nodes - self_dependent - covered_by_scc)
     if no_feedback:

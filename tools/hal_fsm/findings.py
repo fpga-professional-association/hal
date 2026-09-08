@@ -427,10 +427,15 @@ def _witness_finding(result, witness, graph, artifact_id):
     target = witness["target"]
     finding_id = "fsm/{}/witness/{}".format(result.machine_id, target)
     gate_refs = _candidate_gate_refs(result.candidate, graph, artifact_id)
+    # "unreachable" comes from the fixpoint closure of the relation, which
+    # covers every number of cycles -- like a found witness, and unlike a search
+    # that ran out of cycles, it is not a bounded claim.  Calling it one
+    # contradicts the unbounded bounds of the same finding, and the schema
+    # rejects the document rather than let the two disagree.
     method = _method(
         "bounded reachability witness",
         "symbolic",
-        witness.get("status") != "found",
+        witness.get("status") not in ("found", "unreachable"),
         description=(
             "A breadth-first search over the recovered relation produces the shortest "
             "state path to the target; every step's condition is then solved for a "

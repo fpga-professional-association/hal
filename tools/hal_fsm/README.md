@@ -65,7 +65,7 @@ slightly:
 | --- | --- |
 | `scc` | non-trivial strongly connected components of the flip-flop dependency graph — a controller's bits are mutually dependent |
 | `self_loop_cluster` | self-dependent flip-flops grouped by weak connectivity — this is what catches a counter, which is **not** an SCC (`c1` reads `c0`, never the reverse) |
-| `dataflow` | DANA's register groups, intersected with the flip-flops that have feedback (optional; needs the plugin) |
+| `dataflow` | DANA's register groups, intersected with the flip-flops that have feedback, with one-bit groups whose next-state functions read each other closed up into one candidate -- DANA sees a counter as a chain of one-bit groups (optional; needs the plugin) |
 
 The score is a published weighted sum of structural features — size, mutual
 feedback, how much of each member's dependencies stay inside the set, how many

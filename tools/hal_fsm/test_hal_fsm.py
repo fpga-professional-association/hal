@@ -218,6 +218,122 @@ class ProposalTest(unittest.TestCase):
         _, notes = candidates.propose(self.graph, limits=limits)
         self.assertTrue(any("max_state_bits" in note for note in notes))
 
+    def ids_for(self, *names):
+        by_name = {gate.name: gate.id for gate in self.graph.gates.values()}
+        return [by_name[name] for name in names]
+
+    #: What the real DANA returns for this fixture: the controller as one group,
+    #: and the counter as one group *per bit*, because a counter is a chain
+    #: (``cnt_r1`` reads ``cnt_r0``, never the other way round) rather than a
+    #: word.  The old stub handed over the whole counter and hid this.
+    REAL_DATAFLOW_GROUPS = ("nx_a1_reg nx_b2_reg", "cnt_r0", "cnt_r1", "cnt_r2")
+
+    def real_dataflow_groups(self):
+        return {
+            index: self.ids_for(*names.split())
+            for index, names in enumerate(self.REAL_DATAFLOW_GROUPS)
+        }
+
+    def test_split_dataflow_groups_still_propose_the_whole_counter(self):
+        proposed, _ = candidates.propose(
+            self.graph, dataflow_groups=self.real_dataflow_groups(), limits=self.limits
+        )
+        self.assertEqual(self.names(proposed[0]), ["nx_a1_reg", "nx_b2_reg"])
+        self.assertEqual(self.names(proposed[1]), ["cnt_r0", "cnt_r1", "cnt_r2"])
+        self.assertIn("dataflow", proposed[1].sources)
+        self.assertIn("self_loop_cluster", proposed[1].sources)
+
+    def test_no_fragment_of_the_counter_is_proposed(self):
+        # A single counter bit scores *higher* than the whole counter (a
+        # one-bit machine looks perfectly self-dependent), so a fragment does
+        # not merely clutter the list: it takes the counter's place.
+        proposed, _ = candidates.propose(
+            self.graph, dataflow_groups=self.real_dataflow_groups(), limits=self.limits
+        )
+        counter = set(self.ids_for("cnt_r0", "cnt_r1", "cnt_r2"))
+        for candidate in proposed:
+            self.assertFalse(
+                set(candidate.gate_ids) < counter,
+                "a counter fragment was proposed: {}".format(self.names(candidate)),
+            )
+
+    def test_the_closure_is_explained_in_a_note(self):
+        _, notes = candidates.propose(
+            self.graph, dataflow_groups=self.real_dataflow_groups(), limits=self.limits
+        )
+        merged = [note for note in notes if "closed up" in note]
+        self.assertEqual(len(merged), 1)
+        for name in ("cnt_r0", "cnt_r1", "cnt_r2"):
+            self.assertIn(name, merged[0])
+
+
+def enable_chain_graph():
+    """Two controller bits that enable a two-bit counter: one weak component.
+
+    ``k0``/``k1`` count only while the controller is in a state, so their
+    next-state functions read ``s0``.  Everything here is one weakly connected
+    component, which is why the closure may not simply merge whatever it can
+    reach.
+    """
+    graph = candidates.SequentialGraph()
+    depends = {1: (1, 2), 2: (1, 2), 3: (3, 1), 4: (4, 3, 1)}
+    for gate_id, name in ((1, "s0"), (2, "s1"), (3, "k0"), (4, "k1")):
+        graph.add(
+            candidates.SequentialGate(gate_id, name, gate_type="FF", clock_nets=(10,)),
+            depends=depends[gate_id],
+            fanout=(100 + gate_id,),
+        )
+    return graph
+
+
+class SingletonClosureTest(unittest.TestCase):
+    """The dataflow closure must fix fragments without eating whole groups."""
+
+    def setUp(self):
+        self.graph = enable_chain_graph()
+        self.limits = config.Limits()
+
+    def keys(self, proposed):
+        return sorted(candidate.gate_ids for candidate in proposed)
+
+    def from_dataflow(self, proposed):
+        """What the dataflow generator alone proposed."""
+        return sorted(
+            candidate.gate_ids for candidate in proposed if "dataflow" in candidate.sources
+        )
+
+    def test_two_multi_bit_groups_stay_separate(self):
+        # Both are DANA's own answer, and they are weakly connected: merging
+        # them would hand the solver a controller glued to its counter.
+        proposed, _ = candidates.propose(
+            self.graph, dataflow_groups={0: [1, 2], 1: [3, 4]}, limits=self.limits
+        )
+        self.assertEqual(self.from_dataflow(proposed), [(1, 2), (3, 4)])
+
+    def test_singletons_merge_without_absorbing_the_multi_bit_group(self):
+        proposed, _ = candidates.propose(
+            self.graph, dataflow_groups={0: [1, 2], 1: [3], 2: [4]}, limits=self.limits
+        )
+        self.assertEqual(self.from_dataflow(proposed), [(1, 2), (3, 4)])
+        keys = self.keys(proposed)
+        self.assertNotIn((3,), keys)
+        self.assertNotIn((4,), keys)
+
+    def test_an_unconnected_singleton_group_survives(self):
+        # A one-bit machine that reads nobody else is a candidate in its own
+        # right; the closure must not delete it.
+        graph = candidates.SequentialGraph()
+        for gate_id, name in ((1, "t0"), (2, "t1")):
+            graph.add(
+                candidates.SequentialGate(gate_id, name, gate_type="FF", clock_nets=(10,)),
+                depends=(gate_id,),
+                fanout=(100 + gate_id,),
+            )
+        proposed, _ = candidates.propose(
+            graph, dataflow_groups={0: [1], 1: [2]}, limits=self.limits
+        )
+        self.assertEqual(self.from_dataflow(proposed), [(1,), (2,)])
+
 
 # ---------------------------------------------------------------------------
 # bit orders, comparison, reachability
@@ -676,6 +792,21 @@ class RunTest(unittest.TestCase):
         self.assertEqual(reachability["data"]["unreachable_in_encoding"], [3])
         self.assertEqual(reachability["data"]["reachable"], [0, 1, 2])
         self.assertEqual(by_id["fsm/machine01/transitions"]["data"]["states"], [0, 1, 2, 3])
+
+    def test_unreachable_witness_is_an_unbounded_claim_that_validates(self):
+        # Reporting state 3 unreachable is a fixpoint result, not a bounded
+        # search, so the method may not be marked bounded -- a proof with a
+        # bounded method does not validate against the findings schema.
+        configuration = config.Configuration(
+            reference=GROUND_TRUTH, solver="brute_force", targets=[3]
+        )
+        document, _, _, _ = self.analyse(configuration)
+        findings_validate.validate_document(document)
+        witness = self.findings_by_id(document)["fsm/machine01/witness/3"]
+        self.assertEqual(witness["status"], "proven_under_assumptions")
+        self.assertIn("not reachable", witness["title"])
+        self.assertFalse(witness["method"]["bounded"])
+        self.assertTrue(witness["bounds"]["unbounded"])
 
     def test_brute_force_matches_the_total_reference(self):
         configuration = config.Configuration(reference=GROUND_TRUTH, solver="brute_force")
