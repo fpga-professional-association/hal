@@ -79,6 +79,11 @@ from the command line to create a project directory for it non-interactively. Ei
 gate library, e.g. one of the ones in `plugins/gate_libraries/definitions`. For instructions to create your own gate
 library and other useful tutorials, take a look at the [wiki](https://github.com/emsec/hal/wiki).
 
+To *look* at a netlist without a GUI, use the batch visualization tool in [`tools/hal_viz`](tools/hal_viz/README.md):
+`python tools/hal_viz module_tree <path/to/unzipped/project> -o out/` renders the module hierarchy (and its
+`netlist_graph`, `dataflow` and `clock_tree` subcommands render scoped gate-level graphs, DANA register groups and
+clock trees) to Graphviz `.dot` plus SVG/PNG files you can open in any viewer.
+
 The following example code refers to the `fsm` example.
 
 Let's list all lookup tables and print their Boolean functions:
