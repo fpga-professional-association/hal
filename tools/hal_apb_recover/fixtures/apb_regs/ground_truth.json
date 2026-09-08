@@ -1,0 +1,837 @@
+{
+  "bus": {
+    "address_width": 5,
+    "byte_lane_bits": 8,
+    "data_width": 16,
+    "decoded_address_bits": [
+      2,
+      3,
+      4
+    ],
+    "kind": "APB3",
+    "strobe_lanes": 2,
+    "undecoded_address_bits": [
+      0,
+      1
+    ]
+  },
+  "description": "Ground truth for the name-stripped APB peripheral fixture. Written by hand alongside the generator; the recovery must reproduce it from the netlist and mapping.json alone.",
+  "design": "apb_regs",
+  "expected_totals": {
+    "alias_classes": 1,
+    "flip_flops": 40,
+    "registers": 5
+  },
+  "registers": [
+    {
+      "access": "read-write",
+      "address": 0,
+      "aliases": [
+        8
+      ],
+      "fields": [
+        {
+          "access": "read-write",
+          "bit": 0,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 1,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 2,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 3,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 4,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 5,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 6,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 7,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 8,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 9,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 10,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 11,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 12,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 13,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 14,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 15,
+          "expected_confidence": "proven_bounded",
+          "note": "hardware also clears this bit when io_53 is high, so its next state is only determined once the non-APB inputs are pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        }
+      ],
+      "name": "CTRL",
+      "reset_value": "0x0000"
+    },
+    {
+      "access": "read-write-one-to-clear",
+      "address": 4,
+      "aliases": [],
+      "constant_read_bits": {
+        "10": 0,
+        "11": 0,
+        "12": 0,
+        "13": 0,
+        "14": 0,
+        "15": 0,
+        "8": 0,
+        "9": 0
+      },
+      "fields": [
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 0,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_45; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 1,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_46; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 2,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_47; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 3,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_48; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 4,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_49; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 5,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_50; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 6,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_51; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        },
+        {
+          "access": "read-write-one-to-clear",
+          "bit": 7,
+          "expected_confidence": "proven_bounded",
+          "note": "set by the event input io_52; only determined with the event inputs pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write_one_to_clear"
+        }
+      ],
+      "implemented_bits": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "name": "STATUS",
+      "reset_value": "0x0000"
+    },
+    {
+      "access": "read-write",
+      "address": 8,
+      "aliases": [
+        0
+      ],
+      "fields": [
+        {
+          "access": "read-write",
+          "bit": 0,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 1,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 2,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 3,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 4,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 5,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 6,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 7,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 8,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 9,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 10,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 11,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 12,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 13,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 14,
+          "expected_confidence": "proven_under_assumptions",
+          "note": null,
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 15,
+          "expected_confidence": "proven_bounded",
+          "note": "hardware also clears this bit when io_53 is high, so its next state is only determined once the non-APB inputs are pinned",
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        }
+      ],
+      "name": "CTRL_ALIAS",
+      "note": "intentional address alias: slot 0 and slot 2 share one decode line, so 0x00 and 0x08 are the same register",
+      "reset_value": "0x0000"
+    },
+    {
+      "access": "read-only",
+      "address": 12,
+      "aliases": [],
+      "fields": [
+        {
+          "access": "read-only",
+          "bit": 0,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 1,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 2,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 3,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 4,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 5,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 6,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 7,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 8,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 9,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 10,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 11,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 12,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 13,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 14,
+          "constant": 0,
+          "expected_confidence": "proven_under_assumptions"
+        },
+        {
+          "access": "read-only",
+          "bit": 15,
+          "constant": 1,
+          "expected_confidence": "proven_under_assumptions"
+        }
+      ],
+      "name": "ID",
+      "note": "read-only constant with no storage; every PRDATA bit is a constant at this address",
+      "reset_value": "0xa53c",
+      "storage": null
+    },
+    {
+      "access": "read-write",
+      "address": 16,
+      "aliases": [],
+      "fields": [
+        {
+          "access": "read-write",
+          "bit": 0,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 1,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 2,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 3,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 4,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 0,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 5,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 6,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 7,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            0
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 8,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 9,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 10,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 11,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 12,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 13,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 14,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 0,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        },
+        {
+          "access": "read-write",
+          "bit": 15,
+          "expected_confidence": "heuristic",
+          "guarded_by": "CTRL bit 0 (the write only happens while CTRL[0] is 1)",
+          "reset_value": 1,
+          "strobe_lanes": [
+            1
+          ],
+          "template": "write"
+        }
+      ],
+      "name": "SCRATCH",
+      "note": "writes are locked by CTRL[0]; the recovery must report this as a guarded write rather than as read-only or as a plain read-write",
+      "reset_value": "0xbeef"
+    }
+  ],
+  "side_effects": [
+    {
+      "address": 4,
+      "description": "writing a 1 to a STATUS bit clears it; writing a 0 leaves it alone",
+      "kind": "write_one_to_clear"
+    },
+    {
+      "address": 0,
+      "bit": 15,
+      "description": "CTRL[15] is also cleared by the io_53 input, so its next state cannot be proven without pinning that input",
+      "kind": "hardware_clear"
+    }
+  ],
+  "unmapped_addresses": [
+    20,
+    24,
+    28
+  ],
+  "unsupported": [
+    {
+      "count": 1,
+      "description": "PREADY is driven by a transparent latch; the recovery models only edge-triggered state and must report this rather than assume it",
+      "gate_type": "DLH_X1"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "address": {
+    "base": 0,
+    "count": 8,
+    "stride": 4
+  },
+  "apb": {
+    "paddr": [
+      "io_06",
+      "io_07",
+      "io_08",
+      "io_09",
+      "io_10"
+    ],
+    "penable": "io_03",
+    "prdata": [
+      "io_27",
+      "io_28",
+      "io_29",
+      "io_30",
+      "io_31",
+      "io_32",
+      "io_33",
+      "io_34",
+      "io_35",
+      "io_36",
+      "io_37",
+      "io_38",
+      "io_39",
+      "io_40",
+      "io_41",
+      "io_42"
+    ],
+    "pready": "io_05",
+    "psel": "io_02",
+    "pstrb": [
+      "io_43",
+      "io_44"
+    ],
+    "pwdata": [
+      "io_11",
+      "io_12",
+      "io_13",
+      "io_14",
+      "io_15",
+      "io_16",
+      "io_17",
+      "io_18",
+      "io_19",
+      "io_20",
+      "io_21",
+      "io_22",
+      "io_23",
+      "io_24",
+      "io_25",
+      "io_26"
+    ],
+    "pwrite": "io_04"
+  },
+  "assumptions": {
+    "byte_lane_bits": 8,
+    "non_apb_inputs": "zero",
+    "notes": [
+      "PADDR[1:0] are byte offsets within a word and are never varied by the enumeration; word-aligned accesses only.",
+      "io_45..io_52 (event inputs) and io_53 (a hardware clear) are not part of the bus and are assumed quiescent at 0 for the bounded probes."
+    ]
+  },
+  "clock": {
+    "edge": "rising",
+    "net": "io_00"
+  },
+  "description": "User-supplied APB mapping for the name-stripped apb_regs fixture. Nothing in the netlist names these ports; this file is the analyst's input.",
+  "design": "apb_regs",
+  "reset": {
+    "active": "low",
+    "kind": "asynchronous",
+    "net": "io_01"
+  },
+  "schema": "fpgapa.apb-signal-mapping",
+  "schema_version": "1.0.0"
+}
