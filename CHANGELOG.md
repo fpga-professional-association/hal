@@ -109,8 +109,12 @@ All notable changes to this project will be documented in this file.
   * module pin groups
     * fixed bug in pin model which must not crash when deleting a non-empty pin group
     * fixed bug by disallowing deletion of group comprising a single pin with same name
+* Tools
+  * fixed `hal_viz netlist_graph` and `hal_viz module_tree` failing on every real input, as neither loaded the HAL plugins and every gate library and netlist parser is registered by one, so a `.hgl` library or a `.v` netlist had no parser to read it. The `dataflow` and `clock_tree` subcommands already did
 * Build and dependencies
   * added a test that checks the Python bindings never hand out a borrowed pointer without keeping its owner alive, and never give a class bound with a non-owning holder to a factory that returns a `unique_ptr`. It covers plugins kept in a repository of their own as well
+  * added an end-to-end smoke test, `tests/headless_smoke/real_netlist_smoke.py`, that runs the shipped `examples/uart.zip` through the real bindings: it loads the project with `NetlistFactory.load_hal_project`, checks the gate and net counts and the gate-type histogram, runs the `graph_algorithm` plugin and checks the netlist graph and its connected components, round-trips the netlist through `ProjectManager` and re-runs the analysis on the reloaded copy, then drives `tools/hal_viz` and checks the emitted DOT and SVG by node id. A missing binding or plugin fails the test instead of skipping it. The Ubuntu 24.04 workflow runs it after `ctest` and uploads its work directory when it fails
+  * registered the standalone `tools/hal_viz` test suite with `ctest` as `runTest-hal_viz_standalone`; it needs only a Python interpreter
   * updated the vendored igraph dependency from 0.10.12 to 1.0.1 and ported the graph algorithm and HAWKEYE plugins to the igraph 1.0 API
   * removed the tests below `tests/python_binding`, which were neither referenced by the build nor by any workflow and called API that no longer exists
 

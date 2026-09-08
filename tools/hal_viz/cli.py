@@ -140,6 +140,12 @@ def _print_paths(paths):
 
 def cmd_netlist_graph(args, reporter):
     hal_py = import_hal_py(args.hal_lib)
+    # Every gate library and netlist format HAL can read comes from a plugin -- .hgl from
+    # hgl_parser, .v from verilog_parser and so on -- and a plugin only registers its parser when it
+    # is loaded. Without this, loading anything real fails with an unhelpful "no parser" error. The
+    # plugins are deliberately left loaded: the process exits right after, and unloading them pulls
+    # the gate library out from under the netlist we are still holding.
+    load_all_plugins(hal_py)
     netlist = load_netlist(hal_py, args.netlist, args.gate_library)
 
     if args.module is not None and args.gate is not None:
@@ -211,6 +217,7 @@ def cmd_netlist_graph(args, reporter):
 
 def cmd_module_tree(args, reporter):
     hal_py = import_hal_py(args.hal_lib)
+    load_all_plugins(hal_py)  # see cmd_netlist_graph: the parsers live in plugins
     netlist = load_netlist(hal_py, args.netlist, args.gate_library)
 
     root = find_module(netlist, args.module) if args.module else netlist.get_top_module()

@@ -210,5 +210,22 @@ python tools/hal_viz/test_hal_viz.py
 python -m unittest discover -s tools/hal_viz -t tools -p "test_*.py"
 ```
 
-These tests do **not** exercise `hal_py` itself; verifying the end-to-end path
-requires a built HAL and one of the `examples/` archives.
+These tests do **not** exercise `hal_py` itself. `ctest` runs them as
+`runTest-hal_viz_standalone`, registered in `tests/headless_smoke/`.
+
+The end-to-end path — real bindings, a real plugin, a real netlist — is covered
+by `tests/headless_smoke/real_netlist_smoke.py`, which needs a built HAL. It
+unpacks `examples/uart.zip` (407 gates, ships the `example_library.hgl` it
+needs), loads it with `NetlistFactory.load_hal_project`, runs the
+`graph_algorithm` plugin, round-trips the project through `ProjectManager`, and
+then drives `netlist_graph` and `module_tree` here and checks the emitted DOT
+and SVG by exact node ids:
+
+```bash
+HAL_BASE_PATH=<build> PYTHONPATH=<build>/lib \
+    python3 tests/headless_smoke/real_netlist_smoke.py
+```
+
+It never skips a check quietly: a missing `hal_py`, plugin or binding is a
+failure. Only the optional Graphviz binary is allowed to be absent, and
+`--require-graphviz` (which CI passes) takes that away too.

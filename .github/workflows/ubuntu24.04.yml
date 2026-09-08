@@ -115,3 +115,31 @@ jobs:
           CCACHE_COMPRESS: true
           CCACHE_COMPRESSLEVEL: 6
           CCACHE_MAXSIZE: 400M
+
+      # ctest covers the C++ suites and the standalone hal_viz tests, but none of those load a real
+      # netlist. This does: it unpacks examples/uart.zip, loads it through hal_py, runs the
+      # graph_algorithm plugin, round-trips the project through ProjectManager and renders scoped
+      # Graphviz output with tools/hal_viz, asserting the results rather than the exit status.
+      # Everything runs headlessly; there is no display server on the runner. Graphviz comes from
+      # install_dependencies.sh, so --require-graphviz makes the SVG check mandatory here.
+      - name: Real-netlist headless smoke test
+        id: headless_smoke
+        shell: bash
+        run: |
+          python3 "$GITHUB_WORKSPACE/tests/headless_smoke/real_netlist_smoke.py" \
+            --hal-lib "$GITHUB_WORKSPACE/build/lib" \
+            --work-dir "$GITHUB_WORKSPACE/build/headless_smoke" \
+            --keep --require-graphviz
+        env:
+          HAL_BASE_PATH: ${{runner.workspace}}/hal/build
+
+      # The generated .dot/.svg files and the round-tripped project are what you need to tell a
+      # broken renderer from a broken netlist, and they live only on the runner.
+      - name: Upload headless smoke test artifacts
+        if: always() && steps.headless_smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: headless-smoke-ubuntu-24.04
+          path: ${{ github.workspace }}/build/headless_smoke
+          if-no-files-found: warn
+          retention-days: 7
