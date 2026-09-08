@@ -1,0 +1,177 @@
+{
+  "analysis": {
+    "configuration": {
+      "expected_sizes": [
+        8,
+        16,
+        32
+      ],
+      "min_group_size": 8
+    },
+    "duration_s": 6.2,
+    "entry_point": "dataflow.analyze",
+    "plugin": {
+      "name": "dataflow_analysis",
+      "version": "1.3.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "toy_cipher",
+      "design_name": "toy_cipher",
+      "gate_count": 1842,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 1903,
+      "path": "designs/toy_cipher.v",
+      "sha256": "c6f53d20520b5261e10a23128fa4700069b901bcb97e15741808850edc3d7aed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "dataflow/coverage/unsupported-primitives",
+      "method": {
+        "bounded": false,
+        "description": "Groups sequential gates into candidate word-level registers from shared control nets and common predecessors and successors.",
+        "kind": "heuristic",
+        "name": "dataflow analysis (DANA)",
+        "parameters": {
+          "expected_sizes": [
+            8,
+            16,
+            32
+          ],
+          "min_group_size": 8
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "toy_cipher"
+        ],
+        "gate_types": [
+          "RAMB18E1"
+        ]
+      },
+      "severity": "info",
+      "status": "unsupported",
+      "summary": "Block RAM primitives were not grouped; the absence of a register group for them is not evidence that no register exists.",
+      "tags": [
+        "coverage",
+        "dataflow"
+      ],
+      "title": "Sequential gate types not covered by this dataflow run",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 4,
+            "example_gates": [
+              {
+                "artifact_id": "toy_cipher",
+                "id": 1701,
+                "name": "mem_inst/bram_0",
+                "type": "RAMB18E1"
+              }
+            ],
+            "gate_type": "RAMB18E1",
+            "properties": [
+              "ram",
+              "sequential"
+            ],
+            "reason": "block RAM primitive: not a flip-flop, so word-level register recovery does not model it"
+          }
+        ],
+        "reason": "dataflow analysis only groups the sequential gate types it was configured for"
+      }
+    },
+    {
+      "confidence": 0.82,
+      "data": {
+        "group_id": 1,
+        "group_id_note": "dataflow group IDs are internal to this analysis run and unrelated to any HAL ID",
+        "predecessor_groups": [
+          2
+        ],
+        "successor_groups": [
+          2
+        ]
+      },
+      "id": "dataflow/group/0001",
+      "method": {
+        "bounded": false,
+        "description": "Groups sequential gates into candidate word-level registers from shared control nets and common predecessors and successors.",
+        "kind": "heuristic",
+        "name": "dataflow analysis (DANA)",
+        "parameters": {
+          "expected_sizes": [
+            8,
+            16,
+            32
+          ],
+          "min_group_size": 8
+        }
+      },
+      "metrics": {
+        "group_size": 32
+      },
+      "scope": {
+        "artifact_ids": [
+          "toy_cipher"
+        ],
+        "description": "sequential gates grouped into one candidate register",
+        "gate_types": [
+          "FDRE"
+        ],
+        "gates": [
+          {
+            "artifact_id": "toy_cipher",
+            "id": 500,
+            "name": "state_reg_0",
+            "type": "FDRE"
+          },
+          {
+            "artifact_id": "toy_cipher",
+            "id": 501,
+            "name": "state_reg_1",
+            "type": "FDRE"
+          },
+          {
+            "artifact_id": "toy_cipher",
+            "id": 502,
+            "name": "state_reg_2",
+            "type": "FDRE"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "toy_cipher",
+            "id": 12,
+            "name": "clk",
+            "role": "clock"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "32 flip-flops share clock and enable and have common predecessors; they look like one 32 bit register. Structural evidence only.",
+      "tags": [
+        "dataflow",
+        "register-candidate"
+      ],
+      "title": "Candidate register group 1 (32 sequential gates)"
+    }
+  ],
+  "generated_at": "2026-01-15T09:30:00Z",
+  "notes": [
+    "illustrative example of the findings schema; the values are handwritten, not produced by a real analysis run",
+    "dataflow group IDs are local to this run and are not HAL object IDs"
+  ],
+  "producer": {
+    "name": "hal_findings.examples",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

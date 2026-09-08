@@ -1,0 +1,131 @@
+{
+  "analysis": {
+    "configuration": {
+      "fail_on_unknown": false,
+      "solver_timeout_s": 30
+    },
+    "entry_point": "z3_utils.compare_netlists",
+    "plugin": {
+      "name": "z3_utils",
+      "version": "0.9.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "uart_golden",
+      "design_name": "uart",
+      "gate_count": 980,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 1041,
+      "path": "designs/uart_golden.v",
+      "sha256": "42086f5de595866d0c94044bd1a5a6fa6f91be5ae5891f8b7946a5be8fc8e9d9"
+    },
+    {
+      "artifact_id": "uart_modified",
+      "design_name": "uart",
+      "gate_count": 984,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 1045,
+      "path": "designs/uart_modified.v",
+      "sha256": "5307d911c54d72289a7f59e2436e20338b40dd294e259526199bd1f1b5934be7"
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "Sequential gates are matched by name.",
+          "discharged": true,
+          "id": "sequential-gate-name-correspondence",
+          "kind": "naming"
+        }
+      ],
+      "bounds": {
+        "description": "the compared functions differ regardless of cycle count",
+        "unbounded": true
+      },
+      "counterexample": {
+        "description": "The subgraph functions of tx_shift_reg_3's data input differ.",
+        "witness": [
+          {
+            "signal": "tx_data[3]",
+            "value": "1"
+          },
+          {
+            "signal": "tx_enable",
+            "value": "0"
+          }
+        ],
+        "witness_available": true
+      },
+      "id": "z3_utils/compare_netlists/equivalence",
+      "limits": {
+        "hit": false,
+        "timeout_s": 30.0
+      },
+      "method": {
+        "bounded": false,
+        "kind": "formal",
+        "name": "SAT equivalence check (z3_utils.compare_netlists)",
+        "parameters": {
+          "fail_on_unknown": false,
+          "solver_timeout_s": 30
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "uart_golden",
+          "uart_modified"
+        ],
+        "description": "input cone of the transmit shift register",
+        "gates": [
+          {
+            "artifact_id": "uart_golden",
+            "id": 233,
+            "name": "tx_shift_reg_3",
+            "type": "FDRE"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "uart_golden",
+            "id": 1104,
+            "name": "tx_shift_reg_3_D",
+            "role": "data_input"
+          }
+        ]
+      },
+      "severity": "high",
+      "solver": {
+        "name": "z3",
+        "queries": 97,
+        "sat": 1,
+        "unsat": 96,
+        "version": "4.12.2"
+      },
+      "status": "counterexample",
+      "summary": "With fail_on_unknown=False an undecided query would have been reported as equivalence, so the negative verdict is decided.",
+      "tags": [
+        "equivalence"
+      ],
+      "title": "Modified netlist is not equivalent to the golden netlist"
+    }
+  ],
+  "generated_at": "2026-01-15T09:30:00Z",
+  "notes": [
+    "illustrative example of the findings schema; the values are handwritten, not produced by a real analysis run"
+  ],
+  "producer": {
+    "name": "hal_findings.examples",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

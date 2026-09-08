@@ -1,0 +1,218 @@
+{
+  "analysis": {
+    "configuration": {
+      "cycles": 8
+    },
+    "duration_s": 15.5,
+    "entry_point": "sequential_symbolic_execution.get_subgraph_z3_function",
+    "plugin": {
+      "name": "sequential_symbolic_execution",
+      "version": "0.4.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "fsm_locked",
+      "design_name": "fsm",
+      "gate_count": 640,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 702,
+      "path": "designs/fsm.v",
+      "sha256": "adaefce594d14ef8f91679d36b618abc1c700222c8852af9fa9b1eba9e4d106a"
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "All primary inputs other than clock and reset are unconstrained.",
+          "id": "free-primary-inputs",
+          "kind": "environment"
+        },
+        {
+          "description": "The netlist is driven from the reset state in cycle 0.",
+          "id": "reset-applied-in-cycle-0",
+          "kind": "initial_state"
+        }
+      ],
+      "bounds": {
+        "cycle_bound": 8,
+        "unbounded": false,
+        "unroll_depth": 8
+      },
+      "counterexample": {
+        "cycle_bound": 5,
+        "description": "Input sequence driving data_out to 0 where the reference model produces 1.",
+        "evidence": [
+          {
+            "description": "full witness trace",
+            "kind": "trace",
+            "media_type": "application/json",
+            "path": "evidence/cycle5_witness.json",
+            "sha256": "43eb3c8fbd0bc8d712db1c20d9c7080990dd923072be180eca0a5f304d4e48e0"
+          }
+        ],
+        "witness": [
+          {
+            "cycle": 0,
+            "signal": "key_in",
+            "value": "0x0f"
+          },
+          {
+            "cycle": 1,
+            "signal": "start",
+            "value": "1"
+          },
+          {
+            "cycle": 5,
+            "net": {
+              "artifact_id": "fsm_locked",
+              "id": 907,
+              "name": "data_out"
+            },
+            "signal": "data_out",
+            "value": "0"
+          }
+        ],
+        "witness_available": true
+      },
+      "id": "sse/output-mismatch-at-cycle-5",
+      "limits": {
+        "cycle_limit": 8,
+        "hit": false,
+        "timeout_s": 120.0
+      },
+      "method": {
+        "bounded": true,
+        "description": "The sequential part of the netlist is symbolically executed for a fixed number of clock cycles; nothing is claimed about deeper executions.",
+        "kind": "bounded_formal",
+        "name": "sequential symbolic execution (unrolled)",
+        "parameters": {
+          "cycles": 8
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "fsm_locked"
+        ],
+        "description": "top-level data output",
+        "nets": [
+          {
+            "artifact_id": "fsm_locked",
+            "id": 907,
+            "name": "data_out",
+            "role": "output"
+          }
+        ]
+      },
+      "severity": "high",
+      "solver": {
+        "name": "z3",
+        "queries": 1,
+        "sat": 1,
+        "version": "4.12.2",
+        "wall_time_s": 3.1
+      },
+      "status": "bounded_counterexample",
+      "summary": "Within the 8 cycle unrolling, an input sequence exists that makes data_out differ from the reference model in cycle 5.",
+      "tags": [
+        "bounded",
+        "fsm"
+      ],
+      "title": "Output mismatch against the reference model at cycle 5"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "All primary inputs other than clock and reset are unconstrained.",
+          "id": "free-primary-inputs",
+          "kind": "environment"
+        },
+        {
+          "description": "The netlist is driven from the reset state in cycle 0.",
+          "id": "reset-applied-in-cycle-0",
+          "kind": "initial_state"
+        }
+      ],
+      "bounds": {
+        "cycle_bound": 8,
+        "description": "claim holds only for executions of at most 8 clock cycles",
+        "unbounded": false,
+        "unroll_depth": 8
+      },
+      "id": "sse/unlock-unreachable-within-8-cycles",
+      "limits": {
+        "cycle_limit": 8,
+        "hit": false,
+        "timeout_s": 120.0
+      },
+      "method": {
+        "bounded": true,
+        "description": "The sequential part of the netlist is symbolically executed for a fixed number of clock cycles; nothing is claimed about deeper executions.",
+        "kind": "bounded_formal",
+        "name": "sequential symbolic execution (unrolled)",
+        "parameters": {
+          "cycles": 8
+        }
+      },
+      "metrics": {
+        "unrolled_cycles": 8
+      },
+      "scope": {
+        "artifact_ids": [
+          "fsm_locked"
+        ],
+        "description": "FSM state register",
+        "gates": [
+          {
+            "artifact_id": "fsm_locked",
+            "id": 41,
+            "name": "state_reg_0",
+            "type": "FDRE"
+          },
+          {
+            "artifact_id": "fsm_locked",
+            "id": 42,
+            "name": "state_reg_1",
+            "type": "FDRE"
+          },
+          {
+            "artifact_id": "fsm_locked",
+            "id": 43,
+            "name": "state_reg_2",
+            "type": "FDRE"
+          }
+        ]
+      },
+      "severity": "info",
+      "solver": {
+        "name": "z3",
+        "queries": 8,
+        "unsat": 8,
+        "version": "4.12.2",
+        "wall_time_s": 12.4
+      },
+      "status": "proven_bounded",
+      "summary": "No input sequence of length 8 drives the state register into the unlock encoding. This says nothing about cycle 9 or later.",
+      "tags": [
+        "bounded",
+        "fsm"
+      ],
+      "title": "Unlock state is unreachable within 8 cycles"
+    }
+  ],
+  "generated_at": "2026-01-15T09:30:00Z",
+  "notes": [
+    "illustrative example of the findings schema; the values are handwritten, not produced by a real analysis run",
+    "both findings are bounded: neither may be rendered as an unbounded proof or an unbounded refutation"
+  ],
+  "producer": {
+    "name": "hal_findings.examples",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

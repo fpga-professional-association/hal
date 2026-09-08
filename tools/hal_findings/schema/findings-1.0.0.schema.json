@@ -1,0 +1,553 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fpga-professional-association/hal/tools/hal_findings/schema/findings-1.0.0.schema.json",
+  "title": "HAL findings document",
+  "description": "Versioned, analysis-agnostic container for HAL analysis findings and their evidence. Every claim carries the method that produced it, the assumptions it rests on, whether it is bounded, and the artifact its gate/net IDs are scoped to.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "producer", "artifacts", "analysis", "findings"],
+  "properties": {
+    "schema_version": {
+      "description": "Version of this schema the document conforms to.",
+      "const": "1.0.0"
+    },
+    "generated_at": {
+      "description": "UTC timestamp the document was written. Excluded from the document digest.",
+      "$ref": "#/$defs/timestamp"
+    },
+    "producer": { "$ref": "#/$defs/producer" },
+    "artifacts": {
+      "description": "Every netlist/library artifact referenced by this document. Gate and net IDs are only meaningful relative to one of these entries.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "analysis": { "$ref": "#/$defs/analysis" },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "notes": {
+      "description": "Free-form notes about the run as a whole (never a substitute for a finding).",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$"
+    },
+
+    "producer": {
+      "description": "The tool that emitted the document.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "commit": { "type": "string" },
+        "command": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "artifact": {
+      "description": "An exact input artifact. Gate/net references bind to `artifact_id`, so an ID pair (artifact_id, id) is unambiguous even across two netlists of the same design.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "kind"],
+      "anyOf": [
+        { "required": ["sha256"] },
+        { "required": ["unhashed_reason"] }
+      ],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "kind": {
+          "type": "string",
+          "enum": ["netlist", "hal_project", "gate_library", "other"]
+        },
+        "path": { "type": "string" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "unhashed_reason": {
+          "description": "Why no content hash is available (e.g. an in-memory netlist). Required when `sha256` is absent so that unhashed results are never mistaken for reproducible ones.",
+          "type": "string",
+          "minLength": 1
+        },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "design_name": { "type": "string" },
+        "device_name": { "type": "string" },
+        "netlist_id": { "type": "integer" },
+        "gate_count": { "type": "integer", "minimum": 0 },
+        "net_count": { "type": "integer", "minimum": 0 },
+        "gate_library": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "path": { "type": "string" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "description": { "type": "string" }
+      }
+    },
+
+    "gate_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "id", "name"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "module": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "integer", "minimum": 1 },
+            "name": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "net_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "id", "name"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+
+    "module_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "id", "name"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    },
+
+    "scope": {
+      "description": "What the finding is about. `artifact_ids` lists every artifact the finding's references may bind to.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_ids"],
+      "properties": {
+        "artifact_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "description": { "type": "string" },
+        "gates": { "type": "array", "items": { "$ref": "#/$defs/gate_ref" } },
+        "nets": { "type": "array", "items": { "$ref": "#/$defs/net_ref" } },
+        "modules": { "type": "array", "items": { "$ref": "#/$defs/module_ref" } },
+        "gate_types": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plugin"],
+      "properties": {
+        "plugin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 },
+            "description": { "type": "string" }
+          }
+        },
+        "hal": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": { "type": "string" },
+            "commit": { "type": "string" },
+            "build_type": { "type": "string" }
+          }
+        },
+        "entry_point": {
+          "description": "The exact API call the results come from, e.g. 'z3_utils.compare_netlists'.",
+          "type": "string"
+        },
+        "configuration": {
+          "description": "Configuration the analysis ran with, as plain JSON values.",
+          "type": "object"
+        },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "finished_at": { "$ref": "#/$defs/timestamp" },
+        "duration_s": { "type": "number", "minimum": 0 },
+        "environment": { "type": "object" }
+      }
+    },
+
+    "method": {
+      "description": "How the claim was obtained. `bounded` is mandatory so no consumer has to infer it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind", "bounded"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["formal", "bounded_formal", "symbolic", "structural", "heuristic", "simulation", "statistical"]
+        },
+        "bounded": { "type": "boolean" },
+        "description": { "type": "string" },
+        "parameters": { "type": "object" }
+      }
+    },
+
+    "assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "description": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["structural", "naming", "environment", "library", "initial_state", "user_provided", "tool"]
+        },
+        "discharged": {
+          "description": "True only if the assumption was itself checked by this run.",
+          "type": "boolean"
+        },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+
+    "bounds": {
+      "description": "Whether the claim holds for all executions or only up to a bound. A finding with `unbounded: false` can never be read as an unbounded proof.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unbounded"],
+      "properties": {
+        "unbounded": { "type": "boolean" },
+        "cycle_bound": {
+          "description": "Number of clock cycles the claim covers. Forbidden when `unbounded` is true.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "unroll_depth": { "type": "integer", "minimum": 0 },
+        "input_bound": { "type": "integer", "minimum": 0 },
+        "description": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "unbounded": { "const": true } }, "required": ["unbounded"] },
+          "then": { "not": { "required": ["cycle_bound"] } }
+        }
+      ]
+    },
+
+    "solver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string" },
+        "queries": { "type": "integer", "minimum": 0 },
+        "sat": { "type": "integer", "minimum": 0 },
+        "unsat": { "type": "integer", "minimum": 0 },
+        "unknown": { "type": "integer", "minimum": 0 },
+        "wall_time_s": { "type": "number", "minimum": 0 },
+        "options": { "type": "object" }
+      }
+    },
+
+    "limits": {
+      "description": "Resource limits the run was subject to. Required for `timeout` findings.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeout_s": { "type": "number", "minimum": 0 },
+        "wall_time_s": { "type": "number", "minimum": 0 },
+        "memory_mb": { "type": "number", "minimum": 0 },
+        "query_limit": { "type": "integer", "minimum": 0 },
+        "cycle_limit": { "type": "integer", "minimum": 0 },
+        "hit": {
+          "description": "True if a limit was actually reached.",
+          "type": "boolean"
+        },
+        "description": { "type": "string" }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "anyOf": [
+        { "required": ["path"] },
+        { "required": ["inline"] },
+        { "required": ["command"] }
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["file", "directory", "log", "dot", "waveform", "trace", "smt2", "report", "inline", "command"]
+        },
+        "description": { "type": "string" },
+        "path": {
+          "description": "Path to the evidence, relative to the document unless absolute.",
+          "type": "string"
+        },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "media_type": { "type": "string" },
+        "inline": {},
+        "command": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "witness_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal", "value"],
+      "properties": {
+        "signal": { "type": "string", "minLength": 1 },
+        "net": { "$ref": "#/$defs/net_ref" },
+        "cycle": { "type": "integer", "minimum": 0 },
+        "value": { "type": "string" }
+      }
+    },
+
+    "counterexample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "cycle_bound": {
+          "description": "Cycle depth the witness was found at. Required for `bounded_counterexample`, forbidden for unbounded `counterexample`.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "witness": { "type": "array", "items": { "$ref": "#/$defs/witness_entry" } },
+        "witness_available": { "type": "boolean" },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+
+    "unsupported_primitive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_type", "reason"],
+      "properties": {
+        "gate_type": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "count": { "type": "integer", "minimum": 1 },
+        "properties": { "type": "array", "items": { "type": "string" } },
+        "gate_library": { "type": "string" },
+        "example_gates": { "type": "array", "items": { "$ref": "#/$defs/gate_ref" } }
+      }
+    },
+
+    "unsupported": {
+      "description": "Explicit, typed record of what the analysis could not cover.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reason", "primitives"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["primitive", "construct", "configuration", "format", "scale"]
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "primitives": {
+          "description": "Gate types that were not covered. Non-empty when `kind` is `primitive`; may be empty for other kinds.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/unsupported_primitive" }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "primitive" } }, "required": ["kind"] },
+          "then": { "properties": { "primitives": { "minItems": 1 } } }
+        }
+      ]
+    },
+
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "message"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["exception", "plugin_error", "io", "invalid_input", "internal", "resource"]
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string" }
+      }
+    },
+
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "status", "method", "scope"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "status": {
+          "description": "proven_under_assumptions: holds for all executions given `assumptions`. proven_bounded: holds only up to `bounds.cycle_bound`. counterexample: refuted, no cycle bound involved. bounded_counterexample: refuted within `bounds.cycle_bound`. heuristic: evidence-based guess, never a proof. unknown: no verdict. timeout: aborted at a resource limit. error: the analysis failed. unsupported: outside what the analysis covers.",
+          "type": "string",
+          "enum": [
+            "proven_under_assumptions",
+            "proven_bounded",
+            "counterexample",
+            "bounded_counterexample",
+            "heuristic",
+            "unknown",
+            "timeout",
+            "error",
+            "unsupported"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "low", "medium", "high", "critical"]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "method": { "$ref": "#/$defs/method" },
+        "assumptions": { "type": "array", "items": { "$ref": "#/$defs/assumption" } },
+        "bounds": { "$ref": "#/$defs/bounds" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "solver": { "$ref": "#/$defs/solver" },
+        "limits": { "$ref": "#/$defs/limits" },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+        "counterexample": { "$ref": "#/$defs/counterexample" },
+        "unsupported": { "$ref": "#/$defs/unsupported" },
+        "error": { "$ref": "#/$defs/error" },
+        "metrics": { "type": "object" },
+        "data": { "type": "object" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "proven_under_assumptions" } }, "required": ["status"] },
+          "then": {
+            "required": ["assumptions", "bounds"],
+            "properties": {
+              "bounds": { "properties": { "unbounded": { "const": true } }, "required": ["unbounded"] },
+              "method": { "properties": { "bounded": { "const": false } } }
+            },
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "proven_bounded" } }, "required": ["status"] },
+          "then": {
+            "required": ["assumptions", "bounds"],
+            "properties": {
+              "bounds": {
+                "required": ["unbounded", "cycle_bound"],
+                "properties": { "unbounded": { "const": false } }
+              },
+              "method": { "properties": { "bounded": { "const": true } } }
+            },
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "counterexample" } }, "required": ["status"] },
+          "then": {
+            "required": ["counterexample", "bounds"],
+            "properties": {
+              "bounds": { "properties": { "unbounded": { "const": true } }, "required": ["unbounded"] },
+              "counterexample": { "not": { "required": ["cycle_bound"] } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "bounded_counterexample" } }, "required": ["status"] },
+          "then": {
+            "required": ["counterexample", "bounds"],
+            "properties": {
+              "bounds": {
+                "required": ["unbounded", "cycle_bound"],
+                "properties": { "unbounded": { "const": false } }
+              },
+              "counterexample": { "required": ["cycle_bound"] },
+              "method": { "properties": { "bounded": { "const": true } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "heuristic" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "method": {
+                "properties": {
+                  "kind": { "enum": ["structural", "heuristic", "simulation", "statistical"] }
+                }
+              },
+              "bounds": { "properties": { "unbounded": { "const": false } } }
+            },
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "timeout" } }, "required": ["status"] },
+          "then": {
+            "required": ["limits"],
+            "properties": {
+              "limits": { "required": ["timeout_s"] },
+              "bounds": { "properties": { "unbounded": { "const": false } } }
+            },
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "unknown" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "bounds": { "properties": { "unbounded": { "const": false } } }
+            },
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "error" } }, "required": ["status"] },
+          "then": {
+            "required": ["error"],
+            "not": { "required": ["counterexample"] }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "unsupported" } }, "required": ["status"] },
+          "then": {
+            "required": ["unsupported"],
+            "not": { "required": ["counterexample"] }
+          }
+        }
+      ]
+    }
+  }
+}

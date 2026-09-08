@@ -1,0 +1,186 @@
+{
+  "analysis": {
+    "configuration": {
+      "fail_on_unknown": true,
+      "solver_timeout_s": 10
+    },
+    "duration_s": 31.9,
+    "entry_point": "z3_utils.compare_nets",
+    "plugin": {
+      "name": "z3_utils",
+      "version": "0.9.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "crypto_trojan_golden",
+      "design_name": "crypto_trojan",
+      "gate_count": 5210,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 5480,
+      "path": "designs/crypto_golden.v",
+      "sha256": "4759277ae53f9545c3f706fd3789082fc9403fdb096910a3deeca1b4aaadd5a1"
+    },
+    {
+      "artifact_id": "crypto_trojan_suspect",
+      "design_name": "crypto_trojan",
+      "gate_count": 5233,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 5502,
+      "path": "designs/crypto_suspect.v",
+      "sha256": "6fa57f244bdbfa9b8bdebb6cb83aca1cf1b76468e2396f7b1f035c08cb6e3730"
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "Sequential gates are matched by name.",
+          "id": "sequential-gate-name-correspondence",
+          "kind": "naming"
+        }
+      ],
+      "id": "z3_utils/compare_netlists/equivalence",
+      "limits": {
+        "hit": true,
+        "timeout_s": 10.0
+      },
+      "method": {
+        "bounded": false,
+        "kind": "formal",
+        "name": "SAT equivalence check (z3_utils.compare_nets)",
+        "parameters": {
+          "fail_on_unknown": true,
+          "solver_timeout_s": 10
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "crypto_trojan_golden",
+          "crypto_trojan_suspect"
+        ]
+      },
+      "severity": "info",
+      "status": "unknown",
+      "summary": "compare_netlists returned False with fail_on_unknown=True, which conflates a functional difference, a structural mismatch and an undecided query. No verdict is reported.",
+      "tags": [
+        "equivalence"
+      ],
+      "title": "Equivalence of the two netlists is undecided"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Sequential gates are matched by name.",
+          "id": "sequential-gate-name-correspondence",
+          "kind": "naming"
+        }
+      ],
+      "id": "z3_utils/compare_nets/key_schedule_out",
+      "limits": {
+        "hit": true,
+        "timeout_s": 10.0,
+        "wall_time_s": 10.0
+      },
+      "method": {
+        "bounded": false,
+        "kind": "formal",
+        "name": "SAT equivalence check (z3_utils.compare_nets)",
+        "parameters": {
+          "fail_on_unknown": true,
+          "solver_timeout_s": 10
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "crypto_trojan_golden",
+          "crypto_trojan_suspect"
+        ],
+        "nets": [
+          {
+            "artifact_id": "crypto_trojan_golden",
+            "id": 3312,
+            "name": "key_schedule_out",
+            "role": "output"
+          }
+        ]
+      },
+      "severity": "info",
+      "solver": {
+        "name": "z3",
+        "queries": 1,
+        "unknown": 1,
+        "version": "4.12.2",
+        "wall_time_s": 10.0
+      },
+      "status": "timeout",
+      "summary": "The solver hit the 10 s per-query limit; no verdict was reached.",
+      "tags": [
+        "equivalence"
+      ],
+      "title": "Equivalence of key_schedule_out could not be decided before the timeout"
+    },
+    {
+      "error": {
+        "detail": "raised by z3_utils::get_prefixed_function_of_net",
+        "kind": "plugin_error",
+        "message": "cannot get Boolean z3 function of net trojan_payload_en: net is multi driven"
+      },
+      "evidence": [
+        {
+          "description": "HAL error log",
+          "kind": "log",
+          "path": "evidence/z3_utils_error.log"
+        }
+      ],
+      "id": "z3_utils/compare_nets/trojan_payload_en",
+      "method": {
+        "bounded": false,
+        "kind": "formal",
+        "name": "SAT equivalence check (z3_utils.compare_nets)",
+        "parameters": {
+          "fail_on_unknown": true,
+          "solver_timeout_s": 10
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "crypto_trojan_golden",
+          "crypto_trojan_suspect"
+        ],
+        "nets": [
+          {
+            "artifact_id": "crypto_trojan_golden",
+            "id": 4001,
+            "name": "trojan_payload_en"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "error",
+      "summary": "The analysis itself failed; this says nothing about the design.",
+      "tags": [
+        "equivalence"
+      ],
+      "title": "Comparison of trojan_payload_en failed"
+    }
+  ],
+  "generated_at": "2026-01-15T09:30:00Z",
+  "notes": [
+    "illustrative example of the findings schema; the values are handwritten, not produced by a real analysis run",
+    "none of these findings states anything about the design itself"
+  ],
+  "producer": {
+    "name": "hal_findings.examples",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

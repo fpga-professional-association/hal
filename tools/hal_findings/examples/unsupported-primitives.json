@@ -1,0 +1,94 @@
+{
+  "analysis": {
+    "entry_point": "z3_utils.compare_netlists",
+    "plugin": {
+      "name": "z3_utils",
+      "version": "0.9.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "simple_alu",
+      "design_name": "simple_alu",
+      "gate_count": 320,
+      "gate_library": {
+        "name": "XILINX_UNISIM",
+        "path": "share/hal/gate_libraries/XILINX_UNISIM.hgl"
+      },
+      "kind": "netlist",
+      "net_count": 366,
+      "path": "designs/simple_alu.v",
+      "sha256": "221fa56455b89d334b324dadfcb8729e1caeebe617c9a1827a4b964a011e1d8f"
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "analysis_blocked": true
+      },
+      "id": "z3_utils/compare_netlists/coverage/unmodelled-primitives",
+      "method": {
+        "bounded": false,
+        "description": "Direct inspection of the netlist; no solver involved.",
+        "kind": "structural",
+        "name": "netlist precondition check"
+      },
+      "scope": {
+        "artifact_ids": [
+          "simple_alu"
+        ],
+        "gate_types": [
+          "DSP48E1",
+          "PLLE2_BASE"
+        ]
+      },
+      "severity": "medium",
+      "status": "unsupported",
+      "summary": "Two gate types carry neither the 'combinational' nor the 'sequential' property; their outputs enter every query as free variables.",
+      "tags": [
+        "coverage"
+      ],
+      "title": "Gate types that the equivalence check neither traverses nor matches",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 2,
+            "example_gates": [
+              {
+                "artifact_id": "simple_alu",
+                "id": 88,
+                "name": "alu/dsp_0",
+                "type": "DSP48E1"
+              }
+            ],
+            "gate_type": "DSP48E1",
+            "properties": [
+              "dsp"
+            ],
+            "reason": "gate type has neither the 'combinational' nor the 'sequential' property, so its output is an unconstrained free variable"
+          },
+          {
+            "count": 1,
+            "gate_type": "PLLE2_BASE",
+            "properties": [
+              "pll"
+            ],
+            "reason": "clock generation primitive outside the Boolean model"
+          }
+        ],
+        "reason": "compare_netlists traverses combinational gates and matches sequential gates by name; any other gate type is modelled as a free variable"
+      }
+    }
+  ],
+  "generated_at": "2026-01-15T09:30:00Z",
+  "notes": [
+    "illustrative example of the findings schema; the values are handwritten, not produced by a real analysis run",
+    "unsupported coverage is reported explicitly instead of being silently excluded from the result"
+  ],
+  "producer": {
+    "name": "hal_findings.examples",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
