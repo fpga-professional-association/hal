@@ -28,7 +28,11 @@
 #include "hal_core/defines.h"
 #include "hal_core/plugin_system/plugin_interface_base.h"
 #include "hal_core/netlist/project_serializer.h"
-#include <QDir>
+
+#include <filesystem>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace hal
 {
@@ -44,7 +48,7 @@ namespace hal
     class SimulatorSerializer : public ProjectSerializer
     {
         Netlist* mNetlist;
-        QDir mProjDir;
+        std::filesystem::path mProjDir;
      //   void restoreSimulator(const std::filesystem::path& loaddir, const std::string& jsonfile);
     public:
         SimulatorSerializer();

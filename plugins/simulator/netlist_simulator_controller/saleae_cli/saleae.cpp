@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <iomanip>
 #include <netlist_simulator_controller/saleae_directory.h>
@@ -7,8 +9,8 @@
 #include <hal_core/utilities/program_options.h>
 #include <hal_core/utilities/program_arguments.h>
 #include <hal_core/utilities/log.h>
-#include <QFileInfo>
-#include <QString>
+#include <cassert>
+#include <filesystem>
 #include <sys/resource.h>
 
 using namespace hal;
@@ -255,7 +257,7 @@ void saleae_ls(std::string p_path, std::string size, std::string ids, bool valid
                     {
                         SaleaeInputFile *sf = new SaleaeInputFile(bin_path);
                         SaleaeDataBuffer *db = sf->get_buffered_data(sf->header()->mNumTransitions);
-                        if ((sdfi.beginTime() != sf->header()->mBeginTime) || (sdfi.endTime() != sf->header()->mEndTime) || (sdfi.numberValues() - 1 != sf->header()->mNumTransitions) || (QFileInfo(QString::fromStdString(bin_path)).size() != 44 + (sdfi.numberValues() - 1) * 8))
+                        if ((sdfi.beginTime() != sf->header()->mBeginTime) || (sdfi.endTime() != sf->header()->mEndTime) || (sdfi.numberValues() - 1 != sf->header()->mNumTransitions) || (std::filesystem::file_size(std::filesystem::path(bin_path)) != 44 + (sdfi.numberValues() - 1) * 8))
                         {
                             valid_char = "*";
                             val_cnt++;
@@ -723,23 +725,23 @@ void saleae_export(std::string path_1, std::string path_2, std::string ids, std:
         }
     }
 
-    VcdSerializer *vcd_s = new VcdSerializer(QString::fromStdString(path_2), true);
+    VcdSerializer *vcd_s = new VcdSerializer(path_2, true);
     std::string saleae_fp= path_2 + "/saleae.json";
-    WaveDataList *wave_data_list = new WaveDataList(QString::fromStdString(saleae_fp));
+    WaveDataList *wave_data_list = new WaveDataList(saleae_fp);
     wave_data_list->updateFromSaleae();
 
-    QList<const WaveData*> wave_data_qlist;
+    std::vector<const WaveData*> wave_data_qlist;
     if (ids_necessary) {
         for (int id : id_set) {
             const WaveData* wd = wave_data_list->waveDataById(id);
             if (wd != nullptr) {
-                wave_data_qlist.append(wd);
+                wave_data_qlist.push_back(wd);
             }
         }
     }
     else {
         for (const WaveData* wd : *wave_data_list) {
-            wave_data_qlist.append(wd);
+            wave_data_qlist.push_back(wd);
         }
     }
     if (!tr_necessary) {
@@ -753,7 +755,7 @@ void saleae_export(std::string path_1, std::string path_2, std::string ids, std:
     getrlimit(RLIMIT_NOFILE, &rlim);
 
     unsigned int required = wave_data_qlist.size() + 256;
-    Q_ASSERT(rlim.rlim_max >= required);
+    assert(rlim.rlim_max >= required);
     if (rlim.rlim_cur < required)
     {
         rlim.rlim_cur = required;
@@ -761,13 +763,15 @@ void saleae_export(std::string path_1, std::string path_2, std::string ids, std:
     }
 
 
-    QString ext = QFileInfo(QString::fromStdString(path_1)).suffix().toLower();
+    std::string ext = std::filesystem::path(path_1).extension().string();
+    if (!ext.empty() && ext.at(0) == '.') ext = ext.substr(1);
+    std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char cc) { return (char) std::tolower(cc); });
     bool ret = false;
 
     if (ext == "vcd")
-        ret = vcd_s->exportVcd(QString::fromStdString(path_1), wave_data_qlist, wave_data_list->timeFrame().sceneMinTime(), last_time, time_shift);
+        ret = vcd_s->exportVcd(path_1, wave_data_qlist, wave_data_list->timeFrame().sceneMinTime(), last_time, time_shift);
     else if (ext == "csv")
-        ret = vcd_s->exportCsv(QString::fromStdString(path_1), wave_data_qlist);
+        ret = vcd_s->exportCsv(path_1, wave_data_qlist);
     else
         std::cout << "Export file format not supported, must be either vcd or csv." << std::endl;
 

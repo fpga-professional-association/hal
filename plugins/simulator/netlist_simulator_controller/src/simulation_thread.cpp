@@ -2,17 +2,23 @@
 #include "netlist_simulator_controller/netlist_simulator_controller.h"
 #include "netlist_simulator_controller/saleae_parser.h"
 #include "hal_core/utilities/log.h"
-#include <QProcess>
-#include <QThread>
 #include <vector>
 
 namespace hal {
 
     SimulationThread::SimulationThread(NetlistSimulatorController* controller, const SimulationInput* simInput, SimulationEngineEventDriven *engine)
-        : QThread(controller), mSimulationInput(simInput), mEngine(engine), mLogChannel(controller->get_name()), mSimulTime(0),
+        : mController(controller), mSimulationInput(simInput), mEngine(engine), mLogChannel(controller->get_name()), mSimulTime(0),
           mSaleaeDirectoryFilename(controller->get_saleae_directory_filename())
+    {;}
+
+    SimulationThread::~SimulationThread()
     {
-        connect(this, &SimulationThread::threadFinished, controller, &NetlistSimulatorController::handleRunFinished);
+        if (mThread.joinable()) mThread.detach();
+    }
+
+    void SimulationThread::start()
+    {
+        mThread = std::thread([this]() { this->run(); });
     }
 
     void SimulationThread::terminateThread(bool success, const char* failedStep)
@@ -23,7 +29,7 @@ namespace hal {
             if (failedStep)
                log_warning(mLogChannel, "simulation engine error during {}.", failedStep);
         }
-        Q_EMIT threadFinished(success);
+        if (mController) mController->handleRunFinished(success);
     }
 
     void SimulationThread::run()

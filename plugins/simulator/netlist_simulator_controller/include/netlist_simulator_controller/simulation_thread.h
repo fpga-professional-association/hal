@@ -1,20 +1,20 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 Ruhr University Bochum, Chair for Embedded Security. All Rights reserved.
 // Copyright (c) 2019 Marc Fyrbiak, Sebastian Wallat, Max Hoffmann ("ORIGINAL AUTHORS"). All rights reserved.
 // Copyright (c) 2021 Max Planck Institute for Security and Privacy. All Rights reserved.
 // Copyright (c) 2021 Jörn Langheinrich, Julian Speith, Nils Albartus, René Walendy, Simon Klix ("ORIGINAL AUTHORS"). All Rights reserved.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,19 +27,19 @@
 
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/simulation_engine.h"
-#include <QThread>
 #include <string>
+#include <thread>
 
 namespace hal {
 
     class NetlistSimulatorController;
 
     /**
-     * Runs an event-driven simulation engine in a separate thread so that the GUI stays responsive.
+     * Runs an event-driven simulation engine in a separate thread so that the caller is not blocked.
      */
-    class SimulationThread : public QThread {
-        Q_OBJECT
+    class SimulationThread {
 
+        NetlistSimulatorController* mController;
         const SimulationInput* mSimulationInput;
         SimulationEngineEventDriven* mEngine;
         std::string mLogChannel;
@@ -47,14 +47,18 @@ namespace hal {
         u64 mSimulTime;
         SimulationInputNetEvent mSimulationInputNetEvent;
         std::string mSaleaeDirectoryFilename;
+        std::thread mThread;
 
         void terminateThread(bool success, const char* failedStep = nullptr);
-    Q_SIGNALS:
-        void threadFinished(bool success);
 
     public:
         SimulationThread(NetlistSimulatorController* controller, const SimulationInput* simInput, SimulationEngineEventDriven* engine);
+        virtual ~SimulationThread();
 
-        void run() override;
+        /// Start the simulation in a separate thread.
+        void start();
+
+        /// Feed all input events into the engine, called by the thread.
+        void run();
     };
 }

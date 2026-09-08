@@ -1,20 +1,20 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 Ruhr University Bochum, Chair for Embedded Security. All Rights reserved.
 // Copyright (c) 2019 Marc Fyrbiak, Sebastian Wallat, Max Hoffmann ("ORIGINAL AUTHORS"). All rights reserved.
 // Copyright (c) 2021 Max Planck Institute for Security and Privacy. All Rights reserved.
 // Copyright (c) 2021 Jörn Langheinrich, Julian Speith, Nils Albartus, René Walendy, Simon Klix ("ORIGINAL AUTHORS"). All Rights reserved.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,16 +25,14 @@
 
 #pragma once
 
-#include <QMap>
-#include <QString>
-#include <QList>
-#include <QSet>
-#include <QObject>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 #include "hal_core/defines.h"
 #include "hal_core/netlist/boolean_function.h"
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/saleae_directory.h"
-#include <set>
 
 namespace hal {
 
@@ -82,37 +80,37 @@ namespace hal {
         int mFileIndex;
         u64 mFileSize;
         u64 mTimeframeSize;
-        QString mName;
+        std::string mName;
         NetType mNetType;
         int mBits;
         int mSubscriber;
     protected:
         int mValueBase;
-        QMap<u64,int> mData;
+        std::map<u64,int> mData;
         bool mDirty;
         WaveDataList* mWaveDataList;
 
-        QMap<u64,int>::const_iterator timeIterator(double t) const;
+        std::map<u64,int>::const_iterator timeIterator(double t) const;
         void resetWave();
     public:
         WaveData(const WaveData& other);
-        WaveData(u32 id_, const QString& nam, NetType tp = RegularNet,
-                 const QMap<u64,int>& dat = QMap<u64,int>() );
+        WaveData(u32 id_, const std::string& nam, NetType tp = RegularNet,
+                 const std::map<u64,int>& dat = std::map<u64,int>() );
         WaveData(const Net* n, NetType tp = RegularNet);
         virtual ~WaveData() {;}
         u32     id()                        const { return mId; }
-        QString name()                      const { return mName; }
+        std::string name()                  const { return mName; }
         NetType netType()                   const { return mNetType; }
         virtual int bits()                  const { return mBits; }
         bool    isDirty()                   const { return mDirty; }
-        const QMap<u64,int>& data()         const { return mData; }
+        const std::map<u64,int>& data()     const { return mData; }
         int     fileIndex()                 const { return mFileIndex; }
         u64     fileSize()                  const { return mFileSize; }
         int     valueBase()                 const { return mValueBase; }
         std::string fileName()              const;
         SaleaeDirectoryNetEntry::Type composedType() const;
         void setId(u32 id_);
-        bool rename(const QString& nam);
+        bool rename(const std::string& nam);
         void setBits(int bts);
         void setDirty(bool dty)                     { mDirty = dty; }
         void setFileIndex(int saleaIndex)           { mFileIndex = saleaIndex; }
@@ -126,22 +124,22 @@ namespace hal {
         void loadDataUnlessAlreadyLoaded();
         bool loadSaleae(const WaveDataTimeframe& tframe = WaveDataTimeframe());
         void saveSaleae();
-        void setData(const QMap<u64,int>& dat);
+        void setData(const std::map<u64,int>& dat);
         virtual int  intValue(double t) const;
         int get_value_at(u64 t);
-        std::string get_name() const { return mName.toStdString(); }
+        std::string get_name() const { return mName; }
         std::vector<std::pair<u64,int>> get_events(u64 t0 = 0) const;
         std::vector<std::pair<u64,int>> get_triggered_events(const WaveDataTrigger* wdTrig, u64 t0 = 0);
         u64  maxTime() const;
         void clear() { mData.clear(); }
-        void insert(u64 t, int val) { mData.insert(t,val); }
+        void insert(u64 t, int val) { mData[t] = val; }
         void insertBooleanValueWithoutSync(u64 t, BooleanFunction::Value bval);
-        QString strValue(int val) const;
-        QString strValue(double t) const;
-        QString strValue(const QMap<u64,int>::const_iterator& it) const;
+        std::string strValue(int val) const;
+        std::string strValue(double t) const;
+        std::string strValue(const std::map<u64,int>::const_iterator& it) const;
         void setValueBase(int bas) { mValueBase = bas; }
         bool isEqual(const WaveData& other, int tolerance=0) const;
-        static QString stringValue(int val, int bits, int base);
+        static std::string stringValue(int val, int bits, int base);
         bool hasSubscriber() const { return mSubscriber > 0; }
         void addSubscriber() { ++mSubscriber; }
         void removeSubscriber() { if (mSubscriber) -- mSubscriber; }
@@ -166,30 +164,29 @@ namespace hal {
     class WaveDataBoolean;
 
     /**
-     * The list of all waveforms of a simulation, which also owns them and notifies the views about changes.
+     * The list of all waveforms of a simulation, which also owns them.
      */
-    class WaveDataList : public QObject, public QList<WaveData*>
+    class WaveDataList : public std::vector<WaveData*>
     {
         friend class WaveDataGroup;
         friend class WaveDataBoolean;
         friend class WaveDataTrigger;
-        Q_OBJECT
 
-        QMap<u32,int>     mIds;
+        std::map<u32,int>     mIds;
         WaveDataTimeframe mTimeframe;
         SaleaeDirectory   mSaleaeDirectory;
         u32               mMaxGroupId;
         u32               mMaxBooleanId;
         u32               mMaxTriggerid;
-        QList<WaveData*>  mTrashCan;
-        QSet<QString>     mNotInNetlist;
+        std::vector<WaveData*>  mTrashCan;
+        std::set<std::string>   mNotInNetlist;
         void testDoubleCount();
         void restoreIndex();
         void updateMaxTime();
         void setMaxTime(u64 tmax);
 
-        using QList<WaveData*>::append;
-        using QList<WaveData*>::insert;
+        using std::vector<WaveData*>::push_back;
+        using std::vector<WaveData*>::insert;
 
         void replaceWaveData(int inx, WaveData *wdNew);
         void registerGroup(WaveDataGroup* grp);
@@ -200,17 +197,17 @@ namespace hal {
          * Map of groups indexed by non-zero group id
          */
 
-        QMap<u32,WaveDataGroup*> mDataGroups;
-        QMap<u32,WaveDataBoolean*> mDataBooleans;
-        QMap<u32,WaveDataTrigger*> mDataTrigger;
-        WaveDataList(const QString& sdFilename, QObject* parent = nullptr);
+        std::map<u32,WaveDataGroup*> mDataGroups;
+        std::map<u32,WaveDataBoolean*> mDataBooleans;
+        std::map<u32,WaveDataTrigger*> mDataTrigger;
+        WaveDataList(const std::string& sdFilename);
         ~WaveDataList();
 
         u32  nextGroupId() { return ++mMaxGroupId; }
         u32  maxGroupId() const { return mMaxGroupId; }
         u32  nextBooleanId() { return ++ mMaxBooleanId; }
         u32  nextTriggerId() { return ++ mMaxTriggerid; }
-        void addWavesToGroup(u32 grpId, const QVector<WaveData*>& wds);
+        void addWavesToGroup(u32 grpId, const std::vector<WaveData*>& wds);
         void removeGroup(u32 grpId);
 
         void addOrReplace(WaveData* wd);
@@ -224,12 +221,12 @@ namespace hal {
         WaveData* waveDataByNet(const Net* n);
         WaveData* waveDataByName(const std::string& nam) const;
         WaveData* waveDataById(const int id);
-        int waveIndexByNetId(u32 id) const { return mIds.value(id,-1); }
+        int waveIndexByNetId(u32 id) const;
         void triggerAddToView(u32 id) const;
-        bool hasNet(u32 id) const { return mIds.contains(id); }
-        QSet<u32> toSet() const;
-        void updateWaveName(int iwave, const QString& nam);
-        void updateGroupName(u32 grpId, const QString& nam);
+        bool hasNet(u32 id) const { return mIds.find(id) != mIds.end(); }
+        std::set<u32> toSet() const;
+        void updateWaveName(int iwave, const std::string& nam);
+        void updateGroupName(u32 grpId, const std::string& nam);
         const WaveDataTimeframe& timeFrame() const { return mTimeframe; }
         void setValueForEmpty(int val);
         void dump() const;
@@ -243,39 +240,21 @@ namespace hal {
         void insertBooleanValue(WaveData* wd, u64 t, BooleanFunction::Value bval);
         void setUserTimeframe(u64 t0=0, u64 t1=0);
         void emptyTrash();
-    Q_SIGNALS:
-        void waveAdded(int inx);
-        void groupAdded(int grpId);
-        void booleanAdded(int boolId);
-        void triggerAdded(int trigId);
-        void groupAboutToBeRemoved(hal::WaveDataGroup* grp);
-        void waveDataAboutToBeChanged(int inx);
-        void waveUpdated(int inx, int grpId);
-        void groupUpdated(int grpId);
-        void waveRenamed(int iwave);
-        void groupRenamed(int grpId);
-        void waveRemoved(int inx);
-        void waveAddedToGroup(const QVector<u32>& netIds, int grpId);
-        void waveRemovedFromGroup(int iwave, int grpId);
-        void timeframeChanged(const hal::WaveDataTimeframe* tframe);
-        void triggerBeginResetModel();
-        void triggerEndResetModel();
     };
 
     /**
      * The key under which a waveform is stored in a group, derived from the ID and the kind of the waveform.
      */
     class WaveDataGroupIndex {
-        friend uint qHash(const WaveDataGroupIndex& wdgi);
-        uint mCode;
+        u32 mCode;
         void construct(u32 id, bool isNet);
     public:
         WaveDataGroupIndex(const WaveData* wd);
         WaveDataGroupIndex(u32 id, bool isNet) { construct(id, isNet); }
         bool operator==(const WaveDataGroupIndex& other) const { return mCode == other.mCode; }
+        bool operator<(const WaveDataGroupIndex& other) const { return mCode < other.mCode; }
+        u32 code() const { return mCode; }
     };
-
-    uint qHash(const WaveDataGroupIndex& wdgi);
 
     /**
      * A waveform that is computed from other waveforms by evaluating a Boolean function on them.
@@ -284,15 +263,15 @@ namespace hal {
     {
         int mInputCount;
         WaveData** mInputWaves;
-        QHash<WaveDataGroupIndex,int> mIndex;
+        std::map<WaveDataGroupIndex,int> mIndex;
         char* mTruthTable;
     public:
-        WaveDataBoolean(WaveDataList* wdList, QString boolFunc);
-        WaveDataBoolean(WaveDataList* wdList, const QList<WaveData*>& boolInput, const QList<int>& acceptMask);
+        WaveDataBoolean(WaveDataList* wdList, const std::string& boolFunc);
+        WaveDataBoolean(WaveDataList* wdList, const std::vector<WaveData*>& boolInput, const std::vector<int>& acceptMask);
         ~WaveDataBoolean();
         void recalcData();
         virtual LoadPolicy loadPolicy() const override;
-        QList<WaveData*> children() const;
+        std::vector<WaveData*> children() const;
         const char* truthTable() const { return mTruthTable; }
         virtual int intValue(double t) const override;
     };
@@ -305,18 +284,18 @@ namespace hal {
         int mTriggerCount;
         WaveData** mTriggerWaves;
         WaveData* mFilterWave;
-        QHash<WaveDataGroupIndex,int> mIndex;
+        std::map<WaveDataGroupIndex,int> mIndex;
         int* mToValue;
     public:
-        WaveDataTrigger(WaveDataList* wdList, const QList<WaveData*>& wdTrigger, const QList<int>& toVal = QList<int>());
+        WaveDataTrigger(WaveDataList* wdList, const std::vector<WaveData*>& wdTrigger, const std::vector<int>& toVal = std::vector<int>());
         ~WaveDataTrigger();
         void recalcData();
         virtual LoadPolicy loadPolicy() const override;
-        QList<WaveData*> children() const;
+        std::vector<WaveData*> children() const;
         virtual u64 neighborTransition(double t, bool next) const override;
         virtual int intValue(double t) const override;
         void set_filter_wave(WaveData* wd);
-        QList<int> toValueList() const;
+        std::vector<int> toValueList() const;
         WaveData* get_filter_wave() const { return mFilterWave; }
     };
 
@@ -327,27 +306,27 @@ namespace hal {
     {
 
     protected:
-        QList<WaveData*> mGroupList;
+        std::vector<WaveData*> mGroupList;
 
-        QHash<WaveDataGroupIndex,int> mIndex;
+        std::map<WaveDataGroupIndex,int> mIndex;
     public:
-        WaveDataGroup(WaveDataList* wdList, int grpId, const QString& nam);
-        WaveDataGroup(WaveDataList* wdList, const QString& nam = QString());
+        WaveDataGroup(WaveDataList* wdList, int grpId, const std::string& nam);
+        WaveDataGroup(WaveDataList* wdList, const std::string& nam = std::string());
         WaveDataGroup(WaveDataList* wdList, const WaveData* wdGrp);
         virtual ~WaveDataGroup();
         virtual int bits() const override;
-        virtual int size() const { return mGroupList.size(); }
+        virtual int size() const { return (int) mGroupList.size(); }
         void addNet(const Net* n);
         virtual void insert(int inx, WaveData* wd);
-        virtual void addWaves(const QVector<WaveData*>& wds);
+        virtual void addWaves(const std::vector<WaveData*>& wds);
         void restoreIndex();
         virtual void recalcData();
         virtual bool hasNetId(u32 id) const;
-        virtual QList<WaveData*> children() const;
-        QList<int> childrenWaveIndex() const;
+        virtual std::vector<WaveData*> children() const;
+        std::vector<int> childrenWaveIndex() const;
         virtual WaveData* childAt(int inx) const;
         virtual WaveData* removeAt(int inx);
-        virtual bool isEmpty() const { return mGroupList.isEmpty(); }
+        virtual bool isEmpty() const { return mGroupList.empty(); }
         virtual void updateWaveData(WaveData* wd);
         virtual int childIndex(WaveData* wd) const;
         virtual int netIndex(u32 id) const;

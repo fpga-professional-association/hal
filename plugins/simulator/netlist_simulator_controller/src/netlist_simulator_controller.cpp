@@ -15,55 +15,91 @@
 #include "netlist_simulator_controller/simulation_settings.h"
 #include "netlist_simulator_controller/vcd_serializer.h"
 #include "netlist_simulator_controller/wave_data.h"
+#include "netlist_simulator_controller/string_utils.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 
-#include <QCoreApplication>
-#include <QDate>
-#include <QDebug>
-#include <QFile>
-#include <QTemporaryDir>
-#include <QVector>
+#include <cassert>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <set>
+#include <vector>
 
 namespace hal
 {
     const char* NetlistSimulatorController::sPersistFile = "netlist_simulator_controller.json";
 
-    NetlistSimulatorController::NetlistSimulatorController(u32 id, const std::string nam, const std::string& workdir, QObject* parent)
-        : QObject(parent), mId(id), mName(QString::fromStdString(nam)), mState(NoGatesSelected), mSimulationEngine(nullptr), mTempDir(nullptr), mWaveDataList(nullptr),
+    namespace
+    {
+        /**
+         * Create a unique temporary directory from a template ending in `XXXXXX`, replacement for QTemporaryDir.
+         * @return Path of the created directory, empty string if creation failed.
+         */
+        std::string createTemporaryDirectory(const std::string& templatePath)
+        {
+            std::string tmpl = templatePath;
+            if (!simutil::ends_with(tmpl, "XXXXXX"))
+            {
+                tmpl += "XXXXXX";
+            }
+            if (std::filesystem::path(tmpl).is_relative())
+            {
+                hal::error_code ec;
+                std::filesystem::path tmpdir = std::filesystem::temp_directory_path(ec);
+                if (!ec)
+                {
+                    tmpl = (tmpdir / tmpl).string();
+                }
+            }
+            std::vector<char> buffer(tmpl.begin(), tmpl.end());
+            buffer.push_back(0);
+            const char* created = mkdtemp(buffer.data());
+            if (!created)
+            {
+                log_warning("simulation_plugin", "Cannot create temporary working directory '{}'.", tmpl);
+                return std::string();
+            }
+            return std::string(created);
+        }
+    }    // namespace
+
+    NetlistSimulatorController::NetlistSimulatorController(u32 id, const std::string nam, const std::string& workdir)
+        : mId(id), mName(nam), mState(NoGatesSelected), mSimulationEngine(nullptr), mWaveDataList(nullptr),
           mSimulationInput(new SimulationInput), mLogReceiver(nullptr)
     {
-        if (mName.isEmpty())
+        if (mName.empty())
         {
-            mName = QString("sim_controller%1").arg(mId);
+            mName = "sim_controller" + std::to_string(mId);
         }
-        LogManager::get_instance()->add_channel(mName.toStdString(), {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
+        LogManager::get_instance()->add_channel(mName, {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
 
         if (workdir.empty())
         {
-            QString templatePath = NetlistSimulatorControllerPlugin::sSimulationSettings->baseDirectory().isEmpty() ? QString::fromStdString(ProjectManager::instance()->get_project_directory())
-                                                                                                                    : NetlistSimulatorControllerPlugin::sSimulationSettings->baseDirectory();
-            if (!templatePath.isEmpty())
+            std::string templatePath = NetlistSimulatorControllerPlugin::sSimulationSettings->baseDirectory().empty()
+                                           ? ProjectManager::instance()->get_project_directory().string()
+                                           : NetlistSimulatorControllerPlugin::sSimulationSettings->baseDirectory();
+            if (!templatePath.empty())
             {
                 templatePath += '/';
             }
             templatePath += "hal_simulation_" + mName + "_XXXXXX";
-            mTempDir = new QTemporaryDir(templatePath);
-            mWorkDir = mTempDir->path();
+            mWorkDir = createTemporaryDirectory(templatePath);
         }
         else
         {
-            mWorkDir = QString::fromStdString(workdir);
+            mWorkDir = workdir;
         }
-        QDir saleaeDir(QDir(mWorkDir).absoluteFilePath("saleae"));
-        saleaeDir.mkpath(saleaeDir.absolutePath());
-        QString saleaeDirectoryFilename = saleaeDir.absoluteFilePath("saleae.json");
-        if (!QFileInfo(saleaeDirectoryFilename).exists())
+        hal::error_code ec;
+        std::filesystem::path saleaeDir = std::filesystem::path(mWorkDir) / "saleae";
+        std::filesystem::create_directories(saleaeDir, ec);
+        std::string saleaeDirectoryFilename = (saleaeDir / "saleae.json").string();
+        if (!std::filesystem::exists(saleaeDirectoryFilename, ec))
         {
-            QFile of(saleaeDirectoryFilename);
-            if (of.open(QIODevice::WriteOnly))
+            std::ofstream of(saleaeDirectoryFilename, std::ios::binary);
+            if (of.good())
             {
-                of.write(QByteArray("{\"saleae\":{}}"));
+                of << "{\"saleae\":{}}";
             }
         }
         mWaveDataList = new WaveDataList(saleaeDirectoryFilename);
@@ -71,8 +107,8 @@ namespace hal
         NetlistSimulatorControllerMap::instance()->addController(this);
     }
 
-    NetlistSimulatorController::NetlistSimulatorController(u32 id, Netlist* nl, const std::string& filename, QObject* parent)
-        : QObject(parent), mId(id), mState(NoGatesSelected), mSimulationEngine(nullptr), mTempDir(nullptr), mWaveDataList(nullptr), mSimulationInput(new SimulationInput), mLogReceiver(nullptr)
+    NetlistSimulatorController::NetlistSimulatorController(u32 id, Netlist* nl, const std::string& filename)
+        : mId(id), mState(NoGatesSelected), mSimulationEngine(nullptr), mWaveDataList(nullptr), mSimulationInput(new SimulationInput), mLogReceiver(nullptr)
     {
         FILE* ff = fopen(filename.c_str(), "rb");
         if (!ff)
@@ -95,10 +131,10 @@ namespace hal
         auto jnsc = document["netlist_simulator_controller"].GetObject();
         if (jnsc.HasMember("name"))
         {
-            mName = QString::fromStdString(jnsc["name"].GetString());
+            mName = jnsc["name"].GetString();
         }
 
-        QDir workDir(QFileInfo(QString::fromStdString(filename)).path());
+        std::filesystem::path workDir = std::filesystem::path(filename).parent_path();
         std::vector<Gate*> simulatedGates;
         if (jnsc.HasMember("gates"))
         {
@@ -119,15 +155,16 @@ namespace hal
                 simulatedGates.push_back(g);
             }
         }
-        LogManager::get_instance()->add_channel(mName.toStdString(), {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
-        QDir saleaeDir(workDir.absoluteFilePath("saleae"));
-        saleaeDir.mkpath(saleaeDir.absolutePath());
-        mWaveDataList = new WaveDataList(saleaeDir.absoluteFilePath("saleae.json"));
+        LogManager::get_instance()->add_channel(mName, {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
+        hal::error_code ec;
+        std::filesystem::path saleaeDir = workDir / "saleae";
+        std::filesystem::create_directories(saleaeDir, ec);
+        mWaveDataList = new WaveDataList((saleaeDir / "saleae.json").string());
 
         SaleaeDirectoryStoreRequest::sWriteDisabled = true;
         mWaveDataList->updateFromSaleae();
         mSimulationInput->add_gates(simulatedGates);
-        mWorkDir = workDir.absolutePath();
+        mWorkDir = workDir.string();
         restoreComposed(mWaveDataList->saleaeDirectory());
         SaleaeDirectoryStoreRequest::sWriteDisabled = false;
 
@@ -139,7 +176,7 @@ namespace hal
                 Net* clkNet = nl->get_net_by_id(clkId);
                 if (!clkNet)
                 {
-                    log_warning(mName.toStdString(), "Clock net ID={} not found in netlist.", clkId);
+                    log_warning(mName, "Clock net ID={} not found in netlist.", clkId);
                     continue;
                 }
                 bool startAtZero = jclock.HasMember("start_value") ? (jclock["start_value"].GetInt() == 0) : true;
@@ -173,7 +210,7 @@ namespace hal
         NetlistSimulatorControllerMap::instance()->removeController(mId);
         if (mWaveDataList)
         {
-            mWaveDataList->deleteLater();
+            delete mWaveDataList;
         }
         delete mSimulationInput;
         //  delete mTempDir;
@@ -216,17 +253,16 @@ namespace hal
                 }
                 break;
         }
-        Q_EMIT stateChanged(mState);
     }
 
     std::string NetlistSimulatorController::get_working_directory() const
     {
-        return mWorkDir.toStdString();
+        return mWorkDir;
     }
 
     bool NetlistSimulatorController::is_legal_directory_name() const
     {
-        if (mWorkDir.contains(' '))
+        if (mWorkDir.find(' ') != std::string::npos)
         {
             return false;
         }
@@ -298,7 +334,7 @@ namespace hal
         }
     }
 
-    void NetlistSimulatorController::simulate_only_probes(const QSet<u32>& probes)
+    void NetlistSimulatorController::simulate_only_probes(const std::set<u32>& probes)
     {
         mSimulateOnlyProbes = probes;
     }
@@ -309,15 +345,15 @@ namespace hal
         {
             return 0;
         }
-        QList<WaveData*> triglist;
-        QList<int> trigOnVal;
+        std::vector<WaveData*> triglist;
+        std::vector<int> trigOnVal;
         for (WaveData* wd : trigger_waves)
         {
-            triglist.append(wd);
+            triglist.push_back(wd);
         }
         for (int tov : trigger_on_values)
         {
-            trigOnVal.append(tov);
+            trigOnVal.push_back(tov);
         }
         WaveDataTrigger* wdTrig = new WaveDataTrigger(mWaveDataList, triglist, trigOnVal);
         if (!wdTrig)
@@ -333,7 +369,7 @@ namespace hal
         {
             return 0;
         }
-        WaveDataBoolean* wdBool = new WaveDataBoolean(mWaveDataList, QString::fromStdString(expression));
+        WaveDataBoolean* wdBool = new WaveDataBoolean(mWaveDataList, expression);
         if (!wdBool)
         {
             return 0;
@@ -347,15 +383,15 @@ namespace hal
         {
             return 0;
         }
-        QList<WaveData*> inpWaves;
-        QList<int> acceptVal;
+        std::vector<WaveData*> inpWaves;
+        std::vector<int> acceptVal;
         for (WaveData* wd : input_waves)
         {
-            inpWaves.append(wd);
+            inpWaves.push_back(wd);
         }
         for (int acc : accepted_combination)
         {
-            acceptVal.append(acc);
+            acceptVal.push_back(acc);
         }
         WaveDataBoolean* wdBool = new WaveDataBoolean(mWaveDataList, inpWaves, acceptVal);
         if (!wdBool)
@@ -371,7 +407,7 @@ namespace hal
         {
             return 0;
         }
-        QVector<WaveData*> waveVector;
+        std::vector<WaveData*> waveVector;
         waveVector.reserve(nets.size());
         for (Net* n : nets)
         {
@@ -381,11 +417,11 @@ namespace hal
                 log_warning(get_name(), "Cannot add unkown waveform for net '{}(id={})' to group '{}'.", n->get_name(), n->get_id(), name);
                 continue;
             }
-            waveVector.append(wd);
+            waveVector.push_back(wd);
         }
 
-        WaveDataGroup* wdGrp = new WaveDataGroup(mWaveDataList, QString::fromStdString(name));
-        if (!waveVector.isEmpty())
+        WaveDataGroup* wdGrp = new WaveDataGroup(mWaveDataList, name);
+        if (!waveVector.empty())
         {
             mWaveDataList->addWavesToGroup(wdGrp->id(), waveVector);
         }
@@ -461,17 +497,17 @@ namespace hal
         mWaveDataList->removeGroup(group_id);
     }
 
-    void NetlistSimulatorController::handleOpenInputFile(const QString& filename)
+    void NetlistSimulatorController::handleOpenInputFile(const std::string& filename)
     {
-        if (filename.isEmpty())
+        if (filename.empty())
         {
             return;
         }
         VcdSerializer reader(mWorkDir, false, this);
-        QList<const Net*> onlyNets;
+        std::vector<const Net*> onlyNets;
         for (const Net* n : mSimulationInput->get_input_nets())
         {
-            onlyNets.append(n);
+            onlyNets.push_back(n);
         }
         if (reader.importVcd(filename, mWorkDir, onlyNets))
         {
@@ -524,7 +560,7 @@ namespace hal
         }
 
         jnsc.close();
-        return jwd.serialize(QDir(mWorkDir).absoluteFilePath(sPersistFile).toStdString());
+        return jwd.serialize((std::filesystem::path(mWorkDir) / sPersistFile).string());
     }
 
     bool NetlistSimulatorController::run_simulation()
@@ -535,15 +571,15 @@ namespace hal
             return false;
         }
 
-        QMap<QString, QString> engPropMap = NetlistSimulatorControllerPlugin::sSimulationSettings->engineProperties();
+        std::map<std::string, std::string> engPropMap = NetlistSimulatorControllerPlugin::sSimulationSettings->engineProperties();
 
-        if (!engPropMap.isEmpty())
+        if (!engPropMap.empty())
         {
             bool engPropMapModified = false;
             for (auto it = engPropMap.begin(); it != engPropMap.end(); ++it)
             {
-                std::string prop = it.key().toStdString();
-                std::string valu = it.value().toStdString();
+                std::string prop = it->first;
+                std::string valu = it->second;
 
                 std::string userAssignedValue = mSimulationEngine->get_engine_property(prop);
                 if (userAssignedValue.empty())
@@ -556,7 +592,7 @@ namespace hal
                     if (userAssignedValue != valu)
                     {
                         log_info(get_name(), "Default value for engine property '{}' changed from '{}' to '{}'.", prop, valu, userAssignedValue);
-                        it.value()         = QString::fromStdString(userAssignedValue);
+                        it->second         = userAssignedValue;
                         engPropMapModified = true;
                     }
                 }
@@ -576,22 +612,14 @@ namespace hal
 
         mWaveDataList->setValueForEmpty(0);
         mWaveDataList->emitTimeframeChanged();
-        qApp->processEvents();
 
-        for (auto it = mBadAssignInputWarnings.constBegin(); it != mBadAssignInputWarnings.constEnd(); ++it)
+        for (auto it = mBadAssignInputWarnings.cbegin(); it != mBadAssignInputWarnings.cend(); ++it)
         {
-            if (it.value() > 3)
+            if (it->second > 3)
             {
-                log_warning(get_name(), "Totally {} attempts to set input values for net ID={}, but net is not an input.", it.value(), it.key());
+                log_warning(get_name(), "Totally {} attempts to set input values for net ID={}, but net is not an input.", it->second, it->first);
             }
         }
-
-        struct WaveIterator
-        {
-            const Net* n;
-            const WaveData* wd;
-            QMap<u64, int>::const_iterator it;
-        };
 
         // generate clock events if required
         if (mSimulationEngine->clock_events_required())
@@ -616,7 +644,6 @@ namespace hal
             }
         }
 
-        qApp->processEvents();
         persist();
 
         if (!mSimulationEngine->setSimulationInput(mSimulationInput))
@@ -645,17 +672,17 @@ namespace hal
 
     WaveDataGroup* NetlistSimulatorController::get_waveform_group_by_id(u32 id) const
     {
-        return mWaveDataList->mDataGroups.value(id);
+        return simutil::map_value(mWaveDataList->mDataGroups, id, (WaveDataGroup*)nullptr);
     }
 
     WaveDataBoolean* NetlistSimulatorController::get_waveform_boolean_by_id(u32 id) const
     {
-        return mWaveDataList->mDataBooleans.value(id);
+        return simutil::map_value(mWaveDataList->mDataBooleans, id, (WaveDataBoolean*)nullptr);
     }
 
     WaveDataTrigger* NetlistSimulatorController::get_trigger_time_by_id(u32 id) const
     {
-        return mWaveDataList->mDataTrigger.value(id);
+        return simutil::map_value(mWaveDataList->mDataTrigger, id, (WaveDataTrigger*)nullptr);
     }
 
     void NetlistSimulatorController::rename_waveform(WaveData* wd, std::string name)
@@ -663,14 +690,14 @@ namespace hal
         WaveDataGroup* grp = dynamic_cast<WaveDataGroup*>(wd);
         if (grp)
         {
-            grp->rename(QString::fromStdString(name));
+            grp->rename(name);
             mWaveDataList->emitGroupUpdated(grp->id());
             return;
         }
         int iwave = mWaveDataList->waveIndexByNetId(wd->id());
         if (iwave >= 0)
         {
-            mWaveDataList->updateWaveName(iwave, QString::fromStdString(name));
+            mWaveDataList->updateWaveName(iwave, name);
         }
     }
 
@@ -708,23 +735,23 @@ namespace hal
 
     void NetlistSimulatorController::emitLoadProgress(int percent)
     {
-        Q_EMIT loadProgress(percent);
+        UNUSED(percent);
     }
 
     bool NetlistSimulatorController::import_vcd(const std::string& filename, FilterInputFlag filter)
     {
         VcdSerializer reader(mWorkDir, false, this);
 
-        QList<const Net*> inputNets;
+        std::vector<const Net*> inputNets;
         if (filter != NoFilter)
         {
             for (const Net* n : getFilterNets(filter))
             {
-                inputNets.append(n);
+                inputNets.push_back(n);
             }
         }
 
-        if (reader.importVcd(QString::fromStdString(filename), mWorkDir, inputNets))
+        if (reader.importVcd(filename, mWorkDir, inputNets))
         {
             mWaveDataList->updateFromSaleae();
         }
@@ -734,7 +761,6 @@ namespace hal
         }
 
         checkReadyState();
-        Q_EMIT parseComplete();
         return true;
     }
 
@@ -742,57 +768,62 @@ namespace hal
     {
         VcdSerializer reader(mWorkDir, false, this);
 
-        QList<const Net*> inputNets;
+        std::vector<const Net*> inputNets;
         if (filter != NoFilter)
         {
             for (const Net* n : getFilterNets(filter))
             {
-                inputNets.append(n);
+                inputNets.push_back(n);
             }
         }
 
-        if (reader.importCsv(QString::fromStdString(filename), mWorkDir, inputNets, timescale))
+        if (reader.importCsv(filename, mWorkDir, inputNets, timescale))
         {
             mWaveDataList->updateFromSaleae();
         }
         checkReadyState();
-        Q_EMIT parseComplete();
     }
 
     void NetlistSimulatorController::import_saleae(const std::string& dirname, std::unordered_map<Net*, int> lookupTable, u64 timescale)
     {
         VcdSerializer reader(mWorkDir, false, this);
-        if (reader.importSaleae(QString::fromStdString(dirname), lookupTable, mWorkDir, timescale))
+        if (reader.importSaleae(dirname, lookupTable, mWorkDir, timescale))
         {
             mWaveDataList->updateFromSaleae();
         }
         checkReadyState();
-        Q_EMIT parseComplete();
     }
 
     void NetlistSimulatorController::import_simulation(const std::string& dirname, FilterInputFlag filter, u64 timescale)
     {
-        QDir sourceDir(QString::fromStdString(dirname));
-        QString sourceSaleaeLookup = sourceDir.absoluteFilePath("saleae.json");
-        SaleaeDirectory sd(sourceSaleaeLookup.toStdString());
-        if (!QFileInfo(sourceSaleaeLookup).isReadable())
+        hal::error_code ec;
+        std::filesystem::path sourceDir(dirname);
+        std::filesystem::path sourceSaleaeLookup = sourceDir / "saleae.json";
+        SaleaeDirectory sd(sourceSaleaeLookup.string());
         {
-            log_warning(get_name(), "cannot import SALEAE data from '{}', cannot read lookup table.", dirname);
-            return;
+            std::ifstream test(sourceSaleaeLookup.string(), std::ios::binary);
+            if (!test.good())
+            {
+                log_warning(get_name(), "cannot import SALEAE data from '{}', cannot read lookup table.", dirname);
+                return;
+            }
         }
         if (filter == NoFilter)
         {
-            QDir targetDir(QString::fromStdString(mWaveDataList->saleaeDirectory().get_directory()));
-            QString targetSaleaeLookup = targetDir.absoluteFilePath("saleae.json");
-            QFile::remove(targetSaleaeLookup);
-            QFile::copy(sourceSaleaeLookup, targetSaleaeLookup);
-            QStringList nameFilters;
-            nameFilters << "digital_*.bin";
-            for (QFileInfo sourceFileInfo : sourceDir.entryInfoList(nameFilters))
+            std::filesystem::path targetDir(mWaveDataList->saleaeDirectory().get_directory());
+            std::filesystem::path targetSaleaeLookup = targetDir / "saleae.json";
+            std::filesystem::remove(targetSaleaeLookup, ec);
+            std::filesystem::copy_file(sourceSaleaeLookup, targetSaleaeLookup, std::filesystem::copy_options::overwrite_existing, ec);
+            for (const std::filesystem::directory_entry& sourceFileInfo : std::filesystem::directory_iterator(sourceDir, ec))
             {
-                QString targetFile = targetDir.absoluteFilePath(sourceFileInfo.fileName());
-                QFile::remove(targetFile);
-                QFile::copy(sourceFileInfo.absoluteFilePath(), targetFile);
+                std::string fname = sourceFileInfo.path().filename().string();
+                if (!simutil::starts_with(fname, "digital_") || !simutil::ends_with(fname, ".bin"))
+                {
+                    continue;
+                }
+                std::filesystem::path targetFile = targetDir / fname;
+                std::filesystem::remove(targetFile, ec);
+                std::filesystem::copy_file(sourceFileInfo.path(), targetFile, std::filesystem::copy_options::overwrite_existing, ec);
             }
             mWaveDataList->updateFromSaleae();
         }
@@ -809,14 +840,13 @@ namespace hal
                 lookupTable.insert(std::make_pair((Net*)n, inx));
             }
             VcdSerializer reader(mWorkDir, false, this);
-            if (reader.importSaleae(QString::fromStdString(dirname), lookupTable, mWorkDir, timescale))
+            if (reader.importSaleae(dirname, lookupTable, mWorkDir, timescale))
             {
                 mWaveDataList->updateFromSaleae();
             }
         }
         checkReadyState();
         restoreComposed(sd);
-        Q_EMIT parseComplete();
     }
 
     void NetlistSimulatorController::restoreComposed(const SaleaeDirectory& sd)
@@ -824,7 +854,7 @@ namespace hal
         for (const SaleaeDirectoryComposedEntry& sdce : sd.get_composed_list())
         {
 //            sdce.dump();
-            QVector<WaveData*> wds;
+            std::vector<WaveData*> wds;
             for (int childKey : sdce.get_children())
             {
                 WaveData* wd = nullptr;
@@ -833,13 +863,13 @@ namespace hal
                 switch (mType)
                 {
                     case SaleaeDirectoryNetEntry::Group:
-                        wd = mWaveDataList->mDataGroups.value(index);
+                        wd = simutil::map_value(mWaveDataList->mDataGroups, (u32)index, (WaveDataGroup*)nullptr);
                         break;
                     case SaleaeDirectoryNetEntry::Boolean:
-                        wd = mWaveDataList->mDataBooleans.value(index);
+                        wd = simutil::map_value(mWaveDataList->mDataBooleans, (u32)index, (WaveDataBoolean*)nullptr);
                         break;
                     case SaleaeDirectoryNetEntry::Trigger:
-                        wd = mWaveDataList->mDataTrigger.value(index);
+                        wd = simutil::map_value(mWaveDataList->mDataTrigger, (u32)index, (WaveDataTrigger*)nullptr);
                         break;
                     default:
                         int iwave = mWaveDataList->waveIndexByNetId(childKey);
@@ -850,29 +880,29 @@ namespace hal
                 }
                 if (wd)
                 {
-                    wds.append(wd);
+                    wds.push_back(wd);
                 }
             }
-            QList<int> data;
+            std::vector<int> data;
             for (int dat : sdce.get_data())
             {
-                data.append(dat);
+                data.push_back(dat);
             }
-            if (!wds.isEmpty() && wds.size() == (int)sdce.get_children().size())
+            if (!wds.empty() && wds.size() == sdce.get_children().size())
             {
                 switch (sdce.type())
                 {
                     case SaleaeDirectoryNetEntry::Group: {
-                        WaveDataGroup* wdGrp = new WaveDataGroup(mWaveDataList, QString::fromStdString(sdce.name()));
+                        WaveDataGroup* wdGrp = new WaveDataGroup(mWaveDataList, sdce.name());
                         mWaveDataList->addWavesToGroup(wdGrp->id(), wds);
                         break;
                     }
                     case SaleaeDirectoryNetEntry::Boolean: {
-                        new WaveDataBoolean(mWaveDataList, wds.toList(), data);
+                        new WaveDataBoolean(mWaveDataList, wds, data);
                         break;
                     }
                     case SaleaeDirectoryNetEntry::Trigger: {
-                        WaveDataTrigger* wdTrig = new WaveDataTrigger(mWaveDataList, wds.toList(), data);
+                        WaveDataTrigger* wdTrig = new WaveDataTrigger(mWaveDataList, wds, data);
                         if (sdce.get_filter_entry())
                         {
                             int filterKey = sdce.get_filter_entry();
@@ -884,13 +914,13 @@ namespace hal
                                 switch (mType)
                                 {
                                     case SaleaeDirectoryNetEntry::Group:
-                                        wd = mWaveDataList->mDataGroups.value(index);
+                                        wd = simutil::map_value(mWaveDataList->mDataGroups, (u32)index, (WaveDataGroup*)nullptr);
                                         break;
                                     case SaleaeDirectoryNetEntry::Boolean:
-                                        wd = mWaveDataList->mDataBooleans.value(index);
+                                        wd = simutil::map_value(mWaveDataList->mDataBooleans, (u32)index, (WaveDataBoolean*)nullptr);
                                         break;
                                     case SaleaeDirectoryNetEntry::Trigger:
-                                        wd = mWaveDataList->mDataTrigger.value(index);
+                                        wd = simutil::map_value(mWaveDataList->mDataTrigger, (u32)index, (WaveDataTrigger*)nullptr);
                                         break;
                                     default:
                                         int iwave = mWaveDataList->waveIndexByNetId(filterKey);
@@ -927,10 +957,6 @@ namespace hal
             setState(EngineFailed);
         }
 
-        Q_EMIT engineFinished(success);
-
-        //        QObject* simulThread = sender();
-        //        if (simulThread) simulThread->deleteLater();
         /*
         for (Net* n : gNetlist->get_nets())
         {
@@ -973,23 +999,25 @@ namespace hal
                 resultFile = get_working_directory() / resultFile;
             }
             VcdSerializer reader(mWorkDir, false, this);
-            QFileInfo info(QString::fromStdString(resultFile.string()));
-            if (!info.exists() || !info.isReadable())
             {
-                return false;
+                std::ifstream test(resultFile.string(), std::ios::binary);
+                if (!test.good())
+                {
+                    return false;
+                }
             }
 
-            QList<const Net*> partialNets;
+            std::vector<const Net*> partialNets;
             for (const Net* n : get_partial_netlist_nets())
             {
-                if (!mSimulateOnlyProbes.empty() && !mSimulateOnlyProbes.contains(n->get_id()))
+                if (!mSimulateOnlyProbes.empty() && mSimulateOnlyProbes.find(n->get_id()) == mSimulateOnlyProbes.end())
                 {
                     continue;
                 }
-                partialNets.append(n);
+                partialNets.push_back(n);
             }
 
-            if (reader.importVcd(QString::fromStdString(resultFile), mWorkDir, partialNets))
+            if (reader.importVcd(resultFile.string(), mWorkDir, partialNets))
             {
                 mWaveDataList->updateFromSaleae();
             }
@@ -998,9 +1026,10 @@ namespace hal
                 return false;
             }
 
-            if (!mSimulateOnlyProbes.isEmpty())
+            if (!mSimulateOnlyProbes.empty())
             {
-                QFile::remove(QString::fromStdString(resultFile.string()));
+                hal::error_code ec;
+                std::filesystem::remove(resultFile, ec);
             }
         }
         return true;
@@ -1093,19 +1122,22 @@ namespace hal
         }
         mSimulationInput->add_gates(gates);
 
-        QSet<u32> previousInputSet = mWaveDataList->toSet();
-        QSet<u32> currentInputSet;
+        std::set<u32> previousInputSet = mWaveDataList->toSet();
+        std::set<u32> currentInputSet;
         for (const Net* n : mSimulationInput->get_input_nets())
         {
             u32 nid = n->get_id();
-            if (!previousInputSet.contains(nid))
+            if (previousInputSet.find(nid) == previousInputSet.end())
             {
                 WaveData* wd = new WaveData(n, WaveData::InputNet);
                 mWaveDataList->addOrReplace(wd);
             }
             currentInputSet.insert(nid);
         }
-        previousInputSet -= currentInputSet;
+        for (u32 id : currentInputSet)
+        {
+            previousInputSet.erase(id);
+        }
         for (u32 id : previousInputSet)
         {
             mWaveDataList->remove(id);
@@ -1182,7 +1214,7 @@ namespace hal
 
     void NetlistSimulatorController::set_input(const Net* net, BooleanFunction::Value value)
     {
-        Q_ASSERT(net);
+        assert(net);
         if (!mSimulationInput->is_input_net(net))
         {
             if (mBadAssignInputWarnings[net->get_id()]++ < 3)
@@ -1291,12 +1323,12 @@ namespace hal
     bool NetlistSimulatorController::generate_vcd(const std::filesystem::path& path, u32 start_time, u32 end_time, std::set<const Net*> nets) const
     {
         VcdSerializer writer(mWorkDir);
-        QList<const WaveData*> partialList;
+        std::vector<const WaveData*> partialList;
         if (nets.empty())
         {
             for (const WaveData* wd : *mWaveDataList)
             {
-                partialList.append(wd);
+                partialList.push_back(wd);
             }
         }
         else
@@ -1306,7 +1338,7 @@ namespace hal
                 const WaveData* wd = mWaveDataList->waveDataByNet(n);
                 if (wd)
                 {
-                    partialList.append(wd);
+                    partialList.push_back(wd);
                 }
             }
         }
@@ -1315,7 +1347,7 @@ namespace hal
             start_time = mWaveDataList->timeFrame().sceneMinTime();
             end_time   = mWaveDataList->timeFrame().sceneMaxTime();
         }
-        bool success = writer.exportVcd(QString::fromStdString(path.string()), partialList, start_time, end_time);
+        bool success = writer.exportVcd(path.string(), partialList, start_time, end_time);
         return success;
     }
 
@@ -1332,9 +1364,8 @@ namespace hal
 
     void NetlistSimulatorControllerMap::addController(NetlistSimulatorController* ctrl)
     {
-        u32 id = ctrl->get_id();
-        mMap.insert(id, ctrl);
-        Q_EMIT controllerAdded(id);
+        u32 id    = ctrl->get_id();
+        mMap[id]  = ctrl;
     }
 
     void NetlistSimulatorControllerMap::removeController(u32 id)
@@ -1345,16 +1376,31 @@ namespace hal
             return;
         }
         mMap.erase(it);
-        Q_EMIT controllerRemoved(id);
     }
 
     void NetlistSimulatorControllerMap::clearAll()
     {
+        mMap.clear();
+    }
+
+    std::vector<NetlistSimulatorController*> NetlistSimulatorControllerMap::toList() const
+    {
+        std::vector<NetlistSimulatorController*> retval;
         for (auto it = mMap.begin(); it != mMap.end(); ++it)
         {
-            Q_EMIT controllerRemoved(it.key());
+            retval.push_back(it->second);
         }
-        mMap.clear();
+        return retval;
+    }
+
+    NetlistSimulatorController* NetlistSimulatorControllerMap::controller(u32 id) const
+    {
+        auto it = mMap.find(id);
+        if (it == mMap.end())
+        {
+            return nullptr;
+        }
+        return it->second;
     }
 
 }    // namespace hal

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <QMap>
-#include <QPair>
+#include <map>
+#include <vector>
 #include "hal_core/defines.h"
 #include "netlist_simulator_controller/saleae_file.h"
 #include "netlist_simulator_controller/saleae_parser.h"
@@ -65,10 +65,10 @@ namespace hal {
      */
     class WaveDataProviderMap : public WaveDataProvider
     {
-        const QMap<u64,int>& mDataMap;
-        QMap<u64,int>::const_iterator mIter;
+        const std::map<u64,int>& mDataMap;
+        std::map<u64,int>::const_iterator mIter;
     public:
-        WaveDataProviderMap(const QMap<u64,int>& dmap) : mDataMap(dmap) {;}
+        WaveDataProviderMap(const std::map<u64,int>& dmap) : mDataMap(dmap) {;}
         virtual SaleaeDataTuple startValue(u64 t) override;
         virtual SaleaeDataTuple nextPoint() override;
     };
@@ -84,7 +84,7 @@ namespace hal {
         SaleaeDataBuffer* mBuffer;
         u64 mIndex;
         const WaveDataTimeframe& mTimeframe;
-        QMap<u64,int> mDataMap;
+        std::map<u64,int> mDataMap;
         StoreData mStoreData;
 
         bool isRecording() const { return mStoreData == Recording; }
@@ -97,7 +97,7 @@ namespace hal {
         virtual SaleaeDataTuple nextPoint() override;
 
         StoreData storeDataState() const { return mStoreData; }
-        const QMap<u64,int>& dataMap() const { return mDataMap; }
+        const std::map<u64,int>& dataMap() const { return mDataMap; }
     };
 
     /**
@@ -131,7 +131,7 @@ namespace hal {
 
         bool nextEventReady();
     public:
-        WaveDataProviderGroup(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList);
+        WaveDataProviderGroup(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList);
         virtual ~WaveDataProviderGroup();
         virtual SaleaeDataTuple startValue(u64 t) override;
         virtual SaleaeDataTuple nextPoint() override;
@@ -146,7 +146,7 @@ namespace hal {
         char* mTruthTable;
         SaleaeDataTuple convertToBoolean(SaleaeDataTuple sdt);
     public:
-        WaveDataProviderBoolean(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList, const char* ttable);
+        WaveDataProviderBoolean(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList, const char* ttable);
         virtual ~WaveDataProviderBoolean();
         virtual SaleaeDataTuple startValue(u64 t) override;
         virtual SaleaeDataTuple nextPoint() override;
@@ -162,9 +162,9 @@ namespace hal {
         int* mTransitionToValue;
         u64 mCurrentTime;
         bool mCurrentTrigger;
-        qint64 mReportedTime;
+        int64_t mReportedTime;
     public:
-        WaveDataProviderTrigger(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList, const QList<int>& toValue, WaveData* filter=nullptr);
+        WaveDataProviderTrigger(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList, const std::vector<int>& toValue, WaveData* filter=nullptr);
         virtual ~WaveDataProviderTrigger();
         virtual SaleaeDataTuple startValue(u64 t) override;
         virtual SaleaeDataTuple nextPoint() override;

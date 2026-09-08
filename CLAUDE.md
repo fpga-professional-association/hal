@@ -1,6 +1,6 @@
 # HAL — FPGA Professional Association headless fork
 
-This is FPGAPA's headless fork of [emsec/hal](https://github.com/emsec/hal). The Qt GUI has been removed by design: HAL is driven by the `hal` CLI, the `hal_py` Python bindings, scripts, and AI agents. Do not reintroduce GUI code or Qt dependencies (exception: `plugins/simulator/netlist_simulator_controller` keeps Qt5Core until issue #6 lands).
+This is FPGAPA's headless fork of [emsec/hal](https://github.com/emsec/hal). The Qt GUI has been removed by design: HAL is driven by the `hal` CLI, the `hal_py` Python bindings, scripts, and AI agents. Do not reintroduce GUI code or Qt dependencies — the codebase is fully Qt-free.
 
 Project skills live in `.claude/skills/` — start with `using-hal` for how to drive the tool, generate visuals (`tools/hal_viz`), and handle interactive waveforms (Saleae Logic 2 MCP).
 

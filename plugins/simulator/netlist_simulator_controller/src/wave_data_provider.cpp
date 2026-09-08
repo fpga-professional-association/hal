@@ -2,7 +2,6 @@
 #include "netlist_simulator_controller/wave_data.h"
 #include "netlist_simulator_controller/plugin_netlist_simulator_controller.h"
 #include "netlist_simulator_controller/simulation_settings.h"
-#include <QDebug>
 
 namespace hal {
     void WaveDataProvider::setWaveType(WaveData::NetType type, int bts, int base)
@@ -14,26 +13,26 @@ namespace hal {
 
     SaleaeDataTuple WaveDataProviderMap::startValue(u64 t)
     {
-        mIter = mDataMap.lowerBound(t);
+        mIter = mDataMap.lower_bound(t);
 
         SaleaeDataTuple retval; // assume empty
 
-        if (mIter != mDataMap.constEnd() && mIter.key() == t)
+        if (mIter != mDataMap.cend() && mIter->first == t)
         {
             //exact hit
-            retval.mTime = mIter.key();
-            retval.mValue = mIter.value();
+            retval.mTime = mIter->first;
+            retval.mValue = mIter->second;
             ++mIter;
         }
-        else if (mIter != mDataMap.constBegin())
+        else if (mIter != mDataMap.cbegin())
         {
             //value of last data point before entering t-range
             --mIter;
-            retval.mTime = mIter.key();
-            retval.mValue = mIter.value();
+            retval.mTime = mIter->first;
+            retval.mValue = mIter->second;
             ++mIter;
         }
-        else if (mIter != mDataMap.constEnd())
+        else if (mIter != mDataMap.cend())
         {
             //no previous data but not empty
             retval.mTime = t;
@@ -44,10 +43,10 @@ namespace hal {
 
     SaleaeDataTuple WaveDataProviderMap::nextPoint()
     {
-        if (mIter==mDataMap.constEnd())
+        if (mIter==mDataMap.cend())
             return SaleaeDataTuple();
 
-        SaleaeDataTuple retval(mIter.key(),mIter.value());
+        SaleaeDataTuple retval(mIter->first,mIter->second);
         ++mIter;
         return retval;
     }
@@ -123,7 +122,7 @@ namespace hal {
         else
         {
             mDataMap[mBuffer->mTimeArray[mIndex]] = mBuffer->mValueArray[mIndex];
-            if (mDataMap.size() > NetlistSimulatorControllerPlugin::sSimulationSettings->maxSizeLoadable())
+            if ((int) mDataMap.size() > NetlistSimulatorControllerPlugin::sSimulationSettings->maxSizeLoadable())
             {
                 mStoreData = Failed;
                 mDataMap.clear();
@@ -173,18 +172,18 @@ namespace hal {
     }
 
     //-----------------------------------------------------
-    WaveDataProviderGroup::WaveDataProviderGroup(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList)
+    WaveDataProviderGroup::WaveDataProviderGroup(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList)
         : mParser(saleaeDirectoryPath), mBitMask(nullptr), mCurrentTime(0), mSampleValue(-1), mValuePending(false), mEventReady(false)
     {
-        if (wdList.isEmpty()) return;
-        int n = wdList.size();
+        if (wdList.empty()) return;
+        int n = (int) wdList.size();
         mBitMask = new u32[n];
         mLastValue = WaveGroupValue(n);
         for (int i=0; i<n; i++)
         {
             WaveData* wd = wdList.at(i);
             mBitMask[i] = 1 << (n-i-1);
-            mParser.register_callback(wd->name().toStdString(), wd->id(), [this](const void* obj, uint64_t t, int val) {
+            mParser.register_callback(wd->name(), wd->id(), [this](const void* obj, uint64_t t, int val) {
                 if (t != mCurrentTime)
                 {
                     mNextValue.mergePrevious(mLastValue);
@@ -268,10 +267,10 @@ namespace hal {
     }
 
     //-----------------------------------------------------
-    WaveDataProviderBoolean::WaveDataProviderBoolean(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList, const char *ttable)
+    WaveDataProviderBoolean::WaveDataProviderBoolean(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList, const char *ttable)
         : WaveDataProviderGroup(saleaeDirectoryPath,wdList), mTruthTable(nullptr)
     {
-        mInputCount = wdList.size();
+        mInputCount = (int) wdList.size();
         int n = (mInputCount + 7) / 8;
         mTruthTable = new char[n];
         memcpy(mTruthTable, ttable, n);
@@ -305,24 +304,24 @@ namespace hal {
     }
 
     //-----------------------------------------------------
-    WaveDataProviderTrigger::WaveDataProviderTrigger(const std::string& saleaeDirectoryPath, const QList<WaveData*>& wdList, const QList<int>& toValue, WaveData* filter)
+    WaveDataProviderTrigger::WaveDataProviderTrigger(const std::string& saleaeDirectoryPath, const std::vector<WaveData*>& wdList, const std::vector<int>& toValue, WaveData* filter)
         : mParser(saleaeDirectoryPath), mFilter(filter), mTransitionToValue(nullptr), mCurrentTime(0), mCurrentTrigger(false), mReportedTime(-1)
     {
-        int n = wdList.size();
+        int n = (int) wdList.size();
 
         mTransitionToValue = new int[n];
         for (int i=0; i<n; i++)
         {
-            if (i < toValue.size())
+            if (i < (int) toValue.size())
                 mTransitionToValue[i] = toValue.at(i);
             else
                 mTransitionToValue[i] = -1;
         }
 
-        for (int i=0; i<wdList.size(); i++)
+        for (int i=0; i<(int)wdList.size(); i++)
         {
             WaveData* wd = wdList.at(i);
-            mParser.register_callback(wd->name().toStdString(), wd->id(), [this](const void* obj, uint64_t t, int val) {
+            mParser.register_callback(wd->name(), wd->id(), [this](const void* obj, uint64_t t, int val) {
                 if (t != mCurrentTime)
                 {
                     mCurrentTime = t;
@@ -346,7 +345,7 @@ namespace hal {
     SaleaeDataTuple WaveDataProviderTrigger::startValue(u64 t)
     {
         while (mParser.next_event())
-            if (mCurrentTime >= t && (qint64)mCurrentTime > mReportedTime && mCurrentTrigger)
+            if (mCurrentTime >= t && (int64_t)mCurrentTime > mReportedTime && mCurrentTrigger)
             {
                 if (mFilter)
                 {
@@ -361,7 +360,7 @@ namespace hal {
     SaleaeDataTuple WaveDataProviderTrigger::nextPoint()
     {
         while (mParser.next_event())
-            if ((qint64)mCurrentTime > mReportedTime && mCurrentTrigger)
+            if ((int64_t)mCurrentTime > mReportedTime && mCurrentTrigger)
             {
                 if (mFilter)
                 {

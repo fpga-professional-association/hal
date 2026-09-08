@@ -106,7 +106,7 @@ namespace hal
             if (iwave_sim < 0)
             {
                 no_errors = false;
-                std::cout << "error: net: " << it_ref->name().toStdString() << " (" << it_ref->id() << ") in reference, but not in simulated output" << std::endl;
+                std::cout << "error: net: " << it_ref->name() << " (" << it_ref->id() << ") in reference, but not in simulated output" << std::endl;
             }
             else
             {
@@ -170,7 +170,7 @@ namespace hal
                 max_number_length = std::to_string(std::max(events_a.back().first, events_b.back().first)).size();
             }
 
-            std::cout << "difference in net " << wave_data_a->name().toStdString() << " id=" << net_id << ":" << std::endl;
+            std::cout << "difference in net " << wave_data_a->name() << " id=" << net_id << ":" << std::endl;
             std::cout << "reference:" << std::setfill(' ') << std::setw(max_number_length + 5) << ""
                       << "engine:" << std::endl;
 
@@ -256,7 +256,7 @@ namespace hal
                 for (auto x : mismatch)
                 {
                     int iwave = reference_simulation->waveIndexByNetId(x);
-                    std::cout << "  " << x << " " << (iwave < 0 ? "" : reference_simulation->at(iwave)->name().toUtf8().data()) << std::endl;
+                    std::cout << "  " << x << " " << (iwave < 0 ? "" : reference_simulation->at(iwave)->name()) << std::endl;
                 }
             }
             else
@@ -268,7 +268,7 @@ namespace hal
                 for (auto x : mismatch)
                 {
                     int iwave = engine_simulation->waveIndexByNetId(x);
-                    std::string waveName(iwave < 0 ? "" : engine_simulation->at(iwave)->name().toUtf8().data());
+                    std::string waveName(iwave < 0 ? "" : engine_simulation->at(iwave)->name());
                     if (!waveName.empty())
                     {
                         bool take_it_easy = false;
@@ -283,7 +283,7 @@ namespace hal
                         if (!take_it_easy)
                             no_errors = false;
                     }
-                    std::cout << "  " << x << " " << (iwave < 0 ? "" : engine_simulation->at(iwave)->name().toUtf8().data()) << std::endl;
+                    std::cout << "  " << x << " " << (iwave < 0 ? "" : engine_simulation->at(iwave)->name()) << std::endl;
                 }
             }
 

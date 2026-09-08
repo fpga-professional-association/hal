@@ -3,17 +3,15 @@
 #include "hal_core/netlist/netlist_writer/netlist_writer_manager.h"
 #include "netlist_simulator_controller/netlist_simulator_controller.h"
 #include "hal_core/plugin_system/plugin_manager.h"
+#include "hal_core/utilities/json_write_document.h"
+#include "hal_core/utilities/log.h"
 #include "hal_core/utilities/utils.h"
 #include "hal_core/netlist/project_manager.h"
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QDebug>
-#include <QResource>
-#include <QFile>
-#include <QSettings>
-#include <QDir>
-#include <QCoreApplication>
+#include "rapidjson/document.h"
+#include "rapidjson/filereadstream.h"
+
+#include <filesystem>
+#include <stdio.h>
 
 namespace hal
 {
@@ -27,38 +25,37 @@ namespace hal
 
     std::string SimulatorSerializer::serialize(Netlist* netlist, const std::filesystem::path& savedir, bool isAutosave)
     {
-        Q_UNUSED(netlist);
-        Q_UNUSED(isAutosave);
-        QString simFilename("simulator.json");
-        QFile simFile(QDir(QString::fromStdString(savedir.string())).absoluteFilePath(simFilename));
-        if (!simFile.open(QIODevice::WriteOnly)) return std::string();
+        UNUSED(netlist);
+        UNUSED(isAutosave);
+        std::string simFilename("simulator.json");
 
-        QJsonObject simObj;
-        QJsonArray  simArr;
+        JsonWriteDocument jwd;
+        JsonWriteArray& simArr = jwd.add_array("simulator");
 
         for (NetlistSimulatorController* ctrl : NetlistSimulatorControllerMap::instance()->toList())
         {
-            QJsonObject simEntry;
-            simEntry["id"] = (int) ctrl->get_id();
-            simEntry["name"] = ctrl->name();
-            std::string absoluteWorkingDir = ctrl->get_working_directory();
+            JsonWriteObject& simEntry = simArr.add_object();
+            simEntry["id"]            = (int) ctrl->get_id();
+            simEntry["name"]          = ctrl->name();
             std::filesystem::path relProjdir = ProjectManager::instance()->get_project_directory().get_relative_file_path(ctrl->get_working_directory());
-            simEntry["workdir"] = QString::fromStdString(relProjdir.string());
-            simArr.append(simEntry);
+            simEntry["workdir"]       = relProjdir.string();
+            simEntry.close();
         }
-        simObj["simulator"] = simArr;
+        simArr.close();
 
-        simFile.write(QJsonDocument(simObj).toJson(QJsonDocument::Compact));
+        if (!jwd.serialize((savedir / simFilename).string()))
+        {
+            return std::string();
+        }
 
-        return simFilename.toStdString();
-
+        return simFilename;
     }
 
     void SimulatorSerializer::deserialize(Netlist* netlist, const std::filesystem::path& loaddir)
     {
         mNetlist = netlist;
         if (!loaddir.empty())
-            mProjDir = QDir(QString::fromStdString(loaddir.string()));
+            mProjDir = loaddir;
         NetlistSimulatorControllerMap::instance()->clearAll();
     }
 
@@ -71,30 +68,37 @@ namespace hal
 
         NetlistSimulatorControllerPlugin* ctrlPlug = static_cast<NetlistSimulatorControllerPlugin*>(plugin_manager::get_plugin_instance("netlist_simulator_controller"));
         if (!ctrlPlug) return retval;
-        if (mProjDir.isEmpty())
-            mProjDir = QDir(QString::fromStdString(pm->get_project_directory()));
+        if (mProjDir.empty())
+            mProjDir = pm->get_project_directory();
 
+        std::filesystem::path simFilename = mProjDir / relname;
 
-        QFile simFile(mProjDir.absoluteFilePath(QString::fromStdString(relname)));
-        if (!simFile.open(QIODevice::ReadOnly))
-            return retval;
-        QJsonDocument simDoc   = QJsonDocument::fromJson(simFile.readAll());
-        const QJsonObject& simObj = simDoc.object();
+        FILE* ff = fopen(simFilename.string().c_str(), "rb");
+        if (!ff) return retval;
 
-        if (simObj.contains("simulator") && simObj["simulator"].isArray())
+        char buffer[65536];
+        rapidjson::FileReadStream frs(ff, buffer, sizeof(buffer));
+        rapidjson::Document document;
+        document.ParseStream<0, rapidjson::UTF8<>, rapidjson::FileReadStream>(frs);
+        fclose(ff);
+
+        if (document.HasParseError() || !document.HasMember("simulator") || !document["simulator"].IsArray())
         {
-            QJsonArray simArr = simObj["simulator"].toArray();
-            int n          = simArr.size();
-            for (int i = 0; i < n; i++)
+            return retval;
+        }
+
+        for (auto& jsim : document["simulator"].GetArray())
+        {
+            if (!jsim.HasMember("workdir")) continue;
+            std::string workdir = jsim["workdir"].GetString();
+            if (workdir.empty()) continue;
+            std::filesystem::path workdirPath(workdir);
+            if (workdirPath.is_relative())
             {
-                QJsonObject simEntry = simArr.at(i).toObject();
-                QString workdir = simEntry["workdir"].toString();
-                if (workdir.isEmpty()) continue;
-                if (QFileInfo(workdir).isRelative()) workdir =
-                        QString::fromStdString(ProjectManager::instance()->get_project_directory().get_filename(workdir.toStdString()).string());
-                QString contrFile = QDir(workdir).absoluteFilePath("netlist_simulator_controller.json");
-                retval.push_back(ctrlPlug->restore_simulator_controller(mNetlist,contrFile.toStdString()));
+                workdirPath = ProjectManager::instance()->get_project_directory().get_filename(workdir);
             }
+            std::filesystem::path contrFile = workdirPath / "netlist_simulator_controller.json";
+            retval.push_back(ctrlPlug->restore_simulator_controller(mNetlist, contrFile.string()));
         }
 
         return retval;
@@ -129,7 +133,6 @@ namespace hal
             delete nsc;
             return nullptr;
         }
-        qApp->processEvents();
         return std::unique_ptr<NetlistSimulatorController>(nsc);
     }
 
@@ -141,7 +144,6 @@ namespace hal
             delete nsc;
             return nullptr;
         }
-        qApp->processEvents();
         return std::unique_ptr<NetlistSimulatorController>(nsc);
     }
 
@@ -153,14 +155,12 @@ namespace hal
             log_warning("simulation_plugin", "Simulation controller with ID={} not found in memory, will return nullptr", id);
             return nullptr;
         }
-        qApp->processEvents();
         return std::shared_ptr<NetlistSimulatorController>(ctrl,[](void*){;});
     }
 
     void NetlistSimulatorControllerPlugin::on_unload()
     {
         NetlistSimulatorControllerMap::instance()->shutdown();
-        QResource::unregisterResource("simulator_resources.rcc");
         if (sSimulationSettings) sSimulationSettings->sync();
         if (sSimulatorSerializer) delete sSimulatorSerializer;
     }
@@ -169,9 +169,9 @@ namespace hal
     {
         // report simulation warnings and error messages not related to specific controller to common channel
         LogManager::get_instance()->add_channel("simulation_plugin", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
-        QResource::registerResource("simulator_resources.rcc");
-        QDir userConfigDir(QString::fromStdString(utils::get_user_config_directory()));
-        sSimulationSettings = new SimulationSettings(userConfigDir.absoluteFilePath("simulationsettings.ini"));
+        LogManager::get_instance()->add_channel("waveform", {LogManager::create_stdout_sink(), LogManager::create_file_sink()}, "info");
+        std::filesystem::path userConfigDir = utils::get_user_config_directory();
+        sSimulationSettings = new SimulationSettings((userConfigDir / "simulationsettings.ini").string());
         sSimulatorSerializer = new SimulatorSerializer;
     }
 

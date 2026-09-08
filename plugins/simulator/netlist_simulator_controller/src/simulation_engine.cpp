@@ -4,12 +4,11 @@
 #include "netlist_simulator_controller/simulation_process.h"
 #include "netlist_simulator_controller/simulation_thread.h"
 
-#include <QDir>
-#include <QProcess>
-#include <QThread>
-#include <QFile>
-#include <QFileInfo>
-#include <QDir>
+#include "hal_core/utilities/log.h"
+#include "hal_core/utilities/utils.h"
+
+#include <filesystem>
+#include <fstream>
 
 namespace hal
 {
@@ -41,22 +40,29 @@ namespace hal
 
     bool SimulationEngine::install_saleae_parser(std::string dirname) const
     {
-        QDir dir(QString::fromStdString(dirname));
-        if (!dir.exists()) return false;
-        const char* filenames[] = {":/include/saleae_parser.h", ":/src/saleae_parser.cpp",
-                                   ":/include/saleae_file.h", ":/src/saleae_file.cpp",
-                                   ":/include/saleae_directory.h", ":/src/saleae_directory.cpp", nullptr};
+        hal::error_code ec;
+        std::filesystem::path dir(dirname);
+        if (!std::filesystem::exists(dir, ec)) return false;
+
+        std::filesystem::path sourceDir = utils::get_share_directory() / "saleae_parser";
+        if (sourceDir.empty() || !std::filesystem::exists(sourceDir, ec))
+        {
+            log_warning("simulation_plugin", "Cannot find SALEAE parser sources in '{}', please check HAL installation.", sourceDir.string());
+            return false;
+        }
+
+        const char* filenames[] = {"saleae_parser.h", "saleae_parser.cpp",
+                                   "saleae_file.h", "saleae_file.cpp",
+                                   "saleae_directory.h", "saleae_directory.cpp", nullptr};
         for (int i=0; filenames[i]; i++)
         {
-            // add STAMDALONE_PARSER preprocessor directive to all source files
-            QFileInfo finfo(filenames[i]);
-            QString targetFile = dir.absoluteFilePath(finfo.fileName());
-            QFile ff(filenames[i]);
-            if (!ff.open(QIODevice::ReadOnly)) return false;
-            QFile of(targetFile);
-            if (!of.open(QIODevice::WriteOnly)) return false;
-            of.write("#define STANDALONE_PARSER 1\n");
-            of.write(ff.readAll());
+            // add STANDALONE_PARSER preprocessor directive to all source files
+            std::ifstream ff(sourceDir / filenames[i], std::ios::binary);
+            if (!ff.good()) return false;
+            std::ofstream of(dir / filenames[i], std::ios::binary);
+            if (!of.good()) return false;
+            of << "#define STANDALONE_PARSER 1\n";
+            of << ff.rdbuf();
         }
         return true;
     }
@@ -83,7 +89,7 @@ namespace hal
 
     std::vector<WaveEvent> SimulationEngineEventDriven::get_simulation_events(u32 netId) const
     {
-        Q_UNUSED(netId);
+        UNUSED(netId);
         return std::vector<WaveEvent>();
     }
 
@@ -95,7 +101,7 @@ namespace hal
 
     bool SimulationEngineEventDriven::run(NetlistSimulatorController* controller, SimulationLogReceiver *logReceiver)
     {
-        Q_UNUSED(logReceiver);
+        UNUSED(logReceiver);
         SimulationThread* thread = new SimulationThread(controller, mSimulationInput, this);
         mState                   = Running;
         thread->start();

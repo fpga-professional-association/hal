@@ -3,7 +3,6 @@
 #include "netlist_simulator_controller/saleae_directory.h"
 #include <fstream>
 #include <sstream>
-#include <QDebug>
 #include <sys/resource.h>
 #include <iostream>
 

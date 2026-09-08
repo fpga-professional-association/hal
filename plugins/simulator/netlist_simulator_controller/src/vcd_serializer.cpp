@@ -6,27 +6,45 @@
 #include "netlist_simulator_controller/saleae_file.h"
 #include "netlist_simulator_controller/saleae_parser.h"
 #include "netlist_simulator_controller/saleae_writer.h"
+#include "netlist_simulator_controller/string_utils.h"
 #include "netlist_simulator_controller/wave_data.h"
 
-#include <QCoreApplication>
-#include <QDataStream>
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QRegularExpression>
+#include <cassert>
+#include <cstring>
+#include <filesystem>
 #include <math.h>
+#include <regex>
 
 namespace hal
 {
 
     const int maxErrorMessages = 3;
 
+    namespace
+    {
+        /// Absolute path of `dirname`, resolved against the current working directory if needed (QDir::absoluteFilePath).
+        std::filesystem::path absoluteDirectory(const std::string& dirname)
+        {
+            std::filesystem::path retval(dirname);
+            if (retval.is_relative())
+            {
+                hal::error_code ec;
+                std::filesystem::path cwd = std::filesystem::current_path(ec);
+                if (!ec)
+                {
+                    retval = cwd / retval;
+                }
+            }
+            return retval;
+        }
+    }    // namespace
+
     VcdSerializerElement::VcdSerializerElement(int inx, const WaveData* wd) : mIndex(inx), mData(wd), mTime(0), mValue(SaleaeDataTuple::sReadError)
     {
         ;
     }
 
-    QString VcdSerializerElement::name() const
+    std::string VcdSerializerElement::name() const
     {
         return mData->name();
     }
@@ -42,9 +60,9 @@ namespace hal
         mTime  = 0;
     }
 
-    QByteArray VcdSerializerElement::charCode() const
+    std::string VcdSerializerElement::charCode() const
     {
-        QByteArray retval;
+        std::string retval;
         int z          = mIndex;
         char firstChar = '!';
         do
@@ -60,12 +78,14 @@ namespace hal
     }
 
     //----------------------------------
-    VcdSerializer::VcdSerializer(const QString& workdir, bool saleae_cli, QObject* parent) : QObject(parent), mSaleaeWriter(nullptr), mWorkdir(workdir), mLastProgress(-1)
+    VcdSerializer::VcdSerializer(const std::string& workdir, bool saleae_cli, NetlistSimulatorController* controller)
+        : mTime(0), mFirstTimestamp(0), mLastTimestamp(0), mTimeShift(0), mSaleaeWriter(nullptr), mWorkdir(workdir), mSaleae(false), mLastProgress(-1),
+          mController(controller)
     {
-        if (!mWorkdir.isEmpty() && !saleae_cli)
+        memset(mErrorCount, 0, sizeof(mErrorCount));
+        if (!mWorkdir.empty() && !saleae_cli)
         {
-            QDir saleaeDir           = QDir(mWorkdir).absoluteFilePath("saleae");
-            mSaleaeDirectoryFilename = saleaeDir.absoluteFilePath("saleae.json");
+            mSaleaeDirectoryFilename = (absoluteDirectory(mWorkdir) / "saleae" / "saleae.json").string();
         }
         else
         {
@@ -80,9 +100,9 @@ namespace hal
         memset(mErrorCount, 0, sizeof(mErrorCount));
     }
 
-    void VcdSerializer::writeVcdEvent(QFile& of)
+    void VcdSerializer::writeVcdEvent(std::ofstream& of)
     {
-        if (mTime < mFirstTimestamp || mTime > mLastTimestamp)
+        if ((u64) mTime < mFirstTimestamp || (u64) mTime > mLastTimestamp)
         {
             return;
         }
@@ -91,56 +111,55 @@ namespace hal
         {
             if (vse->hasData())
             {
-                qulonglong ts = (vse->time() == 0) ? 0 : vse->time() - mTimeShift;
+                uint64_t ts = (vse->time() == 0) ? 0 : vse->time() - mTimeShift;
                 if (first)
                 {
-                    of.write('#' + QByteArray::number(ts) + '\n');
+                    of << '#' << std::to_string(ts) << '\n';
                     first = false;
                 }
-                of.write(QByteArray::number(vse->value()) + vse->charCode() + '\n');
-                vse->value();
+                of << std::to_string(vse->value()) << vse->charCode() << '\n';
                 vse->reset();
             }
         }
     }
 
-    bool VcdSerializer::exportCsv(const QString& filename, const QList<const WaveData*>& waves)
+    bool VcdSerializer::exportCsv(const std::string& filename, const std::vector<const WaveData*>& waves)
     {
-        if (waves.isEmpty())
+        if (waves.empty())
         {
             return false;
         }
-        SaleaeParser parser(mSaleaeDirectoryFilename.toStdString());
-        QFile of(filename);
-        if (!of.open(QIODevice::WriteOnly))
+        SaleaeParser parser(mSaleaeDirectoryFilename);
+        std::ofstream of(filename, std::ios::binary);
+        if (!of.good())
         {
             return false;
         }
 
         mTime = 0;
-        int n = waves.size();
+        int n = (int) waves.size();
 
         int* values = new int [n];
         memset(values, 0, n*sizeof(int));
 
-        of.write("Time");
+        of << "Time";
         for (int i = 0; i < n; i++)
         {
             const WaveData* wd = waves.at(i);
-            of.write(QString(",\"%1\"").arg(wd->name()).toUtf8());
+            of << ",\"" << wd->name() << "\"";
             parser.register_callback(
-                wd->name().toStdString(),
+                wd->name(),
                 wd->id(),
                 [this,&of,values,n](const void* obj, uint64_t t, int val) {
-                    if (t != mTime)
+                    if (t != (uint64_t) mTime)
                     {
-                        of.write(QByteArray::number((qulonglong)mTime));
+                        of << std::to_string((uint64_t)mTime);
                         for (int j=0; j<n; j++)
                         {
-                            of.write(",");
-                            of.write(QByteArray::number(values[j]));
+                            of << ",";
+                            of << std::to_string(values[j]);
                         }
-                        of.write("\n");
+                        of << "\n";
                         mTime = t;
                     }
                     *((int*)obj) = val;
@@ -153,15 +172,15 @@ namespace hal
 
         if (mTime)
         {
-            of.write(QByteArray::number((qulonglong)mTime));
+            of << std::to_string((uint64_t)mTime);
             for (int j=0; j<n; j++)
             {
-                of.write(",");
-                of.write(QByteArray::number(values[j]));
+                of << ",";
+                of << std::to_string(values[j]);
             }
         }
 
-        of.write("\n");
+        of << "\n";
 
         delete [] values;
 
@@ -169,34 +188,34 @@ namespace hal
     }
 
 
-    bool VcdSerializer::exportVcd(const QString& filename, const QList<const WaveData*>& waves, u32 startTime, u32 endTime, u32 timeSift)
+    bool VcdSerializer::exportVcd(const std::string& filename, const std::vector<const WaveData*>& waves, u32 startTime, u32 endTime, u32 timeSift)
     {
         mTimeShift      = timeSift;
         mFirstTimestamp = startTime;
         mLastTimestamp  = endTime - mTimeShift;
-        if (waves.isEmpty())
+        if (waves.empty())
         {
             return false;
         }
-        SaleaeParser parser(mSaleaeDirectoryFilename.toStdString());
-        QFile of(filename);
-        if (!of.open(QIODevice::WriteOnly))
+        SaleaeParser parser(mSaleaeDirectoryFilename);
+        std::ofstream of(filename, std::ios::binary);
+        if (!of.good())
         {
             return false;
         }
 
         mTime = 0;
-        of.write(QByteArray("$scope module top_module $end\n"));
+        of << "$scope module top_module $end\n";
 
-        int n = waves.size();
+        int n = (int) waves.size();
 
         for (int i = 0; i < n; i++)
         {
             const WaveData* wd        = waves.at(i);
             VcdSerializerElement* vse = new VcdSerializerElement(i, wd);
-            mWriteElements.append(vse);
+            mWriteElements.push_back(vse);
             parser.register_callback(
-                wd->name().toStdString(),
+                wd->name(),
                 wd->id(),
                 [this, &of](const void* obj, uint64_t t, int val) {
                     VcdSerializerElement* vse = (VcdSerializerElement*)obj;
@@ -206,7 +225,7 @@ namespace hal
                     }
                     else
                     {
-                        if (t != mTime)
+                        if (t != (uint64_t) mTime)
                         {
                             writeVcdEvent(of);
                             mTime = t - mTimeShift;
@@ -215,11 +234,10 @@ namespace hal
                     }
                 },
                 vse);
-            QString line = QString("$var wire 1 %1 %2 $end\n").arg(QString::fromUtf8(vse->charCode())).arg(vse->name());
-            of.write(line.toUtf8());
+            of << "$var wire 1 " << vse->charCode() << " " << vse->name() << " $end\n";
         }
 
-        of.write(QByteArray("$upscope $end\n$enddefinitions $end\n"));
+        of << "$upscope $end\n$enddefinitions $end\n";
 
         while (parser.next_event())
         {
@@ -234,20 +252,20 @@ namespace hal
         return true;
     }
 
-    bool VcdSerializer::parseVcdDataNonDecimal(const QByteArray& line, int base)
+    bool VcdSerializer::parseVcdDataNonDecimal(const std::string& line, int base)
     {
-        QList<QByteArray> sl = line.split(' ');
+        std::vector<std::string> sl = simutil::split(line, ' ');
         if (sl.size() != 2)
         {
             return false;
         }
         bool ok;
-        int val = sl.at(0).toUInt(&ok, base);
+        int val = (int) simutil::to_uint(sl.at(0), &ok, base);
         if (!ok)
         {
             if (mErrorCount[0]++ < maxErrorMessages)
             {
-                log_warning("waveform_viewer", "Cannot parse VCD data value '{}'", std::string(sl.at(0).data()));
+                log_warning("waveform", "Cannot parse VCD data value '{}'", sl.at(0));
             }
             val = 0;
         }
@@ -265,14 +283,14 @@ namespace hal
             switch (*(buf + pos))
             {
                 case 'b':
-                    return true;    // parseVcdDataNonDecimal(QByteArray(buf+pos+1,len-1),2);
+                    return true;    // parseVcdDataNonDecimal(std::string(buf+pos+1,len-1),2);
                 case 'o':
-                    return true;    //parseVcdDataNonDecimal(QByteArray(buf+pos+1,len-1),8);
+                    return true;    //parseVcdDataNonDecimal(std::string(buf+pos+1,len-1),8);
                 case 'h':
-                    return true;    // parseVcdDataNonDecimal(QByteArray(buf+pos+1,len-1),16);
+                    return true;    // parseVcdDataNonDecimal(std::string(buf+pos+1,len-1),16);
                 case '$': {
-                    QByteArray testKeyword = QByteArray(buf + pos + 1, len - 1);
-                    if (testKeyword.startsWith("dumpvars") || testKeyword.startsWith("end"))
+                    std::string testKeyword = std::string(buf + pos + 1, len - 1);
+                    if (simutil::starts_with(testKeyword, "dumpvars") || simutil::starts_with(testKeyword, "end"))
                     {
                         return true;
                     }
@@ -280,8 +298,8 @@ namespace hal
                 }
                 case '#': {
                     bool ok;
-                    mTime = QByteArray(buf + pos + 1, len - 1).toULongLong(&ok);
-                    Q_ASSERT(ok);
+                    mTime = (int) simutil::to_uint(std::string(buf + pos + 1, len - 1), &ok);
+                    assert(ok);
                     return true;
                 }
                 case 'x':
@@ -301,7 +319,7 @@ namespace hal
                     val = *(buf + pos) - '0';
                     break;
                 default:
-                    qDebug() << "cannot parse dataline entries starting with" << *(buf + pos) << buf;
+                    log_warning("waveform", "Cannot parse dataline entries starting with '{}' : '{}'", *(buf + pos), buf);
                     return false;
             }
             int p = pos + 1;
@@ -309,9 +327,9 @@ namespace hal
             {
                 ++p;
             }
-            Q_ASSERT(p > pos + 1);
+            assert(p > pos + 1);
             int abbrevLen = p - pos - 1;
-            storeValue(val, QByteArray(buf + pos + 1, abbrevLen));
+            storeValue(val, std::string(buf + pos + 1, abbrevLen));
             pos = p;
             len -= (abbrevLen + 1);
             while (buf[pos] == ' ' && len > 0)
@@ -323,14 +341,13 @@ namespace hal
         return true;
     }
 
-    void VcdSerializer::storeValue(int val, const QByteArray& abrev)
+    void VcdSerializer::storeValue(int val, const std::string& abrev)
     {
-        SaleaeOutputFile* sof = mSaleaeFiles.value(abrev);
+        SaleaeOutputFile* sof = simutil::map_value(mSaleaeFiles, abrev, (SaleaeOutputFile*)nullptr);
         if (!sof)
         {
             return;
         }
-        //    Q_ASSERT(wd);
         sof->writeTimeValue(mTime, val);
     }
 
@@ -339,10 +356,10 @@ namespace hal
         int icol  = 0;
         char* pos = buf;
         bool loop = (*pos != 0);
-        QString abbrev;
+        std::string abbrev;
         while (loop)
         {
-            QByteArray header;
+            std::string header;
             while (*pos && *pos != ',' && *pos != '\n')
             {
                 header += *(pos++);
@@ -352,7 +369,7 @@ namespace hal
             {
                 if (mSaleae)
                 {
-                    abbrev = QString::fromUtf8(header);
+                    abbrev = header;
                 }
             }
             else
@@ -360,33 +377,33 @@ namespace hal
                 bool ok;
                 if (!mSaleae)
                 {
-                    abbrev = QString::number(icol);
+                    abbrev = std::to_string(icol);
                 }
-                QString name;
-                u32 id = header.trimmed().toUInt(&ok);
+                std::string name;
+                u32 id = (u32) simutil::to_uint(simutil::trim(header), &ok);
                 if (ok && id)
                 {
-                    name = QString("net[%1]").arg(id);
+                    name = "net[" + std::to_string(id) + "]";
                 }
                 else
                 {
-                    name  = QString::fromUtf8(header.trimmed());
-                    int n = name.size() - 1;
+                    name  = simutil::trim(header);
+                    int n = (int) name.size() - 1;
                     if (n < 2 || name.at(0) != '"' || name.at(n) != '"')
                     {
                         return false;
                     }
-                    name = name.mid(1, n - 1);
+                    name = name.substr(1, n - 1);
                     id   = 0;
                 }
-                if (!name.isEmpty() || id)
+                if (!name.empty() || id)
                 {
-                    SaleaeOutputFile* sof = mSaleaeWriter->add_or_replace_waveform(name.toStdString(), id);
+                    SaleaeOutputFile* sof = mSaleaeWriter->add_or_replace_waveform(name, id);
                     if (!sof)
                     {
                         return false;
                     }
-                    mSaleaeFiles.insert(abbrev, sof);
+                    mSaleaeFiles[abbrev] = sof;
                 }
                 else
                 {
@@ -407,13 +424,13 @@ namespace hal
         bool loop = (*pos != 0);
         while (loop)
         {
-            QByteArray value;
+            std::string value;
             while (*pos && *pos != ',' && *pos != '\n')
             {
                 value += *(pos++);
             }
             loop = (*(pos++) == ',');
-            if (!value.isEmpty())
+            if (!value.empty())
             {
                 if (icol)
                 {
@@ -429,13 +446,13 @@ namespace hal
                                 ival = 1;
                                 break;
                             default:
-                                ival = value.trimmed().toInt(&ok);
+                                ival = (int) simutil::to_int(value, &ok);
                                 break;
                         }
                     }
                     else
                     {
-                        ival = value.trimmed().toInt(&ok);
+                        ival = (int) simutil::to_int(value, &ok);
                     }
                     if (!ok)
                     {
@@ -443,13 +460,13 @@ namespace hal
                     }
 
                     bool wdInsert = false;
-                    if (icol >= mLastValue.size())
+                    if (icol >= (int) mLastValue.size())
                     {
-                        while (icol > mLastValue.size())
+                        while (icol > (int) mLastValue.size())
                         {
-                            mLastValue.append(-99);
+                            mLastValue.push_back(-99);
                         }
-                        mLastValue.append(ival);
+                        mLastValue.push_back(ival);
                         wdInsert = true;
                     }
                     else if (mLastValue.at(icol) != ival)
@@ -460,7 +477,7 @@ namespace hal
 
                     if (wdInsert)
                     {
-                        SaleaeOutputFile* sof = mSaleaeFiles.value(QString::number(icol));
+                        SaleaeOutputFile* sof = simutil::map_value(mSaleaeFiles, std::to_string(icol), (SaleaeOutputFile*)nullptr);
                         if (!sof)
                         {
                             return false;
@@ -471,7 +488,7 @@ namespace hal
                 else
                 {
                     // time
-                    double tDouble = value.toDouble(&ok);
+                    double tDouble = simutil::to_double(value, &ok);
                     if (!ok)
                     {
                         return false;
@@ -493,9 +510,9 @@ namespace hal
         return true;
     }
 
-    bool VcdSerializer::importCsv(const QString& csvFilename, const QString& workdir, const QList<const Net*>& onlyNets, u64 timeScale)
+    bool VcdSerializer::importCsv(const std::string& csvFilename, const std::string& workdir, const std::vector<const Net*>& onlyNets, u64 timeScale)
     {
-        mWorkdir = workdir.isEmpty() ? QDir::currentPath() : workdir;
+        mWorkdir = workdir.empty() ? std::filesystem::current_path().string() : workdir;
         mLastValue.clear();
         deleteFiles();
         mTime   = 0;
@@ -503,17 +520,17 @@ namespace hal
 
         SaleaeParser::sTimeScaleFactor = timeScale;
 
-        QFile ff(csvFilename);
-        if (!ff.open(QIODevice::ReadOnly))
+        std::ifstream ff(csvFilename, std::ios::binary);
+        if (!ff.good())
         {
-            log_warning("waveform_viewer", "Cannot open CSV input file '{}'.", csvFilename.toStdString());
+            log_warning("waveform", "Cannot open CSV input file '{}'.", csvFilename);
             return false;
         }
 
         createSaleaeDirectory();
-        mSaleaeWriter = new SaleaeWriter(mSaleaeDirectoryFilename.toStdString());
+        mSaleaeWriter = new SaleaeWriter(mSaleaeDirectoryFilename);
 
-        bool retval = parseCsvInternal(ff, onlyNets);
+        bool retval = parseCsvInternal(ff, csvFilename, onlyNets);
 
         delete mSaleaeWriter;
         mSaleaeWriter = nullptr;
@@ -528,8 +545,7 @@ namespace hal
 
     void VcdSerializer::emitProgress(double step, double max)
     {
-        NetlistSimulatorController* nsc = static_cast<NetlistSimulatorController*>(parent());
-        if (!nsc)
+        if (!mController)
         {
             return;
         }
@@ -538,35 +554,34 @@ namespace hal
         {
             return;
         }
-        nsc->emitLoadProgress(percent);
+        mController->emitLoadProgress(percent);
         mLastProgress = percent;
-        qApp->processEvents();
     }
 
     void VcdSerializer::emitImportDone()
     {
-        NetlistSimulatorController* nsc = static_cast<NetlistSimulatorController*>(parent());
-        if (!nsc)
+        if (!mController)
         {
             return;
         }
-        nsc->emitLoadProgress(-1);
+        mController->emitLoadProgress(-1);
         mLastProgress = -1;
     }
 
     void VcdSerializer::createSaleaeDirectory()
     {
-        QDir saleaeDir(QDir(mWorkdir).absoluteFilePath("saleae"));
-        saleaeDir.mkpath(saleaeDir.absolutePath());
-        mSaleaeDirectoryFilename = saleaeDir.absoluteFilePath("saleae.json");
+        std::filesystem::path saleaeDir = absoluteDirectory(mWorkdir) / "saleae";
+        hal::error_code ec;
+        std::filesystem::create_directories(saleaeDir, ec);
+        mSaleaeDirectoryFilename = (saleaeDir / "saleae.json").string();
     }
 
-    bool VcdSerializer::parseCsvInternal(QFile& ff, const QList<const Net*>& onlyNets)
+    bool VcdSerializer::parseCsvInternal(std::ifstream& ff, const std::string& filename, const std::vector<const Net*>& onlyNets)
     {
-        QMap<QString, const Net*> netNames;
+        std::map<std::string, const Net*> netNames;
         for (const Net* n : onlyNets)
         {
-            netNames.insert(QString::fromStdString(n->get_name()), n);
+            netNames[n->get_name()] = n;
         }
 
         static const int bufsize = 65535;
@@ -574,14 +589,14 @@ namespace hal
 
         bool parseHeader  = true;
         int dataLineIndex = 0;
-        while (!ff.atEnd())
+        while (!simutil::at_end(ff))
         {
-            int sizeRead = ff.readLine(buf, bufsize);
+            int sizeRead = simutil::read_line(ff, buf, bufsize);
             if (sizeRead >= bufsize)
             {
                 if (mErrorCount[1]++ < maxErrorMessages)
                 {
-                    log_warning("waveform_viewer", "CSV line {} exceeds buffer size {}.", dataLineIndex, bufsize);
+                    log_warning("waveform", "CSV line {} exceeds buffer size {}.", dataLineIndex, bufsize);
                 }
                 return false;
             }
@@ -590,7 +605,7 @@ namespace hal
             {
                 if (mErrorCount[2]++ < maxErrorMessages)
                 {
-                    log_warning("waveform_viewer", "CSV parse error reading line {} from file '{}'.", dataLineIndex, ff.fileName().toStdString());
+                    log_warning("waveform", "CSV parse error reading line {} from file '{}'.", dataLineIndex, filename);
                 }
                 return false;
             }
@@ -605,7 +620,7 @@ namespace hal
                 {
                     if (mErrorCount[3]++ < maxErrorMessages)
                     {
-                        log_warning("waveform_viewer", "Cannot parse CSV header line '{}'.", buf);
+                        log_warning("waveform", "Cannot parse CSV header line '{}'.", buf);
                     }
                     return false;
                 }
@@ -617,7 +632,7 @@ namespace hal
                 {
                     if (mErrorCount[4]++ < maxErrorMessages)
                     {
-                        log_warning("waveform_viewer", "Cannot parse CSV data line '{}'.", buf);
+                        log_warning("waveform", "Cannot parse CSV data line '{}'.", buf);
                     }
                     return false;
                 }
@@ -627,22 +642,22 @@ namespace hal
         return true;
     }
 
-    bool VcdSerializer::importVcd(const QString& vcdFilename, const QString& workdir, const QList<const Net*>& onlyNets)
+    bool VcdSerializer::importVcd(const std::string& vcdFilename, const std::string& workdir, const std::vector<const Net*>& onlyNets)
     {
-        mWorkdir = workdir.isEmpty() ? QDir::currentPath() : workdir;
+        mWorkdir = workdir.empty() ? std::filesystem::current_path().string() : workdir;
         deleteFiles();
         mTime = 0;
-        QFile ff(vcdFilename);
-        if (!ff.open(QIODevice::ReadOnly))
+        std::ifstream ff(vcdFilename, std::ios::binary);
+        if (!ff.good())
         {
-            log_warning("waveform_viewer", "Cannot open VCD input file '{}'.", vcdFilename.toStdString());
+            log_warning("waveform", "Cannot open VCD input file '{}'.", vcdFilename);
             return false;
         }
 
         createSaleaeDirectory();
-        mSaleaeWriter = new SaleaeWriter(mSaleaeDirectoryFilename.toStdString());
+        mSaleaeWriter = new SaleaeWriter(mSaleaeDirectoryFilename);
 
-        bool retval = parseVcdInternal(ff, onlyNets);
+        bool retval = parseVcdInternal(ff, vcdFilename, onlyNets);
 
         delete mSaleaeWriter;
         mSaleaeWriter = nullptr;
@@ -656,37 +671,41 @@ namespace hal
         return retval;
     }
 
-    bool VcdSerializer::parseVcdInternal(QFile& ff, const QList<const Net*>& onlyNets)
+    bool VcdSerializer::parseVcdInternal(std::ifstream& ff, const std::string& filename, const std::vector<const Net*>& onlyNets)
     {
         bool parseHeader = true;
 
-        QMap<QString, const Net*> netNames;
+        std::map<std::string, const Net*> netNames;
         for (const Net* n : onlyNets)
         {
-            netNames.insert(QString::fromStdString(n->get_name()), n);
+            netNames[n->get_name()] = n;
         }
 
-        QRegularExpression reHead("\\$(\\w*) (.*)\\$end");
-        QRegularExpression reWire("wire\\s+(\\d+) ([^ ]+) (.*)$");
+        std::regex reHead("\\$(\\w*) (.*)\\$end");
+        std::regex reWire("wire\\s+(\\d+) ([^ ]+) (.*)$");
 
-        quint64 fileSize  = ff.size();
-        quint64 totalRead = 0;
+        hal::error_code ec;
+        uint64_t fileSize  = std::filesystem::file_size(std::filesystem::path(filename), ec);
+        uint64_t totalRead = 0;
 
         static const int bufsize = 4095;
         char buf[bufsize + 1];
 
         int iline = 0;
-        while (!ff.atEnd())
+        while (!simutil::at_end(ff))
         {
-            int sizeRead = ff.readLine(buf, bufsize);
+            int sizeRead = simutil::read_line(ff, buf, bufsize);
             ++iline;
             totalRead += sizeRead;
-            emitProgress(totalRead, fileSize);
+            if (fileSize)
+            {
+                emitProgress(totalRead, fileSize);
+            }
             if (sizeRead >= bufsize)
             {
                 if (mErrorCount[5]++ < maxErrorMessages)
                 {
-                    log_warning("waveform_viewer", "VCD line {} exceeds buffer size {}.", iline, bufsize);
+                    log_warning("waveform", "VCD line {} exceeds buffer size {}.", iline, bufsize);
                 }
                 return false;
             }
@@ -695,7 +714,7 @@ namespace hal
             {
                 if (mErrorCount[6]++ < maxErrorMessages)
                 {
-                    log_warning("waveform_viewer", "VCD parse error reading line {} from file '{}'.", iline, ff.fileName().toStdString());
+                    log_warning("waveform", "VCD parse error reading line {} from file '{}'.", iline, filename);
                 }
                 return false;
             }
@@ -714,42 +733,50 @@ namespace hal
 
             if (parseHeader)
             {
-                QByteArray line(buf, sizeRead);
-                QRegularExpressionMatch mHead = reHead.match(line);
-                if (mHead.hasMatch())
+                std::string line(buf, sizeRead);
+                std::smatch mHead;
+                if (std::regex_search(line, mHead, reHead))
                 {
-                    if (mHead.captured(1) == "enddefinitions")
+                    if (mHead[1].str() == "enddefinitions")
                     {
                         parseHeader = false;
                     }
-                    else if (mHead.captured(1) == "var")
+                    else if (mHead[1].str() == "var")
                     {
-                        QRegularExpressionMatch mWire = reWire.match(mHead.captured(2));
-                        bool ok;
-                        QString wireName = mWire.captured(3);
-                        if (!wireName.isEmpty() && wireName.at(0) == '\\')
+                        std::string varDefinition = mHead[2].str();
+                        std::smatch mWire;
+                        std::string wireName;
+                        std::string wireAbbrev;
+                        std::string wireBitsTxt;
+                        if (std::regex_search(varDefinition, mWire, reWire))
                         {
-                            wireName.remove(0, 1);
+                            wireBitsTxt = mWire[1].str();
+                            wireAbbrev  = mWire[2].str();
+                            wireName    = mWire[3].str();
                         }
-                        wireName       = wireName.trimmed();
-                        const Net* net = netNames.value(wireName);
+                        bool ok;
+                        if (!wireName.empty() && wireName.at(0) == '\\')
+                        {
+                            wireName.erase(0, 1);
+                        }
+                        wireName       = simutil::trim(wireName);
+                        const Net* net = simutil::map_value(netNames, wireName, (const Net*)nullptr);
 
-                        if (!netNames.isEmpty() && !net)
+                        if (!netNames.empty() && !net)
                         {
                             continue;    // net not found in given name list
                         }
 
-                        if (mAbbrevByName.contains(wireName))
+                        if (mAbbrevByName.find(wireName) != mAbbrevByName.end())
                         {
                             if (mErrorCount[7]++ < maxErrorMessages)
                             {
-                                log_warning("waveform_viewer", "Waveform duplicate for '{}' in VCD file '{}'.", wireName.toStdString(), ff.fileName().toStdString());
+                                log_warning("waveform", "Waveform duplicate for '{}' in VCD file '{}'.", wireName, filename);
                             }
                             continue;
                         }
-                        QString wireAbbrev = mWire.captured(2);
-                        mAbbrevByName.insert(wireName, wireAbbrev);
-                        int wireBits = mWire.captured(1).toUInt(&ok);
+                        mAbbrevByName[wireName] = wireAbbrev;
+                        int wireBits            = (int) simutil::to_uint(wireBitsTxt, &ok);
                         if (!ok)
                         {
                             wireBits = 1;
@@ -762,21 +789,22 @@ namespace hal
                         u32 netId = net ? net->get_id() : 0;
 
                         SaleaeOutputFile* sof = nullptr;
-                        if (mSaleaeFiles.contains(wireAbbrev))
+                        auto itAbbrev         = mSaleaeFiles.find(wireAbbrev);
+                        if (itAbbrev != mSaleaeFiles.end())
                         {
                             // output file already exists, need name entry
-                            sof = mSaleaeFiles.value(wireAbbrev);
+                            sof = itAbbrev->second;
                             if (sof)
                             {
-                                mSaleaeWriter->add_directory_entry(sof->index(), wireName.toStdString(), netId);
+                                mSaleaeWriter->add_directory_entry(sof->index(), wireName, netId);
                             }
                         }
                         else
                         {
-                            sof = mSaleaeWriter->add_or_replace_waveform(wireName.toStdString(), netId);
+                            sof = mSaleaeWriter->add_or_replace_waveform(wireName, netId);
                             if (sof)
                             {
-                                mSaleaeFiles.insert(wireAbbrev, sof);
+                                mSaleaeFiles[wireAbbrev] = sof;
                             }
                         }
                     }
@@ -788,7 +816,7 @@ namespace hal
                 {
                     if (mErrorCount[8]++ < maxErrorMessages)
                     {
-                        log_warning("waveform_viewer", "Cannot parse VCD data line '{}'.", QByteArray(buf, sizeRead).data());
+                        log_warning("waveform", "Cannot parse VCD data line '{}'.", std::string(buf, sizeRead));
                     }
                     return false;
                 }
@@ -797,9 +825,9 @@ namespace hal
         return true;
     }
 
-    bool VcdSerializer::importSaleae(const QString& saleaeDirecotry, const std::unordered_map<hal::Net*, int>& lookupTable, const QString& workdir, u64 timeScale)
+    bool VcdSerializer::importSaleae(const std::string& saleaeDirecotry, const std::unordered_map<hal::Net*, int>& lookupTable, const std::string& workdir, u64 timeScale)
     {
-        mWorkdir = workdir.isEmpty() ? QDir::currentPath() : workdir;
+        mWorkdir = workdir.empty() ? std::filesystem::current_path().string() : workdir;
         deleteFiles();
         mTime                          = 0;
         SaleaeParser::sTimeScaleFactor = timeScale;
@@ -810,35 +838,28 @@ namespace hal
         createSaleaeDirectory();
         SaleaeDirectory sd(get_saleae_directory_filename());
         SaleaeDirectoryStoreRequest save(&sd);
-        QDir sourceDir(saleaeDirecotry);
-        QDir targetDir(QFileInfo(mSaleaeDirectoryFilename).path());
+        std::filesystem::path sourceDir(saleaeDirecotry);
+        std::filesystem::path targetDir = std::filesystem::path(mSaleaeDirectoryFilename).parent_path();
         emitProgress(istep++, nstep);
 
         for (auto it = lookupTable.begin(); it != lookupTable.end(); ++it)
         {
-            Q_ASSERT(it->first);
-            bool removeOldFile = false;
-            int inx            = sd.get_datafile_index(it->first->get_name(), it->first->get_id());
+            assert(it->first);
+            int inx = sd.get_datafile_index(it->first->get_name(), it->first->get_id());
             if (inx < 0)
             {
                 // create new file in import direcotry
                 inx = sd.get_next_available_index();
             }
-            else
-            {
-                removeOldFile = true;
-            }
-            QString source = sourceDir.absoluteFilePath(QString("digital_%1.bin").arg(it->second));
-            QString target = targetDir.absoluteFilePath(QString("digital_%1.bin").arg(inx));
-            if (removeOldFile)
-            {
-                QFile::remove(target);
-            }
-            if (!QFile::copy(source, target))
+            std::filesystem::path source = sourceDir / ("digital_" + std::to_string(it->second) + ".bin");
+            std::filesystem::path target = targetDir / ("digital_" + std::to_string(inx) + ".bin");
+            hal::error_code ec;
+            std::filesystem::remove(target, ec);
+            if (!std::filesystem::copy_file(source, target, std::filesystem::copy_options::overwrite_existing, ec))
             {
                 return false;
             }
-            SaleaeInputFile sif(target.toStdString());
+            SaleaeInputFile sif(target.string());
             if (!sif.header())
             {
                 return false;

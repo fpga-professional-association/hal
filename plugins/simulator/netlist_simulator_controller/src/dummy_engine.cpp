@@ -1,5 +1,5 @@
 #include "netlist_simulator_controller/dummy_engine.h"
-#include <QDebug>
+#include "hal_core/utilities/log.h"
 
 namespace hal {
     DummyEngineFactory* DummyEngineFactory::sDumFac = new DummyEngineFactory;
@@ -30,7 +30,7 @@ namespace hal {
 
     bool DummyEngine::finalize()
     {
-        qDebug() << "DummyEngine::finalize";
+        log_info("simulation_plugin", "DummyEngine::finalize");
         mState = Done;
         return true;
     }

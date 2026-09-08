@@ -31,22 +31,19 @@
 #include "hal_core/netlist/net.h"
 #include "hal_core/netlist/netlist_writer/netlist_writer.h"
 
-#include <QMap>
-#include <QObject>
-#include <QString>
-#include <QTemporaryDir>
-#include <QDir>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <memory>
+#include <set>
 #include <sstream>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "netlist_simulator_controller/simulation_engine.h"
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/wave_data.h"
-
-class QTemporaryDir;
 
 namespace hal {
 /* forward declaration */
@@ -58,8 +55,7 @@ class Netlist;
  *
  * @ingroup netlist_writer
  */
-class NETLIST_API NetlistSimulatorController : public QObject {
-    Q_OBJECT
+class NETLIST_API NetlistSimulatorController {
 
 public:
     enum SimulationState {
@@ -87,9 +83,9 @@ public:
         bool is_clock;
     };
 
-    NetlistSimulatorController(u32 id, const std::string nam, const std::string& workdir, QObject* parent = nullptr);
+    NetlistSimulatorController(u32 id, const std::string nam, const std::string& workdir);
 
-    NetlistSimulatorController(u32 id, Netlist* nl, const std::string& filename, QObject* parent = nullptr);
+    NetlistSimulatorController(u32 id, Netlist* nl, const std::string& filename);
 
     ~NetlistSimulatorController();
 
@@ -331,15 +327,15 @@ public:
 
     /**
      * Getter for controller name
-     * @return name as QString
+     * @return name as std::string
      */
-    QString name() const { return mName; }
+    std::string name() const { return mName; }
 
     /**
      * Getter for controller name
      * @return name as std::string
      */
-    std::string get_name() const { return mName.toStdString(); }
+    std::string get_name() const { return mName; }
 
     /**
      * Getter for controller ID
@@ -507,7 +503,7 @@ public:
      * Discard all results except listed probes
      * @param probes Set of net IDs which will be simulated (aka probes)
      */
-    void simulate_only_probes(const QSet<u32>& probes);
+    void simulate_only_probes(const std::set<u32>& probes);
 
     /**
      * Store significant information into working directory
@@ -523,16 +519,19 @@ public:
 
     static const char* sPersistFile;
 
-public Q_SLOTS:
-    void handleOpenInputFile(const QString& filename);
-    void handleSelectGates();
-    void handleRunFinished(bool success);
+    /**
+     * Import waveform data from VCD file into the simulation input.
+     * @param[in] filename The VCD file to read.
+     */
+    void handleOpenInputFile(const std::string& filename);
 
-Q_SIGNALS:
-    void stateChanged(hal::NetlistSimulatorController::SimulationState state);
-    void engineFinished(bool success);
-    void parseComplete();
-    void loadProgress(int percent);
+    void handleSelectGates();
+
+    /**
+     * Called by simulation thread or process when the simulation engine terminated.
+     * @param[in] success `true` if the engine finished successfully, `false` otherwise.
+     */
+    void handleRunFinished(bool success);
 
 private:
     std::vector<const Net*> getFilterNets(FilterInputFlag filter) const;
@@ -543,38 +542,31 @@ private:
     bool isInputSet() const;
     void checkReadyState();
     void restoreComposed(const SaleaeDirectory& sd);
-    void loadStoredController(const QDir& workDir);
 
     u32 mId;
-    QString mName;
+    std::string mName;
 
     SimulationState mState;
     SimulationEngine* mSimulationEngine;
 
-    QTemporaryDir* mTempDir;
-    QString mWorkDir;
+    std::string mWorkDir;
     WaveDataList* mWaveDataList;
 
     SimulationInput* mSimulationInput;
-    QSet<u32> mSimulateOnlyProbes;
+    std::set<u32> mSimulateOnlyProbes;
 
-    QHash<u32,int> mBadAssignInputWarnings;
+    std::unordered_map<u32,int> mBadAssignInputWarnings;
     SimulationLogReceiver* mLogReceiver;
 };
 
 /**
  * Keeps track of all simulation controllers that currently exist, indexed by their ID.
  */
-class NetlistSimulatorControllerMap : public QObject {
-    Q_OBJECT
+class NetlistSimulatorControllerMap {
 
-    QMap<u32, NetlistSimulatorController*> mMap;
+    std::map<u32, NetlistSimulatorController*> mMap;
     NetlistSimulatorControllerMap() { ; }
     static NetlistSimulatorControllerMap* sInst;
-
-Q_SIGNALS:
-    void controllerAdded(u32 id);
-    void controllerRemoved(u32 id);
 
 public:
     static NetlistSimulatorControllerMap* instance();
@@ -582,7 +574,7 @@ public:
     void removeController(u32 id);
     void shutdown() { mMap.clear(); }
     void clearAll();
-    QList<NetlistSimulatorController*> toList() const { return mMap.values(); }
-    NetlistSimulatorController* controller(u32 id) const { return mMap.value(id); }
+    std::vector<NetlistSimulatorController*> toList() const;
+    NetlistSimulatorController* controller(u32 id) const;
 };
 } // namespace hal

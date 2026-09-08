@@ -1,20 +1,20 @@
 // MIT License
-// 
+//
 // Copyright (c) 2019 Ruhr University Bochum, Chair for Embedded Security. All Rights reserved.
 // Copyright (c) 2019 Marc Fyrbiak, Sebastian Wallat, Max Hoffmann ("ORIGINAL AUTHORS"). All rights reserved.
 // Copyright (c) 2021 Max Planck Institute for Security and Privacy. All Rights reserved.
 // Copyright (c) 2021 Jörn Langheinrich, Julian Speith, Nils Albartus, René Walendy, Simon Klix ("ORIGINAL AUTHORS"). All Rights reserved.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,29 +25,40 @@
 
 #pragma once
 
-#include <QSettings>
-#include <QStringList>
-#include <QMap>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace hal {
     /**
      * The persistent settings of the simulator, e.g., the waveform colors and the engine properties.
+     *
+     * Settings are stored in an INI style file (`simulationsettings.ini`), the format is compatible
+     * with the file that former HAL versions wrote using QSettings::IniFormat.
      */
-    class SimulationSettings : public QSettings
+    class SimulationSettings
     {
-        Q_OBJECT
     public:
         enum ColorSetting { WaveformRegular, WaveformSelected, WaveformUndefined, ValueX, Value0, Value1, MaxColorSetting };
     private:
         static const char* sColorSettingTag[MaxColorSetting];
         static const char* sDefaultColor[MaxColorSetting];
-    public:
-        SimulationSettings(const QString& filename);
-        QString color(ColorSetting cs) const;
-        void setColor(ColorSetting cs, const QString& colName);
 
-        QMap<QString,QString> engineProperties() const;
-        void setEngineProperties(const QMap<QString,QString>& engProp);
+        std::string mFilename;
+        std::map<std::string,std::string> mValues;
+        bool mDirty;
+
+        void parseIniFile();
+        std::string value(const std::string& tag, const std::string& defaultValue = std::string()) const;
+        void setValue(const std::string& tag, const std::string& val);
+    public:
+        SimulationSettings(const std::string& filename);
+
+        std::string color(ColorSetting cs) const;
+        void setColor(ColorSetting cs, const std::string& colName);
+
+        std::map<std::string,std::string> engineProperties() const;
+        void setEngineProperties(const std::map<std::string,std::string>& engProp);
 
         int maxSizeLoadable() const;
         void setMaxSizeLoadable(int msl);
@@ -55,7 +66,10 @@ namespace hal {
         int maxSizeEditor() const;
         void setMaxSizeEditor(int mse);
 
-        QString baseDirectory() const;
-        void setBaseDirectory(const QString& dir);
+        std::string baseDirectory() const;
+        void setBaseDirectory(const std::string& dir);
+
+        /// Write settings to disk unless nothing was modified.
+        void sync();
     };
 }

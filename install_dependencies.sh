@@ -22,12 +22,6 @@ if [[ "$platform" == 'macOS' ]]; then
     pip3 install -r requirements.txt
     BREW_PREFIX=$(brew --prefix)
     if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
-        # TODO(#6): qt@5 is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
-        grep -Fxq 'export PATH="$BREW_PREFIX/opt/qt@5/bin:$PATH"' ~/.zshrc
-        if ! [[ $? -eq 0 ]]; then
-            echo 'export PATH="$BREW_PREFIX/opt/qt@5/bin:$PATH"' >> ~/.zshrc
-        fi
-
         grep -Fxq 'export PATH="$BREW_PREFIX/opt/llvm@14/bin:$PATH"' ~/.zshrc
         if ! [[ $? -eq 0 ]]; then
             echo 'export PATH="$BREW_PREFIX/opt/llvm@14/bin:$PATH"' >> ~/.zshrc
@@ -44,12 +38,6 @@ if [[ "$platform" == 'macOS' ]]; then
         fi
         source ~/.zshrc
     elif [ -n "$($SHELL -c 'echo $BASH_VERSION')" ]; then
-        # TODO(#6): qt@5 is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
-        grep -Fxq 'export PATH="$BREW_PREFIX/opt/qt@5/bin:$PATH"' ~/.bash_profile
-        if ! [[ $? -eq 0 ]]; then
-            echo 'export PATH="$BREW_PREFIX/opt/qt@5/bin:$PATH"' >> ~/.bash_profile
-        fi
-
         grep -Fxq 'export PATH="$BREW_PREFIX/opt/llvm@14/bin:$PATH"' ~/.bash_profile
         if ! [[ $? -eq 0 ]]; then
             echo 'export PATH="$BREW_PREFIX/opt/llvm@14/bin:$PATH"' >> ~/.bash_profile
@@ -73,9 +61,8 @@ elif [[ "$platform" == 'linux' ]]; then
     . /etc/os-release
     if [ "$distribution" == 'Ubuntu' ] || [ "$distribution" == 'LinuxMint' ]; then
 
-        # TODO(#6): qtbase5-dev is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
         sudo apt-get update && sudo apt-get install -y build-essential verilator \
-        lsb-release git cmake pkgconf libboost-all-dev qtbase5-dev \
+        lsb-release git cmake pkgconf libboost-all-dev \
         libpython3-dev ccache autoconf autotools-dev libsodium-dev \
         ninja-build lcov gcovr python3-sphinx \
         doxygen python3-sphinx-rtd-theme python3-pip \
@@ -84,9 +71,8 @@ elif [[ "$platform" == 'linux' ]]; then
         $additional_deps \
         graphviz libomp-dev libsuitesparse-dev # For documentation
     elif [[ "$distribution" == "Arch" ]]; then
-        # TODO(#6): qt5-base is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
         yay -S --needed base-devel lsb-release git verilator cmake boost-libs pkgconf \
-        qt5-base python ccache autoconf libsodium ninja lcov \
+        python ccache autoconf libsodium ninja lcov \
         gcovr python-sphinx doxygen python-sphinx_rtd_theme \
         python-pip pybind11 rapidjson spdlog graphviz boost \
         python-dateutil z3
@@ -103,8 +89,7 @@ elif [[ "$platform" == 'linux' ]]; then
        done
        sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-$RHEL_VERSION.noarch.rpm
        sudo yum update -y
-       # TODO(#6): qt5-qtbase-devel is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
-       for pkg in boost-devel z3 rapidjson-devel qt5-qtbase-devel z3-devel python-devel verilator; do
+       for pkg in boost-devel z3 rapidjson-devel z3-devel python-devel verilator; do
 	       sudo yum install -y $pkg
        done
        exit 255
@@ -114,9 +99,8 @@ elif [[ "$platform" == 'linux' ]]; then
     fi
 elif [[ "$platform" == 'docker' ]]; then
     # We can assume that we are in a ubuntu container, because of the official Dockerfile in the hal project
-    # TODO(#6): qtbase5-dev is only needed for Qt5Core in netlist_simulator_controller/saleae_cli; drop once that plugin is Qt-free
     apt-get update && apt-get install -y build-essential verilator \
-    lsb-release git cmake pkgconf libboost-all-dev qtbase5-dev \
+    lsb-release git cmake pkgconf libboost-all-dev \
     libpython3-dev ccache autoconf autotools-dev libsodium-dev \
     ninja-build lcov gcovr python3-sphinx \
     doxygen python3-sphinx-rtd-theme python3-pip \
