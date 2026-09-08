@@ -1,0 +1,421 @@
+{
+  "analysis": {
+    "configuration": {
+      "max_control_signals": 3,
+      "types_to_check": [
+        "addition",
+        "equal"
+      ]
+    },
+    "entry_point": "module_identification.execute",
+    "environment": {
+      "module_identification_timing_stats": {
+        "total_s": 0.42
+      }
+    },
+    "plugin": {
+      "description": "verified word-level operation recovery",
+      "name": "module_identification",
+      "version": "0.1"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "accumulator_top",
+      "gate_count": 33,
+      "gate_library": {
+        "name": "EXAMPLE_GATE_LIBRARY",
+        "path": "plugins/gate_libraries/definitions/example_library.hgl",
+        "sha256": "f043da887bddc46e15c081192ec477d09bd5093fbbeee7102f4b20f51b31b365"
+      },
+      "kind": "netlist",
+      "net_count": 41,
+      "netlist_id": 1,
+      "path": "tools/hal_explain/fixtures/accumulator.v",
+      "sha256": "57fbc30ed073eca996bd2b36ae1f92da33cd3215c95adc08dc73c95d80b4b777",
+      "size_bytes": 5293
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "the gate set of the candidate comes from a structural search around the known registers; the verification says what this cone computes, not that the cone is the whole functional unit a designer would have drawn",
+          "discharged": false,
+          "id": "candidate-boundary",
+          "kind": "structural"
+        },
+        {
+          "description": "the operation was verified for the control-signal mappings the run enumerated (bounded by max_control_signals); mappings outside that set were not checked",
+          "discharged": false,
+          "id": "control-mapping-coverage",
+          "kind": "tool"
+        },
+        {
+          "description": "the Boolean function of every gate type is taken from the gate library without further checking",
+          "discharged": false,
+          "id": "library-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "description": "a combinational equivalence result; no cycle bound is involved",
+        "unbounded": true
+      },
+      "data": {
+        "candidate_id": 1,
+        "candidate_id_note": "module_identification candidate IDs are internal to this run and are not HAL object IDs",
+        "candidate_info": "verified addition, 4 bit, no carry out",
+        "candidate_types": [
+          "addition"
+        ],
+        "operand_widths": [
+          4,
+          4
+        ],
+        "operation": "ADD(o_acc[3:0], d[3:0])",
+        "output_width": 4
+      },
+      "id": "module_identification/candidate/0001",
+      "method": {
+        "bounded": false,
+        "description": "module_identification enumerates structural candidates around known registers, builds the word-level function of each candidate's gate cone, and checks it against a library of reference operations with an SMT solver. A verified candidate is an equivalence result about the cone, not a naming convention.",
+        "kind": "formal",
+        "name": "module identification",
+        "parameters": {
+          "max_control_signals": 3,
+          "types_to_check": [
+            "addition",
+            "equal"
+          ]
+        }
+      },
+      "metrics": {
+        "gate_count": 18,
+        "output_width": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the gate cone of one verified word-level operation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 3,
+            "name": "a_x0",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 4,
+            "name": "a_c0",
+            "type": "AND2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 5,
+            "name": "a_t1",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 6,
+            "name": "a_x1",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 7,
+            "name": "a_p1",
+            "type": "AND2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 8,
+            "name": "a_g1",
+            "type": "AND2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 9,
+            "name": "a_o1",
+            "type": "OR2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 10,
+            "name": "a_t2",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 11,
+            "name": "a_x2",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 12,
+            "name": "a_p2",
+            "type": "AND2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 13,
+            "name": "a_g2",
+            "type": "AND2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "name": "a_o2",
+            "type": "OR2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 15,
+            "name": "a_t3",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 16,
+            "name": "a_x3",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 17,
+            "name": "acc_r0",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 18,
+            "name": "acc_r1",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 19,
+            "name": "acc_r2",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 20,
+            "name": "acc_r3",
+            "type": "FF"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "name": "i_en"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 18,
+            "name": "s0"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 19,
+            "name": "s1"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 20,
+            "name": "s2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 21,
+            "name": "s3"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "module_identification verified that the 18 gate(s) of this candidate implement ADD(o_acc[3:0], d[3:0]). The equivalence was decided by the plugin's SMT backend; the listed assumptions are what it rests on.",
+      "tags": [
+        "addition",
+        "module-identification",
+        "verified"
+      ],
+      "title": "Verified addition: ADD(o_acc[3:0], d[3:0])"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "the gate set of the candidate comes from a structural search around the known registers; the verification says what this cone computes, not that the cone is the whole functional unit a designer would have drawn",
+          "discharged": false,
+          "id": "candidate-boundary",
+          "kind": "structural"
+        },
+        {
+          "description": "the operation was verified for the control-signal mappings the run enumerated (bounded by max_control_signals); mappings outside that set were not checked",
+          "discharged": false,
+          "id": "control-mapping-coverage",
+          "kind": "tool"
+        },
+        {
+          "description": "the Boolean function of every gate type is taken from the gate library without further checking",
+          "discharged": false,
+          "id": "library-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "description": "a combinational equivalence result; no cycle bound is involved",
+        "unbounded": true
+      },
+      "data": {
+        "candidate_id": 2,
+        "candidate_id_note": "module_identification candidate IDs are internal to this run and are not HAL object IDs",
+        "candidate_info": "verified equality comparison against a constant",
+        "candidate_types": [
+          "equal"
+        ],
+        "operand_widths": [
+          4
+        ],
+        "operation": "EQ(o_acc[3:0], 4'b1010)",
+        "output_width": 1
+      },
+      "id": "module_identification/candidate/0002",
+      "method": {
+        "bounded": false,
+        "description": "module_identification enumerates structural candidates around known registers, builds the word-level function of each candidate's gate cone, and checks it against a library of reference operations with an SMT solver. A verified candidate is an equivalence result about the cone, not a naming convention.",
+        "kind": "formal",
+        "name": "module identification",
+        "parameters": {
+          "max_control_signals": 3,
+          "types_to_check": [
+            "addition",
+            "equal"
+          ]
+        }
+      },
+      "metrics": {
+        "gate_count": 3,
+        "output_width": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the gate cone of one verified word-level operation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 21,
+            "name": "cmp_n0",
+            "type": "INV"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 22,
+            "name": "cmp_n2",
+            "type": "INV"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 23,
+            "name": "cmp_and",
+            "type": "AND4"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 13,
+            "name": "o_match"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "module_identification verified that the 3 gate(s) of this candidate implement EQ(o_acc[3:0], 4'b1010). The equivalence was decided by the plugin's SMT backend; the listed assumptions are what it rests on.",
+      "tags": [
+        "equal",
+        "module-identification",
+        "verified"
+      ],
+      "title": "Verified equal: EQ(o_acc[3:0], 4'b1010)"
+    },
+    {
+      "data": {
+        "candidate_id": 3,
+        "candidate_id_note": "module_identification candidate IDs are internal to this run and are not HAL object IDs",
+        "candidate_info": "checked, no reference operation matched",
+        "candidate_types": [
+          "none"
+        ],
+        "operand_widths": [],
+        "output_width": 1
+      },
+      "id": "module_identification/candidate/0003",
+      "method": {
+        "bounded": false,
+        "description": "module_identification enumerates structural candidates around known registers, builds the word-level function of each candidate's gate cone, and checks it against a library of reference operations with an SMT solver. A verified candidate is an equivalence result about the cone, not a naming convention.",
+        "kind": "formal",
+        "name": "module identification",
+        "parameters": {
+          "max_control_signals": 3,
+          "types_to_check": [
+            "addition",
+            "equal"
+          ]
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "a checked candidate cone with no verified operation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 31,
+            "name": "p_x0",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 32,
+            "name": "p_x1",
+            "type": "XOR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 33,
+            "name": "p_x2",
+            "type": "XOR"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "unknown",
+      "summary": "This cone was checked and no reference operation could be verified for it. That is not evidence that the cone computes nothing: the operation may simply be outside the plugin's reference library, or the run's control-signal budget may have cut the search short.",
+      "tags": [
+        "module-identification",
+        "unverified"
+      ],
+      "title": "Unverified candidate: 3 gate(s), no word-level operation established"
+    }
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "notes": [
+    "module_identification candidate IDs are local to this run; gate references are scoped to artifact 'netlist'",
+    "a candidate with status 'unknown' was checked and not verified; absence of a verified operation is never evidence that the cone computes nothing"
+  ],
+  "producer": {
+    "name": "hal_explain.adapters.module_identification",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

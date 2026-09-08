@@ -1,0 +1,97 @@
+{
+  "reference_version": "1.0.0",
+  "name": "accumulator",
+  "description": "Ground truth for tools/hal_explain/fixtures/accumulator.v. Blocks are matched by their gate set, never by block_id, so the reference stays valid if the numbering scheme changes. The confidences are the ones the recorded findings documents in this directory imply; changing a status in one of those documents must change this file too.",
+  "netlist": "accumulator.v",
+  "gate_library": "plugins/gate_libraries/definitions/example_library.hgl",
+  "gate_count": 33,
+  "net_count": 41,
+  "sources": [
+    "findings-dataflow.json",
+    "findings-module-identification.json",
+    "findings-fsm.json"
+  ],
+  "blocks": [
+    {
+      "id": "accumulator-register",
+      "kind": "register",
+      "confidence": "heuristic",
+      "from": "dataflow_analysis",
+      "gates": ["acc_r0", "acc_r1", "acc_r2", "acc_r3"],
+      "note": "DANA groups the four accumulator flip-flops. It is a structural guess and the block must stay 'heuristic' even though a verified adder claims the same flip-flops."
+    },
+    {
+      "id": "adder",
+      "kind": "arithmetic",
+      "confidence": "verified",
+      "from": "module_identification",
+      "gates": [
+        "a_x0", "a_c0", "a_t1", "a_x1", "a_p1", "a_g1", "a_o1",
+        "a_t2", "a_x2", "a_p2", "a_g2", "a_o2", "a_t3", "a_x3",
+        "acc_r0", "acc_r1", "acc_r2", "acc_r3"
+      ],
+      "operation": "ADD(o_acc[3:0], d[3:0])",
+      "note": "module_identification builds candidates around known registers, so the verified cone contains the accumulator flip-flops as well; that is the deliberate overlap with the DANA group."
+    },
+    {
+      "id": "comparator",
+      "kind": "comparator",
+      "confidence": "verified",
+      "from": "module_identification",
+      "gates": ["cmp_n0", "cmp_n2", "cmp_and"],
+      "operation": "EQ(o_acc[3:0], 4'b1010)"
+    },
+    {
+      "id": "controller",
+      "kind": "state_machine",
+      "confidence": "verified",
+      "from": "solve_fsm + dataflow_analysis",
+      "gates": ["st_a", "st_b"],
+      "state_count": 3,
+      "transition_count": 5,
+      "claim_confidences": ["heuristic", "heuristic", "verified", "verified"],
+      "note": "DANA's group and hal_fsm's machine have the same gate set, so they compose into ONE block that carries both strengths: two heuristic claims (the two candidate proposals) and two verified ones (the transition relation and the reachable set)."
+    },
+    {
+      "id": "parity-cone",
+      "kind": "other",
+      "confidence": "unknown",
+      "from": "module_identification",
+      "gates": ["p_x0", "p_x1", "p_x2"],
+      "note": "checked by module_identification and not verified. It must render as inconclusive, never as 'no function here'."
+    }
+  ],
+  "unknown_regions": [
+    {
+      "gates": ["u_gnd"],
+      "note": "a tie cell, reachable only through a constant net, so it clusters with nothing"
+    },
+    {
+      "gates": ["u_vcc"],
+      "note": "the other tie cell"
+    },
+    {
+      "gates": ["f_nb", "f_nf", "f_mux", "f_da", "f_db"],
+      "note": "the controller's next-state logic. hal_fsm scopes its findings to the state register only and never names the transition logic it handed to solve_fsm, so these five gates are genuinely unclaimed by every document in this model. See tools/hal_explain/README.md, 'Integration notes'."
+    }
+  ],
+  "overlap_gates": ["acc_r0", "acc_r1", "acc_r2", "acc_r3"],
+  "coverage": {
+    "gates_total": 33,
+    "gates_in_blocks": 26,
+    "gates_unclassified": 7,
+    "gates_verified": 23,
+    "gates_heuristic": 0,
+    "gates_unknown_confidence": 3,
+    "gates_overlapping": 4,
+    "sequential_gates_total": 6,
+    "sequential_gates_unclassified": 0,
+    "block_count": 5,
+    "unknown_region_count": 3,
+    "claim_count": 8
+  },
+  "notes": [
+    "gates_heuristic is 0 on purpose: every gate the DANA group covers is also covered by the verified adder, so no gate's strongest claim is a heuristic. The register block itself stays heuristic.",
+    "gates_unknown_confidence is 3: the parity cone, whose only claim is inconclusive."
+  ]
+}

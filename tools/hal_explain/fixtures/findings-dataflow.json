@@ -1,0 +1,183 @@
+{
+  "analysis": {
+    "configuration": {
+      "enable_stages": true,
+      "enforce_type_consistency": true,
+      "expected_sizes": [],
+      "min_group_size": 2
+    },
+    "entry_point": "dataflow.analyze",
+    "plugin": {
+      "description": "word-level structure recovery (DANA)",
+      "name": "dataflow_analysis",
+      "version": "0.1"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "accumulator_top",
+      "gate_count": 33,
+      "gate_library": {
+        "name": "EXAMPLE_GATE_LIBRARY",
+        "path": "plugins/gate_libraries/definitions/example_library.hgl",
+        "sha256": "f043da887bddc46e15c081192ec477d09bd5093fbbeee7102f4b20f51b31b365"
+      },
+      "kind": "netlist",
+      "net_count": 41,
+      "netlist_id": 1,
+      "path": "tools/hal_explain/fixtures/accumulator.v",
+      "sha256": "57fbc30ed073eca996bd2b36ae1f92da33cd3215c95adc08dc73c95d80b4b777",
+      "size_bytes": 5293
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "control_net_roles": [
+          "enable"
+        ],
+        "group_id": 1,
+        "group_id_note": "dataflow group IDs are internal to this analysis run and unrelated to any HAL ID",
+        "predecessor_groups": [],
+        "successor_groups": [
+          2
+        ]
+      },
+      "id": "dataflow/group/0001",
+      "method": {
+        "bounded": false,
+        "description": "DANA groups sequential gates into word-level registers from structural evidence (shared control nets, common predecessors and successors, expected group sizes). It is a reconstruction heuristic: a group is a candidate register, not a proven one.",
+        "kind": "heuristic",
+        "name": "dataflow analysis (DANA)",
+        "parameters": {
+          "enable_stages": true,
+          "enforce_type_consistency": true,
+          "expected_sizes": [],
+          "min_group_size": 2
+        }
+      },
+      "metrics": {
+        "group_size": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates grouped into one candidate register",
+        "gate_types": [
+          "FF"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 17,
+            "name": "acc_r0",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 18,
+            "name": "acc_r1",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 19,
+            "name": "acc_r2",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 20,
+            "name": "acc_r3",
+            "type": "FF"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "name": "i_en",
+            "role": "enable"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Dataflow analysis grouped 4 sequential gates of type FF into one candidate word-level register. Structural evidence only.",
+      "tags": [
+        "dataflow",
+        "register-candidate"
+      ],
+      "title": "Candidate register group 1 (4 sequential gates)"
+    },
+    {
+      "data": {
+        "group_id": 2,
+        "group_id_note": "dataflow group IDs are internal to this analysis run and unrelated to any HAL ID",
+        "predecessor_groups": [
+          1
+        ],
+        "successor_groups": []
+      },
+      "id": "dataflow/group/0002",
+      "method": {
+        "bounded": false,
+        "description": "DANA groups sequential gates into word-level registers from structural evidence (shared control nets, common predecessors and successors, expected group sizes). It is a reconstruction heuristic: a group is a candidate register, not a proven one.",
+        "kind": "heuristic",
+        "name": "dataflow analysis (DANA)",
+        "parameters": {
+          "enable_stages": true,
+          "enforce_type_consistency": true,
+          "expected_sizes": [],
+          "min_group_size": 2
+        }
+      },
+      "metrics": {
+        "group_size": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates grouped into one candidate register",
+        "gate_types": [
+          "FFR"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 24,
+            "name": "st_a",
+            "type": "FFR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 25,
+            "name": "st_b",
+            "type": "FFR"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Dataflow analysis grouped 2 sequential gates of type FFR into one candidate word-level register. Structural evidence only.",
+      "tags": [
+        "dataflow",
+        "register-candidate"
+      ],
+      "title": "Candidate register group 2 (2 sequential gates)"
+    }
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "notes": [
+    "every sequential gate type of artifact 'netlist' ended up in a register group; no unsupported primitives to report",
+    "dataflow group IDs are local to this run and are not HAL object IDs; gate references are scoped to artifact 'netlist'"
+  ],
+  "producer": {
+    "name": "hal_findings.adapters.dataflow",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

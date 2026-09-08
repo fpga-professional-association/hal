@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fpga-professional-association.github.io/hal/schema/recovered-blocks-1.0.0.schema.json",
+  "title": "HAL recovered-block model",
+  "description": "A composed, evidence-linked view of what a set of HAL analyses recovered from one netlist. Every block names the gates it is made of; every claim about a block names the finding it came from, in a findings document that is itself listed in 'sources'. Gates that no analysis claimed are not dropped: they appear in 'unknown_regions'.",
+  "type": "object",
+  "required": ["schema_version", "producer", "design", "sources", "blocks", "unknown_regions", "coverage"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "description": "Version of this schema the document conforms to."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "RFC 3339 timestamp; excluded from the document digest."
+    },
+    "producer": { "$ref": "#/$defs/producer" },
+    "design": { "$ref": "#/$defs/design" },
+    "sources": {
+      "type": "array",
+      "description": "The findings documents this model was composed from. A claim's evidence is only meaningful relative to one of these.",
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "blocks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/block" }
+    },
+    "unknown_regions": {
+      "type": "array",
+      "description": "Connected components of gates that no analysis claimed. Never omit these: a block diagram of only the understood parts is misleading.",
+      "items": { "$ref": "#/$defs/unknown_region" }
+    },
+    "ports": {
+      "type": "array",
+      "description": "Design boundary nets, as diagram endpoints.",
+      "items": { "$ref": "#/$defs/port" }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Structural connections between nodes (blocks, unknown regions and ports), derived from the netlist, not from any analysis.",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "overlaps": {
+      "type": "array",
+      "description": "Gates claimed by more than one block. Recorded rather than resolved silently: two analyses disagreeing about a gate is information.",
+      "items": { "$ref": "#/$defs/overlap" }
+    },
+    "coverage": { "$ref": "#/$defs/coverage" },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "producer": {
+      "type": "object",
+      "required": ["name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "command": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "design": {
+      "type": "object",
+      "description": "The netlist every gate and net reference in this document is scoped to.",
+      "required": ["artifact_id", "gate_count", "net_count"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "design_name": { "type": "string" },
+        "device_name": { "type": "string" },
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "unhashed_reason": { "type": "string" },
+        "gate_library": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "name": { "type": "string" },
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        },
+        "gate_count": { "type": "integer", "minimum": 0 },
+        "net_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["source_id", "adapter", "finding_count"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable handle used by every evidence reference in this document."
+        },
+        "adapter": {
+          "type": "string",
+          "description": "The hal_explain adapter that read the document."
+        },
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "findings_schema_version": { "type": "string" },
+        "producer": { "type": "object", "additionalProperties": true },
+        "analysis": { "type": "object", "additionalProperties": true },
+        "finding_count": { "type": "integer", "minimum": 0 },
+        "status_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "unresolved_gates": {
+          "type": "array",
+          "description": "Gate references in this document that could not be matched against the inventory. A non-empty list means the model is incomplete for this source, and the report says so.",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "gate_ref": {
+      "type": "object",
+      "required": ["artifact_id", "id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    },
+    "net_ref": {
+      "type": "object",
+      "required": ["artifact_id", "id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+    "evidence_ref": {
+      "type": "object",
+      "description": "A pointer at one finding in one source document. This is the link that makes a claim checkable.",
+      "required": ["source_id", "finding_id", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "finding_id": { "type": "string", "minLength": 1 },
+        "document": { "type": "string" },
+        "status": {
+          "enum": [
+            "proven_under_assumptions",
+            "proven_bounded",
+            "counterexample",
+            "bounded_counterexample",
+            "heuristic",
+            "unknown",
+            "timeout",
+            "error",
+            "unsupported"
+          ]
+        },
+        "title": { "type": "string" },
+        "method": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "kind": { "type": "string" },
+            "bounded": { "type": "boolean" }
+          }
+        },
+        "open_assumptions": {
+          "type": "array",
+          "description": "Assumptions of the finding that are NOT discharged. A verified claim resting on an undischarged assumption is still conditional, and the report prints these.",
+          "items": { "type": "string" }
+        },
+        "cycle_bound": { "type": "integer", "minimum": 0 },
+        "artifacts": {
+          "type": "array",
+          "description": "Evidence files the finding points at (dot, smt2, logs).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "description": "One statement about one block, its gate set, and the finding it rests on.",
+      "required": ["claim_id", "text", "confidence", "status", "gates", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "status": {
+          "enum": [
+            "proven_under_assumptions",
+            "proven_bounded",
+            "counterexample",
+            "bounded_counterexample",
+            "heuristic",
+            "unknown",
+            "timeout",
+            "error",
+            "unsupported"
+          ]
+        },
+        "bounded": { "type": "boolean" },
+        "cycle_bound": { "type": "integer", "minimum": 0 },
+        "gates": {
+          "type": "array",
+          "description": "IDs (in design.artifact_id) of the gates this claim is about. Never empty: a claim without a gate set is not linkable to the netlist.",
+          "items": { "type": "integer" },
+          "minItems": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidence_ref" }
+        },
+        "metrics": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "confidence": {
+      "description": "How strong the underlying finding is. Derived from the finding's status, never chosen by the composer.",
+      "enum": ["verified", "heuristic", "refuted", "unknown"]
+    },
+    "block": {
+      "type": "object",
+      "required": ["block_id", "kind", "label", "confidence", "gates", "claims"],
+      "additionalProperties": false,
+      "properties": {
+        "block_id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": [
+            "register",
+            "counter",
+            "arithmetic",
+            "comparator",
+            "multiplexer",
+            "state_machine",
+            "datapath",
+            "other"
+          ]
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "bounded": {
+          "type": "boolean",
+          "description": "True when the strongest supporting claim only holds up to a cycle bound."
+        },
+        "contested": {
+          "type": "boolean",
+          "description": "True when at least one supporting finding refutes a claim about this block."
+        },
+        "gates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/gate_ref" }
+        },
+        "ports": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "inputs": { "type": "array", "items": { "$ref": "#/$defs/net_ref" } },
+            "outputs": { "type": "array", "items": { "$ref": "#/$defs/net_ref" } },
+            "control": { "type": "array", "items": { "$ref": "#/$defs/net_ref" } }
+          }
+        },
+        "claims": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/claim" }
+        },
+        "attributes": { "type": "object", "additionalProperties": true },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "unknown_region": {
+      "type": "object",
+      "required": ["region_id", "label", "reason", "gates"],
+      "additionalProperties": false,
+      "properties": {
+        "region_id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "gates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/gate_ref" }
+        },
+        "gate_types": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 1 }
+        },
+        "sequential_gate_count": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "port": {
+      "type": "object",
+      "required": ["port_id", "direction", "nets"],
+      "additionalProperties": false,
+      "properties": {
+        "port_id": { "type": "string", "minLength": 1 },
+        "direction": { "enum": ["input", "output"] },
+        "label": { "type": "string" },
+        "nets": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/net_ref" }
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["source", "target", "net_count"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "net_count": { "type": "integer", "minimum": 1 },
+        "kind": { "enum": ["data", "control"] },
+        "nets": { "type": "array", "items": { "$ref": "#/$defs/net_ref" } },
+        "truncated": {
+          "type": "boolean",
+          "description": "True when 'nets' lists fewer nets than net_count."
+        }
+      }
+    },
+    "overlap": {
+      "type": "object",
+      "required": ["gate", "block_ids", "owner"],
+      "additionalProperties": false,
+      "properties": {
+        "gate": { "$ref": "#/$defs/gate_ref" },
+        "block_ids": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string" }
+        },
+        "owner": {
+          "type": "string",
+          "description": "The block that owns the gate for connectivity purposes. Chosen by confidence then block_id, and only for the diagram: both blocks still list the gate."
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["gates_total", "gates_in_blocks", "gates_unclassified"],
+      "additionalProperties": false,
+      "properties": {
+        "gates_total": { "type": "integer", "minimum": 0 },
+        "gates_in_blocks": { "type": "integer", "minimum": 0 },
+        "gates_unclassified": { "type": "integer", "minimum": 0 },
+        "gates_verified": { "type": "integer", "minimum": 0 },
+        "gates_heuristic": { "type": "integer", "minimum": 0 },
+        "gates_unknown_confidence": { "type": "integer", "minimum": 0 },
+        "gates_overlapping": { "type": "integer", "minimum": 0 },
+        "sequential_gates_total": { "type": "integer", "minimum": 0 },
+        "sequential_gates_unclassified": { "type": "integer", "minimum": 0 },
+        "block_count": { "type": "integer", "minimum": 0 },
+        "unknown_region_count": { "type": "integer", "minimum": 0 },
+        "claim_count": { "type": "integer", "minimum": 0 },
+        "classified_fraction": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

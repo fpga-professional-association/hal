@@ -1,0 +1,368 @@
+{
+  "analysis": {
+    "entry_point": "solve_fsm.solve_fsm",
+    "plugin": {
+      "description": "state transition graph reconstruction (solve_fsm)",
+      "name": "solve_fsm",
+      "version": "0.1"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "accumulator_top",
+      "gate_count": 33,
+      "kind": "netlist",
+      "net_count": 41,
+      "path": "tools/hal_explain/fixtures/accumulator.v",
+      "sha256": "57fbc30ed073eca996bd2b36ae1f92da33cd3215c95adc08dc73c95d80b4b777"
+    }
+  ],
+  "findings": [
+    {
+      "confidence": 0.82,
+      "data": {
+        "sources": [
+          "scc",
+          "self_loop_cluster"
+        ]
+      },
+      "id": "fsm/candidate/001",
+      "method": {
+        "bounded": false,
+        "description": "strongly connected components of the flip-flop dependency graph, scored by a published weighted sum of structural features",
+        "kind": "heuristic",
+        "name": "state register proposal"
+      },
+      "metrics": {
+        "size": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 24,
+            "name": "st_a",
+            "type": "FFR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 25,
+            "name": "st_b",
+            "type": "FFR"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Two mutually dependent flip-flops with feedback through combinational logic. Structural evidence only.",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [st_a, st_b]"
+    },
+    {
+      "id": "fsm/coverage/uncovered-sequential-gates",
+      "method": {
+        "bounded": false,
+        "description": "sequential gates that ended up in no solved machine",
+        "kind": "structural",
+        "name": "coverage check"
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates no machine covered",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 17,
+            "name": "acc_r0",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 18,
+            "name": "acc_r1",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 19,
+            "name": "acc_r2",
+            "type": "FF"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 20,
+            "name": "acc_r3",
+            "type": "FF"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "unsupported",
+      "summary": "4 sequential gate(s) are not part of any solved state machine. That is a limit of this run, not evidence that they hold no state.",
+      "tags": [
+        "coverage",
+        "fsm"
+      ],
+      "title": "Sequential gates outside every solved state register",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 4,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 17,
+                "name": "acc_r0",
+                "type": "FF"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 18,
+                "name": "acc_r1",
+                "type": "FF"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 19,
+                "name": "acc_r2",
+                "type": "FF"
+              }
+            ],
+            "gate_type": "FF",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "not part of a solved state register in this run"
+          }
+        ],
+        "reason": "these sequential gates were not part of any solved state register"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "every set/reset pin of the state register is tied to a constant, so the reset solve_fsm does not model can never fire",
+          "discharged": true,
+          "id": "asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "the gate library's next_state expression for FFR is taken on trust",
+          "discharged": false,
+          "id": "library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "state bit i is the output of bit_order[i]",
+          "discharged": true,
+          "id": "state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "the flip-flops st_a, st_b are the state register; this comes from fsm/candidate/001 and is a heuristic",
+          "discharged": false,
+          "id": "state-register",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "unbounded": true
+      },
+      "id": "fsm/machine01/reachable-states",
+      "method": {
+        "bounded": false,
+        "description": "solve_fsm builds the next-state function of every state flip-flop from the transition cone and enumerates successors with an SMT solver.",
+        "kind": "symbolic",
+        "name": "solve_fsm (smt)"
+      },
+      "metrics": {
+        "reachable_states": 3
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the reachable closure of the recovered relation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 24,
+            "name": "st_a",
+            "type": "FFR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 25,
+            "name": "st_b",
+            "type": "FFR"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "The reachable closure was recomputed from the recovered relation and matches the states solve_fsm explored.",
+      "tags": [
+        "fsm",
+        "reachability"
+      ],
+      "title": "3 state(s) are reachable from the initial state"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "every set/reset pin of the state register is tied to a constant, so the reset solve_fsm does not model can never fire",
+          "discharged": true,
+          "id": "asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "the gate library's next_state expression for FFR is taken on trust",
+          "discharged": false,
+          "id": "library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "state bit i is the output of bit_order[i]",
+          "discharged": true,
+          "id": "state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "the flip-flops st_a, st_b are the state register; this comes from fsm/candidate/001 and is a heuristic",
+          "discharged": false,
+          "id": "state-register",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "the transition relation holds in every clock cycle",
+        "unbounded": true
+      },
+      "data": {
+        "bit_order": [
+          "st_a",
+          "st_b"
+        ],
+        "bit_order_note": "state bit i is the output of bit_order[i]",
+        "initial_state": 0,
+        "initial_state_bits": "00",
+        "signals": {
+          "net_3": {
+            "name": "i_go",
+            "net_id": 3,
+            "role": "input"
+          },
+          "net_4": {
+            "name": "i_fin",
+            "net_id": 4,
+            "role": "input"
+          }
+        },
+        "solver_mode": "smt",
+        "states": [
+          0,
+          1,
+          2
+        ],
+        "transitions": [
+          {
+            "condition": "!net_3",
+            "source": 0,
+            "target": 0
+          },
+          {
+            "condition": "net_3",
+            "source": 0,
+            "target": 1
+          },
+          {
+            "condition": "!net_4",
+            "source": 1,
+            "target": 1
+          },
+          {
+            "condition": "net_4",
+            "source": 1,
+            "target": 2
+          },
+          {
+            "condition": "1",
+            "source": 2,
+            "target": 0
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "description": "state diagram written by hal_fsm",
+          "kind": "dot",
+          "path": "build/hal_fsm/accumulator/state-diagram-machine01.dot"
+        }
+      ],
+      "id": "fsm/machine01/transitions",
+      "method": {
+        "bounded": false,
+        "description": "solve_fsm builds the next-state function of every state flip-flop from the transition cone and enumerates successors with an SMT solver.",
+        "kind": "symbolic",
+        "name": "solve_fsm (smt)"
+      },
+      "metrics": {
+        "state_bits": 2,
+        "states": 3,
+        "transitions": 5
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the state register and its transition relation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 24,
+            "name": "st_a",
+            "type": "FFR"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 25,
+            "name": "st_b",
+            "type": "FFR"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "Every transition was derived from the netlist by solve_fsm's SMT exploration forward from the initial state.",
+      "tags": [
+        "fsm",
+        "smt",
+        "transitions"
+      ],
+      "title": "Recovered state transition relation: 3 states, 5 transitions"
+    }
+  ],
+  "generated_at": "2026-01-01T00:00:00Z",
+  "notes": [
+    "state values are relative to the bit order recorded on the transitions finding; gate references are scoped to artifact 'netlist'",
+    "hal_fsm scopes its findings to the state register only: the transition logic it handed to solve_fsm is not named in this document, so a composed block model shows those gates as unclassified"
+  ],
+  "producer": {
+    "name": "hal_fsm",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
