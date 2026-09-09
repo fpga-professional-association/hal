@@ -226,6 +226,13 @@ docstrings (`help(hal_py.<Plugin>)`) for the exact call, don't guess.
 
 ## Pitfalls
 
+- **Plugin Python bindings live under `hal_plugins.*`, not at top level.**
+  `import graph_algorithm` raises `ModuleNotFoundError`; the working form is
+  `from hal_plugins import graph_algorithm` (after
+  `hal_py.plugin_manager.load_all_plugins()`). Three of the Agilex walkthrough
+  scripts independently made this exact mistake — it is the most common
+  scripting error in this repo. Also: `hal_py.Netlist` has no
+  `get_gate_by_name`; filter `netlist.get_gates()` or use `get_gate_by_id`.
 - **`netlist` exists only when a project argument was given.** With
   `--project-dir` / `--import-netlist` / `--empty-project`, HAL loads the
   netlist and binds it to `netlist` before the script runs (see above). Without
