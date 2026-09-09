@@ -1,0 +1,37 @@
+== opcode sweep, by simulating the exported netlist ==
+The reference simulator in tools/hal_agilex drives the .vo with the
+modelled ALM semantics.  For each opcode we load a known accumulator
+value, then apply one clock edge with a known operand.
+
+  op | acc before | operand | acc after | carry after | zero after
+  ---+------------+---------+-----------+-------------+-----------
+   0 | 0x05       | 0x03    | 0x05      | 0           | 0
+   0 | 0x80       | 0x80    | 0x80      | 0           | 0
+   0 | 0x03       | 0x05    | 0x03      | 0           | 0
+   0 | 0xFF       | 0x01    | 0xFF      | 0           | 0
+  ---+------------+---------+-----------+-------------+-----------
+   1 | 0x05       | 0x03    | 0x08      | 0           | 0
+   1 | 0x80       | 0x80    | 0x00      | 1           | 1
+   1 | 0x03       | 0x05    | 0x08      | 0           | 0
+   1 | 0xFF       | 0x01    | 0x00      | 1           | 1
+  ---+------------+---------+-----------+-------------+-----------
+   2 | 0x05       | 0x03    | 0x02      | 1           | 0
+   2 | 0x80       | 0x80    | 0x00      | 1           | 1
+   2 | 0x03       | 0x05    | 0xFE      | 0           | 0
+   2 | 0xFF       | 0x01    | 0xFE      | 1           | 0
+  ---+------------+---------+-----------+-------------+-----------
+   3 | 0x05       | 0x03    | 0x00      | 0           | 1
+   3 | 0x80       | 0x80    | 0x00      | 0           | 1
+   3 | 0x03       | 0x05    | 0x00      | 0           | 1
+   3 | 0xFF       | 0x01    | 0x00      | 0           | 1
+  ---+------------+---------+-----------+-------------+-----------
+
+Hypotheses, checked over a sampled lattice of (acc, operand) pairs
+(accumulator in strides of 7, operand in strides of 5: 37 x 52 = 1924
+pairs per opcode).  This is a sample, not an exhaustive proof; the
+exhaustive-per-opcode claim in the guide is the 200-cycle reference
+comparison in artifacts/behavior_recovered.json.
+  op =  0  consistent with: hold
+  op =  1  consistent with: add
+  op =  2  consistent with: sub
+  op =  3  consistent with: clear

@@ -1,0 +1,5 @@
+== module_identification ==
+known registers handed to the plugin: 1
+module_identification.execute returned None
+(the plugin logged the reason; this is NOT evidence that the
+ netlist contains no arithmetic)

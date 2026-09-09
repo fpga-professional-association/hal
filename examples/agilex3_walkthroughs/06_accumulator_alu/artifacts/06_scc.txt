@@ -1,0 +1,21 @@
+== graph_algorithm: strongly connected components ==
+17 strongly connected component(s)
+components with more than one gate:
+  size 3: acc[0]~reg0, add_0~1, i45~0
+  size 3: acc[1]~reg0, add_0~6, i45~2
+  size 3: acc[2]~reg0, add_0~11, i45~3
+  size 3: acc[3]~reg0, add_0~16, i45~4
+  size 3: acc[4]~reg0, add_0~21, i45~5
+  size 3: acc[5]~reg0, add_0~26, i45~6
+  size 3: acc[6]~reg0, add_0~31, i45~7
+  size 3: acc[7]~reg0, add_0~36, i45~8
+
+self-loops (a gate that feeds back to itself through the graph):
+  acc[0]~reg0
+  acc[1]~reg0
+  acc[2]~reg0
+  acc[3]~reg0
+  acc[4]~reg0
+  acc[5]~reg0
+  acc[6]~reg0
+  acc[7]~reg0

@@ -1,0 +1,42 @@
+== carry chains (cout -> cin) ==
+1 chain(s) found
+
+chain 0: 10 cell(s)
+  [ 0] add_0~47     lut_mask=0x000000004444BBBB sumout=no cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=0 datad=0 datae=0 dataf=0
+       cout    = (cin | ((! dataa) & datab))
+  [ 1] add_0~1      lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(0) datad=acc(0) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 2] add_0~6      lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(1) datad=acc(1) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 3] add_0~11     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(2) datad=acc(2) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 4] add_0~16     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(3) datad=acc(3) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 5] add_0~21     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(4) datad=acc(4) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 6] add_0~26     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(5) datad=acc(5) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 7] add_0~31     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(6) datad=acc(6) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 8] add_0~36     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(7) datad=acc(7) datae=0 dataf=0
+       sumout  = ((((! dataa) & datab) & ((cin | ((datac & datad) | ((! datac) & (! datad)))) & ((! cin) | ((datac | datad) & ((! datac) | (! datad)))))) | ((dataa | (! datab)) & ((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))))
+       cout    = ((cin & datad) | ((cin | datad) & ((datac & (dataa | (! datab))) | ((! datac) & ((! dataa) & datab)))))
+  [ 9] add_0~41     lut_mask=0x0000000000000000 sumout=yes cout=no
+       inputs: dataa=0 datab=0 datac=0 datad=0 datae=0 dataf=0
+       sumout  = cin

@@ -1,0 +1,45 @@
+// carry chain of accumulator_alu, drawn by analyze.py
+digraph "carry_chain" {
+  graph [rankdir="LR", fontname="Helvetica", labelloc="t", label="carry chain of accumulator_alu (cout -> cin), drawn from netlist.hal.v"];
+  node [shape="box", fontname="Helvetica", fontsize="10", style="filled", fillcolor="white"];
+  edge [fontname="Helvetica", fontsize="9"];
+
+  "g10" [fillcolor="#f6e2c8", label="add_0~47\n[carry-in generator]\nmask 0x000000004444BBBB\ndataa=op(0)\ndatab=op(1)"];
+  "g1" [fillcolor="#dbe9f6", label="add_0~1\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(0)\ndatad=acc(0)"];
+  "s1" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~1_sumout"];
+  "g2" [fillcolor="#dbe9f6", label="add_0~6\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(1)\ndatad=acc(1)"];
+  "s2" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~6_sumout"];
+  "g3" [fillcolor="#dbe9f6", label="add_0~11\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(2)\ndatad=acc(2)"];
+  "s3" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~11_sumout"];
+  "g4" [fillcolor="#dbe9f6", label="add_0~16\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(3)\ndatad=acc(3)"];
+  "s4" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~16_sumout"];
+  "g5" [fillcolor="#dbe9f6", label="add_0~21\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(4)\ndatad=acc(4)"];
+  "s5" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~21_sumout"];
+  "g6" [fillcolor="#dbe9f6", label="add_0~26\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(5)\ndatad=acc(5)"];
+  "s6" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~26_sumout"];
+  "g7" [fillcolor="#dbe9f6", label="add_0~31\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(6)\ndatad=acc(6)"];
+  "s7" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~31_sumout"];
+  "g8" [fillcolor="#dbe9f6", label="add_0~36\n[bit slice]\nmask 0x00000000B4004BB4\ndataa=op(0)\ndatab=op(1)\ndatac=operand(7)\ndatad=acc(7)"];
+  "s8" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~36_sumout"];
+  "g9" [fillcolor="#d9f0dc", label="add_0~41\n[carry-out tap]\nmask 0x0000000000000000"];
+  "s9" [shape="ellipse", fillcolor="#f2f2f2", label="add_0~41_sumout"];
+
+  "g10" -> "g1" [label="cout->cin"];
+  "g1" -> "s1" [style="dashed", label="sumout"];
+  "g1" -> "g2" [label="cout->cin"];
+  "g2" -> "s2" [style="dashed", label="sumout"];
+  "g2" -> "g3" [label="cout->cin"];
+  "g3" -> "s3" [style="dashed", label="sumout"];
+  "g3" -> "g4" [label="cout->cin"];
+  "g4" -> "s4" [style="dashed", label="sumout"];
+  "g4" -> "g5" [label="cout->cin"];
+  "g5" -> "s5" [style="dashed", label="sumout"];
+  "g5" -> "g6" [label="cout->cin"];
+  "g6" -> "s6" [style="dashed", label="sumout"];
+  "g6" -> "g7" [label="cout->cin"];
+  "g7" -> "s7" [style="dashed", label="sumout"];
+  "g7" -> "g8" [label="cout->cin"];
+  "g8" -> "s8" [style="dashed", label="sumout"];
+  "g8" -> "g9" [label="cout->cin"];
+  "g9" -> "s9" [style="dashed", label="sumout"];
+}

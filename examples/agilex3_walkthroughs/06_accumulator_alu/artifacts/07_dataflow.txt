@@ -1,0 +1,3 @@
+== dataflow_analysis (DANA): recovered register groups ==
+1 group(s)
+  group   0 ( 9 ff): acc[0]~reg0, acc[1]~reg0, acc[2]~reg0, acc[3]~reg0, acc[4]~reg0, acc[5]~reg0, acc[6]~reg0, acc[7]~reg0, carry~reg0

@@ -1,0 +1,62 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.recognize.build_document",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "accumulator_alu",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "accumulator_alu",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 31,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/06_accumulator_alu/netlist/accumulator_alu.vo",
+      "sha256": "203d7f8e81da72eac0a8db75cc8bb18aa51cfd9dc5e930f049e5b098db7183b0",
+      "size_bytes": 17801
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "rejected": [
+          "cell add_0~47 is not an arithmetic slice"
+        ]
+      },
+      "id": "hal_agilex/recognize/no-adder",
+      "method": {
+        "bounded": false,
+        "description": "Follows cout->cin links between tennm_lcell_comb cells and checks each cell's lut_mask against the propagate/generate pair of a full-adder bit slice.",
+        "kind": "structural",
+        "name": "carry-chain pattern match",
+        "parameters": {
+          "architecture": "altera_agilex_tennm"
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "accumulator_alu"
+        ]
+      },
+      "status": "unknown",
+      "summary": "1 carry chain(s) were followed and none matched the ripple-carry adder pattern; this says nothing about what the design computes.",
+      "tags": [
+        "agilex",
+        "recognition"
+      ],
+      "title": "No carry-chain adder recognized"
+    }
+  ],
+  "generated_at": "2026-09-08T23:33:42Z",
+  "producer": {
+    "name": "hal_agilex.recognize",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

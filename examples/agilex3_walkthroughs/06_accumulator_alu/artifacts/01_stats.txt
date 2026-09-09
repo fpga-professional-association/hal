@@ -1,0 +1,28 @@
+== netlist statistics ==
+design name        : accumulator_alu
+gate library       : AGILEX_TENNM
+gates              : 33
+nets               : 53
+modules            : 1
+
+gate types:
+  HAL_GND              1
+  HAL_VCC              1
+  tennm_ff             9
+  tennm_lcell_comb     22
+
+elaboration: 22 lcell(s) given a Boolean function, 9 ff(s) checked, 0 refused
+
+global input nets  (12): clk, op(0), op(1), operand(0), operand(1), operand(2), operand(3), operand(4), operand(5), operand(6), operand(7), rst_n
+global output nets (10): acc(0), acc(1), acc(2), acc(3), acc(4), acc(5), acc(6), acc(7), carry, zero
+
+sequential gates:
+  acc[0]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~0_combout
+  acc[1]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~2_combout
+  acc[2]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~3_combout
+  acc[3]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~4_combout
+  acc[4]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~5_combout
+  acc[5]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~6_combout
+  acc[6]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~7_combout
+  acc[7]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~8_combout
+  carry~reg0       clk=clk      ena=i45~1_combout          clrn=rst_n    d=i46~0_combout

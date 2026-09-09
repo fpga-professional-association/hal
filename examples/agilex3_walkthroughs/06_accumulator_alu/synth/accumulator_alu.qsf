@@ -1,0 +1,18 @@
+# Quartus Prime Pro settings for the 06_accumulator_alu walkthrough.
+#
+# Same device and family as tools/hal_agilex/fixtures/agilex3_counter_adder, so
+# the export lands on the same two primitives the AGILEX_TENNM gate library
+# models.
+
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY accumulator_alu
+set_global_assignment -name VERILOG_FILE design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+# Keep the synchronous clear of the accumulator out of the flip-flop's `sclr`
+# port and inside the LUT logic instead.  `sclr` is a real tennm_ff port but it
+# is outside the configuration hal_agilex validated (see tools/hal_agilex,
+# "Coverage"), and pushing the clear into the LUTs is also what makes the opcode
+# decode visible in the netlist graph -- which is the point of this walkthrough.
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF

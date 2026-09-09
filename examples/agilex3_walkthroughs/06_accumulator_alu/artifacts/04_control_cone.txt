@@ -1,0 +1,60 @@
+== control cone of the register file ==
+For every flip-flop: the Boolean function of its enable and of its
+data input, expressed in terms of the nets that drive them.
+
+flip-flop acc[0]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~0_combout <- i45~0.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[1]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~2_combout <- i45~2.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[2]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~3_combout <- i45~3.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[3]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~4_combout <- i45~4.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[4]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~5_combout <- i45~5.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[5]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~6_combout <- i45~6.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[6]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~7_combout <- i45~7.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop acc[7]~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i45~8_combout <- i45~8.combout
+        = (datac & ((! dataa) | (! datab)))
+
+flip-flop carry~reg0
+  ena : i45~1_combout <- i45~1.combout
+        = (dataa | datab)
+  d   : i46~0_combout <- i46~0.combout
+        = (datac & ((! dataa) | (! datab)))
+
+distinct enable functions: 1
+  (dataa | datab)  <- 9 flip-flop(s)

@@ -1,0 +1,48 @@
+== is a slice really a full adder? ==
+Enumerating the Boolean functions HAL attached to one arithmetic
+cell, over all assignments of its driven inputs.
+
+cell        : add_0~1
+lut_mask    : 0x00000000B4004BB4
+inputs      : dataa=op(0) datab=op(1) datac=operand(0) datad=acc(0)
+
+free variables: cin, dataa, datab, datac, datad
+
+             cin            dataa            datab            datac            datad | sumout cout
+--------------------------------------------------------------------------------------------------
+               0                0                0                0                0 |   0      0
+               1                0                0                0                0 |   1      0
+               0                1                0                0                0 |   0      0
+               1                1                0                0                0 |   1      0
+               0                0                1                0                0 |   1      0
+               1                0                1                0                0 |   0      1
+               0                1                1                0                0 |   0      0
+               1                1                1                0                0 |   1      0
+               0                0                0                1                0 |   1      0
+               1                0                0                1                0 |   0      1
+               0                1                0                1                0 |   1      0
+               1                1                0                1                0 |   0      1
+               0                0                1                1                0 |   0      0
+               1                0                1                1                0 |   1      0
+               0                1                1                1                0 |   1      0
+               1                1                1                1                0 |   0      1
+               0                0                0                0                1 |   1      0
+               1                0                0                0                1 |   0      1
+               0                1                0                0                1 |   1      0
+               1                1                0                0                1 |   0      1
+               0                0                1                0                1 |   0      1
+               1                0                1                0                1 |   1      1
+               0                1                1                0                1 |   1      0
+               1                1                1                0                1 |   0      1
+               0                0                0                1                1 |   0      1
+               1                0                0                1                1 |   1      1
+               0                1                0                1                1 |   0      1
+               1                1                0                1                1 |   1      1
+               0                0                1                1                1 |   1      0
+               1                0                1                1                1 |   0      1
+               0                1                1                1                1 |   0      1
+               1                1                1                1                1 |   1      1
+
+Check against a full adder over the three non-opcode inputs, for each
+fixed opcode.  A full adder satisfies sum = x^y^cin and
+cout = majority(x, y, cin).

@@ -1,0 +1,1259 @@
+<!-- Self-contained: inline CSS, relative image paths, no external requests. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 06 — accumulator ALU</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f23; --muted: #5b6570; --rule: #d8dee4;
+  --code-bg: #f4f6f8; --code-fg: #22272e; --accent: #0b5fa5; --accent-bg: #eaf3fb;
+  --warn-bg: #fdf4e3; --warn-rule: #d9a441; --good-bg: #edf7ee; --good-rule: #4f9d5b;
+  --bad-bg: #fdeeee; --bad-rule: #c0554f; --figure-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a; --fg: #e6e9ec; --muted: #9aa4ae; --rule: #2c3238;
+    --code-bg: #1c2126; --code-fg: #d8dee4; --accent: #6db3f2; --accent-bg: #16242f;
+    --warn-bg: #2b2416; --warn-rule: #b98a2f; --good-bg: #17251a; --good-rule: #4f9d5b;
+    --bad-bg: #2a1919; --bad-rule: #c0554f; --figure-bg: #f7f9fb;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.01em; }
+h2 { font-size: 1.5rem; margin: 3rem 0 .75rem; padding-top: 1rem; border-top: 2px solid var(--rule); }
+h3 { font-size: 1.15rem; margin: 2rem 0 .5rem; }
+h4 { font-size: 1rem; margin: 1.4rem 0 .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-size: .8rem; }
+p, li { max-width: 46rem; }
+a { color: var(--accent); }
+code, kbd { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: .88em; }
+code { background: var(--code-bg); padding: .1em .35em; border-radius: 3px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); padding: .9rem 1rem;
+  border-radius: 6px; border: 1px solid var(--rule); overflow-x: auto;
+  font-size: .82rem; line-height: 1.5;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+table { border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+.tablewrap { overflow-x: auto; max-width: 100%; }
+th, td { border: 1px solid var(--rule); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+figure { margin: 1.5rem 0; }
+figure img {
+  max-width: 100%; height: auto; display: block; background: var(--figure-bg);
+  border: 1px solid var(--rule); border-radius: 6px; padding: .5rem;
+}
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+.lead { font-size: 1.08rem; color: var(--muted); max-width: 46rem; }
+.tag { display: inline-block; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+       padding: .1rem .45rem; border-radius: 3px; border: 1px solid var(--rule); background: var(--code-bg); color: var(--muted); }
+.callout { border-left: 4px solid var(--accent); background: var(--accent-bg); padding: .8rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0; }
+.callout.warn { border-left-color: var(--warn-rule); background: var(--warn-bg); }
+.callout.good { border-left-color: var(--good-rule); background: var(--good-bg); }
+.callout.bad  { border-left-color: var(--bad-rule);  background: var(--bad-bg); }
+.callout p:first-child { margin-top: 0; } .callout p:last-child { margin-bottom: 0; }
+.callout .label { font-weight: 700; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; display: block; margin-bottom: .3rem; }
+.step { border: 1px solid var(--rule); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.75rem 0; }
+.step > h3 { margin-top: 0; }
+.step .n { display: inline-block; min-width: 1.9rem; height: 1.9rem; line-height: 1.9rem; text-align: center;
+           border-radius: 50%; background: var(--accent); color: #fff; font-size: .85rem; font-weight: 700; margin-right: .5rem; }
+.why { border-left: 3px solid var(--rule); padding-left: .9rem; margin: 1rem 0; }
+.why strong:first-child { color: var(--accent); }
+nav.toc { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.25rem; margin: 1.75rem 0 2.5rem; }
+nav.toc ol { margin: .3rem 0 0; padding-left: 1.3rem; }
+nav.toc li { margin: .15rem 0; }
+.meta { color: var(--muted); font-size: .9rem; }
+.filelist code { white-space: nowrap; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+.small { font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="tag">Agilex 3 reverse-engineering walkthrough · 06</p>
+<h1>From a synthesized Agilex 3 netlist back to an accumulator ALU</h1>
+<p class="lead">
+An 8-bit accumulator with add, subtract, clear and hold, selected by a 2-bit
+opcode. We synthesize it with Quartus Prime Pro for a real Agilex 3 part, throw
+away everything except the exported netlist, and walk back to RTL with HAL. The
+theme is <strong>arithmetic recognition</strong>: finding the carry chain,
+proving a cell really is a full adder, recovering the opcode encoding, and
+catching the trick that makes one adder do both addition and subtraction.
+</p>
+
+<p class="meta">
+Everything below was actually run. Every diagram was generated by
+<code>tools/hal_viz</code> from this netlist; every quoted output is a file in
+<code>artifacts/</code>. Where a tool failed or gave a partial answer, the
+failure is shown rather than edited out — those are the most instructive parts.
+</p>
+
+<div class="callout">
+<span class="label">Who this is for, and what you need</span>
+<p>
+An engineer who can read Verilog and has never taken a netlist apart. No FPGA
+architecture knowledge is assumed — the two Agilex cells you need are explained
+where they first matter.
+</p>
+<p>
+To follow along you need a <strong>built HAL</strong> (<code>hal_py</code> on
+<code>PYTHONPATH</code>) and Graphviz. You do <em>not</em> need Quartus: the
+exported netlist is committed. Two of the steps below —
+<a href="#s1">the coverage check</a> and
+<a href="#s12">the simulation</a> — and the whole of
+<a href="check.py"><code>check.py</code></a>'s first tier run on a plain Python 3
+interpreter with nothing installed, so you can start there.
+</p>
+</div>
+
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#design">The design we are going to hide</a></li>
+  <li><a href="#synth">Synthesis and export: the exact commands</a></li>
+  <li><a href="#contact">First contact with the netlist</a></li>
+  <li><a href="#walk">The reverse-engineering walk</a>
+    <ol>
+      <li><a href="#s1">Is the netlist even inside our primitive coverage?</a></li>
+      <li><a href="#s2">Find the state</a></li>
+      <li><a href="#s3">Is it a pipeline or an accumulator? (SCC)</a></li>
+      <li><a href="#s4">Find the carry chain</a></li>
+      <li><a href="#s5">Prove a slice is a full adder</a></li>
+      <li><a href="#s6">The cell at the head of the chain is not a slice</a></li>
+      <li><a href="#s7">Recover the opcode decode</a></li>
+      <li><a href="#s8">The zero flag</a></li>
+      <li><a href="#s9">DANA: what the register grouper says</a></li>
+      <li><a href="#s10">module_identification on the adder</a></li>
+      <li><a href="#s11">hal_agilex recognize: an honest miss</a></li>
+      <li><a href="#s12">Close the loop by simulation</a></li>
+    </ol>
+  </li>
+  <li><a href="#recon">Reconstruction, and an honest diff against the original</a></li>
+  <li><a href="#further">Going further</a></li>
+</ol>
+</nav>
+
+<!-- ==================================================================== -->
+<h2 id="design">1. The design we are going to hide</h2>
+
+<p>
+The full specification is in <a href="spec.md"><code>spec.md</code></a>. In one
+table:
+</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th><code>op</code></th><th>operation</th><th>effect on the clock edge</th></tr></thead>
+<tbody>
+<tr><td><code>2'b00</code></td><td>NOP</td><td><code>acc</code> and <code>carry</code> hold</td></tr>
+<tr><td><code>2'b01</code></td><td>ADD</td><td><code>{carry, acc} &lt;= acc + operand</code></td></tr>
+<tr><td><code>2'b10</code></td><td>SUB</td><td><code>{carry, acc} &lt;= acc + ~operand + 1</code></td></tr>
+<tr><td><code>2'b11</code></td><td>CLR</td><td><code>acc &lt;= 0</code>, <code>carry &lt;= 0</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+Plus a combinational <code>zero</code> output (<code>acc == 0</code>) and an
+asynchronous active-low <code>rst_n</code>. Here is
+<a href="design.v"><code>design.v</code></a> in full — this is the
+<em>answer key</em>. Nothing in the analysis below reads it.
+</p>
+
+<pre><code>module accumulator_alu (
+    input  wire       clk,
+    input  wire       rst_n,     // asynchronous, active low
+    input  wire [1:0] op,        // opcode
+    input  wire [7:0] operand,   // second ALU operand
+    output reg  [7:0] acc,       // the accumulator
+    output reg        carry,     // registered carry-out / not-borrow flag
+    output wire       zero       // combinational: acc == 0
+);
+
+    localparam [1:0] OP_NOP = 2'b00;
+    localparam [1:0] OP_ADD = 2'b01;
+    localparam [1:0] OP_SUB = 2'b10;
+    localparam [1:0] OP_CLR = 2'b11;
+
+    // There is exactly one adder in this design.  Subtraction reuses it as
+    //     acc - operand == acc + ~operand + 1
+    // so `sub` does double duty: it inverts the operand into the adder and it
+    // is the carry-in of the very same chain.
+    wire       sub    = (op == OP_SUB);
+    wire [7:0] addend = sub ? ~operand : operand;
+
+    wire [8:0] sum = {1'b0, acc} + {1'b0, addend} + {8'b0, sub};
+
+    wire       do_alu = (op == OP_ADD) || (op == OP_SUB);
+    wire       do_clr = (op == OP_CLR);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            acc   &lt;= 8'h00;
+            carry &lt;= 1'b0;
+        end else if (do_clr) begin
+            acc   &lt;= 8'h00;
+            carry &lt;= 1'b0;
+        end else if (do_alu) begin
+            acc   &lt;= sum[7:0];
+            carry &lt;= sum[8];
+        end
+        // OP_NOP: hold
+    end
+
+    assign zero = ~(|acc);
+
+endmodule</code></pre>
+
+<div class="callout">
+<span class="label">Why this design</span>
+<p>
+It is small enough that you can hold the whole netlist in your head — 31 cells —
+but it contains four things that are genuinely hard to see in a netlist and are
+worth practising on: a carry chain, a conditional operand inversion, a
+control-signal decode that has been folded into the LUTs, and a flag reduction
+tree. Everything else is deliberately stripped away: one clock, no hierarchy,
+no memory, no I/O primitives.
+</p>
+</div>
+
+<!-- ==================================================================== -->
+<h2 id="synth">2. Synthesis and export: the exact commands</h2>
+
+<p>
+Device and tool are the same as the <code>hal_agilex</code> fixtures, so the
+export lands on primitives the gate library actually models:
+</p>
+
+<div class="tablewrap">
+<table>
+<tbody>
+<tr><th>family</th><td>Agilex 3</td></tr>
+<tr><th>device</th><td><code>A3CW135BM16AE6S</code>, package MBGA896</td></tr>
+<tr><th>tool</th><td>Quartus Prime Pro Edition 26.1.0 Build 110 03/26/2026 SC</td></tr>
+<tr><th>stage</th><td>post-<em>synthesis</em> snapshot — no fitting, so no placement noise and no I/O buffers</td></tr>
+<tr><th>gate library</th><td><code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>The project</h4>
+<p>
+<a href="synth/accumulator_alu.qsf"><code>synth/accumulator_alu.qsf</code></a>,
+in full:
+</p>
+<pre><code>set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY accumulator_alu
+set_global_assignment -name VERILOG_FILE design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF</code></pre>
+
+<h4>The three commands</h4>
+<pre><code># 1. synthesize (about 10 s for this design)
+quartus_syn accumulator_alu -c accumulator_alu
+
+# 2. export the post-synthesis Verilog netlist
+quartus_eda --simulation --format=verilog --tool=questasim \
+            --output_directory=simulation accumulator_alu -c accumulator_alu
+#    -> simulation/accumulator_alu.vo
+
+# 3. rewrite the .vo into something HAL's Verilog front end can read
+python tools/hal_agilex import netlist/accumulator_alu.vo -o netlist/netlist.hal.v</code></pre>
+
+<p>
+<a href="synth/run_synth.sh"><code>synth/run_synth.sh</code></a> is those three
+commands wrapped up; it deletes the Quartus database afterwards, which is why
+only the project files and the two netlists are committed here.
+</p>
+
+<h4>Step 3 is not cosmetic</h4>
+<p>
+HAL's Verilog parser is a structural netlist reader, and the Quartus writer
+emits three things it rejects. <code>tools/hal_agilex import</code> handles each
+one <em>exactly</em>, or refuses:
+</p>
+<ul>
+<li><code>tri1 devclrn/devpor/devoe</code> become plain wires with
+    <code>assign … = 1'b1</code>;</li>
+<li>pin inversions like <code>.datac(~x)</code> are <strong>absorbed into
+    <code>lut_mask</code></strong> — mask bit <code>j</code> moves to
+    <code>j ^ (1&lt;&lt;i)</code>, which is an exact relabelling. An inversion on
+    <code>cin</code>, on a flip-flop pin, or on <code>datae</code>/<code>dataf</code>
+    of an arithmetic cell is <em>refused</em>, because absorbing it would change
+    the meaning;</li>
+<li>unconnected pins (<code>.combout()</code>) are dropped, and the
+    <code>assign unknown = 1'bx</code> Quartus declares is dropped only while
+    nothing reads it.</li>
+</ul>
+<p>
+This matters for reading the netlist later. The same adder slice appears as</p>
+<pre><code>// netlist/accumulator_alu.vo          -- four inverted inputs
+.lut_mask (64'h00000000002D2DD2)  .dataa(~op[0]) .datab(~op[1]) .datac(~operand[0]) .datad(~acc[0])
+
+// netlist/netlist.hal.v               -- inversions absorbed into the mask
+.lut_mask (64'h00000000B4004BB4)  .dataa( op[0]) .datab( op[1]) .datac( operand[0]) .datad( acc[0])</code></pre>
+<p>
+Both encode the same function (the four inversions permute mask bit
+<code>j</code> to <code>j ^ 0b1111</code> inside each 16-bit half). When a mask
+in this guide does not match the one in your editor, check which of the two
+files you are looking at.
+</p>
+
+<div class="callout warn">
+<span class="label">The one non-obvious QSF assignment</span>
+<p>
+<code>ALLOW_SYNCH_CTRL_USAGE OFF</code> stops Quartus from putting the CLR
+operation into the flip-flop's <code>sclr</code> port. Without it, the design
+synthesizes to <strong>9 <code>tennm_ff</code> + 14 <code>tennm_lcell_comb</code></strong>
+with all nine flip-flops driving <code>.sclr(\reduce_nor_3~combout )</code> —
+that variant is committed as
+<a href="netlist/accumulator_alu_sclr_variant.vo"><code>netlist/accumulator_alu_sclr_variant.vo</code></a>
+so you can see it. <code>sclr</code> is a real port of the primitive, but it is
+outside the configuration <code>tools/hal_agilex</code> has validated, and the
+inventory says so rather than quietly modelling it:
+</p>
+<pre><code>$ python tools/hal_agilex inventory netlist/accumulator_alu_sclr_variant.vo
+unsupported | Instances of a covered primitive in an unvalidated configuration
+            | 9 instance(s) use pins or parameters whose behaviour has not been
+              validated against the vendor export.</code></pre>
+<p>
+Two lessons. First, <em>this is what a coverage gap looks like when a tool is
+honest about it</em> — an explicit "unsupported", not a plausible-looking
+answer. Second, as a reverse engineer you rarely get to choose your netlist;
+when a synthesis option pushes logic into a primitive port your tooling has not
+validated, the correct move is to widen the model, not to assume the port
+behaves the way its name suggests.
+</p>
+</div>
+
+<!-- ==================================================================== -->
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<pre><code>$ HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib \
+  PYTHONPATH=/work/build/lib:tools \
+  python3 examples/agilex3_walkthroughs/06_accumulator_alu/analyze.py</code></pre>
+
+<p>
+<a href="analyze.py"><code>analyze.py</code></a> is the script that produced
+every text file in <code>artifacts/</code>. Its first step loads the netlist
+through <code>hal_agilex.hal_adapter</code>, which does two things: it loads
+<code>netlist.hal.v</code> against <code>AGILEX_TENNM.hgl</code>, and then it
+attaches a Boolean function to every ALM with
+<code>Gate.add_boolean_function</code>.
+</p>
+
+<div class="callout">
+<span class="label">Why the second step exists</span>
+<p>
+An Agilex ALM has ten input pins and three outputs whose meaning depends on
+<code>lut_mask</code> <em>and</em> on whether the cell is in normal or arithmetic
+mode. HAL derives a LUT function from an init string only for gate types with at
+most six inputs and one function per output, so <code>AGILEX_TENNM.hgl</code>
+deliberately carries <strong>no</strong> <code>lut_config</code> for
+<code>tennm_lcell_comb</code>. Without the adapter, every ALM output would be an
+empty function and every analysis downstream would see a free variable. With it,
+<code>gate.get_boolean_function("sumout")</code> returns the real thing — which is
+what makes steps 5 and 7 below possible at all.
+</p>
+</div>
+
+<h4>artifacts/01_stats.txt</h4>
+<pre><code>== netlist statistics ==
+design name        : accumulator_alu
+gate library       : AGILEX_TENNM
+gates              : 33
+nets               : 53
+modules            : 1
+
+gate types:
+  HAL_GND              1
+  HAL_VCC              1
+  tennm_ff             9
+  tennm_lcell_comb     22
+
+elaboration: 22 lcell(s) given a Boolean function, 9 ff(s) checked, 0 refused
+
+global input nets  (12): clk, op(0), op(1), operand(0), operand(1), operand(2), operand(3), operand(4), operand(5), operand(6), operand(7), rst_n
+global output nets (10): acc(0), acc(1), acc(2), acc(3), acc(4), acc(5), acc(6), acc(7), carry, zero
+
+[... the per-flip-flop table that follows is quoted in step 2 ...]</code></pre>
+
+<p class="small">
+Two of those gates are not vendor primitives: <code>HAL_GND</code> and
+<code>HAL_VCC</code> are synthesised by the import because HAL's Verilog front
+end needs a ground and a power gate type to materialise the <code>1'b0</code> /
+<code>1'b1</code> literals the export uses. The names are prefixed exactly so
+they cannot be mistaken for Agilex cells. Everywhere below, "31 cells" means the
+real ones.
+</p>
+
+<figure>
+  <img src="images/02_module_tree.svg" alt="Module tree of the imported netlist: a single top module containing all 33 gates.">
+  <figcaption>
+    <code>python tools/hal_viz module_tree netlist/netlist.hal.v -g AGILEX_TENNM.hgl -o images/02_module_tree.svg</code>
+    — the entire "hierarchy". One module. This is the first thing synthesis took
+    away from you, and no analysis will give it back; the best you can do is
+    rebuild a hierarchy that <em>explains</em> the netlist.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="images/01_netlist_graph.svg" alt="Gate-level graph of the whole netlist: a chain of arithmetic cells feeding a row of flip-flops, with a small reduction tree on the right.">
+  <figcaption>
+    <code>python tools/hal_viz netlist_graph netlist/netlist.hal.v -g AGILEX_TENNM.hgl --module 1 --pin-labels -o images/01_netlist_graph.svg</code>
+    — the whole design in one picture. At 31 cells this is still readable; at
+    3 100 it would not be, which is why every later view is scoped.
+  </figcaption>
+</figure>
+
+<h3>What you can see, and what you cannot</h3>
+<div class="tablewrap">
+<table>
+<thead><tr><th>survived synthesis</th><th>gone</th></tr></thead>
+<tbody>
+<tr><td>Port names and bit widths (<code>op[1:0]</code>, <code>operand[7:0]</code>, <code>acc[7:0]</code>) — the top-level interface is preserved verbatim in a post-synthesis export.</td>
+    <td>All internal signal names. <code>sub</code>, <code>addend</code>, <code>do_alu</code>, <code>do_clr</code> do not exist; the closest survivors are Quartus's own <code>i45~1</code>, <code>i46~0</code>.</td></tr>
+<tr><td>Register <em>identity</em>: <code>acc[3]~reg0</code> is recognisably the flip-flop for <code>acc[3]</code>.</td>
+    <td>Hierarchy, module boundaries, parameter names, the opcode <code>localparam</code> names.</td></tr>
+<tr><td>Structure: which cells are in arithmetic mode, what the carry chain order is, which nets are shared.</td>
+    <td>The distinction between "a mux the designer wrote" and "an AND gate the optimiser produced". Boolean logic has been re-encoded into 6-input LUT masks.</td></tr>
+<tr><td>The exact Boolean function of every cell, once the ALM semantics are attached.</td>
+    <td>Intent. Nothing in the netlist says <code>2'b10</code> is called SUB.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="small">
+A caveat you should hold onto: this is a <em>post-synthesis vendor export</em>,
+not an obfuscated or bitstream-recovered netlist. Names like <code>acc[3]~reg0</code>
+and <code>add_0~6</code> are a real gift. Everywhere below where a conclusion
+leans on a name, the guide says so and also gives the structural argument that
+would survive renaming — because that is the argument you will actually need.
+</p>
+
+<!-- ==================================================================== -->
+<h2 id="walk">4. The reverse-engineering walk</h2>
+
+<div class="step" id="s1">
+<h3><span class="n">1</span>Is the netlist even inside our primitive coverage?</h3>
+<pre><code>$ python tools/hal_agilex --strict inventory netlist/accumulator_alu.vo -o artifacts/inventory.json</code></pre>
+<pre><code>status : proven_under_assumptions
+title  : Every primitive in the export is inside the validated coverage
+summary: All 31 instances are tennm_ff or tennm_lcell_comb, each in a
+         configuration this package models and has validated against the
+         vendor export.
+data   : {"histogram": {"tennm_ff": 9, "tennm_lcell_comb": 22}}</code></pre>
+<div class="why">
+<p><strong>Why do this first.</strong>
+Every later claim is conditional on the semantics you assign to the primitives.
+If the export contained a <code>tennm_ram_block</code>, a MAC, or an ALM using
+shared arithmetic or the fracturable 7-input mode, the Boolean functions HAL
+attaches would be missing or wrong, and a beautiful analysis built on top of
+them would be beautifully wrong. Running the inventory first turns "I assume the
+model fits" into "I checked, and here is the document that says so."</p>
+<p>Note what the status <em>is</em>: <code>proven_under_assumptions</code>, not
+<code>proven</code>. The undischarged assumption is the coverage list itself —
+the semantics in <code>tools/hal_agilex/primitives.py</code>. Those were
+validated by simulating an export against the RTL it came from, which is strong
+evidence, not a proof.</p>
+</div>
+</div>
+
+<div class="step" id="s2">
+<h3><span class="n">2</span>Find the state</h3>
+<p>
+Nine <code>tennm_ff</code>. <code>analyze.py</code> prints each one's clock,
+enable, asynchronous clear and data driver — the tail of
+<code>artifacts/01_stats.txt</code>:
+</p>
+<pre><code>sequential gates:
+  acc[0]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~0_combout
+  acc[1]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~2_combout
+  acc[2]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~3_combout
+  acc[3]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~4_combout
+  acc[4]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~5_combout
+  acc[5]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~6_combout
+  acc[6]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~7_combout
+  acc[7]~reg0      clk=clk      ena=i45~1_combout          clrn=rst_n    d=i45~8_combout
+  carry~reg0       clk=clk      ena=i45~1_combout          clrn=rst_n    d=i46~0_combout</code></pre>
+<div class="why">
+<p><strong>What to read off this.</strong> Three facts, none of which needs a
+single signal name to be trustworthy:</p>
+<ul>
+<li><strong>One clock domain.</strong> All nine <code>clk</code> pins are on the
+same net, and that net is a primary input. No clock gating, no divided clock, no
+second domain — so no clock-domain-crossing analysis is needed here (on a design
+with two clocks, <code>tools/hal_cdc</code> would be the next stop).</li>
+<li><strong>One asynchronous clear</strong>, shared by all nine, driven straight
+from a primary input. <code>tennm_ff.clrn</code> is active-low in the modelled
+configuration, so that input is an active-low async reset.</li>
+<li><strong>One enable net</strong>, shared by all nine, and it is
+<em>not</em> a primary input: it comes out of a LUT. That single fact is the
+thread to pull. A register file whose entire enable is computed by one small
+combinational cell means there is a control decode somewhere, and it is tiny.</li>
+</ul>
+<p>The nine flip-flops split 8 + 1 by their data cones (step 4 and step 7), and
+that 8 + 1 shape — a byte plus one bit, sharing enable and reset — is the
+signature of a datapath register with a flag bit attached.</p>
+</div>
+</div>
+
+<div class="step" id="s3">
+<h3><span class="n">3</span>Is it a pipeline or an accumulator?</h3>
+<pre><code># graph_algorithm's SCC decomposition, via analyze.py step_graph_algorithm
+from hal_plugins import graph_algorithm
+graph = graph_algorithm.NetlistGraph.from_netlist(netlist)
+components = graph_algorithm.get_connected_components(graph, True)   # strong=True</code></pre>
+<pre><code>== graph_algorithm: strongly connected components ==
+17 strongly connected component(s)
+components with more than one gate:
+  size 3: acc[0]~reg0, add_0~1, i45~0
+  size 3: acc[1]~reg0, add_0~6, i45~2
+  size 3: acc[2]~reg0, add_0~11, i45~3
+  size 3: acc[3]~reg0, add_0~16, i45~4
+  size 3: acc[4]~reg0, add_0~21, i45~5
+  size 3: acc[5]~reg0, add_0~26, i45~6
+  size 3: acc[6]~reg0, add_0~31, i45~7
+  size 3: acc[7]~reg0, add_0~36, i45~8
+
+self-loops (a gate that feeds back to itself through the graph):
+  acc[0]~reg0
+  acc[1]~reg0
+  acc[2]~reg0
+  acc[3]~reg0
+  acc[4]~reg0
+  acc[5]~reg0
+  acc[6]~reg0
+  acc[7]~reg0</code></pre>
+<div class="why">
+<p><strong>Why SCCs are the right first structural question.</strong>
+A circuit's feedback structure is the one thing that cannot be optimised away:
+if a register's output can reach its own input, the design has state that
+<em>accumulates</em>; if it cannot, the register is a pipeline stage and its
+value is a pure function of the inputs some fixed number of cycles ago.</p>
+<p>Here every <code>acc[i]</code> flip-flop is on a cycle back to itself through
+the arithmetic cells. That immediately rules out "8-bit input pipeline register"
+and "output holding register", and it is what makes the word
+<em>accumulator</em> the right hypothesis before you have looked at a single
+LUT mask. The carry flip-flop, notably, is <em>not</em> on such a cycle — it is
+written from the datapath but never read back into it, which is exactly how a
+status flag behaves.</p>
+</div>
+</div>
+
+<div class="step" id="s4">
+<h3><span class="n">4</span>Find the carry chain</h3>
+<p>
+On an Altera ALM, arithmetic is not built out of generic gates: it uses the
+dedicated <code>cout</code> → <code>cin</code> connection between adjacent
+cells. That connection is a distinct pin pair, so the chain is trivially
+recoverable — walk every net that leaves a <code>cout</code> and arrives at a
+<code>cin</code>:
+</p>
+<pre><code>def carry_chain(netlist):
+    succ, pred = {}, {}
+    for gate in netlist.get_gates():
+        out = gate.get_fan_out_net("cout")
+        if out is None:
+            continue
+        for endpoint in out.get_destinations():
+            if endpoint.get_pin().get_name() == "cin":
+                succ[gate.get_id()] = endpoint.get_gate()
+                pred[endpoint.get_gate().get_id()] = gate
+    # a chain is a maximal path: start at a cell with no predecessor
+    ...</code></pre>
+<pre><code>== carry chains (cout -&gt; cin) ==
+1 chain(s) found
+
+chain 0: 10 cell(s)
+  [ 0] add_0~47     lut_mask=0x000000004444BBBB sumout=no cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=0 datad=0 datae=0 dataf=0
+       cout    = (cin | ((! dataa) &amp; datab))
+  [ 1] add_0~1      lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(0) datad=acc(0) datae=0 dataf=0
+       sumout  = ((((! dataa) &amp; datab) &amp; ((cin | ((datac &amp; datad) | ((! datac) &amp; (! datad)))) &amp; ((! cin) | ((datac | datad) &amp; ((! datac) | (! datad)))))) | ((dataa | (! datab)) &amp; ((cin &amp; ((datac &amp; datad) | ((! datac) &amp; (! datad)))) | ((! cin) &amp; ((datac | datad) &amp; ((! datac) | (! datad)))))))
+       cout    = ((cin &amp; datad) | ((cin | datad) &amp; ((datac &amp; (dataa | (! datab))) | ((! datac) &amp; ((! dataa) &amp; datab)))))
+  [ 2] add_0~6      lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(1) datad=acc(1) datae=0 dataf=0
+       [... sumout and cout are the same two expressions as [ 1] ...]
+  [... cells [ 3] through [ 7] repeat that block on operand(2)/acc(2)
+       up to operand(6)/acc(6) ...]
+  [ 8] add_0~36     lut_mask=0x00000000B4004BB4 sumout=yes cout=yes
+       inputs: dataa=op(0) datab=op(1) datac=operand(7) datad=acc(7) datae=0 dataf=0
+       [... sumout and cout are the same two expressions as [ 1] ...]
+  [ 9] add_0~41     lut_mask=0x0000000000000000 sumout=yes cout=no
+       inputs: dataa=0 datab=0 datac=0 datad=0 datae=0 dataf=0
+       sumout  = cin</code></pre>
+<figure>
+  <img src="images/03_carry_chain.svg" alt="The carry chain drawn as ten boxes in a row: a carry-in generator, eight identical bit slices with their lut_mask and data inputs, and a carry-out tap. Each box's cout feeds the next box's cin; each slice's sumout leaves to the side.">
+  <figcaption>
+    Written by <code>analyze.py</code> (<code>step_chain_diagram</code>) using
+    <code>hal_viz.dot</code>, rendered with Graphviz — see
+    <a href="images/03_carry_chain.dot"><code>images/03_carry_chain.dot</code></a>.
+    <br><span class="small">
+    Why not <code>hal_viz netlist_graph --gate … --depth N</code>? That draws a
+    <em>neighbourhood</em>, and a ten-cell chain needs depth 9 from the head — by
+    which point the picture has swallowed the whole design again. When the
+    structure you want is a path rather than a ball, drawing it yourself from
+    the same DOT emitter is three dozen lines and produces a far better figure.
+    </span>
+  </figcaption>
+</figure>
+<div class="why">
+<p><strong>What the shape tells you.</strong> One chain, ten cells, and the
+middle eight are <em>identical</em> — same <code>lut_mask</code>, same pin
+pattern, differing only in which <code>operand</code> and <code>acc</code> bit
+they take. Eight identical arithmetic slices in a chain is an 8-bit adder, and
+the bit order is the chain order: the cell fed by <code>operand[0]</code> is bit
+0. That is the single most valuable structural fact in the whole netlist,
+and it took one graph walk.</p>
+<p>The two cells that are <em>not</em> identical are the interesting ones. The
+last one, <code>add_0~41</code>, has <code>lut_mask = 0</code> and drives only
+<code>sumout</code>: with a zero mask the propagate term is constantly 0, so
+<code>sumout = 0 XOR cin = cin</code>. It is a pure tap that lifts the carry out
+of bit 7 into ordinary logic — i.e. it is bit 8 of the sum. The first one is the
+subject of step 6.</p>
+</div>
+</div>
+
+<div class="step" id="s5">
+<h3><span class="n">5</span>Prove a slice is a full adder</h3>
+<p>
+"Eight identical arithmetic cells" is a <em>structural</em> argument. It is
+strong, but it is still pattern matching. The Boolean functions the adapter
+attached let you turn it into arithmetic:
+</p>
+<pre><code>sumout = gate.get_boolean_function("sumout")
+cout   = gate.get_boolean_function("cout")
+for vector in range(1 &lt;&lt; len(variables)):
+    ... sumout.evaluate(assignment), cout.evaluate(assignment)</code></pre>
+<pre><code>== is a slice really a full adder? ==
+Enumerating the Boolean functions HAL attached to one arithmetic
+cell, over all assignments of its driven inputs.
+
+cell        : add_0~1
+lut_mask    : 0x00000000B4004BB4
+inputs      : dataa=op(0) datab=op(1) datac=operand(0) datad=acc(0)
+
+free variables: cin, dataa, datab, datac, datad
+
+             cin            dataa            datab            datac            datad | sumout cout
+--------------------------------------------------------------------------------------------------
+               0                0                0                0                0 |   0      0
+               1                0                0                0                0 |   1      0
+               0                1                0                0                0 |   0      0
+               1                1                0                0                0 |   1      0
+               0                0                1                0                0 |   1      0
+               1                0                1                0                0 |   0      1
+               0                1                1                0                0 |   0      0
+               1                1                1                0                0 |   1      0
+[... the 16 rows with datac=1,datad=0 and with datac=0,datad=1 elided ...]
+               0                0                0                1                1 |   0      1
+               1                0                0                1                1 |   1      1
+               0                1                0                1                1 |   0      1
+               1                1                0                1                1 |   1      1
+               0                0                1                1                1 |   1      0
+               1                0                1                1                1 |   0      1
+               0                1                1                1                1 |   0      1
+               1                1                1                1                1 |   1      1
+
+Check against a full adder over the three non-opcode inputs, for each
+fixed opcode.  A full adder satisfies sum = x^y^cin and
+cout = majority(x, y, cin).</code></pre>
+<div class="why">
+<p><strong>How to read a slice truth table.</strong> Fix the two opcode inputs
+and look at the remaining three (<code>operand[0]</code>, <code>acc[0]</code>,
+<code>cin</code>). For each fixed opcode the slice must satisfy
+<code>sumout = x ^ y ^ cin</code> and <code>cout = majority(x, y, cin)</code>,
+where <code>x</code> and <code>y</code> are the operand and accumulator bits —
+possibly with one of them inverted. If it does, the cell is a full adder, full
+stop; there is no pattern matching left in that claim.</p>
+<p>What you find is that the identity holds for every opcode, but with
+<code>operand[0]</code> <em>inverted</em> when <code>op = 2'b10</code> and
+straight otherwise. The conditional inversion is inside the slice's own LUT
+mask: the ALM had four spare inputs, so the synthesizer folded the operand mux
+into the adder instead of building a separate row of XOR gates. That is a
+completely normal thing for an FPGA synthesizer to do, and it is why the
+<em>next</em> step matters.</p>
+</div>
+</div>
+
+<div class="step" id="s6">
+<h3><span class="n">6</span>The cell at the head of the chain is not a slice</h3>
+<p>
+Look again at position 0 of the chain in <code>artifacts/02_carry_chain.txt</code>:
+its <code>sumout</code> goes nowhere, its <code>cin</code> is tied to ground, and
+its only output is <code>cout</code>. Quartus even prints the equation next to
+the instance in the <code>.vo</code>:
+</p>
+<pre><code>tennm_lcell_comb #(.lut_mask (64'h000000002222DDDD)) \add_0~47 (
+// \add_0~47_cout  = ( (!op[1]) | (op[0]) ) &amp; !VCC | !( (!op[1]) | (op[0]) ) &amp; ( (!op[0] &amp; op[1]) )
+	.dataa(~op[0]), .datab(~op[1]), .cin(gnd), .cout(\add_0~47_cout ), ... );</code></pre>
+<p>
+An arithmetic ALM splits its 64-bit mask into a <em>propagate</em> half
+<code>p</code> (bits 0–15) and a <em>generate</em> half <code>g</code> (bits
+16–31), and computes
+<code>sumout = p ^ cin</code>, <code>cout = (p &amp; cin) | (!p &amp; g)</code>.
+Here <code>p = op[0] | !op[1]</code> and <code>g = !op[0] &amp; op[1]</code> —
+note that <code>g</code> is exactly <code>!p</code>. With <code>cin</code> tied
+to ground the carry equation collapses:
+</p>
+<pre><code>cout = (p &amp; 0) | (!p &amp; g) = !p &amp; g = g
+
+carry-in of the adder  =  (!op[0]) &amp; op[1]  =  (op == 2'b10)</code></pre>
+<div class="why">
+<p><strong>This is the whole subtract trick, and it is one cell.</strong>
+Two's complement says <code>a - b == a + ~b + 1</code>. The <code>~b</code> half
+was folded into the eight slices (step 5); the <code>+ 1</code> half is
+<em>this</em> cell, injecting a 1 into the bottom of the carry chain. A cell that
+drives <code>cout</code> and nothing else, sitting at the head of a chain with
+<code>cin</code> tied low, is a carry-in generator — and its Boolean function is
+the condition under which the adder becomes a subtractor.</p>
+<p>Generalise the heuristic, because you will need it again: <strong>a chain
+head whose <code>sumout</code> is unread is a carry-in; a chain tail whose
+<code>lut_mask</code> is 0 is a carry-out tap.</strong> Both are one cell of
+"free" arithmetic that carries a large amount of intent.</p>
+<p>And note the corollary for the sign convention: because SUB is computed as
+<code>acc + ~operand + 1</code>, the resulting bit 8 is <strong>not</strong> a
+borrow — it is <em>not-borrow</em>. <code>carry = 1</code> after a SUB means
+<code>acc &gt;= operand</code>. Reading that backwards is one of the classic ways
+to get an ALU recovery subtly wrong; the simulation in step 12 is how you catch
+it.</p>
+</div>
+</div>
+
+<div class="step" id="s7">
+<h3><span class="n">7</span>Recover the opcode decode</h3>
+<p>
+Two questions remain: what drives the shared enable, and what drives the nine
+data inputs. <code>analyze.py</code> walks back one level from each flip-flop pin
+and prints the Boolean function of the driving cell.
+</p>
+<p>
+Those functions are printed in the driving cell's own pin names. The equations
+Quartus left in the <code>.vo</code> name the nets, and the two line up:
+<code>\i45~1_combout = (op[1]) | (op[0])</code>,
+<code>\i45~0_combout = (\add_0~1_sumout &amp; ( (!op[0]) | (!op[1])))</code> and
+<code>\i46~0_combout = (\add_0~41_sumout &amp; ( (!op[0]) | (!op[1])))</code> — so
+<code>dataa</code> and <code>datab</code> below are the two opcode bits, and
+<code>datac</code> is that bit's <code>sumout</code> off the carry chain.
+</p>
+<pre><code>== control cone of the register file ==
+For every flip-flop: the Boolean function of its enable and of its
+data input, expressed in terms of the nets that drive them.
+
+flip-flop acc[0]~reg0
+  ena : i45~1_combout &lt;- i45~1.combout
+        = (dataa | datab)
+  d   : i45~0_combout &lt;- i45~0.combout
+        = (datac &amp; ((! dataa) | (! datab)))
+
+flip-flop acc[1]~reg0
+  ena : i45~1_combout &lt;- i45~1.combout
+        = (dataa | datab)
+  d   : i45~2_combout &lt;- i45~2.combout
+        = (datac &amp; ((! dataa) | (! datab)))
+
+[... acc[2] through acc[7] repeat verbatim; their d nets are
+     i45~3_combout through i45~8_combout ...]
+
+flip-flop carry~reg0
+  ena : i45~1_combout &lt;- i45~1.combout
+        = (dataa | datab)
+  d   : i46~0_combout &lt;- i46~0.combout
+        = (datac &amp; ((! dataa) | (! datab)))
+
+distinct enable functions: 1
+  (dataa | datab)  &lt;- 9 flip-flop(s)</code></pre>
+<figure>
+  <img src="images/04_acc0_cone.svg" alt="Two hops around the acc[0] flip-flop: the adder slice and the gating LUT feeding its d pin, and the enable LUT feeding its ena pin.">
+  <figcaption>
+    <code>python tools/hal_viz netlist_graph netlist/netlist.hal.v -g AGILEX_TENNM.hgl --gate 'acc[0]~reg0' --depth 2 --show-boundary --pin-labels -o images/04_acc0_cone.svg</code>
+    — the two-hop neighbourhood of one accumulator bit. Every other
+    <code>acc</code> bit looks exactly like this.
+  </figcaption>
+</figure>
+<div class="why">
+<p><strong>Three cells decide everything.</strong></p>
+<ul>
+<li>The enable of all nine registers is one cell computing
+    <code>op[0] | op[1]</code> — high for three opcodes, low for exactly one.
+    <em>A register that does not update for exactly one opcode value is a hold /
+    NOP encoding, and you have just recovered which value it is.</em></li>
+<li>Each data input is <code>&lt;sum bit&gt; &amp; ((!op[0]) | (!op[1]))</code> —
+    the sum, forced to zero for exactly one opcode value. A datapath ANDed with
+    a condition that is false for one opcode is a <em>synchronous clear</em>, and
+    you have recovered that encoding too.</li>
+<li>The carry-in generator from step 6 fires for exactly one further opcode
+    value.</li>
+</ul>
+<p>Three one-hot-ish conditions over a 2-bit space, and by elimination the
+fourth opcode is "add without inverting". The whole encoding falls out:</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th><code>op</code></th><th>enable<br><code>op[0]|op[1]</code></th><th>keep<br><code>!op[0]|!op[1]</code></th><th>carry-in<br><code>!op[0]&amp;op[1]</code></th><th>therefore</th></tr></thead>
+<tbody>
+<tr><td><code>00</code></td><td>0</td><td>1</td><td>0</td><td>register does not update → <strong>hold</strong></td></tr>
+<tr><td><code>01</code></td><td>1</td><td>1</td><td>0</td><td>writes the sum, carry-in 0 → <strong>add</strong></td></tr>
+<tr><td><code>10</code></td><td>1</td><td>1</td><td>1</td><td>writes the sum, operand inverted, carry-in 1 → <strong>subtract</strong></td></tr>
+<tr><td><code>11</code></td><td>1</td><td>0</td><td>0</td><td>writes zero → <strong>clear</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>What this step depends on.</strong> Only that the input port is called
+<code>op</code> — and not even that, really: had it been called <code>i7</code>
+you would still find "two primary-input bits that between them drive the enable,
+the data gating and the chain carry-in, and nothing else". That is the
+definition of an opcode. The <em>naming</em> of the four operations is the part
+you have to supply as a human.</p>
+</div>
+</div>
+
+<div class="step" id="s8">
+<h3><span class="n">8</span>The zero flag</h3>
+<p>
+Two cells are left over. They are not in the carry chain and they do not feed
+any flip-flop:
+</p>
+<pre><code>// from netlist/accumulator_alu.vo, with \acc[i]~reg0_q shortened to acc[i]
+\reduce_or_0~0_combout  = (!acc[0] &amp; (!acc[1] &amp; (!acc[2] &amp; !acc[3])))
+\reduce_or_0~combout    = ( \reduce_or_0~0_combout  &amp; ( (!acc[4] &amp; (!acc[5] &amp; (!acc[6] &amp; !acc[7]))) ) )
+
+// and the only thing that reads it:
+assign zero = \reduce_or_0~combout ;</code></pre>
+<figure>
+  <img src="images/05_zero_cone.svg" alt="The zero flag cone: eight accumulator flip-flops feeding a two-level NOR reduction into a primary output.">
+  <figcaption>
+    <code>python tools/hal_viz netlist_graph netlist/netlist.hal.v -g AGILEX_TENNM.hgl --gate 'reduce_or_0' --depth 2 --show-boundary --pin-labels -o images/05_zero_cone.svg</code>
+    — a two-level reduction over the eight register outputs, ending at a primary
+    output. Nets that leave the two-hop scope are drawn as dashed stubs
+    (<code>--show-boundary</code>), so a truncated view never looks complete.
+  </figcaption>
+</figure>
+<div class="why">
+<p><strong>Reduction trees are worth recognising on sight.</strong> A cone whose
+inputs are <em>all</em> the bits of a register you have already identified, whose
+depth is <code>ceil(log_k(width))</code> for the LUT arity <code>k</code>, and
+whose output goes straight to a port, is a flag. Which flag depends on the
+function: an AND of all bits is "all ones", an OR is "any", a NOR — this one —
+is <strong>zero</strong>.</p>
+<p>Two structural details worth noting. First, the reduction is over the
+<em>register outputs</em>, not over the adder's <code>sumout</code> nets, so the
+flag reflects the accumulator as it is now, not the result being computed —
+i.e. it is one cycle "behind" the ALU. Second, the split is 4 + 4 rather than
+6 + 2: the second cell spends one of its inputs on the first cell's result and
+takes four accumulator bits, using five of the six it has. That is the ALM's
+arity showing through, not a design decision, and it is a good reminder that
+tree <em>shape</em> in a netlist is a property of the cell library, while tree
+<em>function</em> is a property of the design.</p>
+</div>
+</div>
+
+<div class="step" id="s9">
+<h3><span class="n">9</span>DANA: what the register grouper says</h3>
+<pre><code># dataflow_analysis (DANA), via analyze.py step_dataflow
+from hal_plugins import dataflow
+configuration = dataflow.Configuration(netlist).with_flip_flops()
+result = dataflow.analyze(configuration)</code></pre>
+<pre><code>== dataflow_analysis (DANA): recovered register groups ==
+1 group(s)
+  group   0 ( 9 ff): acc[0]~reg0, acc[1]~reg0, acc[2]~reg0, acc[3]~reg0, acc[4]~reg0, acc[5]~reg0, acc[6]~reg0, acc[7]~reg0, carry~reg0</code></pre>
+<p class="small">
+No figure for this step, and that is the honest rendering of the result.
+<code>hal_viz dataflow</code> can also draw DANA's register graph as an SVG, but
+this run read the result straight from the plugin in <code>analyze.py</code>,
+and with a single group there is nothing for a picture to show that the two
+lines above do not already say — one group, nine flip-flops, listed in full.
+The textual result <em>is</em> the finding here, so it stands in for the figure.
+</p>
+<div class="why">
+<p><strong>Reasoning.</strong> DANA
+(<code>plugins/dataflow_analysis</code>) groups flip-flops that plausibly belong
+to the same word-level register, from their control signals and the shape of the
+data flow around them. On a large unknown netlist that is how you find "there is
+a 32-bit register here and an 8-bit one there" before you understand anything
+else. Here it returns <strong>one group of nine</strong>: all eight
+<code>acc</code> bits plus <code>carry</code>.</p>
+<p><strong>What that does and does not establish.</strong> It restates, from the
+plugin's own criteria, the reading of step 2 — nine flip-flops on one clock, one
+enable and one clear, with no control signal that tells any of them apart. That
+is the whole of what DANA had to work with here, and it is why it cannot
+subdivide the group. It does <em>not</em> establish that the design has a 9-bit
+datapath register. The original has an 8-bit accumulator and a 1-bit flag, and
+the seam between them shows up elsewhere: in step 3, where the eight
+<code>acc</code> bits sit on feedback cycles and <code>carry~reg0</code> does
+not, and in step 8, where the zero reduction reads eight bits rather than nine.
+Nor does DANA give the bit order inside the group — that came from the carry
+chain in step 4.</p>
+<p>So take the grouping for what it is: a <em>heuristic</em>, correct about
+shared control, and a good first cut on a design you know nothing about. On a
+netlist with two registers under different enables it would have split them for
+you and saved real work; on this one it hands you a nine-bit blob that a human
+still has to refine into 8 + 1.</p>
+</div>
+</div>
+
+<div class="step" id="s10">
+<h3><span class="n">10</span>module_identification on the adder</h3>
+<pre><code>configuration = module_identification.Configuration(netlist)
+configuration = configuration.with_known_registers(dana_groups)
+result = module_identification.execute(configuration)</code></pre>
+<pre><code>== module_identification ==
+known registers handed to the plugin: 1
+module_identification.execute returned None
+(the plugin logged the reason; this is NOT evidence that the
+ netlist contains no arithmetic)</code></pre>
+<div class="why">
+<p><strong>Reasoning.</strong>
+<code>module_identification</code> is the word-level end of HAL's analysis stack:
+given registers to start from, it enumerates candidate operations over their
+input cones — adder, subtractor, comparator, counter — and then tries to
+<em>verify</em> each candidate as an SMT equivalence against the gate-level cone.
+A verified candidate is a proof about that cone, which is the same kind of
+statement the by-hand argument in steps 4–6 arrives at.</p>
+<p><strong>What happened here: nothing.</strong> Handed the one nine-flip-flop
+group DANA produced, <code>module_identification.execute</code> returned
+<code>None</code> — not an empty candidate set, not a wrong answer, no result
+object at all, so the candidate listing <code>analyze.py</code> is ready to print
+never ran. The plugin logged its reason to the HAL log; <code>analyze.py</code>
+records the return value and not that log, which is why the artifact says only
+that it returned <code>None</code> and then refuses to interpret it. That is
+genuinely everything this run knows about the failure.</p>
+<p><strong>What a null result is evidence of.</strong> Only that the plugin
+produced nothing on this input. It is not evidence that the netlist contains no
+arithmetic: step 5 proves a slice is a full adder from the cell's own Boolean
+function, and step 12 exercises the whole adder. Note that this is a
+<em>weaker</em> outcome than the recognizer's miss in step 11 — that one at
+least reported <code>unknown</code> and named the cell it choked on, whereas a
+bare <code>None</code> gives you no handle. Which is the practical argument for
+the <code>tools/hal_findings</code> vocabulary: a status and a reason cost the
+tool one line and are the difference between a miss you can act on and a miss
+you can only shrug at. The next moves, cheapest first: re-run with the HAL log
+visible to see where it stopped; hand it the eight <code>acc</code> flip-flops
+without <code>carry</code>, since the group it was given mixes a datapath word
+with a flag bit; and failing that, do what this guide did anyway — read the
+cells.</p>
+</div>
+</div>
+
+<div class="step" id="s11">
+<h3><span class="n">11</span><code>hal_agilex recognize</code>: an honest miss</h3>
+<p>
+This fork ships a second, Agilex-specific arithmetic recognizer that works on
+the <code>.vo</code> directly and needs no HAL build. On the
+<code>agilex3_counter_adder</code> fixture it recognises the chain and then
+proves the adder correct over all 65 536 operand pairs. On <em>this</em> netlist:
+</p>
+<pre><code>$ python tools/hal_agilex recognize netlist/accumulator_alu.vo -o artifacts/recognize.json
+
+unknown | No carry-chain adder recognized
+        | 1 carry chain(s) were followed and none matched the ripple-carry
+          adder pattern; this says nothing about what the design computes.
+data    : {"rejected": ["cell add_0~47 is not an arithmetic slice"]}</code></pre>
+<div class="callout bad">
+<span class="label">The tool is wrong about the design and right about itself</span>
+<p>
+There <em>is</em> an 8-bit ripple-carry adder in this netlist — we proved a slice
+is a full adder in step 5 and we will confirm the whole thing by simulation in
+step 12. <code>recognize</code> missed it because its chain walk expects every
+cell in the chain to be a bit slice, and the head of this chain is a carry-in
+generator (step 6) whose <code>sumout</code> is unconnected. The counter fixture
+it was written against has <code>cin</code> tied to ground with no generator
+cell, so the case never came up.
+</p>
+</div>
+<div class="why">
+<p><strong>How a human works around this.</strong> Notice first what the tool
+did <em>not</em> do: it did not report an adder with the wrong width, and it did
+not silently return nothing. It reported <code>unknown</code>, named the cell it
+choked on (<code>add_0~47</code>), and said in its own summary that this "says
+nothing about what the design computes". That is the difference between a tool
+you can build on and one you cannot — a recognizer that had guessed
+"9-bit adder" here would have poisoned everything downstream.</p>
+<p>The workaround is the walk in steps 4–6: strip the non-slice cells off the
+ends of the chain, re-ask the question about the eight cells in the middle, and
+then handle the two end cells as what they are — a carry-in condition and a
+carry-out tap. That is three lines of the chain walk in
+<code>analyze.py</code>, and it is the fix the recognizer itself needs
+(<code>recognize.classify_arithmetic_cell</code> plus the chain walk are the
+pieces to change).</p>
+<p><strong>The general lesson.</strong> Pattern-matching recognizers are tuned on
+the examples their author had. When one says "no match", the correct reading is
+"my pattern did not fit", never "the structure is absent". Treat a miss as a
+pointer to <em>where</em> your netlist differs from the tool's assumptions — here
+it named that cell for you — and go look at that cell by hand.</p>
+</div>
+</div>
+
+<div class="step" id="s12">
+<h3><span class="n">12</span>Close the loop by simulation</h3>
+<p>
+Everything so far is structural. The cheapest way to check a structural story is
+to <em>run</em> the netlist: <code>hal_agilex</code>'s reference simulator drives
+the <code>.vo</code> with the modelled ALM semantics, so you can black-box a
+circuit you only have as gates.
+</p>
+<pre><code>== opcode sweep, by simulating the exported netlist ==
+The reference simulator in tools/hal_agilex drives the .vo with the
+modelled ALM semantics.  For each opcode we load a known accumulator
+value, then apply one clock edge with a known operand.
+
+  op | acc before | operand | acc after | carry after | zero after
+  ---+------------+---------+-----------+-------------+-----------
+   0 | 0x05       | 0x03    | 0x05      | 0           | 0
+   0 | 0x80       | 0x80    | 0x80      | 0           | 0
+   0 | 0x03       | 0x05    | 0x03      | 0           | 0
+   0 | 0xFF       | 0x01    | 0xFF      | 0           | 0
+  ---+------------+---------+-----------+-------------+-----------
+   1 | 0x05       | 0x03    | 0x08      | 0           | 0
+   1 | 0x80       | 0x80    | 0x00      | 1           | 1
+   1 | 0x03       | 0x05    | 0x08      | 0           | 0
+   1 | 0xFF       | 0x01    | 0x00      | 1           | 1
+  ---+------------+---------+-----------+-------------+-----------
+   2 | 0x05       | 0x03    | 0x02      | 1           | 0
+   2 | 0x80       | 0x80    | 0x00      | 1           | 1
+   2 | 0x03       | 0x05    | 0xFE      | 0           | 0
+   2 | 0xFF       | 0x01    | 0xFE      | 1           | 0
+  ---+------------+---------+-----------+-------------+-----------
+   3 | 0x05       | 0x03    | 0x00      | 0           | 1
+   3 | 0x80       | 0x80    | 0x00      | 0           | 1
+   3 | 0x03       | 0x05    | 0x00      | 0           | 1
+   3 | 0xFF       | 0x01    | 0x00      | 0           | 1
+  ---+------------+---------+-----------+-------------+-----------
+
+Hypotheses, checked over a sampled lattice of (acc, operand) pairs
+(accumulator in strides of 7, operand in strides of 5: 37 x 52 = 1924
+pairs per opcode).  This is a sample, not an exhaustive proof; the
+exhaustive-per-opcode claim in the guide is the 200-cycle reference
+comparison in artifacts/behavior_recovered.json.
+  op =  0  consistent with: hold
+  op =  1  consistent with: add
+  op =  2  consistent with: sub
+  op =  3  consistent with: clear</code></pre>
+<div class="why">
+<p><strong>Why this comes last, not first.</strong> Simulation tells you
+<em>what</em>, never <em>why</em>. Had you started here you would have learned
+that <code>op = 2'b10</code> subtracts, and nothing about the single carry-in
+cell that makes it possible — so you would not know which cells to modify to
+change the behaviour, and you would not be able to tell an 8-bit adder from a
+lookup table that happens to agree on the vectors you tried.</p>
+<p>Used at the <em>end</em>, it is exactly the right instrument: each row here
+falsifies a hypothesis the structure suggested. Note the two rows that matter
+most: <code>op=2</code> with <code>acc=0x05, operand=0x03</code> gives
+<code>0x02</code> with <code>carry = 1</code>, and with
+<code>acc=0x03, operand=0x05</code> gives <code>0xFE</code> with
+<code>carry = 0</code>. Carry high on the larger-minus-smaller case confirms the
+not-borrow polarity we predicted in step 6 — that is the check that would have
+caught a sign-convention mistake.</p>
+</div>
+</div>
+
+<!-- ==================================================================== -->
+<h2 id="recon">5. Reconstruction, and an honest diff against the original</h2>
+
+<p>
+<a href="recovered.v"><code>recovered.v</code></a> holds two modules. The first
+is a literal transcription of the netlist — every line corresponds to a cell,
+including the shapes no human would write:
+</p>
+
+<pre><code>// recovered_literal (abridged; see recovered.v for the full commentary)
+
+wire sub    = (~op[0]) &amp; op[1];        // add_0~47.cout
+wire [7:0] b = operand ^ {8{sub}};      // folded into the eight slices
+wire [8:0] sum = {1'b0, acc_r} + {1'b0, b} + {8'b0, sub};
+
+wire enable = op[0] | op[1];            // i45~1 -> every ena pin
+wire keep   = (~op[0]) | (~op[1]);      // i45~0, i45~2..8, i46~0 -> every d pin
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin acc_r &lt;= 8'h00; carry_r &lt;= 1'b0; end
+    else if (enable) begin
+        acc_r   &lt;= sum[7:0] &amp; {8{keep}};
+        carry_r &lt;= sum[8]   &amp;     keep;
+    end
+end
+
+assign zero = ~(|acc_r);                // reduce_or_0~0 + reduce_or_0</code></pre>
+
+<p>
+The second is the same behaviour written the way a person would, once the
+opcode table from step 7 is in hand — <code>recovered_clean</code>. That is the
+actual claim about the original design.
+</p>
+
+<h3>Is the claim true? Check it, do not assert it.</h3>
+<p>
+<a href="recovered_reference.py"><code>recovered_reference.py</code></a> is
+<code>recovered_clean</code> as an executable model.
+<code>hal_agilex behavior</code> simulates the <em>exported netlist</em> against
+it:
+</p>
+<pre><code>$ python tools/hal_agilex behavior netlist/accumulator_alu.vo \
+      --reference recovered_reference.py -o artifacts/behavior_recovered.json
+
+proven_bounded | The exported netlist matches the reference model for 200 cycles
+               | 200 pseudo-random cycles, including asynchronous clears, agree
+                 with the reference model. Nothing is claimed beyond that bound.
+bounds         | {"cycle_bound": 200, "unbounded": false}</code></pre>
+<div class="callout good">
+<span class="label">Read the status carefully</span>
+<p>
+<code>proven_bounded</code>, not <code>proven</code>. Two hundred pseudo-random
+cycles with two asynchronous clears is strong evidence and would have caught a
+wrong opcode encoding, a wrong flag polarity or a missing carry-in instantly.
+It is <em>not</em> a proof of equivalence: a difference that needs a specific
+201-cycle sequence to appear would survive it. For a design this size the honest
+next step is bounded model checking or exhaustive per-opcode enumeration, not a
+louder adjective.
+</p>
+</div>
+
+<h3>Recovered exactly, versus lost</h3>
+<div class="tablewrap">
+<table>
+<thead><tr><th>aspect</th><th>outcome</th><th>notes</th></tr></thead>
+<tbody>
+<tr><td>Port list, widths, directions</td><td><strong>exact</strong></td>
+    <td>Preserved verbatim by a post-synthesis export. In a bitstream-derived netlist you would not get this.</td></tr>
+<tr><td>Opcode encoding (all four values)</td><td><strong>exact</strong></td>
+    <td>Recovered structurally in step 7 and confirmed by simulation in step 12.</td></tr>
+<tr><td>Adder width and bit order</td><td><strong>exact</strong></td>
+    <td>Carry-chain order gives the bit order directly.</td></tr>
+<tr><td>Sub-as-add-of-complement, incl. carry-in</td><td><strong>exact</strong></td>
+    <td>One cell (<code>add_0~47</code>) plus the conditional inversion folded into the slices.</td></tr>
+<tr><td>Carry flag polarity (not-borrow)</td><td><strong>exact</strong></td>
+    <td>Predicted from structure, confirmed by the <code>op=2</code> rows of the sweep.</td></tr>
+<tr><td>Asynchronous, active-low reset</td><td><strong>exact</strong></td>
+    <td>From the <code>clrn</code> pin semantics of the modelled <code>tennm_ff</code>.</td></tr>
+<tr><td>Zero flag</td><td><strong>exact</strong></td>
+    <td>Including the fact that it reads the register, not the sum.</td></tr>
+<tr><td>Internal signal names</td><td><strong>lost</strong></td>
+    <td><code>sub</code>, <code>addend</code>, <code>do_alu</code>, <code>do_clr</code> are gone; <code>recovered.v</code> invents <code>sub</code>, <code>enable</code>, <code>keep</code>. Two of those happen to be near-misses of the originals — that is luck, not recovery.</td></tr>
+<tr><td>Operation <em>names</em></td><td><strong>lost</strong></td>
+    <td>The netlist proves <code>2'b10</code> subtracts; nothing in it says the designer called it <code>OP_SUB</code>.</td></tr>
+<tr><td>Hierarchy</td><td><strong>lost / not applicable</strong></td>
+    <td>The original was flat too, so nothing was destroyed here. On a hierarchical design this is where most of the loss lives.</td></tr>
+<tr><td>The <em>form</em> of the RTL</td><td><strong>lost</strong></td>
+    <td>The original wrote CLR as a branch of an <code>if</code>/<code>case</code>; the netlist implements it as an AND on the data path (because of <code>ALLOW_SYNCH_CTRL_USAGE OFF</code>) and <code>recovered_literal</code> faithfully reproduces the AND. Behaviourally identical, structurally a different program.</td></tr>
+<tr><td>The <code>do_alu</code> signal</td><td><strong>merged away</strong></td>
+    <td>The original had a distinct <code>do_alu = (op==ADD)||(op==SUB)</code>. Synthesis proved it redundant — <code>enable &amp;&amp; keep</code> is the same condition — and never built it. No analysis can recover a signal that was optimised out of existence.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout">
+<span class="label">The honest summary</span>
+<p>
+<strong>All of the behaviour, none of the vocabulary.</strong>
+<code>recovered_clean</code> is behaviourally indistinguishable from
+<code>design.v</code> over 200 cycles of random stimulus, and every structural
+claim behind it is backed by a named cell in the netlist. What did not come back
+is everything that lived only in the source text: the names, the
+<code>localparam</code>s, the shape of the <code>if</code> chain, and the
+intermediate signal the optimiser deleted. That split — behaviour recoverable,
+intent inferred, vocabulary gone — is the normal outcome of netlist RE, and
+being clear about which side of the line each claim sits on is most of the
+skill.
+</p>
+</div>
+
+<!-- ==================================================================== -->
+<h2 id="further">6. Going further</h2>
+
+<h4>Re-run everything</h4>
+<pre><code># tier 1 needs nothing but Python 3 and tools/ on sys.path
+python3 examples/agilex3_walkthroughs/06_accumulator_alu/check.py
+
+# tier 2 additionally re-derives the chain and the control cone through hal_py
+HAL_PY_PATH=&lt;build&gt;/lib python3 .../check.py --require-hal</code></pre>
+<p>
+<a href="check.py"><code>check.py</code></a> re-asserts the claims this guide
+makes — the primitive histogram, the single ten-cell chain, the shared enable
+and clear, the four opcode behaviours, and the 200-cycle agreement with
+<code>recovered_reference.py</code>. If a regenerated netlist ever packs
+differently, it fails loudly instead of leaving a guide that quietly describes a
+netlist that no longer exists.
+</p>
+
+<h4>Exercises on this netlist</h4>
+<ul>
+<li><strong>Break the recognizer's blind spot properly.</strong> Teach
+    <code>recognize.classify_arithmetic_cell</code> about carry-in generators and
+    carry taps, then check it still passes the
+    <code>agilex3_counter_adder</code> fixture. The chain walk is small and the
+    fixtures are the tests.</li>
+<li><strong>Widen the coverage to <code>sclr</code>.</strong>
+    <code>accumulator_alu_sclr_variant.vo</code> is the netlist that needs it.
+    Model the pin in <code>hal_agilex/primitives.py</code>, regenerate
+    <code>AGILEX_TENNM.hgl</code> with <code>library.py</code>, and validate it
+    the way the existing coverage was validated — by simulating the export
+    against a reference model. Then re-run this whole walk on that netlist and
+    see how much easier the clear is to spot when it is a named pin instead of
+    an AND gate.</li>
+<li><strong>Make the equivalence unbounded.</strong> Replace the 200-cycle
+    comparison with an induction proof over one clock edge: the state space here
+    is 9 bits, so it is genuinely finite.</li>
+<li><strong>Take the names away.</strong> Rewrite every net and instance name in
+    <code>netlist.hal.v</code> to <code>n0, n1, …</code> and redo the walk. Every
+    step above except the flip-flop-to-bit mapping should still work; the point
+    of the exercise is to find out exactly where you were leaning on Quartus's
+    generosity.</li>
+</ul>
+
+<h4>All four claims on one page</h4>
+<p>
+Every analysis in this fork that emits a <code>tools/hal_findings</code>
+document can be collected into a static report, worst-status first, with each
+badge spelling out what it does and does not claim:
+</p>
+<pre><code>$ python tools/hal_viz report artifacts/inventory.json artifacts/recognize.json \
+      artifacts/behavior_recovered.json artifacts/inventory_sclr_variant.json \
+      --title "06_accumulator_alu — what each analysis claimed" \
+      -o artifacts/findings_report.html</code></pre>
+<p>
+<a href="artifacts/findings_report.html"><code>artifacts/findings_report.html</code></a>
+puts the four statuses side by side — <code>proven_under_assumptions</code>
+(coverage), <code>unknown</code> (the recognizer miss),
+<code>proven_bounded</code> (the 200-cycle equivalence) and
+<code>unsupported</code> (the <code>sclr</code> variant) — which is a good habit
+to build: the interesting question at the end of an RE session is rarely "what
+did I find" but "how strong is each thing I am about to write down".
+<code>hal_viz report</code> needs no HAL build; it reads JSON.
+</p>
+
+<h4>Where the tools live</h4>
+<div class="tablewrap filelist">
+<table>
+<thead><tr><th>tool</th><th>what it did here</th></tr></thead>
+<tbody>
+<tr><td><code>tools/hal_agilex</code></td><td>primitive coverage, the <code>.vo</code> → <code>.hal.v</code> rewrite, ALM semantics for HAL, the reference simulator, the arithmetic recognizer</td></tr>
+<tr><td><code>tools/hal_viz</code></td><td>every diagram on this page (<code>netlist_graph</code>, <code>module_tree</code>, <code>dataflow</code>)</td></tr>
+<tr><td><code>plugins/graph_algorithm</code></td><td>the SCC decomposition in step 3</td></tr>
+<tr><td><code>plugins/dataflow_analysis</code></td><td>register grouping in step 9</td></tr>
+<tr><td><code>plugins/module_identification</code></td><td>asked for word-level operation recovery in step 10 — it returned no result</td></tr>
+<tr><td><code>tools/hal_findings</code></td><td>the schema every status quoted above comes from — <code>proven</code>, <code>proven_bounded</code>, <code>proven_under_assumptions</code>, <code>heuristic</code>, <code>unknown</code>, <code>unsupported</code> each mean something specific</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+<p class="small">
+Netlist: Quartus Prime Pro 26.1.0 Build 110, Agilex 3 <code>A3CW135BM16AE6S</code>,
+post-synthesis export. Analyses run against a HAL build with the
+<code>AGILEX_TENNM</code> gate library. Every image on this page was generated
+from <code>netlist/netlist.hal.v</code> by <code>tools/hal_viz</code>; every
+quoted output is a file under <code>artifacts/</code>.
+</p>
+
+</div>
+</body>
+</html>

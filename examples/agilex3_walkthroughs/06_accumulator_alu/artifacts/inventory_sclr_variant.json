@@ -1,0 +1,122 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.inventory.build_document",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "accumulator_alu",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "accumulator_alu",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 23,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/06_accumulator_alu/netlist/accumulator_alu_sclr_variant.vo",
+      "sha256": "d3f63c62336a8d0fa9734eebc0c757a37928df9c944be6e1c48b5038c79b7db9",
+      "size_bytes": 14206
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "instances": [
+          {
+            "instance": "acc[0]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[1]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[2]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[3]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[4]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[5]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[6]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "acc[7]~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          },
+          {
+            "instance": "carry~reg0",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export",
+            "type": "tennm_ff"
+          }
+        ]
+      },
+      "id": "hal_agilex/inventory/out-of-coverage-configuration",
+      "method": {
+        "bounded": false,
+        "description": "Enumeration of every instance in the export and of the pin configuration of each one; no solver and no simulation involved.",
+        "kind": "structural",
+        "name": "primitive inventory"
+      },
+      "scope": {
+        "artifact_ids": [
+          "accumulator_alu"
+        ],
+        "gate_types": [
+          "tennm_ff"
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "9 instance(s) use pins or parameters whose behaviour has not been validated against the vendor export.",
+      "tags": [
+        "agilex",
+        "coverage"
+      ],
+      "title": "Instances of a covered primitive in an unvalidated configuration",
+      "unsupported": {
+        "kind": "configuration",
+        "primitives": [
+          {
+            "count": 9,
+            "gate_library": "AGILEX_TENNM",
+            "gate_type": "tennm_ff",
+            "reason": "sclr is driven by a signal; only the configuration with aload, sload, sclr, sclr1 tied to 0 has been validated against the vendor export"
+          }
+        ],
+        "reason": "the instance uses a mode outside the validated subset"
+      }
+    }
+  ],
+  "generated_at": "2026-09-08T23:35:12Z",
+  "notes": [
+    "export header: device=Altera A3CW135BM16AE6S Package MBGA896; exported_at=09/08/2026 18:34:52; tool=Quartus Prime; tool_version=Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+  ],
+  "producer": {
+    "name": "hal_agilex.inventory",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
