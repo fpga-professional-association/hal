@@ -132,11 +132,16 @@ def schema_errors(document, prefer_jsonschema=False):
         except ImportError:
             pass
         else:
-            validator = jsonschema.Draft202012Validator(schema)
-            return [
-                "{}: {}".format("/".join(str(part) for part in error.absolute_path) or "<root>", error.message)
-                for error in sorted(validator.iter_errors(document), key=lambda e: list(e.absolute_path))
-            ]
+            # jsonschema < 4 (Ubuntu 22.04 ships 3.x) has no draft 2020-12 validator,
+            # and a validator that does not know the draft must not be used on a
+            # draft 2020-12 schema; fall through to the builtin validator instead.
+            draft = getattr(jsonschema, "Draft202012Validator", None)
+            if draft is not None:
+                validator = draft(schema)
+                return [
+                    "{}: {}".format("/".join(str(part) for part in error.absolute_path) or "<root>", error.message)
+                    for error in sorted(validator.iter_errors(document), key=lambda e: list(e.absolute_path))
+                ]
     return [str(error) for error in jsonschema_mini.iter_errors(document, schema)]
 
 

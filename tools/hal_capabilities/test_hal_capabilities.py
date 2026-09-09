@@ -172,6 +172,15 @@ class SchemaTest(unittest.TestCase):
         self.assertIn(CAPABILITIES_VERSION, SUPPORTED_CAPABILITIES_VERSIONS)
 
 
+def _jsonschema_supports_2020_12():
+    """The library validator is only exercised when it knows the draft."""
+    try:
+        import jsonschema
+    except ImportError:
+        return False
+    return hasattr(jsonschema, "Draft202012Validator")
+
+
 class ValidationTest(unittest.TestCase):
     def test_minimal_document_is_valid(self):
         self.assertEqual(validate.collect_errors(minimal_document()), [])
@@ -246,7 +255,7 @@ class ValidationTest(unittest.TestCase):
         self.assertTrue(context.exception.errors)
 
     @unittest.skipUnless(
-        __import__("importlib").util.find_spec("jsonschema"), "jsonschema not installed"
+        _jsonschema_supports_2020_12(), "jsonschema lacks draft 2020-12 support"
     )
     def test_builtin_validator_agrees_with_jsonschema(self):
         with open(EXAMPLE_DECLARATION, "r") as handle:

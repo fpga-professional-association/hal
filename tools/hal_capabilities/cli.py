@@ -361,8 +361,22 @@ def main(argv=None, out=None, err=None):
         args = parser.parse_args((argv or []) + ["list"])
 
     handler = _COMMANDS[args.command]
+
+    guard = None
+    if getattr(args, "json", False) and out is sys.stdout:
+        # HAL's native logging writes straight to file descriptor 1; with --json
+        # that interleaves log lines with the document. Reserve the real stdout
+        # for the JSON alone and send everything else to stderr.
+        sys.stdout.flush()
+        saved = os.dup(1)
+        os.dup2(2, 1)
+        out = os.fdopen(saved, "w")
+        guard = out
     try:
         return handler(args, out, err)
     except Exception as exc:
         err.write("{}: {}\n".format(type(exc).__name__, exc))
         return EXIT_ERROR
+    finally:
+        if guard is not None:
+            guard.flush()
