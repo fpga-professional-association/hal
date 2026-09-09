@@ -122,7 +122,10 @@ namespace hal
          * Currently implemented optimizations include:
          *  - removing inverters incase there are inverter gates in front and behind every data input and output of the mux
          *  - optimizing and therefore unifying possible inverters preceding the select signals by resynthesizing
-         * 
+         *
+         * Requires the resynthesis plugin. When this plugin was built with -DPL_RESYNTHESIS=OFF, this function
+         * returns an error instead.
+         *
          * @param[in] nl - The netlist to operate on.
          * @param[in] mux_inv_gl - A gate library only containing mux and inverter gates used for resynthesis.
          * @return OK() and the difference in the total number of gates caused by these optimizations.

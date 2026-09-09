@@ -25,7 +25,10 @@ namespace hal
     std::set<std::string> NetlistPreprocessingPlugin::get_dependencies() const
     {
         std::set<std::string> retval;
+#ifdef HAL_WITH_RESYNTHESIS
+        // only a dependency when this plugin was built with resynthesis support, see plugins/CMakeLists.txt
         retval.insert("resynthesis");
+#endif
         retval.insert("z3_utils");
         return retval;
     }

@@ -131,7 +131,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 
 # Do not hardcode install RPATH into build tree binaries
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+# Optional: Make sure build tree still works by allowing RPATH in build
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+# Set Build Timestamp (used in configured file)
+string(TIMESTAMP BUILD_TIMESTAMP UTC)
+string(TIMESTAMP CURRENT_YEAR "%Y")
+
+# Setup Directories, e.g. CMAKE_LIBRARY_OUTPUT_DIRECTOR, INCLUDE_INSTALL_DIRECTORY, ...
+# This defines LIBRARY_INSTALL_DIRECTORY_FULL, which the install RPATH below needs, so it has to run
+# first: computing the RPATH before this call made the first configure of a fresh build directory fall
+# back to "<prefix>/lib" and only a later configure -- with the variable already in the cache -- pick
+# up the real libdir. The two differ wherever GNUInstallDirs chooses a multiarch libdir, e.g. with
+# CMAKE_INSTALL_PREFIX=/usr on Debian, and the RPATH then pointed at a directory holding no libraries.
+setup_output_directories()
 
 # Add the install RPATH (for use after make install)
 if (DEFINED LIBRARY_INSTALL_DIRECTORY_FULL)
@@ -142,18 +156,13 @@ else()
     set(CMAKE_INSTALL_RPATH "/usr/local/lib")
 endif()
 
+# Plugins live in <libdir>/hal_plugins and link against each other (netlist_preprocessing -> resynthesis
+# -> genlib_writer), so that directory belongs on the RPATH as well. Without it a freshly installed
+# tree cannot resolve those libraries until ldconfig has picked up /etc/ld.so.conf.d/hal.conf.
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${CMAKE_INSTALL_RPATH}/hal_plugins")
+
 # Also include the library path from linked targets in the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# Optional: Make sure build tree still works by allowing RPATH in build
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-# Set Build Timestamp (used in configured file)
-string(TIMESTAMP BUILD_TIMESTAMP UTC)
-string(TIMESTAMP CURRENT_YEAR "%Y")
-
-# Setup Directories, e.g. CMAKE_LIBRARY_OUTPUT_DIRECTOR, INCLUDE_INSTALL_DIRECTORY, ...
-setup_output_directories()
 
 # For all ExternalProject_ADD handle configure build and test as different stages
 set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure build test)
@@ -380,14 +389,7 @@ if(LINUX)
     install(FILES "${CMAKE_BINARY_DIR}/hal.conf" DESTINATION "${SHARE_INSTALL_DIRECTORY}/ld_conf/")
 endif()
 
-# on make/ninja install run configure and run ldconfig
-if(ENABLE_INSTALL_LDCONFIG AND LINUX)
-    configure_file(
-        "${CMAKE_SOURCE_DIR}/cmake/post_install.cmake.in"
-        "${CMAKE_BINARY_DIR}/post_install.cmake"
-        @ONLY)
-    install(SCRIPT "${CMAKE_BINARY_DIR}/post_install.cmake")
-endif()
+# The ldconfig post-install step is NOT registered here on purpose - see the very end of this file.
 
 # add uninstall target
 configure_file(
@@ -405,3 +407,12 @@ add_subdirectory(packaging)
 # ####   Documentation
 # ###############################
 add_subdirectory(documentation)
+
+# ###############################
+# ####   Post-install
+# ###############################
+# KEEP THIS LAST. CMake writes the install rules of a directory before those of its subdirectories, so
+# a step registered in this file runs before src/, app/ and plugins/ have installed anything. The
+# ldconfig step has to see the finished tree, which is why it lives in a subdirectory that is added
+# after every other one.
+add_subdirectory(packaging/post_install)

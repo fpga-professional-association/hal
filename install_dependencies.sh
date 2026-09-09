@@ -105,6 +105,11 @@ elif [[ "$platform" == 'docker' ]]; then
     ninja-build lcov gcovr python3-sphinx \
     doxygen python3-sphinx-rtd-theme python3-pip \
     pybind11-dev python3-pybind11 python3-dateutil rapidjson-dev \
-    libspdlog-dev libz3-dev libreadline-dev libgraphviz-dev \
+    libspdlog-dev libz3-dev z3 libreadline-dev libgraphviz-dev \
     graphviz libomp-dev libsuitesparse-dev # For documentation
 fi
+
+# 'z3' (the solver binary, not just libz3-dev) is required, not optional: the default SMT QueryConfig
+# shells out to it, and code that treats an unanswerable query as "not equivalent" -- such as
+# netlist_preprocessing::remove_redundant_gates -- silently produces wrong results without it. It has
+# to appear in every branch above; tools/test_install_dependencies.py enforces that.

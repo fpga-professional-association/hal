@@ -1,13 +1,56 @@
+# Registers HAL's library directories with the dynamic linker after everything else is installed.
+#
+# This script is run as an install(SCRIPT) step from packaging/post_install/CMakeLists.txt, which is
+# the last add_subdirectory() of the top-level CMakeLists.txt. That placement matters: CMake emits the
+# install rules of a directory before those of its subdirectories, so a step registered in the
+# top-level list ran *before* libhal_core.so and the plugins were installed, and the ldconfig below
+# then indexed a directory that did not have the new libraries in it yet.
+#
+# It also has to keep its hands off the machine when the install is only being staged: with DESTDIR
+# set (distro packaging) or with a prefix other than the configured one (cpack, relocated installs),
+# writing /etc/ld.so.conf.d/hal.conf and running ldconfig would touch files outside the staging tree
+# and describe a layout that is not the one being staged. Debian packages get the same effect from
+# packaging/deb/postinst, which runs on the target machine where it belongs.
+
 set(LINUX @LINUX@)
-set(SHARE_INSTALL_DIRECTORY_FULL @SHARE_INSTALL_DIRECTORY_FULL@)
+set(HAL_CONFIGURED_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@")
+set(HAL_SHARE_INSTALL_DIRECTORY "@SHARE_INSTALL_DIRECTORY@")
+set(HAL_LD_SO_CONF_DIR "/etc/ld.so.conf.d")
+
 if(LINUX)
-    message(STATUS "Copy file ${SHARE_INSTALL_DIRECTORY_FULL}/ld_conf/hal.conf to /etc/ld.so.conf.d/")
+    set(HAL_LD_CONF_SOURCE "${CMAKE_INSTALL_PREFIX}/${HAL_SHARE_INSTALL_DIRECTORY}/ld_conf/hal.conf")
+    set(HAL_STAGING_REASON "")
 
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy hal.conf /etc/ld.so.conf.d/)
+    if(NOT "$ENV{DESTDIR}" STREQUAL "")
+        set(HAL_STAGING_REASON "DESTDIR is set to '$ENV{DESTDIR}'")
+    elseif(NOT "${CMAKE_INSTALL_PREFIX}" STREQUAL "${HAL_CONFIGURED_INSTALL_PREFIX}")
+        set(HAL_STAGING_REASON "the install prefix is '${CMAKE_INSTALL_PREFIX}' instead of the configured prefix '${HAL_CONFIGURED_INSTALL_PREFIX}'")
+    endif()
 
-    message(STATUS "Running: ldconfig")
-    execute_process(COMMAND "ldconfig" RESULT_VARIABLE ldconfig_result)
-    if (NOT ldconfig_result EQUAL 0)
-        message(WARNING "ldconfig failed")
+    if(NOT "${HAL_STAGING_REASON}" STREQUAL "")
+        message(STATUS "hal: ${HAL_STAGING_REASON} - not touching ${HAL_LD_SO_CONF_DIR} and not running ldconfig.")
+        message(STATUS "hal: to make the installed libraries loadable on the target system, run there:")
+        message(STATUS "hal:     cp <prefix>/${HAL_SHARE_INSTALL_DIRECTORY}/ld_conf/hal.conf ${HAL_LD_SO_CONF_DIR}/ && ldconfig")
+    elseif(NOT EXISTS "${HAL_LD_CONF_SOURCE}")
+        message(WARNING "hal: ${HAL_LD_CONF_SOURCE} does not exist, skipping ldconfig setup")
+    elseif(NOT IS_DIRECTORY "${HAL_LD_SO_CONF_DIR}")
+        message(STATUS "hal: ${HAL_LD_SO_CONF_DIR} does not exist, skipping ldconfig setup")
+    else()
+        message(STATUS "hal: installing ${HAL_LD_CONF_SOURCE} to ${HAL_LD_SO_CONF_DIR}/hal.conf")
+        execute_process(COMMAND "${CMAKE_COMMAND}" -E copy "${HAL_LD_CONF_SOURCE}" "${HAL_LD_SO_CONF_DIR}/hal.conf"
+                        RESULT_VARIABLE hal_copy_result
+                        ERROR_VARIABLE hal_copy_error)
+
+        if(NOT hal_copy_result EQUAL 0)
+            # the usual case is an unprivileged install; the libraries are installed either way
+            message(WARNING "hal: could not write ${HAL_LD_SO_CONF_DIR}/hal.conf (${hal_copy_error}). "
+                            "Run the install as root, or add the directories listed in ${HAL_LD_CONF_SOURCE} to LD_LIBRARY_PATH.")
+        else()
+            message(STATUS "hal: running ldconfig")
+            execute_process(COMMAND "ldconfig" RESULT_VARIABLE hal_ldconfig_result ERROR_VARIABLE hal_ldconfig_error)
+            if(NOT hal_ldconfig_result EQUAL 0)
+                message(WARNING "hal: ldconfig failed (${hal_ldconfig_error}), run it manually as root")
+            endif()
+        endif()
     endif()
 endif(LINUX)

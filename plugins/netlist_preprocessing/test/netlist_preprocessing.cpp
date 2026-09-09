@@ -1,5 +1,6 @@
 #include "netlist_preprocessing/netlist_preprocessing.h"
 
+#include "hal_core/netlist/boolean_function/solver.h"
 #include "netlist_test_utils.h"
 #include "gate_library_test_utils.h"
 
@@ -364,6 +365,86 @@ namespace hal {
                 EXPECT_EQ(res.get(), 0);
                 EXPECT_EQ(nl->get_gates().size(), 2);
             }
+        }
+        TEST_END
+    }
+
+    /**
+     * check_remove_redundant_gates proves two combinational gates equivalent through an SMT solver, and
+     * remove_redundant_gates treats a solver that fails to answer as "not equivalent" -- so a missing
+     * solver does not fail loudly, it silently removes nothing. That is exactly how it presented itself
+     * in a container whose dependencies were installed by the HAL_DOCKER branch of
+     * install_dependencies.sh, which used to install libz3-dev but not the z3 binary the default
+     * QueryConfig shells out to (see issue #30).
+     *
+     * This test states the prerequisite instead of leaving the next person to rediscover it: if it
+     * fails, the environment lacks a working SMT solver and every equivalence-based check in this suite
+     * is meaningless.
+     *
+     * Functions: SMT::Solver::query
+     */
+    TEST_F(NetlistPreprocessingTest, check_smt_solver_is_available)
+    {
+        TEST_START
+        {
+            // the configuration remove_redundant_gates queries with
+            auto config = SMT::QueryConfig();
+#ifdef BITWUZLA_LIBRARY
+            config = config.with_solver(SMT::SolverType::Bitwuzla).with_call(SMT::SolverCall::Library);
+#endif
+
+            ASSERT_TRUE(SMT::Solver::has_local_solver_for(config.solver, config.call))
+                << "no local SMT solver available -- install the 'z3' package (install_dependencies.sh), not just libz3-dev";
+
+            // 'a != a' is unsatisfiable, which is the shape of query remove_redundant_gates uses to
+            // decide that two gates compute the same function.
+            auto eq_res = BooleanFunction::Eq(BooleanFunction::Var("a", 1), BooleanFunction::Var("a", 1), 1);
+            ASSERT_TRUE(eq_res.is_ok());
+            auto unsat_res = BooleanFunction::Not(eq_res.get(), 1);
+            ASSERT_TRUE(unsat_res.is_ok());
+
+            auto res = SMT::Solver({SMT::Constraint(unsat_res.get())}).query(config);
+            ASSERT_TRUE(res.is_ok()) << "SMT query failed: " << res.get_error().get();
+            EXPECT_TRUE(res.get().is_unsat());
+        }
+        TEST_END
+    }
+
+    /**
+     * The resynthesis plugin is an optional build dependency: with -DPL_RESYNTHESIS=OFF the
+     * netlist_preprocessing plugin is built without it (see issue #38). The API stays the same in both
+     * configurations, so this test pins down what each one promises -- the reduced build has to report
+     * a usable error rather than silently doing nothing or not compiling at all.
+     *
+     * Functions: manual_mux_optimizations
+     */
+    TEST_F(NetlistPreprocessingTest, check_manual_mux_optimizations_resynthesis_dependency)
+    {
+        TEST_START
+        {
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            // manual_mux_optimizations writes the library out as a genlib file, hence the non-const handle
+            GateLibrary* gl = const_cast<GateLibrary*>(nl->get_gate_library());
+            ASSERT_NE(gl, nullptr);
+
+            // arguments are validated in both configurations
+            EXPECT_TRUE(netlist_preprocessing::manual_mux_optimizations(nl.get(), nullptr).is_error());
+            EXPECT_TRUE(netlist_preprocessing::manual_mux_optimizations(nullptr, gl).is_error());
+
+            auto res = netlist_preprocessing::manual_mux_optimizations(nl.get(), gl);
+#ifdef HAL_WITH_RESYNTHESIS
+            // The call reaches the real implementation. Whether it gets all the way through depends on
+            // the gate library being writable as genlib and on the external tools resynthesis drives,
+            // neither of which this test is about -- what it pins down is that the feature is there.
+            if (res.is_error())
+            {
+                EXPECT_EQ(res.get_error().get().find("built without resynthesis support"), std::string::npos);
+            }
+#else
+            ASSERT_TRUE(res.is_error());
+            EXPECT_NE(res.get_error().get().find("built without resynthesis support"), std::string::npos);
+#endif
         }
         TEST_END
     }

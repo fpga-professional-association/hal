@@ -13,8 +13,13 @@
 #include "hal_core/utilities/token_stream.h"
 #include "nlohmann/json.hpp"
 #include "rapidjson/document.h"
-#include "resynthesis/resynthesis.h"
 #include "z3_utils/netlist_comparison.h"
+
+// The resynthesis plugin is an optional dependency (see plugins/CMakeLists.txt): with
+// -DPL_RESYNTHESIS=OFF it is not built at all, and everything below that needs it is compiled out.
+#ifdef HAL_WITH_RESYNTHESIS
+#include "resynthesis/resynthesis.h"
+#endif
 
 #include <fstream>
 #include <queue>
@@ -385,6 +390,17 @@ namespace hal
             auto s_call = hal::SMT::SolverCall::Library;
             config      = config.with_solver(s_type).with_call(s_call);
 #endif
+
+            // Every equivalence check below treats a solver that cannot answer as "not equivalent", so a
+            // missing solver does not fail, it just silently finds nothing. Say so once, up front,
+            // instead of leaving a plain "removed 0 redundant gates" behind (see issue #30).
+            if (!SMT::Solver::has_local_solver_for(config.solver, config.call))
+            {
+                log_warning("netlist_preprocessing",
+                            "no local SMT solver available: combinational gates cannot be compared and will not be removed from netlist with ID {}. Install the 'z3' package to enable this.",
+                            nl->get_id());
+            }
+
             struct GateFingerprint
             {
                 const GateType* type;
@@ -512,7 +528,17 @@ namespace hal
                                             .map<BooleanFunction>([](auto&& bf_eq) -> Result<BooleanFunction> { return BooleanFunction::Not(std::move(bf_eq), 1); })
                                             .map<SMT::SolverResult>([&config](auto&& bf_not) -> Result<SMT::SolverResult> { return SMT::Solver({SMT::Constraint(std::move(bf_not))}).query(config); });
 
-                                    if (solver_res.is_error() || !solver_res.get().is_unsat())
+                                    if (solver_res.is_error())
+                                    {
+                                        log_debug("netlist_preprocessing",
+                                                  "could not decide equivalence of gates '{}' and '{}' at pin '{}': {}",
+                                                  master_gate->get_name(),
+                                                  current_gate->get_name(),
+                                                  pin->get_name(),
+                                                  solver_res.get_error().get());
+                                        equal = false;
+                                    }
+                                    else if (!solver_res.get().is_unsat())
                                     {
                                         equal = false;
                                     }
@@ -1267,6 +1293,9 @@ namespace hal
                     return ERR("gate library is a nullptr");
                 }
 
+#ifndef HAL_WITH_RESYNTHESIS
+                return ERR("unable to unify inverted select signals: this netlist_preprocessing plugin was built without resynthesis support, reconfigure with -DPL_RESYNTHESIS=ON");
+#else
                 auto base_path_res = utils::get_unique_temp_directory("resynthesis_");
                 if (base_path_res.is_error())
                 {
@@ -1443,6 +1472,7 @@ namespace hal
                 const i64 difference = std::abs(initial_size - new_size);
 
                 return OK(u32(difference));
+#endif
             }
 
             Result<u32> unify_select_signals(Netlist* nl)

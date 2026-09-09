@@ -8,6 +8,12 @@ endforeach()
 # Build netlist_preprocessing and dependend libraries
 option(PL_NETLIST_PREPROCESSING "PL_NETLIST_PREPROCESSING" ON)
 
+# netlist_preprocessing links against the resynthesis plugin, so whether that plugin is built has to
+# be decided here, before either directory is added. cmake/hal_resynthesis_option.cmake turns
+# PL_RESYNTHESIS (AUTO / ON / OFF) into HAL_BUILD_RESYNTHESIS; it is a module of its own so that it
+# can be tested without building HAL, see tests/packaging/test_resynthesis_option.py.
+include(hal_resynthesis_option)
+
 include_directories(${include_directories}
                     ${CMAKE_SOURCE_DIR}/include
                     ${CMAKE_SOURCE_DIR}/hal_plugins

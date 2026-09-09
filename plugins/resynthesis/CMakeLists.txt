@@ -1,7 +1,6 @@
-option(PL_RESYNTHESIS "PL_RESYNTHESIS" OFF)
-
-# LINKED FROM NETLIST_PREPROCESSING
-if(PL_RESYNTHESIS OR PL_NETLIST_PREPROCESSING OR BUILD_ALL_PLUGINS)
+# PL_RESYNTHESIS and the derived HAL_BUILD_RESYNTHESIS are defined in plugins/CMakeLists.txt,
+# because netlist_preprocessing links against this plugin and has to know whether it exists.
+if(HAL_BUILD_RESYNTHESIS)
 
     file(GLOB_RECURSE RESYNTHESIS_INC ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
     file(GLOB_RECURSE RESYNTHESIS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
