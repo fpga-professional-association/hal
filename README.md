@@ -76,6 +76,11 @@ load the unzipped example project from inside the shell or script with:
 ```python
 netlist = hal_py.NetlistFactory.load_hal_project("<path/to/unzipped/project>")
 ```
+Alternatively, let HAL do the loading: pass `--project-dir <path/to/unzipped/project>` (or `--import-netlist` with
+`--gate-library`) alongside `--python` or `--python-script`, and the loaded netlist is waiting for the script under the
+global name `netlist`, with whatever the script changes written back to the project afterwards (unless
+`--volatile-mode` is given).
+
 `hal_py` can also be imported directly by any Python interpreter that has HAL's library directory on `sys.path`,
 without going through `hal --python` at all.
 

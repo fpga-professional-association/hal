@@ -31,6 +31,8 @@
 
 namespace hal
 {
+    class Netlist;
+
     /**
      * generic plugin instance interface
      *
@@ -41,6 +43,24 @@ namespace hal
     public:
         UIPluginInterface()          = default;
         virtual ~UIPluginInterface() = default;
+
+        /**
+         * Hands over the netlist that HAL loaded from the command line.
+         *
+         * Called before exec() whenever `--project-dir`, `--import-netlist` or `--empty-project` was
+         * given alongside the flag of this plugin; the argument is `nullptr` when no project was
+         * requested. The netlist stays owned by HAL and outlives the exec() call, so implementations
+         * may keep the pointer for the duration of that call but must not free it or hold it past the
+         * end of exec().
+         *
+         * An implementation that has nothing to show a netlist in can ignore this; the default does.
+         *
+         * @param[in] netlist - The loaded netlist, or `nullptr` if HAL did not load one.
+         */
+        virtual void set_netlist(Netlist* netlist)
+        {
+            UNUSED(netlist);
+        }
 
         /**
          * Generic call to run the interactive UI.

@@ -5,12 +5,19 @@ if(BUILD_TESTS)
     
     add_executable(runTest-module_identification_check module_identification_check.cpp)
 
+    # Candidate creation is driven with hand-built candidates here, so this one needs neither a parsed
+    # netlist nor a gate library from disk and runs in a fraction of a second.
+    add_executable(runTest-module_identification_candidate_fuzz candidate_creation_fuzz.cpp)
+
     target_link_libraries(runTest-module_identification module_identification gtest hal::core hal::netlist test_utils)
     target_link_libraries(runTest-module_identification_check module_identification gtest hal::core hal::netlist test_utils)
+    target_link_libraries(runTest-module_identification_candidate_fuzz module_identification gtest hal::core hal::netlist test_utils)
 
     add_test(runTest-module_identification ${CMAKE_BINARY_DIR}/bin/hal_plugins/runTest-module_identification --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
-    
+
     add_test(runTest-module_identification_check ${CMAKE_BINARY_DIR}/bin/hal_plugins/runTest-module_identification_check --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
+
+    add_test(runTest-module_identification_candidate_fuzz ${CMAKE_BINARY_DIR}/bin/hal_plugins/runTest-module_identification_candidate_fuzz --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
 
     # xilinx
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_lib_xilinx/ADDER_1.v ${CMAKE_BINARY_DIR}/bin/hal_plugins/test-files/module_identification/test_lib_xilinx/ADDER_1.v COPYONLY)
@@ -63,5 +70,6 @@ if(BUILD_TESTS)
 
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         add_sanitizers(runTest-module_identification)
+        add_sanitizers(runTest-module_identification_candidate_fuzz)
     endif()
 endif()

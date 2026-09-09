@@ -1052,6 +1052,32 @@ namespace hal
             return OK(new_candidates);
         }
 
+        namespace
+        {
+            /**
+             * Looks up the constant-zero net that operand construction pads bit positions with.
+             *
+             * Reaching it goes through one of the candidate's gates, and a netlist is free to contain no
+             * GND net at all -- neither of which the padding code used to check before taking the front
+             * of the resulting (possibly empty) vector.
+             */
+            Result<Net*> get_padding_gnd_net(const FunctionalCandidate& candidate)
+            {
+                if (candidate.m_gates.empty())
+                {
+                    return ERR("cannot determine the GND net used for operand padding: the candidate has no gates");
+                }
+
+                const auto gnd_nets = candidate.m_gates.front()->get_netlist()->get_gnd_nets();
+                if (gnd_nets.empty())
+                {
+                    return ERR("cannot determine the GND net used for operand padding: the netlist contains no GND net");
+                }
+
+                return OK(gnd_nets.front());
+            }
+        }    // namespace
+
         Result<std::vector<FunctionalCandidate>> FunctionalCandidate::build_input_operands(CandidateContext& ctx, const FunctionalCandidate& candidate)
         {
             UNUSED(ctx);
@@ -1110,7 +1136,13 @@ namespace hal
 
                             if (idx >= nets.size())
                             {
-                                operands.at(idx).push_back(candidate.m_gates.front()->get_netlist()->get_gnd_nets().front());
+                                const auto gnd_net_res = get_padding_gnd_net(candidate);
+                                if (gnd_net_res.is_error())
+                                {
+                                    return ERR_APPEND(gnd_net_res.get_error(), "cannot build input operands: failed to pad a shifted operand");
+                                }
+
+                                operands.at(idx).push_back(gnd_net_res.get());
                             }
                             else
                             {
@@ -1200,9 +1232,21 @@ namespace hal
                 // add buffered signals to the start of one operand and pad the rest with zeros
                 for (const auto& [in_net, out_net] : candidate.m_permuted_single_pairs)
                 {
+                    Net* gnd_net = nullptr;
+                    if (operands.size() > 1)
+                    {
+                        const auto gnd_net_res = get_padding_gnd_net(candidate);
+                        if (gnd_net_res.is_error())
+                        {
+                            return ERR_APPEND(gnd_net_res.get_error(), "cannot build input operands: failed to pad an operand next to a buffered signal");
+                        }
+
+                        gnd_net = gnd_net_res.get();
+                    }
+
                     for (u32 op_idx = 0; op_idx < operands.size(); op_idx++)
                     {
-                        auto val = (op_idx == 0) ? in_net : candidate.m_gates.front()->get_netlist()->get_gnd_nets().front();
+                        auto val = (op_idx == 0) ? in_net : gnd_net;
                         operands.at(op_idx).insert(operands.at(op_idx).begin(), val);
                     }
                 }
@@ -1284,8 +1328,10 @@ namespace hal
                     }
 
                     // check whether the permutation matches the already permuted single inputs
-                    bool found_missmatch = false;
-                    for (u32 i = 0; i < candidate.m_permuted_single_pairs.size(); i++)
+                    // a permutation shorter than the list of pairs cannot match it, and asking for the
+                    // missing entries would throw out of the middle of the candidate generation
+                    bool found_missmatch = nets.size() < candidate.m_permuted_single_pairs.size();
+                    for (u32 i = 0; (!found_missmatch) && (i < candidate.m_permuted_single_pairs.size()); i++)
                     {
                         if (nets.at(i) != candidate.m_permuted_single_pairs.at(i).first)
                         {
@@ -1408,9 +1454,14 @@ namespace hal
                 new_candidate.m_output_nets.insert(new_candidate.m_output_nets.begin(), output_net);
             }
 
-            if ((new_candidate.m_candidate_type == module_identification::CandidateType::absolute) && (new_candidate.m_operands.at(0).size() > new_candidate.m_output_nets.size()))
+            // an absolute value candidate whose operand is wider than its output is not one; a candidate
+            // without an operand at all is not one either, and asking for its first operand would throw
+            if (new_candidate.m_candidate_type == module_identification::CandidateType::absolute)
             {
-                return OK(std::vector<FunctionalCandidate>());
+                if (new_candidate.m_operands.empty() || (new_candidate.m_operands.at(0).size() > new_candidate.m_output_nets.size()))
+                {
+                    return OK(std::vector<FunctionalCandidate>());
+                }
             }
 
             new_candidates.push_back(new_candidate);
@@ -1563,8 +1614,20 @@ namespace hal
 
         namespace
         {
-            std::vector<Net*> sign_extend_operand(const std::vector<Net*>& operand, const u32 new_size, Net* sign_net = nullptr)
+            /**
+             * Pads an operand up to `new_size` by repeating its sign bit.
+             *
+             * The bit to repeat is `sign_net`, or the highest bit of the operand itself when no sign net
+             * is given. Reading that bit off an empty operand is what used to dereference past the end of
+             * an empty vector, so an operand with no bits and no sign net is reported instead.
+             */
+            Result<std::vector<Net*>> sign_extend_operand(const std::vector<Net*>& operand, const u32 new_size, Net* sign_net = nullptr)
             {
+                if (sign_net == nullptr && operand.empty())
+                {
+                    return ERR("cannot sign extend operand to size " + std::to_string(new_size) + ": the operand is empty and no sign net was provided");
+                }
+
                 std::vector<Net*> new_operand;
 
                 auto sn = sign_net == nullptr ? operand.back() : sign_net;
@@ -1581,11 +1644,37 @@ namespace hal
                     }
                 }
 
-                return new_operand;
+                return OK(new_operand);
             }
 
-            std::vector<Net*> zero_extend_operand(const std::vector<Net*>& operand, const u32 new_size, const Netlist* nl)
+            /**
+             * Pads an operand up to `new_size` with the netlist's GND net.
+             *
+             * A netlist that has no GND net (or no netlist at all) cannot provide the padding bits, which
+             * used to be a read past the end of the empty vector returned by `get_gnd_nets()`. Only an
+             * operand that actually needs padding depends on that net, so a shortening or exact-fit call
+             * still succeeds on a netlist without one.
+             */
+            Result<std::vector<Net*>> zero_extend_operand(const std::vector<Net*>& operand, const u32 new_size, const Netlist* nl)
             {
+                Net* gnd_net = nullptr;
+
+                if (new_size > operand.size())
+                {
+                    if (nl == nullptr)
+                    {
+                        return ERR("cannot zero extend operand of size " + std::to_string(operand.size()) + " to size " + std::to_string(new_size) + ": no netlist was provided");
+                    }
+
+                    const auto gnd_nets = nl->get_gnd_nets();
+                    if (gnd_nets.empty())
+                    {
+                        return ERR("cannot zero extend operand of size " + std::to_string(operand.size()) + " to size " + std::to_string(new_size) + ": the netlist contains no GND net");
+                    }
+
+                    gnd_net = gnd_nets.front();
+                }
+
                 std::vector<Net*> new_operand;
 
                 for (u32 idx = 0; idx < new_size; idx++)
@@ -1596,44 +1685,83 @@ namespace hal
                     }
                     else
                     {
-                        new_operand.push_back(nl->get_gnd_nets().front());
+                        new_operand.push_back(gnd_net);
                     }
                 }
 
-                return new_operand;
+                return OK(new_operand);
             }
 
-            std::vector<Net*> apply_extension(const std::vector<Net*>& op, const u32 size, const u32 extension_type, Net* sign_net, const Netlist* nl)
+            /**
+             * Brings an operand to `size` bits using one of the known extension schemes.
+             *
+             * Every way this can fail -- an operand without a sign bit, a netlist without a GND net, an
+             * output width that leaves no room for the scheme, an extension type that does not exist --
+             * comes back as an error for the caller to skip on, rather than as a read past the end of a
+             * vector.
+             */
+            Result<std::vector<Net*>> apply_extension(const std::vector<Net*>& op, const u32 size, const u32 extension_type, Net* sign_net, const Netlist* nl)
             {
-                std::vector<Net*> new_op = op;
-
                 switch (extension_type)
                 {
-                    case 0:
+                    case 0: {
                         // zero extended
-                        new_op = zero_extend_operand(new_op, size, nl);
-                        break;
-                    case 1:
-                        // sign extended
-                        new_op = sign_extend_operand(new_op, size);
-                        break;
-                    case 2:
+                        auto res = zero_extend_operand(op, size, nl);
+                        if (res.is_error())
+                        {
+                            return ERR_APPEND(res.get_error(), "cannot apply zero extension");
+                        }
+                        return res;
+                    }
+                    case 1: {
+                        // sign extended, with each operand repeating its own highest bit
+                        auto res = sign_extend_operand(op, size);
+                        if (res.is_error())
+                        {
+                            return ERR_APPEND(res.get_error(), "cannot apply sign extension");
+                        }
+                        return res;
+                    }
+                    case 2: {
                         // sign extended up until the second highest bit
-                        new_op = sign_extend_operand(new_op, size - 1, sign_net);
-                        new_op = zero_extend_operand(new_op, size, nl);
+                        if (size == 0)
+                        {
+                            // size - 1 would wrap around to 2^32 - 1 and try to build an operand of that
+                            // many bits
+                            return ERR("cannot apply sign extension up to the second highest bit: the requested size is 0");
+                        }
+
+                        auto sign_extended_res = sign_extend_operand(op, size - 1, sign_net);
+                        if (sign_extended_res.is_error())
+                        {
+                            return ERR_APPEND(sign_extended_res.get_error(), "cannot apply sign extension up to the second highest bit");
+                        }
+
+                        auto res = zero_extend_operand(sign_extended_res.get(), size, nl);
+                        if (res.is_error())
+                        {
+                            return ERR_APPEND(res.get_error(), "cannot apply sign extension up to the second highest bit");
+                        }
+                        return res;
+                    }
+                    case 3: {
+                        if ((op.size() == size) && (!op.empty()) && (op.back() == sign_net))
+                        {
+                            return OK(op);
+                        }
+
+                        auto res = zero_extend_operand(op, size, nl);
+                        if (res.is_error())
+                        {
+                            return ERR_APPEND(res.get_error(), "cannot apply zero extension");
+                        }
+                        return res;
+                    }
+                    default:
                         break;
-                    case 3:
-                        if ((op.size() == size) && (op.back() == sign_net))
-                        {
-                            new_op = op;
-                        }
-                        else
-                        {
-                            new_op = zero_extend_operand(new_op, size, nl);
-                        }
                 }
 
-                return new_op;
+                return ERR("cannot apply extension: unknown extension type " + std::to_string(extension_type));
             }
         }    // namespace
 
@@ -1645,6 +1773,13 @@ namespace hal
             std::set<u32> sign_bit_positions;
             for (const auto& op : candidate.m_operands)
             {
+                // an operand without bits has no sign bit; `op.size() - 1` would wrap around to
+                // 2^32 - 1 and add a bit position that no operand can ever have
+                if (op.empty())
+                {
+                    continue;
+                }
+
                 sign_bit_positions.insert(op.size() - 1);
             }
 
@@ -1707,7 +1842,10 @@ namespace hal
             }
             else if (candidate.m_operands.size() == 1)
             {
-                if (candidate.m_operands.front().size() < (candidate.m_output_nets.size() - 1))
+                // written as `+ 1 <` rather than `< size() - 1`: a candidate without output nets would
+                // wrap that subtraction around and pick the widest set of extensions for an output that
+                // has no bits to extend into
+                if ((candidate.m_operands.front().size() + 1) < candidate.m_output_nets.size())
                 {
                     possible_extensions = {0, 1, 2};
                 }
@@ -1760,25 +1898,68 @@ namespace hal
                 // std::max(max_operand_length + 1, u32(candidate.m_output_nets.size())),
             };
 
+            // an operand with no bits has no sign bit to extend with, and reading one off it is undefined
+            // behaviour rather than a wrong answer -- so it is refused here, once, instead of in the middle
+            // of the extension loop below
+            for (u32 op_idx = 0; op_idx < candidate.m_operands.size(); op_idx++)
+            {
+                if (candidate.m_operands.at(op_idx).empty())
+                {
+                    return ERR("cannot create input extension variants for candidate of type " + enum_to_string(candidate.m_candidate_type) + ": operand " + std::to_string(op_idx)
+                               + " of " + std::to_string(candidate.m_operands.size()) + " is empty");
+                }
+            }
+
             for (const auto& ex_s : extension_sets)
             {
+                // every extension set is built to hold one entry per operand; if that ever stops holding,
+                // the indexed access below would be reading someone else's memory
+                if (ex_s.size() != candidate.m_operands.size())
+                {
+                    return ERR("cannot create input extension variants for candidate of type " + enum_to_string(candidate.m_candidate_type) + ": extension set holds "
+                               + std::to_string(ex_s.size()) + " entries for " + std::to_string(candidate.m_operands.size()) + " operands");
+                }
+
                 for (const auto& out_size : possible_output_sizes)
                 {
-                    auto new_candidate = FunctionalCandidate(candidate);
+                    auto new_candidate    = FunctionalCandidate(candidate);
+                    bool extension_failed = false;
+
                     for (u32 op_idx = 0; op_idx < new_candidate.m_operands.size(); op_idx++)
                     {
+                        Net* sign_net = nullptr;
                         if (candidate.m_candidate_type == module_identification::CandidateType::constant_multiplication
                             || candidate.m_candidate_type == module_identification::CandidateType::constant_multiplication_offset)
                         {
                             // new_candidate.m_operands.at(op_idx) = apply_extension_const_mul(new_candidate.m_operands.at(op_idx), new_candidate.m_output_nets.size(), ex_s.at(op_idx), msb);
-                            auto sign_net                       = candidate.m_operands.front().back();
-                            new_candidate.m_operands.at(op_idx) = apply_extension(new_candidate.m_operands.at(op_idx), out_size, ex_s.at(op_idx), sign_net, ctx.m_netlist);
+                            // all operands of a constant multiplication are shifted copies of the first one,
+                            // so its highest bit is the sign bit for all of them
+                            sign_net = candidate.m_operands.front().back();
                         }
                         else
                         {
-                            auto sign_net                       = new_candidate.m_operands.at(op_idx).back();
-                            new_candidate.m_operands.at(op_idx) = apply_extension(new_candidate.m_operands.at(op_idx), out_size, ex_s.at(op_idx), sign_net, ctx.m_netlist);
+                            sign_net = new_candidate.m_operands.at(op_idx).back();
                         }
+
+                        auto extended_res = apply_extension(new_candidate.m_operands.at(op_idx), out_size, ex_s.at(op_idx), sign_net, ctx.m_netlist);
+                        if (extended_res.is_error())
+                        {
+                            // the variant cannot be built, but the ones that do not need this extension
+                            // still can, so this drops the variant instead of the whole candidate
+                            log_debug("module_identification",
+                                      "skipping input extension variant for candidate of type {}: {}",
+                                      enum_to_string(candidate.m_candidate_type),
+                                      extended_res.get_error().get());
+                            extension_failed = true;
+                            break;
+                        }
+
+                        new_candidate.m_operands.at(op_idx) = extended_res.get();
+                    }
+
+                    if (extension_failed)
+                    {
+                        continue;
                     }
 
                     // check for uniqueness to avoid duplicates
@@ -1873,8 +2054,13 @@ namespace hal
 
         // constant multiplication
 
-        FunctionalCandidate FunctionalCandidate::add_n_shifted_operands(const FunctionalCandidate& candidate, const std::vector<i32>& shift_vals)
+        Result<FunctionalCandidate> FunctionalCandidate::add_n_shifted_operands(const FunctionalCandidate& candidate, const std::vector<i32>& shift_vals)
         {
+            if (candidate.m_operands.empty())
+            {
+                return ERR("cannot add shifted operands: the candidate has no operand to shift");
+            }
+
             auto new_operands = candidate.m_operands;
 
             for (const auto& n : shift_vals)
@@ -1899,10 +2085,28 @@ namespace hal
                 {
                     // shift left
                     std::vector<Net*> new_operand;
-                    for (u32 i = 0; i < (u32)n; i++)
+
+                    if (n > 0)
                     {
-                        new_operand.push_back(candidate.m_gates.front()->get_netlist()->get_gnd_nets().front());
+                        // the low bits shifted in are constant zeros, which the netlist has to provide;
+                        // on a netlist without a GND net there is nothing to shift in
+                        if (candidate.m_gates.empty())
+                        {
+                            return ERR("cannot add shifted operands: the candidate has no gates to take the netlist from");
+                        }
+
+                        const auto gnd_nets = candidate.m_gates.front()->get_netlist()->get_gnd_nets();
+                        if (gnd_nets.empty())
+                        {
+                            return ERR("cannot add shifted operands: the netlist contains no GND net to shift in");
+                        }
+
+                        for (u32 i = 0; i < (u32)n; i++)
+                        {
+                            new_operand.push_back(gnd_nets.front());
+                        }
                     }
+
                     for (const auto& net : new_operands.at(0))
                     {
                         new_operand.push_back(net);
@@ -1914,7 +2118,7 @@ namespace hal
             auto new_candidate       = FunctionalCandidate(candidate);
             new_candidate.m_operands = new_operands;
 
-            return new_candidate;
+            return OK(new_candidate);
         }
 
         Result<std::vector<FunctionalCandidate>> FunctionalCandidate::add_selected_shifted_operand(CandidateContext& ctx, const FunctionalCandidate& candidate)
@@ -2003,6 +2207,12 @@ namespace hal
                 return OK(new_candidates);
             }
 
+            // the fingerprint is read off the first operand, so there has to be one
+            if (candidate.m_operands.empty())
+            {
+                return OK(new_candidates);
+            }
+
             // the finger print of a constant multiplication are the 3 bins of input nets with the highest amount of output bits influenced.
             // the bins are translated into the corresponding net indices inside the input operands
             std::vector<std::vector<u32>> finger_print;
@@ -2054,7 +2264,13 @@ namespace hal
             {
                 for (const auto& offsets : fpl_it->second)
                 {
-                    auto new_candidate_nm = add_n_shifted_operands(candidate, offsets);
+                    auto new_candidate_res = add_n_shifted_operands(candidate, offsets);
+                    if (new_candidate_res.is_error())
+                    {
+                        return ERR_APPEND(new_candidate_res.get_error(), "cannot add selected shifted operand for shifts " + utils::join(", ", offsets));
+                    }
+
+                    auto new_candidate_nm = new_candidate_res.get();
                     new_candidate_nm.add_additional_data("OPERAND_SHIFTS", utils::join(", ", offsets));
                     new_candidates.push_back(new_candidate_nm);
                 }
@@ -2078,7 +2294,13 @@ namespace hal
 
             for (const auto& offsets : all_possible_offsets)
             {
-                auto new_candidate_nm = add_n_shifted_operands(candidate, offsets);
+                auto new_candidate_res = add_n_shifted_operands(candidate, offsets);
+                if (new_candidate_res.is_error())
+                {
+                    return ERR_APPEND(new_candidate_res.get_error(), "cannot add shifted operand for shifts " + utils::join(", ", offsets));
+                }
+
+                auto new_candidate_nm = new_candidate_res.get();
                 new_candidate_nm.add_additional_data("OPERAND_SHIFTS", utils::join(", ", offsets));
                 new_candidates.push_back(new_candidate_nm);
             }

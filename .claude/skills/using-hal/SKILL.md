@@ -68,15 +68,55 @@ Core flags, from `app/main.cpp`:
 `hal --python` and `hal --python-script <file> [--python-args "arg1 arg2"]`
 come from the `python_shell` plugin's CLI extension
 (`plugins/python_shell/src/plugin_python_shell.cpp`). These are **UI-plugin
-flags** — main.cpp detects them before parsing the rest of argv and hands
-control entirely to the plugin, so ordinary import/project flags on the same
-command line are ignored (see Pitfalls).
+flags**: main.cpp hands control to the plugin instead of running the CLI
+plugins, but only *after* the project arguments have been dealt with.
 
 Example: convert a Verilog netlist into a HAL project directory non-interactively:
 
 ```bash
 hal --import-netlist design.v --gate-library plugins/gate_libraries/definitions/xilinx_unisim.hgl --project-dir ./out_project
 ```
+
+### `--python-script` with a project: `netlist` is already loaded
+
+`--python-script` composes with `--project-dir`, `--import-netlist`,
+`--gate-library` and `--empty-project`. When any of those is given, HAL opens
+the project and parses the netlist first, exactly as on the plain CLI path, and
+binds the result to the global name **`netlist`** in the namespace the script
+runs in — the name the GUI console used to provide. The same holds for the
+interactive `hal --python`.
+
+```bash
+# import, then analyze in one process -- the script does not load anything itself
+hal --import-netlist design.v \
+    --gate-library plugins/gate_libraries/definitions/xilinx_unisim.hgl \
+    --project-dir ./out_project \
+    --python-script analyze.py
+
+# reopen the project later
+hal --project-dir ./out_project --python-script analyze.py --python-args "arg1 arg2"
+```
+
+```python
+# analyze.py -- no NetlistFactory call needed
+print(netlist.get_design_name(), len(netlist.get_gates()))
+```
+
+Semantics worth knowing:
+
+- **No project arguments, no `netlist`.** A bare `hal --python-script x.py`
+  gets a plain interpreter with `hal_py` imported and nothing loaded; the
+  script must load whatever it needs itself. Guard with
+  `if "netlist" not in globals(): ...` if a script has to work both ways.
+- **The script's changes are saved.** After the script returns, HAL serializes
+  the project just as it does for a CLI plugin, and `--write-hdl` still writes
+  the netlist out. Pass `--volatile-mode` to run against the project without
+  writing anything back.
+- **Loading failures never reach the script.** A project directory that cannot
+  be opened, or a netlist that cannot be read or parsed, ends the process with
+  a nonzero exit code before the interpreter starts.
+- **The netlist is borrowed, not owned.** HAL frees it after the script ends;
+  don't stash it in something that outlives the run.
 
 ## Python API essentials
 
@@ -165,12 +205,15 @@ docstrings (`help(hal_py.<Plugin>)`) for the exact call, don't guess.
 
 ## Pitfalls
 
-- **`--python-script` bypasses HAL's own project loading.** Unlike the plain
-  `hal -p ... -i ...` path, a UI-plugin flag (`--python`, `--python-script`)
-  takes over `main()` entirely before project/import args are processed — see
-  the `uictrl` branch in `app/main.cpp`. Your script must load the netlist
-  itself via `hal_py.NetlistFactory.load_hal_project(...)` /
-  `load_netlist(...)`; nothing is pre-loaded for you.
+- **`netlist` exists only when a project argument was given.** With
+  `--project-dir` / `--import-netlist` / `--empty-project`, HAL loads the
+  netlist and binds it to `netlist` before the script runs (see above). Without
+  them nothing is pre-loaded and the script must call
+  `hal_py.NetlistFactory.load_hal_project(...)` / `load_netlist(...)` itself.
+  (Before the fix for issue #31 the UI-plugin flag took over `main()` *before*
+  the project arguments were processed, so the combination silently ran the
+  script against nothing — a wrapper written against that behaviour still works,
+  it just loads the netlist twice.)
 - **The exit code of `--python-script` is trustworthy — check it.** `hal` exits
   0 only if the script ran to completion; an uncaught exception, a Python
   environment that failed to set up, and a script path that is missing, a

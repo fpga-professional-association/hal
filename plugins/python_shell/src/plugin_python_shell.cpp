@@ -1,12 +1,16 @@
 #include "python_shell/plugin_python_shell.h"
 
 #include "hal_core/defines.h"
+#include "hal_core/netlist/netlist.h"
 #include "hal_core/utilities/program_arguments.h"
 #include "hal_core/utilities/utils.h"
 
 #include <Python.h>
 #include <cstring>
 #include <fstream>
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 namespace hal
 {
@@ -60,6 +64,43 @@ namespace hal
                 PyMem_RawFree(argv[i]);
             }
             delete[] argv;
+        }
+
+        /**
+         * Binds the netlist HAL loaded to the name `netlist` in the namespace scripts run in.
+         *
+         * `PyRun_SimpleString` and the interactive shell both execute in `__main__`, so putting the
+         * object there is what makes `netlist` a plain global for the script -- the same name the GUI
+         * console used to provide.
+         *
+         * The object is handed out as a borrowed reference: HAL owns the netlist and destroys it after
+         * the interpreter is gone, so Python must not take ownership of it. Nothing here can be done
+         * before `hal_py` has been imported, since that import is what registers the `Netlist` type
+         * with pybind11.
+         *
+         * @param[in] netlist - The netlist to expose, which must not be `nullptr`.
+         * @param[out] error - A description of what went wrong, set only when this returns `false`.
+         * @returns `true` if the name was bound, `false` otherwise.
+         */
+        bool inject_netlist(Netlist* netlist, std::string& error)
+        {
+            try
+            {
+                py::module_ main_module      = py::module_::import("__main__");
+                main_module.attr("netlist")  = py::cast(netlist, py::return_value_policy::reference);
+            }
+            catch (const std::exception& e)
+            {
+                error = e.what();
+                return false;
+            }
+            catch (...)
+            {
+                error = "unknown exception";
+                return false;
+            }
+
+            return true;
         }
     }    // namespace
 
@@ -160,6 +201,18 @@ namespace hal
                 log_error(get_name(), "cannot initialize the Python environment, '{}' raised an exception", statement);
                 success = false;
                 break;
+            }
+        }
+
+        // a netlist that main() loaded is put in front of the script under the name it had in the GUI
+        // console; without it a script started with --project-dir would fail on `netlist` being undefined
+        if (success && m_netlist != nullptr)
+        {
+            std::string injection_error;
+            if (!inject_netlist(m_netlist, injection_error))
+            {
+                log_error(get_name(), "cannot expose the loaded netlist to Python: {}", injection_error);
+                success = false;
             }
         }
 

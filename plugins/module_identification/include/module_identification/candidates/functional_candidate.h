@@ -237,12 +237,16 @@ namespace hal
 
             /**
              * @brief Add n shifted operands for constant multiplication.
-             * 
+             *
+             * Shifting left pads the low bits with the netlist's GND net, so a candidate without operands
+             * or a netlist without a GND net cannot be shifted and is reported as an error instead of
+             * being read past the end of an empty vector.
+             *
              * @param[in] candidate - The functional candidate.
              * @param[in] shift_vals - The shift values of the operands to add.
-             * @returns A new functional candidate with the shifted operands added.
+             * @returns OK() and a new functional candidate with the shifted operands added on success, an error otherwise.
              */
-            static FunctionalCandidate add_n_shifted_operands(const FunctionalCandidate& candidate, const std::vector<i32>& shift_vals);
+            static hal::Result<FunctionalCandidate> add_n_shifted_operands(const FunctionalCandidate& candidate, const std::vector<i32>& shift_vals);
 
             /**
              * @brief Add shifted operands to the functional candidate based on its input output stats.

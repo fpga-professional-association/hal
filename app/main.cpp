@@ -35,6 +35,62 @@ int cleanup(int return_code = SUCCESS)
     return return_code;
 }
 
+namespace
+{
+    /**
+     * Hands control to the one UI plugin that was selected on the command line.
+     *
+     * `netlist` is whatever HAL loaded from `--project-dir` / `--import-netlist` / `--empty-project`
+     * before this call, or `nullptr` when no project was requested. It is handed over through
+     * UIPluginInterface::set_netlist so that an interactive frontend can put it in front of the user --
+     * that is what lets a `--python-script` see a `netlist` it did not load itself. The netlist stays
+     * owned by main(), which keeps it alive for the whole call.
+     *
+     * The result is the success flag of the run, as described on UIPluginInterface::exec.
+     */
+    bool execute_ui_plugin(UIPluginInterface* plugin, const std::string& plugin_name, ProgramArguments& args, Netlist* netlist)
+    {
+        ProgramArguments plugin_args;
+
+        CliExtensionInterface* ceif = plugin->get_first_extension<CliExtensionInterface>();
+        if (ceif)
+        {
+            for (const auto& option : ceif->get_cli_options().get_options())
+            {
+                auto flags      = std::get<0>(option);
+                auto first_flag = *flags.begin();
+                if (args.is_option_set(first_flag))
+                {
+                    plugin_args.set_option(first_flag, flags, args.get_parameters(first_flag));
+                }
+            }
+        }
+
+        log_info("core", "executing '{}' with", plugin_name);
+        for (const auto& option : plugin_args.get_set_options())
+        {
+            log_info("core", "  '{}': {}", option, utils::join(",", plugin_args.get_parameters(option)));
+        }
+
+        /* add timestamp to log output */
+        LogManager::get_instance()->set_format_pattern("[%d.%m.%Y %H:%M:%S] [%n] [%l] %v");
+
+        plugin->set_netlist(netlist);
+
+        /* UIPluginInterface::exec returns true when the requested work completed, so a failing
+         * plugin -- a script that raised, a path that could not be read, a UI that did not start --
+         * has to leave HAL with a nonzero exit code. */
+        const bool succeeded = plugin->exec(args);
+
+        if (!succeeded)
+        {
+            log_error("core", "execution of '{}' failed", plugin_name);
+        }
+
+        return succeeded;
+    }
+}    // namespace
+
 void initialize_cli_options(ProgramOptions& cli_options)
 {
     ProgramOptions generic_options("generic options");
@@ -160,7 +216,8 @@ int main(int argc, const char* argv[])
         return cleanup();
     }
 
-    /* redirect control to ui plugin if enabled */
+    /* find the ui plugin that will take control, if any */
+    std::string ui_plugin_name;
     {
         std::vector<std::string> plugins_to_execute;
         auto ui_plugin_flags = plugin_manager::get_ui_plugin_flags();
@@ -183,48 +240,30 @@ int main(int argc, const char* argv[])
         }
         else if (plugins_to_execute.size() == 1)
         {
-            auto plugin_name = plugins_to_execute[0];
-            auto plugin      = plugin_manager::get_plugin_instance<UIPluginInterface>(plugin_name);
-            if (plugin == nullptr)
-            {
-                return cleanup(ERROR);
-            }
-
-            ProgramArguments plugin_args;
-
-            CliExtensionInterface* ceif = plugin->get_first_extension<CliExtensionInterface>();
-            if (ceif)
-            for (const auto& option : ceif->get_cli_options().get_options())
-            {
-                auto flags      = std::get<0>(option);
-                auto first_flag = *flags.begin();
-                if (args.is_option_set(first_flag))
-                {
-                    plugin_args.set_option(first_flag, flags, args.get_parameters(first_flag));
-                }
-            }
-
-            log_info("core", "executing '{}' with", plugin_name);
-            for (const auto& option : plugin_args.get_set_options())
-            {
-                log_info("core", "  '{}': {}", option, utils::join(",", plugin_args.get_parameters(option)));
-            }
-
-            /* add timestamp to log output */
-            LogManager::get_instance()->set_format_pattern("[%d.%m.%Y %H:%M:%S] [%n] [%l] %v");
-
-            /* UIPluginInterface::exec returns true when the requested work completed, so a failing
-             * plugin -- a script that raised, a path that could not be read, a UI that did not start --
-             * has to leave HAL with a nonzero exit code. */
-            const bool ui_plugin_succeeded = plugin->exec(args);
-
-            if (!ui_plugin_succeeded)
-            {
-                log_error("core", "execution of '{}' failed", plugin_name);
-            }
-
-            return cleanup(ui_plugin_succeeded ? SUCCESS : ERROR);
+            ui_plugin_name = plugins_to_execute[0];
         }
+    }
+
+    UIPluginInterface* ui_plugin = nullptr;
+    if (!ui_plugin_name.empty())
+    {
+        ui_plugin = plugin_manager::get_plugin_instance<UIPluginInterface>(ui_plugin_name);
+        if (ui_plugin == nullptr)
+        {
+            return cleanup(ERROR);
+        }
+    }
+
+    /* A UI plugin flag no longer swallows the project arguments. When any of them is present the
+     * project is opened and the netlist is loaded first -- exactly as on the plain CLI path -- and the
+     * result is handed to the plugin, so that `--python-script` composes with `--project-dir`,
+     * `--import-netlist` and `--gate-library` instead of running against nothing. A UI plugin invoked
+     * without project arguments still takes over immediately and gets no netlist. */
+    const bool project_requested = args.is_option_set("--project-dir") || args.is_option_set("--import-netlist") || args.is_option_set("--empty-project");
+
+    if (ui_plugin != nullptr && !project_requested)
+    {
+        return cleanup(execute_ui_plugin(ui_plugin, ui_plugin_name, args, nullptr) ? SUCCESS : ERROR);
     }
 
     /**
@@ -238,22 +277,24 @@ int main(int argc, const char* argv[])
     }
 
     /* empty project requires gate library, import or existing project args not allowed */
+    /* every one of the checks below describes a run that cannot do what was asked, so it ends HAL with
+     * a nonzero exit code -- the same contract the UI plugins follow (see UIPluginInterface::exec) */
     if (args.is_option_set("--empty-project") && args.is_option_set("--import-netlist"))
     {
         log_error("core", "Found --empty-project and --import-netlist!");
-        return cleanup();
+        return cleanup(ERROR);
     }
 
     if (args.is_option_set("--empty-project") && args.is_option_set("--project-dir"))
     {
         log_error("core", "Found --empty-project and --project-dir!");
-        return cleanup();
+        return cleanup(ERROR);
     }
 
     if (args.is_option_set("--empty-project") && !args.is_option_set("--gate-library"))
     {
         log_error("core", "Found --empty-project but --gate-library is missing!");
-        return cleanup();
+        return cleanup(ERROR);
     }
 
     std::filesystem::path proj_path;
@@ -280,7 +321,7 @@ int main(int argc, const char* argv[])
     if (proj_path.string().empty())
     {
         log_error("core", "No hal project directory specified");
-        return cleanup();
+        return cleanup(ERROR);
     }
 
     ProjectManager* pm = ProjectManager::instance();
@@ -289,7 +330,7 @@ int main(int argc, const char* argv[])
         if (!pm->open_project(proj_path.string()))
         {
             log_error("core", "Cannot open project <" + proj_path.string() + ">");
-            return cleanup();
+            return cleanup(ERROR);
         }
     }
     else
@@ -297,7 +338,7 @@ int main(int argc, const char* argv[])
         if (!pm->create_project_directory(proj_path.string()))
         {
             log_error("core", "Cannot create project <" + proj_path.string() + ">");
-            return cleanup();
+            return cleanup(ERROR);
         }
     }
     if (args.is_option_set("--no-log"))
@@ -339,6 +380,28 @@ int main(int argc, const char* argv[])
     if (!import_nl.empty() && !volatile_mode)
     {
         pm->serialize_project(netlist.get());
+    }
+
+    /* redirect control to the ui plugin, now with the loaded netlist in hand */
+    if (ui_plugin != nullptr)
+    {
+        if (!execute_ui_plugin(ui_plugin, ui_plugin_name, args, netlist.get()))
+        {
+            return cleanup(ERROR);
+        }
+
+        /* whatever the plugin did to the netlist is kept, just as it is for the cli plugins below */
+        if (!volatile_mode)
+        {
+            pm->serialize_project(netlist.get());
+        }
+
+        if (!netlist_writer_manager::write(netlist.get(), args))
+        {
+            return cleanup(ERROR);
+        }
+
+        return cleanup();
     }
 
     /* cli plugins */
@@ -409,7 +472,7 @@ int main(int argc, const char* argv[])
     /* handle file writer */
     if (!netlist_writer_manager::write(netlist.get(), args))
     {
-        return cleanup();
+        return cleanup(ERROR);
     }
 
     /* cleanup */

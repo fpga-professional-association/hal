@@ -224,6 +224,14 @@ namespace hal
                         candidate_info.at(thread_idx) = "S_" + unique_sc->base_candidate->m_gates.front()->get_name();
 
                         auto new_functional_candidates_res = generate_functional_candidates(unique_sc.get(), config, stats);
+
+                        // this structural candidate is done either way -- the counter is what tells the
+                        // worker threads that there is no structural work left, so a candidate whose
+                        // generation reported an error has to be counted off as well. Leaving it on the
+                        // counter used to spin every thread forever, since the queue it takes work from is
+                        // empty while the workload it waits for never reaches zero
+                        structural_workload -= 1;
+
                         if (new_functional_candidates_res.is_error())
                         {
                             log_error("module_identification",
@@ -239,7 +247,6 @@ namespace hal
                             const auto _bfs = unique_sc.get()->ctx.get_boolean_functions(fc.m_output_nets, fc.m_control_mapping);
                         }
 
-                        structural_workload -= 1;
                         if (!new_functional_candidates.empty())
                         {
                             thread_sync.lock();

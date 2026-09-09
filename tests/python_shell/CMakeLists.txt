@@ -10,4 +10,16 @@ if(PL_PYTHON_SHELL OR BUILD_ALL_PLUGINS)
              WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
     set_tests_properties(runTest-python_shell_script_exit_codes PROPERTIES
                          ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/lib;HAL_BASE_PATH=${CMAKE_BINARY_DIR}")
+
+    # Same story for the other half of the contract: that --python-script composes with the project
+    # arguments. That one needs a netlist to import, so it gets the fsm_controller fixture and the
+    # gate library it was written against.
+    add_test(NAME runTest-python_shell_project_context
+             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/project_context_test.py
+                     $<TARGET_FILE:hal> ${CMAKE_CURRENT_SOURCE_DIR}/scripts
+                     ${CMAKE_SOURCE_DIR}/tests/fixtures/fsm_controller/controller.v
+                     ${CMAKE_SOURCE_DIR}/plugins/gate_libraries/definitions/example_library.hgl
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    set_tests_properties(runTest-python_shell_project_context PROPERTIES
+                         ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/lib;HAL_BASE_PATH=${CMAKE_BINARY_DIR}")
 endif()

@@ -93,10 +93,29 @@ namespace hal
          * if the Python environment could not be set up, if the script path does not name a readable `.py`
          * file, or if the code that ran raised an exception that was not caught.
          *
+         * When HAL loaded a netlist for this run (see set_netlist), it is bound to the name `netlist` in
+         * the `__main__` namespace the script and the interactive shell execute in, so that
+         * `--python-script` composes with `--project-dir` / `--import-netlist` / `--gate-library`.
+         * Failing to bind it is an error: a script that asked for a project must not silently run
+         * against nothing.
+         *
          * @param[in] args - The command line parameters.
          * @returns `true` if the script or shell ran to completion, `false` on any error.
          */
         bool exec(ProgramArguments& args) override;
+
+        /**
+         * Remembers the netlist HAL loaded, to be exposed to the script or shell as `netlist`.
+         *
+         * The pointer is borrowed for the duration of the following exec() call; see
+         * UIPluginInterface::set_netlist.
+         *
+         * @param[in] netlist - The loaded netlist, or `nullptr` if HAL did not load one.
+         */
+        void set_netlist(Netlist* netlist) override
+        {
+            m_netlist = netlist;
+        }
 
         /**
          * Nothing to do for GUI layout locker.
@@ -107,5 +126,9 @@ namespace hal
         {
             UNUSED(enable);
         }
+
+    private:
+        /** The netlist to expose to the Python namespace, or `nullptr` if HAL loaded none. */
+        Netlist* m_netlist = nullptr;
     };
 }    // namespace hal
