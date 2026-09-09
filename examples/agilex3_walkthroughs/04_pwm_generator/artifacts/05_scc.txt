@@ -1,0 +1,33 @@
+strongly connected components with at least 2 vertices: 8
+
+SCC 0: 2 gates  {'tennm_ff': 1, 'tennm_lcell_comb': 1}
+    cnt[0]
+    cnt[0]~0
+
+SCC 1: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~31
+    cnt[1]
+
+SCC 2: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~26
+    cnt[2]
+
+SCC 3: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~21
+    cnt[3]
+
+SCC 4: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~16
+    cnt[4]
+
+SCC 5: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~11
+    cnt[5]
+
+SCC 6: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~6
+    cnt[6]
+
+SCC 7: 2 gates  {'tennm_lcell_comb': 1, 'tennm_ff': 1}
+    add_0~1
+    cnt[7]

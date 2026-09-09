@@ -1,0 +1,41 @@
+walkthrough 04 -- pwm_generator
+
+[1] primitive coverage
+  ok   18 tennm_lcell_comb
+  ok   16 tennm_ff
+  ok   no uncovered primitive
+  ok   no out-of-coverage configuration
+
+[2] import rewrite is reproducible
+  ok   netlist.hal.v matches a fresh rewrite
+
+[3] structure
+  ok   exactly two carry chains
+  ok   chain lengths are 6 and 7
+  ok   two flip-flop enable groups
+  ok   both groups are 8 bits wide
+  ok   one group is enabled by a LUT, not a port
+
+[4] behaviour vs the recovered model (200 pseudo-random cycles)
+  ok   no counterexample
+  ok   cycles simulated
+
+[5] pwm_out == (cnt < duty) over all 65536 (cnt, duty) pairs
+  ok   pwm_out agrees for all 65536 pairs
+  ok   period_tick agrees for all 65536 pairs
+
+[6] duty is only writable at cfg_addr == 2'b01
+  ok   address 00 is ignored
+  ok   address 10 is ignored
+  ok   address 11 is ignored
+
+[7] every comparator slice is (equality -> propagate, less-than -> generate)
+  ok   one chain reads both registers
+  ok   slice LessThan_0~27: propagate = equal, generate = (counter < threshold)
+  ok   slice LessThan_0~22: propagate = equal, generate = (counter < threshold)
+  ok   slice LessThan_0~17: propagate = equal, generate = (counter < threshold)
+  ok   slice LessThan_0~12: propagate = equal, generate = (counter < threshold)
+  ok   slice LessThan_0~7: propagate = equal, generate = (counter < threshold)
+  ok   all comparator slices checked
+
+24 checks, 0 failed

@@ -1,0 +1,21 @@
+16 flip-flops, 2 distinct (clk, ena, clrn) signatures
+
+clk=clk  ena=run  clrn=rst_n   -> 8 flip-flops
+    cnt[0]       d <- cnt[0]~0_combout           q -> cnt(0)
+    cnt[1]       d <- add_0~31_sumout            q -> cnt(1)
+    cnt[2]       d <- add_0~26_sumout            q -> cnt(2)
+    cnt[3]       d <- add_0~21_sumout            q -> cnt(3)
+    cnt[4]       d <- add_0~16_sumout            q -> cnt(4)
+    cnt[5]       d <- add_0~11_sumout            q -> cnt(5)
+    cnt[6]       d <- add_0~6_sumout             q -> cnt(6)
+    cnt[7]       d <- add_0~1_sumout             q -> cnt(7)
+
+clk=clk  ena=duty_we~0_combout  clrn=rst_n   -> 8 flip-flops
+    duty[0]      d <- cfg_wdata(0)               q -> duty(0)
+    duty[1]      d <- cfg_wdata(1)               q -> duty(1)
+    duty[2]      d <- cfg_wdata(2)               q -> duty(2)
+    duty[3]      d <- cfg_wdata(3)               q -> duty(3)
+    duty[4]      d <- cfg_wdata(4)               q -> duty(4)
+    duty[5]      d <- cfg_wdata(5)               q -> duty(5)
+    duty[6]      d <- cfg_wdata(6)               q -> duty(6)
+    duty[7]      d <- cfg_wdata(7)               q -> duty(7)

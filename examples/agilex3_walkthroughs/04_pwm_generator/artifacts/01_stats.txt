@@ -1,0 +1,15 @@
+design name : pwm_generator
+gates       : 36
+nets        : 56
+modules     : 1
+  HAL_GND            1
+  HAL_VCC            1
+  tennm_ff           16
+  tennm_lcell_comb   18
+top module  : top_module
+submodules  : 0
+inputs      : ['cfg_addr(0)', 'cfg_addr(1)', 'cfg_wdata(0)', 'cfg_wdata(1)', 'cfg_wdata(2)', 'cfg_wdata(3)', 'cfg_wdata(4)', 'cfg_wdata(5)', 'cfg_wdata(6)', 'cfg_wdata(7)', 'cfg_we', 'clk', 'rst_n', 'run']
+outputs     : ['period_tick', 'pwm_out']
+elaborated  : 18 lcell gates given boolean functions
+checked ff  : 16
+refused     : []

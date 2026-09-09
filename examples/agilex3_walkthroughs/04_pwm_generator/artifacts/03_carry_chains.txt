@@ -1,0 +1,44 @@
+2 carry chain(s) found by following cout -> cin
+
+chain 0: 6 cells
+  [0] LessThan_0~27            mask=000000004D449009
+        inputs : dataa=cnt(1), datab=duty(1), datac=cnt(0), datad=duty(0)
+        drives : cout->LessThan_0~22.cin
+  [1] LessThan_0~22            mask=0000000000F0F00F
+        inputs : datac=duty(2), datad=cnt(2)
+        drives : cout->LessThan_0~17.cin
+  [2] LessThan_0~17            mask=000000004D449009
+        inputs : dataa=cnt(4), datab=duty(4), datac=cnt(3), datad=duty(3)
+        drives : cout->LessThan_0~12.cin
+  [3] LessThan_0~12            mask=0000000000F0F00F
+        inputs : datac=duty(5), datad=cnt(5)
+        drives : cout->LessThan_0~7.cin
+  [4] LessThan_0~7             mask=000000004D449009
+        inputs : dataa=cnt(7), datab=duty(7), datac=cnt(6), datad=duty(6)
+        drives : cout->LessThan_0~1.cin
+  [5] LessThan_0~1             mask=000000000000FFFF
+        inputs : (all constant)
+        drives : sumout->LessThan_0~1_wirecell.dataa
+
+chain 1: 7 cells
+  [0] add_0~31                 mask=00000000F0000FF0
+        inputs : datac=cnt(1), datad=cnt(0)
+        drives : sumout->cnt[1].d, cout->add_0~26.cin
+  [1] add_0~26                 mask=000000000000F0F0
+        inputs : datac=cnt(2)
+        drives : sumout->cnt[2].d, cout->add_0~21.cin
+  [2] add_0~21                 mask=000000000000F0F0
+        inputs : datac=cnt(3)
+        drives : sumout->cnt[3].d, cout->add_0~16.cin
+  [3] add_0~16                 mask=000000000000F0F0
+        inputs : datac=cnt(4)
+        drives : sumout->cnt[4].d, cout->add_0~11.cin
+  [4] add_0~11                 mask=000000000000F0F0
+        inputs : datac=cnt(5)
+        drives : sumout->cnt[5].d, cout->add_0~6.cin
+  [5] add_0~6                  mask=000000000000F0F0
+        inputs : datac=cnt(6)
+        drives : sumout->cnt[6].d, cout->add_0~1.cin
+  [6] add_0~1                  mask=000000000000F0F0
+        inputs : datac=cnt(7)
+        drives : sumout->cnt[7].d

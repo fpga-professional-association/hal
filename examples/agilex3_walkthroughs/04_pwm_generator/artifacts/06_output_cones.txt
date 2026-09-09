@@ -1,0 +1,6 @@
+output period_tick
+    driven by reduce_nor_1.combout (tennm_lcell_comb)
+        combout = ((dataa & datab) & (datae & (datac & datad)))
+output pwm_out
+    driven by LessThan_0~1_wirecell.combout (tennm_lcell_comb)
+        combout = (! dataa)
