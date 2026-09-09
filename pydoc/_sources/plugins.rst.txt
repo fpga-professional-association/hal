@@ -1,0 +1,19 @@
+HAL Plugins Documentation
+=========================
+
+.. toctree::
+   :maxdepth: 1
+
+   bitorder_propagation
+   boolean_influence
+   dataflow
+   graph_algorithm
+   hawkeye
+   module_identification
+   netlist_preprocessing
+   resynthesis
+   netlist_simulator
+   netlist_simulator_controller
+   verilator
+   solve_fsm
+   xilinx_toolbox

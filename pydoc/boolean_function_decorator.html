@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boolean Function Decorator &mdash; hal_py v4.5.0-175-g4170e813a documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boolean Function Net Decorator" href="boolean_function_net_decorator.html" />
+    <link rel="prev" title="Boolean Function" href="boolean_function.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> hal_py
+          </a>
+              <div class="version">
+                v4.5.0-175-g4170e813a
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="hal_py.html">HAL Core Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hal_py_module.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="async_set_reset_behavior.html">Async Set Reset Behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base_plugin_interface.html">Base Plugin Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Boolean Function Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function_net_decorator.html">Boolean Function Net Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_utils.html">Core Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_container.html">Data Container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endpoint.html">Endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate.html">Gate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_base_pin.html">Gate Base Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_library.html">Gate Library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_library_manager.html">Gate Library Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_pin.html">Gate Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_pin_group.html">Gate Pin Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type.html">Gate Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type_component.html">Gate Type Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type_property.html">Gate Type Property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grouping.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log_manager.html">Log Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_base_pin.html">Module Base Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_pin.html">Module Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_pin_group.html">Module Pin Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="net.html">Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist.html">Netlist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_factory.html">Netlist Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_modification_decorator.html">Netlist Modification Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_serializer.html">Netlist Serializer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_traversal_decorator.html">Netlist Traversal Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_utils.html">Netlist Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_writer_manager.html">Netlist Writer Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pin_direction.html">Pin Direction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pin_type.html">Pin Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_manager.html">Plugin Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_directory.html">Project Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_manager.html">Project Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smt.html">SMT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="subgraph_netlist_decorator.html">Subgraph Netlist Decorator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">HAL Plugins Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hal_py</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="hal_py.html">HAL Core Documentation</a> &raquo;</li>
+      <li>Boolean Function Decorator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/boolean_function_decorator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="boolean-function-decorator">
+<h1>Boolean Function Decorator<a class="headerlink" href="#boolean-function-decorator" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hal_py.BooleanFunctionDecorator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hal_py.</span></span><span class="sig-name descname"><span class="pre">BooleanFunctionDecorator</span></span><a class="headerlink" href="#hal_py.BooleanFunctionDecorator" title="Permalink to this definition"></a></dt>
+<dd><p>A Boolean function decorator that provides functionality to operate on the associated Boolean function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.BooleanFunctionDecorator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.BooleanFunctionDecorator" title="hal_py.BooleanFunctionDecorator"><span class="pre">hal_py.BooleanFunctionDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><span class="pre">hal_py.BooleanFunction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#hal_py.BooleanFunctionDecorator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct new BooleanFunctionDecorator object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bf</strong> (<a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><em>hal_py.BooleanFunction</em></a>) – The Booelan function to operate on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.BooleanFunctionDecorator.get_boolean_function_from">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_boolean_function_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hal_py.BooleanFunctionDecorator.get_boolean_function_from" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>get_boolean_function_from(functions: List[hal_py.BooleanFunction], extend_to_size: int = 0, sign_extend: bool = False, ascending: bool = True) -&gt; Optional[hal_py.BooleanFunction]</p>
+<blockquote>
+<div><p>Get the Boolean function that is the concatenation of Boolean functions.
+The Boolean function can optionally be extended to any desired size greater the size of the given Boolean function list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param list[hal_py.BooleanFunction] functions</dt>
+<dd class="field-odd"><p>The Boolean functions to concatenate.</p>
+</dd>
+<dt class="field-even">param int extend_to_size</dt>
+<dd class="field-even"><p>The size to which to extend the Boolean function. Set to <code class="docutils literal notranslate"><span class="pre">0</span></code> to prevent extension. Defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+<dt class="field-odd">param bool sign_extend</dt>
+<dd class="field-odd"><p>Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to sign extend, <code class="docutils literal notranslate"><span class="pre">False</span></code> to zero extend. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">param bool ascending</dt>
+<dd class="field-even"><p>Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to concatenate in ascending order (from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">n-1</span></code>), <code class="docutils literal notranslate"><span class="pre">False</span></code> for descending order (from <code class="docutils literal notranslate"><span class="pre">n-1</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code>). Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p>The resulting Boolean function on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p>hal_py.BooleanFunction or None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>get_boolean_function_from(nets: List[hal_py.Net], extend_to_size: int = 0, sign_extend: bool = False, ascending: bool = True) -&gt; Optional[hal_py.BooleanFunction]</p>
+<blockquote>
+<div><p>Get the Boolean function that is the concatenation of variable names corresponding to nets of a netlist.
+The Boolean function can optionally be extended to any desired size greater the size of the given net vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param list[hal_py.Net] nets</dt>
+<dd class="field-odd"><p>The nets to concatenate.</p>
+</dd>
+<dt class="field-even">param int extend_to_size</dt>
+<dd class="field-even"><p>The size to which to extend the Boolean function. Set to <code class="docutils literal notranslate"><span class="pre">0</span></code> to prevent extension. Defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+<dt class="field-odd">param bool sign_extend</dt>
+<dd class="field-odd"><p>Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to sign extend, <code class="docutils literal notranslate"><span class="pre">False</span></code> to zero extend. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">param bool ascending</dt>
+<dd class="field-even"><p>Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to concatenate in ascending order (from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">n-1</span></code>), <code class="docutils literal notranslate"><span class="pre">False</span></code> for descending order (from <code class="docutils literal notranslate"><span class="pre">n-1</span></code> to <code class="docutils literal notranslate"><span class="pre">0</span></code>). Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p>The resulting Boolean function on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p>hal_py.BooleanFunction or None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>get_boolean_function_from(pin_group: hal_py.ModulePinGroup, extend_to_size: int = 0, sign_extend: bool = False) -&gt; Optional[hal_py.BooleanFunction]</p>
+<blockquote>
+<div><p>Get the Boolean function that is the concatenation of variable names corresponding to the nets connected to the pins of the given pin group.
+The Boolean function can optionally be extended to any desired size greater the size of the given net vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param hal_py.ModulePinGroup pin_group</dt>
+<dd class="field-odd"><p>The module pin group.</p>
+</dd>
+<dt class="field-even">param int extend_to_size</dt>
+<dd class="field-even"><p>The size to which to extend the Boolean function. Set to <code class="docutils literal notranslate"><span class="pre">0</span></code> to prevent extension. Defaults to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+<dt class="field-odd">param bool sign_extend</dt>
+<dd class="field-odd"><p>Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to sign extend, <code class="docutils literal notranslate"><span class="pre">False</span></code> to zero extend. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">returns</dt>
+<dd class="field-even"><p>The resulting Boolean function on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">rtype</dt>
+<dd class="field-odd"><p>hal_py.BooleanFunction or None</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.BooleanFunctionDecorator.substitute_power_ground_nets">
+<span class="sig-name descname"><span class="pre">substitute_power_ground_nets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.BooleanFunctionDecorator" title="hal_py.BooleanFunctionDecorator"><span class="pre">hal_py.BooleanFunctionDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><span class="pre">hal_py.BooleanFunction</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hal_py.BooleanFunctionDecorator.substitute_power_ground_nets" title="Permalink to this definition"></a></dt>
+<dd><p>Substitute all Boolean function variables fed by power or ground gates by constant <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nl</strong> (<a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><em>hal_py.Netlist</em></a>) – The netlist to operate on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting Boolean function on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction">hal_py.BooleanFunction</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.BooleanFunctionDecorator.substitute_power_ground_pins">
+<span class="sig-name descname"><span class="pre">substitute_power_ground_pins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.BooleanFunctionDecorator" title="hal_py.BooleanFunctionDecorator"><span class="pre">hal_py.BooleanFunctionDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><span class="pre">hal_py.BooleanFunction</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hal_py.BooleanFunctionDecorator.substitute_power_ground_pins" title="Permalink to this definition"></a></dt>
+<dd><p>Substitute all Boolean function variables that belong to a pin connected to a power or ground gate by constant <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>g</strong> (<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><em>hal_py.Gate</em></a>) – The gate which is connected to the pins and belongs to the Boolean function under inspection.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting Boolean function on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction">hal_py.BooleanFunction</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="boolean_function.html" class="btn btn-neutral float-left" title="Boolean Function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boolean_function_net_decorator.html" class="btn btn-neutral float-right" title="Boolean Function Net Decorator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Marc Fyrbiak, Sebastian Wallat, Max Hoffmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

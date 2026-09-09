@@ -1,0 +1,28 @@
+var netlist__utils_8h =
+[
+    [ "copy_netlist", "netlist__utils_8h.html#a5e81261c6bc8c9602a2e53bf0f0c9b90", null ],
+    [ "get_common_inputs", "netlist__utils_8h.html#aea70c3bec835e4f88d4e208c59f5edee", null ],
+    [ "get_complex_gate_chain", "netlist__utils_8h.html#a5c4ea0dd29bd644bfef98f098b1b9b06", null ],
+    [ "get_ff_dependency_matrix", "netlist__utils_8h.html#af2c5370e1cfb407c98dd5c855e1e9022", null ],
+    [ "get_gate_chain", "netlist__utils_8h.html#a1ebaa80d5e0b2e73d48b71d2f9b3639e", null ],
+    [ "get_nets_at_pins", "netlist__utils_8h.html#adfa7f9849d87135f19d69b492c988331", null ],
+    [ "get_next_gates", "netlist__utils_8h.html#a256ff2dcf6b6f02c3f5e7eae5ac5a32f", null ],
+    [ "get_next_gates", "netlist__utils_8h.html#a9c850b7764d91068f0e209b47de7b596", null ],
+    [ "get_next_sequential_gates", "netlist__utils_8h.html#a6fa4b556ee7e7e57b5d6aa906e6f3043", null ],
+    [ "get_next_sequential_gates", "netlist__utils_8h.html#a81020a4b71d211bbb7a8d81238c393c8", null ],
+    [ "get_next_sequential_gates", "netlist__utils_8h.html#a54464cca8cf696bf4b38945a1beb4373", null ],
+    [ "get_next_sequential_gates", "netlist__utils_8h.html#a7be3fa540021b78ff30df2a13534ab61", null ],
+    [ "get_partial_netlist", "netlist__utils_8h.html#af42c62d6f9520e499498e7b4e687fee8", null ],
+    [ "get_path", "netlist__utils_8h.html#a6d7e6897fbbd4351b2829bb82e8031a2", null ],
+    [ "get_path", "netlist__utils_8h.html#a1108487954ba549127268eab87593bb8", null ],
+    [ "get_path", "netlist__utils_8h.html#a8dca979e47c84ae3400d153140422f88", null ],
+    [ "get_path", "netlist__utils_8h.html#a4b54809fcd1f2754878541e8dbf4bf7c", null ],
+    [ "get_shortest_path", "netlist__utils_8h.html#a91bb261a58a12d895627aa4d55a67e8c", null ],
+    [ "get_shortest_path", "netlist__utils_8h.html#a64a67599a3c88d65fadf2030cbf3052e", null ],
+    [ "get_shortest_path", "netlist__utils_8h.html#a0f602e5a5bc38492bdcaea8b7de36ad7", null ],
+    [ "get_subgraph_function", "netlist__utils_8h.html#a1ead75d8378f342e967ed7cd3a538bbc", null ],
+    [ "get_subgraph_function", "netlist__utils_8h.html#a2b896d1beaf904d43b220b7a80e6e7e3", null ],
+    [ "remove_buffers", "netlist__utils_8h.html#a4cf477c0c0dfc61a6187d79d38a3ef4d", null ],
+    [ "remove_unused_lut_endpoints", "netlist__utils_8h.html#a0f3e95b97b15ab4a8388495115fd923b", null ],
+    [ "replace_gate", "netlist__utils_8h.html#ac697b6f91cdf40de86672f35d0317237", null ]
+];

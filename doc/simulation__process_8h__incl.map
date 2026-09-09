@@ -1,0 +1,17 @@
+<map id="plugins/simulator/netlist_simulator_controller/include/netlist_simulator_controller/simulation_process.h" name="plugins/simulator/netlist_simulator_controller/include/netlist_simulator_controller/simulation_process.h">
+<area shape="rect" id="node1" title=" " alt="" coords="643,5,854,76"/>
+<area shape="rect" id="node2" href="$defines_8h.html" title=" " alt="" coords="81,392,221,419"/>
+<area shape="rect" id="node7" href="$simulation__engine_8h.html" title=" " alt="" coords="392,124,593,165"/>
+<area shape="rect" id="node10" title=" " alt="" coords="559,392,621,419"/>
+<area shape="rect" id="node11" href="$simulation__input_8h.html" title=" " alt="" coords="64,213,265,255"/>
+<area shape="rect" id="node13" title=" " alt="" coords="719,221,778,247"/>
+<area shape="rect" id="node14" title=" " alt="" coords="853,131,927,158"/>
+<area shape="rect" id="node15" title=" " alt="" coords="951,131,1015,158"/>
+<area shape="rect" id="node3" title=" " alt="" coords="481,467,571,493"/>
+<area shape="rect" id="node4" title=" " alt="" coords="211,467,297,493"/>
+<area shape="rect" id="node5" title=" " alt="" coords="5,467,92,493"/>
+<area shape="rect" id="node6" title=" " alt="" coords="116,467,187,493"/>
+<area shape="rect" id="node8" href="$boolean__function_8h.html" title=" " alt="" coords="341,303,519,344"/>
+<area shape="rect" id="node9" title=" " alt="" coords="245,392,369,419"/>
+<area shape="rect" id="node12" href="$wave__event_8h.html" title=" " alt="" coords="392,213,593,255"/>
+</map>

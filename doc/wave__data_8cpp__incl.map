@@ -1,0 +1,38 @@
+<map id="plugins/simulator/netlist_simulator_controller/src/wave_data.cpp" name="plugins/simulator/netlist_simulator_controller/src/wave_data.cpp">
+<area shape="rect" id="node1" title=" " alt="" coords="2087,5,2270,61"/>
+<area shape="rect" id="node2" href="$wave__data_8h.html" title=" " alt="" coords="1539,206,1741,247"/>
+<area shape="rect" id="node3" title=" " alt="" coords="2371,481,2421,508"/>
+<area shape="rect" id="node5" title=" " alt="" coords="1175,481,1233,508"/>
+<area shape="rect" id="node6" title=" " alt="" coords="1797,481,1859,508"/>
+<area shape="rect" id="node8" title=" " alt="" coords="181,556,272,583"/>
+<area shape="rect" id="node11" title=" " alt="" coords="44,481,113,508"/>
+<area shape="rect" id="node15" href="$saleae__file_8h.html" title=" " alt="" coords="2042,303,2243,344"/>
+<area shape="rect" id="node18" href="$plugin__netlist__simulator__controller_8h.html" title=" " alt="" coords="202,199,403,255"/>
+<area shape="rect" id="node20" href="$log_8h.html" title=" " alt="" coords="868,392,999,433"/>
+<area shape="rect" id="node23" href="$simulation__settings_8h.html" title=" " alt="" coords="2293,392,2494,433"/>
+<area shape="rect" id="node24" href="$string__utils_8h.html" title=" " alt="" coords="2773,392,2974,433"/>
+<area shape="rect" id="node26" title=" " alt="" coords="3030,481,3095,508"/>
+<area shape="rect" id="node30" href="$wave__data__provider_8h.html" title=" " alt="" coords="1889,109,2090,151"/>
+<area shape="rect" id="node33" href="$net_8h.html" title=" " alt="" coords="1125,399,1283,426"/>
+<area shape="rect" id="node34" title=" " alt="" coords="2939,117,3005,143"/>
+<area shape="rect" id="node35" title=" " alt="" coords="3030,117,3098,143"/>
+<area shape="rect" id="node36" title=" " alt="" coords="3123,117,3189,143"/>
+<area shape="rect" id="node4" title=" " alt="" coords="955,481,997,508"/>
+<area shape="rect" id="node7" href="$defines_8h.html" title=" " alt="" coords="457,481,597,508"/>
+<area shape="rect" id="node9" href="$boolean__function_8h.html" title=" " alt="" coords="1460,392,1639,433"/>
+<area shape="rect" id="node12" href="$simulation__input_8h.html" title=" " alt="" coords="1511,303,1713,344"/>
+<area shape="rect" id="node13" href="$saleae__directory_8h.html" title=" " alt="" coords="1866,392,2067,433"/>
+<area shape="rect" id="node10" title=" " alt="" coords="2445,481,2531,508"/>
+<area shape="rect" id="node14" title=" " alt="" coords="2555,481,2621,508"/>
+<area shape="rect" id="node16" title=" " alt="" coords="2143,399,2217,426"/>
+<area shape="rect" id="node17" title=" " alt="" coords="1471,481,1558,508"/>
+<area shape="rect" id="node19" href="$plugin__interface__base_8h.html" title=" " alt="" coords="665,303,847,344"/>
+<area shape="rect" id="node21" title=" " alt="" coords="853,481,931,508"/>
+<area shape="rect" id="node22" href="$project__serializer_8h.html" title=" " alt="" coords="217,392,388,433"/>
+<area shape="rect" id="node25" title=" " alt="" coords="2841,481,2906,508"/>
+<area shape="rect" id="node27" title=" " alt="" coords="2931,481,3005,508"/>
+<area shape="rect" id="node28" title=" " alt="" coords="2645,481,2717,508"/>
+<area shape="rect" id="node29" title=" " alt="" coords="2741,481,2816,508"/>
+<area shape="rect" id="node31" href="$saleae__parser_8h.html" title=" " alt="" coords="1889,206,2090,247"/>
+<area shape="rect" id="node32" href="$wave__group__value_8h.html" title=" " alt="" coords="973,303,1174,344"/>
+</map>

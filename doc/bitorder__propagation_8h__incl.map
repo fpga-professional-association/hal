@@ -1,0 +1,10 @@
+<map id="plugins/bitorder_propagation/include/bitorder_propagation/bitorder_propagation.h" name="plugins/bitorder_propagation/include/bitorder_propagation/bitorder_propagation.h">
+<area shape="rect" id="node1" title="This file contains functions for bit&#45;order propagation from pin groups of known bit order to pin grou..." alt="" coords="162,5,376,61"/>
+<area shape="rect" id="node2" href="$bit__order_8h.html" title="This file contains the bit order of a module pin group and the collection of bit orders that a propag..." alt="" coords="190,109,348,151"/>
+<area shape="rect" id="node3" href="$defines_8h.html" title=" " alt="" coords="224,377,364,404"/>
+<area shape="rect" id="node4" href="$pin__group_8h.html" title=" " alt="" coords="24,199,178,240"/>
+<area shape="rect" id="node5" href="$include_2hal__core_2utilities_2result_8h.html" title=" " alt="" coords="36,288,166,329"/>
+<area shape="rect" id="node8" title=" " alt="" coords="453,117,504,143"/>
+<area shape="rect" id="node6" title=" " alt="" coords="259,295,322,322"/>
+<area shape="rect" id="node7" title=" " alt="" coords="202,206,277,233"/>
+</map>

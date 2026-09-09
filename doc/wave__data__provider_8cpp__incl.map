@@ -1,0 +1,19 @@
+<map id="plugins/simulator/netlist_simulator_controller/src/wave_data_provider.cpp" name="plugins/simulator/netlist_simulator_controller/src/wave_data_provider.cpp">
+<area shape="rect" id="node1" title=" " alt="" coords="391,5,575,61"/>
+<area shape="rect" id="node2" href="$wave__data__provider_8h.html" title=" " alt="" coords="451,109,653,151"/>
+<area shape="rect" id="node12" href="$wave__data_8h.html" title=" " alt="" coords="313,206,514,247"/>
+<area shape="rect" id="node13" href="$plugin__netlist__simulator__controller_8h.html" title=" " alt="" coords="1326,199,1527,255"/>
+<area shape="rect" id="node17" href="$simulation__settings_8h.html" title=" " alt="" coords="35,206,237,247"/>
+<area shape="rect" id="node3" title=" " alt="" coords="199,310,249,337"/>
+<area shape="rect" id="node4" title=" " alt="" coords="350,392,413,419"/>
+<area shape="rect" id="node5" href="$defines_8h.html" title=" " alt="" coords="1179,392,1319,419"/>
+<area shape="rect" id="node7" href="$saleae__file_8h.html" title=" " alt="" coords="653,303,854,344"/>
+<area shape="rect" id="node8" href="$saleae__parser_8h.html" title=" " alt="" coords="590,206,791,247"/>
+<area shape="rect" id="node10" href="$simulation__input_8h.html" title=" " alt="" coords="375,303,577,344"/>
+<area shape="rect" id="node11" href="$wave__group__value_8h.html" title=" " alt="" coords="1101,206,1302,247"/>
+<area shape="rect" id="node6" title=" " alt="" coords="1529,467,1620,493"/>
+<area shape="rect" id="node9" title=" " alt="" coords="788,392,847,419"/>
+<area shape="rect" id="node14" href="$plugin__interface__base_8h.html" title=" " alt="" coords="929,303,1111,344"/>
+<area shape="rect" id="node15" href="$project__serializer_8h.html" title=" " alt="" coords="1489,303,1660,344"/>
+<area shape="rect" id="node16" title=" " alt="" coords="1388,310,1465,337"/>
+</map>

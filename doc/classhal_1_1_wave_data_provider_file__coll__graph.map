@@ -1,0 +1,8 @@
+<map id="hal::WaveDataProviderFile" name="hal::WaveDataProviderFile">
+<area shape="rect" id="node1" title=" " alt="" coords="324,360,527,540"/>
+<area shape="rect" id="node2" href="$classhal_1_1_wave_data_provider.html" title=" " alt="" coords="5,139,184,290"/>
+<area shape="rect" id="node3" href="$classhal_1_1_saleae_input_file.html" title=" " alt="" coords="208,139,373,290"/>
+<area shape="rect" id="node4" title=" " alt="" coords="238,5,343,83"/>
+<area shape="rect" id="node5" href="$classhal_1_1_saleae_data_buffer.html" title=" " alt="" coords="398,132,570,297"/>
+<area shape="rect" id="node6" href="$classhal_1_1_wave_data_timeframe.html" title=" " alt="" coords="595,139,784,290"/>
+</map>

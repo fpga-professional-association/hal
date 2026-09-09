@@ -1,0 +1,7 @@
+<map id="hal::NetlistSimulatorControllerPlugin" name="hal::NetlistSimulatorControllerPlugin">
+<area shape="rect" id="node1" title=" " alt="" coords="195,389,415,555"/>
+<area shape="rect" id="node2" href="$classhal_1_1_base_plugin_interface.html" title=" " alt="" coords="5,176,193,327"/>
+<area shape="rect" id="node3" href="$classhal_1_1_simulator_serializer.html" title=" " alt="" coords="217,191,392,312"/>
+<area shape="rect" id="node4" href="$classhal_1_1_project_serializer.html" title=" " alt="" coords="223,5,387,127"/>
+<area shape="rect" id="node5" href="$classhal_1_1_simulation_settings.html" title=" " alt="" coords="416,176,593,327"/>
+</map>

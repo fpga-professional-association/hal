@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Netlist Modification Decorator &mdash; hal_py v4.5.0-175-g4170e813a documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Netlist Serializer" href="netlist_serializer.html" />
+    <link rel="prev" title="Netlist Factory" href="netlist_factory.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> hal_py
+          </a>
+              <div class="version">
+                v4.5.0-175-g4170e813a
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="hal_py.html">HAL Core Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hal_py_module.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="async_set_reset_behavior.html">Async Set Reset Behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base_plugin_interface.html">Base Plugin Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function.html">Boolean Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function_decorator.html">Boolean Function Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_function_net_decorator.html">Boolean Function Net Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_utils.html">Core Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_container.html">Data Container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="endpoint.html">Endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate.html">Gate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_base_pin.html">Gate Base Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_library.html">Gate Library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_library_manager.html">Gate Library Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_pin.html">Gate Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_pin_group.html">Gate Pin Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type.html">Gate Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type_component.html">Gate Type Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_type_property.html">Gate Type Property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grouping.html">Grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="log_manager.html">Log Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_base_pin.html">Module Base Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_pin.html">Module Pin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_pin_group.html">Module Pin Group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="net.html">Net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist.html">Netlist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_factory.html">Netlist Factory</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Netlist Modification Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_serializer.html">Netlist Serializer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_traversal_decorator.html">Netlist Traversal Decorator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_utils.html">Netlist Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_writer_manager.html">Netlist Writer Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pin_direction.html">Pin Direction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pin_type.html">Pin Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_manager.html">Plugin Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_directory.html">Project Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_manager.html">Project Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="smt.html">SMT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="subgraph_netlist_decorator.html">Subgraph Netlist Decorator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">HAL Plugins Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hal_py</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="hal_py.html">HAL Core Documentation</a> &raquo;</li>
+      <li>Netlist Modification Decorator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/netlist_modification_decorator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="netlist-modification-decorator">
+<h1>Netlist Modification Decorator<a class="headerlink" href="#netlist-modification-decorator" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hal_py.</span></span><span class="sig-name descname"><span class="pre">NetlistModificationDecorator</span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator" title="Permalink to this definition"></a></dt>
+<dd><p>A netlist decorator that provides functionality to modify the associated netlist.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.NetlistModificationDecorator" title="hal_py.NetlistModificationDecorator"><span class="pre">hal_py.NetlistModificationDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">netlist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Construct new NetlistModificationDecorator object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>netlist</strong> (<a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><em>hal_py.Netlist</em></a>) – The netlist to operate on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator.connect_gates">
+<span class="sig-name descname"><span class="pre">connect_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.NetlistModificationDecorator" title="hal_py.NetlistModificationDecorator"><span class="pre">hal_py.NetlistModificationDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><span class="pre">hal_py.GatePin</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><span class="pre">hal_py.GatePin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a></span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator.connect_gates" title="Permalink to this definition"></a></dt>
+<dd><p>Connects two gates through the specified pins.
+If both pins are not yet connected to a net, a new net is created to connect both pins.
+If one of the pins is already connected to a net, that net is connected to the other pin.
+If both pins are already connected to a net, an error is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_gate</strong> (<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><em>hal_py.Gate</em></a>) – The source gate.</p></li>
+<li><p><strong>src_pin</strong> (<a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><em>hal_py.GatePin</em></a>) – The output pin of the source gate.</p></li>
+<li><p><strong>dst_gate</strong> (<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><em>hal_py.Gate</em></a>) – The destination gate.</p></li>
+<li><p><strong>dst_pin</strong> (<a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><em>hal_py.GatePin</em></a>) – The input pin of the destination gate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The connecting net on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator.connect_nets">
+<span class="sig-name descname"><span class="pre">connect_nets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.NetlistModificationDecorator" title="hal_py.NetlistModificationDecorator"><span class="pre">hal_py.NetlistModificationDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slave_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a></span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator.connect_nets" title="Permalink to this definition"></a></dt>
+<dd><p>Connects (and thereby merges) two nets.
+All properties of the slave net are transfered to the master net and the slave net is subsequently deleted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_net</strong> (<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><em>hal_py.Net</em></a>) – The net that receives all properties from the slave net.</p></li>
+<li><p><strong>slave_net</strong> (<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><em>hal_py.Net</em></a>) – The net that transfers all properties to the master net and is subsequently deleted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The merged net on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator.delete_modules">
+<span class="sig-name descname"><span class="pre">delete_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.NetlistModificationDecorator" title="hal_py.NetlistModificationDecorator"><span class="pre">hal_py.NetlistModificationDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="module.html#hal_py.Module" title="hal_py.Module"><span class="pre">hal_py.Module</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator.delete_modules" title="Permalink to this definition"></a></dt>
+<dd><p>Delete all modules in the  netlist except the top module.
+An optional filter can be specified to delete only modules fulfilling a certain condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filter</strong> (<em>lambda</em>) – An optional filter to be applied to the modules before deletion.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.NetlistModificationDecorator.replace_gate">
+<span class="sig-name descname"><span class="pre">replace_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.NetlistModificationDecorator" title="hal_py.NetlistModificationDecorator"><span class="pre">hal_py.NetlistModificationDecorator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="gate_type.html#hal_py.GateType" title="hal_py.GateType"><span class="pre">hal_py.GateType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><span class="pre">hal_py.GatePin</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><span class="pre">hal_py.GatePin</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a></span></span><a class="headerlink" href="#hal_py.NetlistModificationDecorator.replace_gate" title="Permalink to this definition"></a></dt>
+<dd><p>Replace the given gate with a gate of the specified gate type.
+A map from old to new pins must be provided in order to correctly connect the gates inputs and outputs.
+A pin can be omitted if no connection at that pin is desired.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate</strong> (<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><em>hal_py.Gate</em></a>) – The gate to be replaced.</p></li>
+<li><p><strong>target_type</strong> (<a class="reference internal" href="gate_type.html#hal_py.GateType" title="hal_py.GateType"><em>hal_py.GateType</em></a>) – The gate type of the replacement gate.</p></li>
+<li><p><strong>pin_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><em>hal_py.GatePin</em></a><em>,</em><a class="reference internal" href="gate_pin.html#hal_py.GatePin" title="hal_py.GatePin"><em>hal_py.GatePin</em></a><em>]</em>) – A dict from old to new pins.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new gate on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="netlist_factory.html" class="btn btn-neutral float-left" title="Netlist Factory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="netlist_serializer.html" class="btn btn-neutral float-right" title="Netlist Serializer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Marc Fyrbiak, Sebastian Wallat, Max Hoffmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

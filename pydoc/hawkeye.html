@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HAWKEYE &mdash; hal_py v4.5.0-175-g4170e813a documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Module Identification" href="module_identification.html" />
+    <link rel="prev" title="Graph Algorithms" href="graph_algorithm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> hal_py
+          </a>
+              <div class="version">
+                v4.5.0-175-g4170e813a
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="hal_py.html">HAL Core Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="plugins.html">HAL Plugins Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bitorder_propagation.html">Bit-Order Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boolean_influence.html">Boolean Influence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataflow.html">Dataflow Analysis (DANA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_algorithm.html">Graph Algorithms</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">HAWKEYE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_identification.html">Module Identification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_preprocessing.html">Netlist Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resynthesis.html">Resynthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_simulator.html">Netlist Simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netlist_simulator_controller.html">Netlist Simulator Controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verilator.html">Verilator Simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="solve_fsm.html">Solve FSM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xilinx_toolbox.html">Xilinx Toolbox</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hal_py</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="plugins.html">HAL Plugins Documentation</a> &raquo;</li>
+      <li>HAWKEYE</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/hawkeye.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-hawkeye">
+<span id="hawkeye"></span><h1>HAWKEYE<a class="headerlink" href="#module-hawkeye" title="Permalink to this headline"></a></h1>
+<p>Automated tool to locate arbitrary symmetric cryptographic implementations in gate-level netlists.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="hawkeye.identify_sbox">
+<span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">identify_sbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><span class="pre">hal_py.BooleanFunction</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.identify_sbox" title="Permalink to this definition"></a></dt>
+<dd><p>Try to identify an S-box given as one Boolean function per output bit by matching it against a database of known S-boxes under affine equivalence.</p>
+<p>Evaluates the Boolean functions into a truth table and looks that up in the database, so it works on functions that do not come from a netlist at all.
+Every variable occurring in them is taken as an input bit of the S-box, so substitute anything that is not one beforehand.</p>
+<p>Note that an S-box which simply does not match anything in the database is not an error: in that case an empty string is returned. <code class="docutils literal notranslate"><span class="pre">None</span></code> is only returned if the S-box could not be analyzed at all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_functions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="boolean_function.html#hal_py.BooleanFunction" title="hal_py.BooleanFunction"><em>hal_py.BooleanFunction</em></a><em>]</em>) – The Boolean functions of the S-box, one per output bit. Their order does not matter, as affine equivalence absorbs a permutation of the output bits.</p></li>
+<li><p><strong>db</strong> (<a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><em>hawkeye.SBoxDatabase</em></a>) – The database of known S-boxes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name of the matching S-box, or an empty string if no S-box of the database matched. <code class="docutils literal notranslate"><span class="pre">None</span></code> on error.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">DetectionConfiguration</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration" title="Permalink to this definition"></a></dt>
+<dd><p>This class holds important parameters that configure the candidate search of HAWKEYE, see <code class="docutils literal notranslate"><span class="pre">CipherCandidate.detect</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.DetectionConfiguration" title="hawkeye.DetectionConfiguration"><span class="pre">hawkeye.DetectionConfiguration</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constructs a default DetectionConfiguration.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.Components">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Components</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.Components" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>This enum specifies whether SCC detection should be used to refine the results of neighborhood discovery. If SCC detection is used, the exploration only stops if the size of the largest discovered SCC saturates. Specifically, it does no longer require the size of the entire neighborhood to saturate.</p>
+</div></blockquote>
+<p>Members:</p>
+<blockquote>
+<div><p>NONE : Do not use SCC detection and instead resort to the simple neighborhood discovery algorithm.</p>
+<p>CHECK_SCC : Use SCC detection within the currently explored neighborhood of a start flip-flop.</p>
+</div></blockquote>
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.Components.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.Components.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.Control">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Control</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.Control" title="Permalink to this definition"></a></dt>
+<dd><p>This enum specifies the checks that are to be performed on the flip-flops of the netlist to determine whether there should be an edge between two flip-flops or not.</p>
+<p>Members:</p>
+<blockquote>
+<div><p>CHECK_FF : If two flip-flops <code class="docutils literal notranslate"><span class="pre">ff1</span></code> and <code class="docutils literal notranslate"><span class="pre">ff2</span></code> are connected through combinational logic, an edge is added such that <code class="docutils literal notranslate"><span class="pre">(ff1,ff2)</span></code> is part of the graph.</p>
+<p>CHECK_TYPE : If two flip-flops <code class="docutils literal notranslate"><span class="pre">ff1</span></code> and <code class="docutils literal notranslate"><span class="pre">ff2</span></code> are connected through combinational logic and are of the same gate type, an edge is added such that <code class="docutils literal notranslate"><span class="pre">(ff1,ff2)</span></code> is part of the graph.</p>
+<p>CHECK_PINS : If two flip-flops <code class="docutils literal notranslate"><span class="pre">ff1</span></code> and <code class="docutils literal notranslate"><span class="pre">ff2</span></code> are connected through combinational logic and are controlled through the same input pins, an edge is added such that <code class="docutils literal notranslate"><span class="pre">(ff1,ff2)</span></code> is part of the graph.</p>
+<p>CHECK_NETS : If two flip-flops <code class="docutils literal notranslate"><span class="pre">ff1</span></code> and <code class="docutils literal notranslate"><span class="pre">ff2</span></code> are connected through combinational logic and are controlled through the same input nets, an edge is added such that <code class="docutils literal notranslate"><span class="pre">(ff1,ff2)</span></code> is part of the graph.</p>
+</div></blockquote>
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.Control.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.Control.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.components">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">components</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.components" title="Permalink to this definition"></a></dt>
+<dd><p>Determines whether to use SCC detection as part of neighborhood discovery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hawkeye.DetectionConfiguration.Components" title="hawkeye.DetectionConfiguration.Components">hawkeye.DetectionConfiguration.Components</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.control">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">control</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.control" title="Permalink to this definition"></a></dt>
+<dd><p>Checks to be performed on flip-flop control inputs during candidate search.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hawkeye.DetectionConfiguration.Control" title="hawkeye.DetectionConfiguration.Control">hawkeye.DetectionConfiguration.Control</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.equivalent_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equivalent_types</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.equivalent_types" title="Permalink to this definition"></a></dt>
+<dd><p>A list of a list of gate types that are treated as identical types by the candidate search, i.e., when checking equality of the types of two gates that are different but declared equivalent, <code class="docutils literal notranslate"><span class="pre">True</span></code> is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.min_register_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_register_size</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.min_register_size" title="Permalink to this definition"></a></dt>
+<dd><p>Minimum number of flip-flops of a register for a candidate to be created from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.DetectionConfiguration.timeout">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#hawkeye.DetectionConfiguration.timeout" title="Permalink to this definition"></a></dt>
+<dd><p>Neighborhood discovery iteration timeout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">CipherCandidate</span></span><a class="headerlink" href="#hawkeye.CipherCandidate" title="Permalink to this definition"></a></dt>
+<dd><p>A candidate for a symmetric cryptographic implementation within a netlist.</p>
+<p>A candidate is discovered by <code class="docutils literal notranslate"><span class="pre">detect</span></code> in stages and is filled in as the analysis proceeds: detection only establishes the state register, <code class="docutils literal notranslate"><span class="pre">build_round_function</span></code> adds the combinational logic computing the next state, and <code class="docutils literal notranslate"><span class="pre">locate_sboxes</span></code> adds the S-boxes within that logic. Use <code class="docutils literal notranslate"><span class="pre">has_round_function</span></code> and <code class="docutils literal notranslate"><span class="pre">get_sboxes</span></code> to find out how far a candidate has been analyzed.</p>
+<p>All gates and nets of a candidate belong to the netlist it was detected in, so they can be inspected and grouped into modules directly.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hawkeye.CipherCandidate.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>__init__(self: hawkeye.CipherCandidate) -&gt; None</p></li>
+</ol>
+<p>Default constructor for <code class="docutils literal notranslate"><span class="pre">CipherCandidate</span></code>.</p>
+<ol class="arabic" start="2">
+<li><p>__init__(self: hawkeye.CipherCandidate, round_reg: Set[hal_py.Gate]) -&gt; None</p>
+<blockquote>
+<div><p>Construct a round-based candidate, i.e., one whose input and output register are the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param set[hal_py.Gate] round_reg</dt>
+<dd class="field-odd"><p>The state register of the candidate.</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>__init__(self: hawkeye.CipherCandidate, in_reg: Set[hal_py.Gate], out_reg: Set[hal_py.Gate]) -&gt; None</p>
+<blockquote>
+<div><p>Construct a candidate from an input and an output register. The candidate is round-based if both registers are equal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param set[hal_py.Gate] in_reg</dt>
+<dd class="field-odd"><p>The input register of the candidate.</p>
+</dd>
+<dt class="field-even">param set[hal_py.Gate] out_reg</dt>
+<dd class="field-even"><p>The output register of the candidate.</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.build_round_function">
+<span class="sig-name descname"><span class="pre">build_round_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.build_round_function" title="Permalink to this definition"></a></dt>
+<dd><p>Determine the round function of the candidate, i.e., the combinational logic computing the next state.</p>
+<p>Determines the state logic between the input and the output register together with the state, control, and other inputs of the candidate, and builds the graph that <code class="docutils literal notranslate"><span class="pre">locate_sboxes</span></code> operates on.
+Discards any S-boxes located so far, as they are derived from the round function, which invalidates all S-boxes previously returned by <code class="docutils literal notranslate"><span class="pre">locate_sboxes</span></code> and <code class="docutils literal notranslate"><span class="pre">get_sboxes</span></code>.</p>
+<p>Recomputes the round function on every call, which only makes a difference if the netlist changed in the meantime.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.clear_sboxes">
+<span class="sig-name descname"><span class="pre">clear_sboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.clear_sboxes" title="Permalink to this definition"></a></dt>
+<dd><p>Discard the S-boxes located so far.</p>
+<p>Invalidates all S-boxes previously returned by <code class="docutils literal notranslate"><span class="pre">locate_sboxes</span></code> and <code class="docutils literal notranslate"><span class="pre">get_sboxes</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.create_modules">
+<span class="sig-name descname"><span class="pre">create_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="module.html#hal_py.Module" title="hal_py.Module"><span class="pre">hal_py.Module</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.create_modules" title="Permalink to this definition"></a></dt>
+<dd><p>Write the candidate back into the netlist as a module hierarchy.</p>
+<p>Creates one module holding the entire candidate, a submodule holding its state register, and one submodule per identified S-box holding its combinational gates.
+S-boxes that were not identified are skipped, as are identified S-boxes that overlap an S-box module already created, since a gate belongs to exactly one module. Every skipped S-box is reported to the log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The module holding the candidate on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="module.html#hal_py.Module" title="hal_py.Module">hal_py.Module</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.detect">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hawkeye.DetectionConfiguration" title="hawkeye.DetectionConfiguration"><span class="pre">hawkeye.DetectionConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_state_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_ffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.detect" title="Permalink to this definition"></a></dt>
+<dd><p>Attempt to locate candidates for symmetric cryptographic SPN, Feistel, and ARX implementations within a gate-level netlist.</p>
+<p>Operates on an abstraction of the netlist that holds only the flip-flops as vertices and their connections through combinational logic as edges.
+Computes the k-neighborhood of every flip-flop for <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">...,</span> <span class="pre">config.timeout</span></code> and stops once the size of the neighborhood saturates, at which point a candidate is created if the neighborhood is larger than <code class="docutils literal notranslate"><span class="pre">config.min_register_size</span></code>.
+Depending on the <code class="docutils literal notranslate"><span class="pre">config</span></code>, further criteria narrow down the search, see <code class="docutils literal notranslate"><span class="pre">DetectionConfiguration.Control</span></code> and <code class="docutils literal notranslate"><span class="pre">DetectionConfiguration.Components</span></code>.
+The candidates found are then reduced by discarding those smaller than <code class="docutils literal notranslate"><span class="pre">min_state_size</span></code> as well as those that fully contain a smaller candidate.</p>
+<p>The returned candidates only know their state register, call <code class="docutils literal notranslate"><span class="pre">build_round_function</span></code> on a candidate to analyze it further.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nl</strong> (<a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><em>hal_py.Netlist</em></a>) – The netlist to operate on.</p></li>
+<li><p><strong>configs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="#hawkeye.DetectionConfiguration" title="hawkeye.DetectionConfiguration"><em>hawkeye.DetectionConfiguration</em></a><em>]</em>) – The configurations of the detection approaches to be executed one after another on each start flip-flop.</p></li>
+<li><p><strong>min_state_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum size of a candidate to be considered a cryptographic state register. Defaults to <code class="docutils literal notranslate"><span class="pre">40</span></code>.</p></li>
+<li><p><strong>start_ffs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><em>hal_py.Gate</em></a><em>]</em>) – The flip-flops to analyze. Defaults to an empty list, i.e., all flip-flops of the netlist are analyzed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of candidates on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate">hawkeye.CipherCandidate</a>] or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_control_inputs">
+<span class="sig-name descname"><span class="pre">get_control_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_control_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the control inputs of the round function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The control inputs of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_gates">
+<span class="sig-name descname"><span class="pre">get_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_gates" title="Permalink to this definition"></a></dt>
+<dd><p>Get all gates of the candidate, i.e., its registers together with its round function, ordered by gate ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The gates of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_graph">
+<span class="sig-name descname"><span class="pre">get_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="graph_algorithm.html#graph_algorithm.NetlistGraph" title="graph_algorithm.NetlistGraph"><span class="pre">graph_algorithm.NetlistGraph</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Get the graph of the round function, in which the gates of the state register are represented by a primary and a shadow vertex so that the feedback of a round-based candidate does not close a cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The graph of the round function, <code class="docutils literal notranslate"><span class="pre">None</span></code> if the round function has not been computed yet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="graph_algorithm.html#graph_algorithm.NetlistGraph" title="graph_algorithm.NetlistGraph">graph_algorithm.NetlistGraph</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_input_ffs_of_gate">
+<span class="sig-name descname"><span class="pre">get_input_ffs_of_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_input_ffs_of_gate" title="Permalink to this definition"></a></dt>
+<dd><p>Get a dict from each gate of the round function to the input flip-flops it depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dict from gates to sets of input flip-flops.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_input_reg">
+<span class="sig-name descname"><span class="pre">get_input_reg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_input_reg" title="Permalink to this definition"></a></dt>
+<dd><p>Get the input register of the candidate, ordered by gate ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The input register of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_longest_distance_to_gate">
+<span class="sig-name descname"><span class="pre">get_longest_distance_to_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_longest_distance_to_gate" title="Permalink to this definition"></a></dt>
+<dd><p>Get a dict from a distance to all gates reachable within at most that distance from any input flip-flop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dict from longest distance to a set of gates.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>,<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_netlist">
+<span class="sig-name descname"><span class="pre">get_netlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_netlist" title="Permalink to this definition"></a></dt>
+<dd><p>Get the netlist that the candidate belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The netlist of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="netlist.html#hal_py.Netlist" title="hal_py.Netlist">hal_py.Netlist</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_other_inputs">
+<span class="sig-name descname"><span class="pre">get_other_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_other_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the remaining inputs of the round function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The other inputs of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_output_reg">
+<span class="sig-name descname"><span class="pre">get_output_reg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_output_reg" title="Permalink to this definition"></a></dt>
+<dd><p>Get the output register of the candidate, ordered by gate ID. Equal to the input register for a round-based candidate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The output register of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_round_logic">
+<span class="sig-name descname"><span class="pre">get_round_logic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_round_logic" title="Permalink to this definition"></a></dt>
+<dd><p>Get the combinational logic computing the next state, ordered by gate ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The round function of the candidate, empty if it has not been computed yet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_sboxes">
+<span class="sig-name descname"><span class="pre">get_sboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox"><span class="pre">hawkeye.SBox</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_sboxes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the S-boxes located within the round function of the candidate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The S-boxes of the candidate, empty if they have not been located yet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox">hawkeye.SBox</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_size" title="Permalink to this definition"></a></dt>
+<dd><p>Get the size of the candidate, i.e., the width of its state register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The size of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_state_inputs">
+<span class="sig-name descname"><span class="pre">get_state_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_state_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the state inputs of the round function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The state inputs of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.get_state_outputs">
+<span class="sig-name descname"><span class="pre">get_state_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><span class="pre">hal_py.Net</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.get_state_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the state outputs of the round function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The state outputs of the candidate.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.has_round_function">
+<span class="sig-name descname"><span class="pre">has_round_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.has_round_function" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether the round function of the candidate has been computed, see <code class="docutils literal notranslate"><span class="pre">build_round_function</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the round function has been computed, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.identify_sbox">
+<span class="sig-name descname"><span class="pre">identify_sbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox"><span class="pre">hawkeye.SBox</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.identify_sbox" title="Permalink to this definition"></a></dt>
+<dd><p>Try to identify a single S-box of this candidate by matching it against a database of known S-boxes under affine equivalence.</p>
+<p>Tries every assignment of the control inputs that the S-box reads, as the round function computes the S-box for one of them and something else for the others, and the right one is not known in advance. The remaining inputs are held at <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>Does not annotate the S-box, use <code class="docutils literal notranslate"><span class="pre">identify_sboxes</span></code> for that.</p>
+<p>Note that an S-box which simply does not match anything in the database is not an error: in that case an empty string is returned. <code class="docutils literal notranslate"><span class="pre">None</span></code> is only returned if the S-box could not be analyzed at all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sbox</strong> (<a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox"><em>hawkeye.SBox</em></a>) – The S-box to identify. Must be one of the S-boxes of this candidate.</p></li>
+<li><p><strong>db</strong> (<a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><em>hawkeye.SBoxDatabase</em></a>) – The database of known S-boxes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name of the matching S-box, or an empty string if no S-box of the database matched. <code class="docutils literal notranslate"><span class="pre">None</span></code> on error.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.identify_sboxes">
+<span class="sig-name descname"><span class="pre">identify_sboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.identify_sboxes" title="Permalink to this definition"></a></dt>
+<dd><p>Try to identify all S-boxes of the candidate by matching them against a database of known S-boxes.</p>
+<p>Annotates every S-box with the outcome, see <code class="docutils literal notranslate"><span class="pre">SBox.status</span></code> and <code class="docutils literal notranslate"><span class="pre">SBox.identified_as</span></code>. An S-box that is not contained in the database is not an error.</p>
+<p>Since the exact outputs of an S-box are not known in advance, <code class="docutils literal notranslate"><span class="pre">locate_sboxes</span></code> produces many variants of the same S-box that differ only in which of the surplus gates are taken as its outputs but all read the same input flip-flops.
+Variants are therefore identified as a group, and the group is left as soon as one of them matches, marking the remaining ones <code class="docutils literal notranslate"><span class="pre">superseded</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>db</strong> (<a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><em>hawkeye.SBoxDatabase</em></a>) – The database of known S-boxes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of identified S-boxes on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.is_round_based">
+<span class="sig-name descname"><span class="pre">is_round_based</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.is_round_based" title="Permalink to this definition"></a></dt>
+<dd><p>Check whether the candidate is round-based, i.e., whether its input and output register are the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the candidate is round-based, <code class="docutils literal notranslate"><span class="pre">False</span></code> if it is pipelined.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.CipherCandidate.locate_sboxes">
+<span class="sig-name descname"><span class="pre">locate_sboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.CipherCandidate" title="hawkeye.CipherCandidate"><span class="pre">hawkeye.CipherCandidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox"><span class="pre">hawkeye.SBox</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.CipherCandidate.locate_sboxes" title="Permalink to this definition"></a></dt>
+<dd><p>Try to locate S-boxes within the round function of the candidate.</p>
+<p>Computes an initial set of connected components within the round function.
+If these components are reasonably small and their input and output sizes match, they are turned into S-boxes right away.
+Otherwise, iteratively considers more combinational gates starting from the components’ input gates and searches for sub-components.</p>
+<p>Returns the S-boxes located by an earlier call unchanged instead of locating them again. Call <code class="docutils literal notranslate"><span class="pre">clear_sboxes</span></code> to locate them anew.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The S-boxes of the candidate on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox">hawkeye.SBox</a>] or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.SBox">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">SBox</span></span><a class="headerlink" href="#hawkeye.SBox" title="Permalink to this definition"></a></dt>
+<dd><p>An S-box located within the round function of a <code class="docutils literal notranslate"><span class="pre">CipherCandidate</span></code>.</p>
+<p>Owned by the candidate it was located in, which also owns every gate it refers to, so an S-box is only valid for as long as its candidate is.</p>
+<p>The exact size and shape of an S-box is not known in advance, so the search deliberately produces more S-boxes than the round function actually contains, among them smaller ones nested inside larger ones. Identification resolves that, see <code class="docutils literal notranslate"><span class="pre">SBoxStatus</span></code>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBox.component">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">component</span></span><a class="headerlink" href="#hawkeye.SBox.component" title="Permalink to this definition"></a></dt>
+<dd><p>The gates of the connected component that the S-box was located in, including its input flip-flops.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBox.get_combinational_gates">
+<span class="sig-name descname"><span class="pre">get_combinational_gates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBox" title="hawkeye.SBox"><span class="pre">hawkeye.SBox</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate"><span class="pre">hal_py.Gate</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.SBox.get_combinational_gates" title="Permalink to this definition"></a></dt>
+<dd><p>Get the combinational gates computing the outputs of the S-box from its input flip-flops.</p>
+<p>Walks back from the output gates within the component and stops at the flip-flops, so the result is the logic of this S-box alone rather than that of the whole component, which several S-boxes may share.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The combinational gates of the S-box, ordered by gate ID.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBox.identified_as">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">identified_as</span></span><a class="headerlink" href="#hawkeye.SBox.identified_as" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the S-box in the database it was identified as, empty unless <code class="docutils literal notranslate"><span class="pre">status</span></code> is <code class="docutils literal notranslate"><span class="pre">identified</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBox.input_gates">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_gates</span></span><a class="headerlink" href="#hawkeye.SBox.input_gates" title="Permalink to this definition"></a></dt>
+<dd><p>The input flip-flops of the S-box, ordered by gate ID.</p>
+<p>These are the flip-flops of the state register that the S-box reads, and hence the only link between the identified S-box and the state bits it operates on. They are <strong>not</strong> ordered by S-box input bit: the database matches under affine equivalence, which absorbs any permutation of the input and output bits, so no bit correspondence is established during identification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBox.output_gates">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_gates</span></span><a class="headerlink" href="#hawkeye.SBox.output_gates" title="Permalink to this definition"></a></dt>
+<dd><p>The output gates of the S-box, ordered by gate ID. Usually combinational gates feeding the linear layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBox.status">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#hawkeye.SBox.status" title="Permalink to this definition"></a></dt>
+<dd><p>The outcome of trying to identify the S-box, <code class="docutils literal notranslate"><span class="pre">unidentified</span></code> until <code class="docutils literal notranslate"><span class="pre">identify_sboxes</span></code> ran.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hawkeye.SBoxStatus" title="hawkeye.SBoxStatus">hawkeye.SBoxStatus</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.SBoxStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">SBoxStatus</span></span><a class="headerlink" href="#hawkeye.SBoxStatus" title="Permalink to this definition"></a></dt>
+<dd><p>The outcome of trying to identify an S-box, see <code class="docutils literal notranslate"><span class="pre">CipherCandidate.identify_sboxes</span></code>.</p>
+<p>Members:</p>
+<blockquote>
+<div><p>unidentified : Identification ran but the S-box is not contained in the database.</p>
+<p>identified : Identification ran and matched, see <code class="docutils literal notranslate"><span class="pre">SBox.identified_as</span></code>.</p>
+<p>superseded : Identification did not run, another variant of the same S-box was identified before.</p>
+</div></blockquote>
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.SBoxStatus.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hawkeye.SBoxStatus.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">SBoxDatabase</span></span><a class="headerlink" href="#hawkeye.SBoxDatabase" title="Permalink to this definition"></a></dt>
+<dd><p>This class holds and manages known S-boxes and allows to perform efficient S-box lookups in the database.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hawkeye.SBoxDatabase.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>__init__(self: hawkeye.SBoxDatabase) -&gt; None</p>
+<blockquote>
+<div><p>Construct an empty S-box database.</p>
+</div></blockquote>
+</li>
+<li><p>__init__(self: hawkeye.SBoxDatabase, sboxes: Dict[str, List[int]]) -&gt; None</p>
+<blockquote>
+<div><p>Construct an S-box database from the given S-boxes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param dict[str,list[int]] sboxes</dt>
+<dd class="field-odd"><p>A dict from S-box name to the respective S-box.</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hawkeye.SBoxDatabase.add" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>add(self: hawkeye.SBoxDatabase, name: str, sbox: List[int]) -&gt; bool</p>
+<blockquote>
+<div><p>Add an S-box to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param str name</dt>
+<dd class="field-odd"><p>The name of the S-box.</p>
+</dd>
+<dt class="field-even">patam list[int] sbox</dt>
+<dd class="field-even"><p>The S-box.</p>
+</dd>
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><p>add(self: hawkeye.SBoxDatabase, sboxes: Dict[str, List[int]]) -&gt; bool</p>
+<blockquote>
+<div><p>Add multiple S-boxes to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param dict[str,list[int]] sboxes</dt>
+<dd class="field-odd"><p>A dict from S-box name to the respective S-box.</p>
+</dd>
+<dt class="field-even">returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">rtype</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.compute_linear_representative">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_linear_representative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.compute_linear_representative" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the linear representative of the given S-box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sbox</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The S-box.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The linear representative.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.from_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">os.PathLike</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Construct an S-box database from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>pathlib.Path</em></a>) – The path from which to load the S-box database file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The S-box database on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase">hawkeye.SBoxDatabase</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">os.PathLike</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.load" title="Permalink to this definition"></a></dt>
+<dd><p>Load S-boxes from a file and add them to the existing database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>pathlib.Path</em></a>) – The path from which to load the S-box database file.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Set <code class="docutils literal notranslate"><span class="pre">True</span></code> to overwrite existing database, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.lookup">
+<span class="sig-name descname"><span class="pre">lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.lookup" title="Permalink to this definition"></a></dt>
+<dd><p>Attempt to look up an S-box in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sbox</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The S-box to look for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The S-box name on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.print" title="Permalink to this definition"></a></dt>
+<dd><p>Print the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.SBoxDatabase.store">
+<span class="sig-name descname"><span class="pre">store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.SBoxDatabase" title="hawkeye.SBoxDatabase"><span class="pre">hawkeye.SBoxDatabase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><span class="pre">os.PathLike</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#hawkeye.SBoxDatabase.store" title="Permalink to this definition"></a></dt>
+<dd><p>Store the S-box database to a database file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>pathlib.Path</em></a>) – The path to where to store the S-box database file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> on success, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hawkeye.</span></span><span class="sig-name descname"><span class="pre">HawkeyePlugin</span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin" title="Permalink to this definition"></a></dt>
+<dd><p>This class provides an interface to integrate the HAWKEYE tool as a plugin within the HAL framework.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.dependencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependencies</span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.dependencies" title="Permalink to this definition"></a></dt>
+<dd><p>A set of plugin names that this plugin depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.description">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.description" title="Permalink to this definition"></a></dt>
+<dd><p>The description of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.get_dependencies">
+<span class="sig-name descname"><span class="pre">get_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.HawkeyePlugin" title="hawkeye.HawkeyePlugin"><span class="pre">hawkeye.HawkeyePlugin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.get_dependencies" title="Permalink to this definition"></a></dt>
+<dd><p>Get a set of plugin names that this plugin depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A set of plugin names that this plugin depends on.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)">set</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.get_description">
+<span class="sig-name descname"><span class="pre">get_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.HawkeyePlugin" title="hawkeye.HawkeyePlugin"><span class="pre">hawkeye.HawkeyePlugin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.get_description" title="Permalink to this definition"></a></dt>
+<dd><p>Get the description of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The description of the plugin.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.HawkeyePlugin" title="hawkeye.HawkeyePlugin"><span class="pre">hawkeye.HawkeyePlugin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.get_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the name of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The name of the plugin.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.get_version">
+<span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hawkeye.HawkeyePlugin" title="hawkeye.HawkeyePlugin"><span class="pre">hawkeye.HawkeyePlugin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.get_version" title="Permalink to this definition"></a></dt>
+<dd><p>Get the version of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The version of the plugin.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.name" title="Permalink to this definition"></a></dt>
+<dd><p>The name of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="hawkeye.HawkeyePlugin.version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#hawkeye.HawkeyePlugin.version" title="Permalink to this definition"></a></dt>
+<dd><p>The version of the plugin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="graph_algorithm.html" class="btn btn-neutral float-left" title="Graph Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="module_identification.html" class="btn btn-neutral float-right" title="Module Identification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Marc Fyrbiak, Sebastian Wallat, Max Hoffmann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

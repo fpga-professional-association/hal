@@ -1,0 +1,13 @@
+<map id="plugins/hawkeye/src/smallset.h" name="plugins/hawkeye/src/smallset.h">
+<area shape="rect" id="node1" title="Set of up to 256 small integers backed by AVX2, NEON, or plain 64&#45;bit words." alt="" coords="403,5,557,47"/>
+<area shape="rect" id="node2" href="$defines_8h.html" title=" " alt="" coords="149,95,289,121"/>
+<area shape="rect" id="node7" title=" " alt="" coords="313,95,375,121"/>
+<area shape="rect" id="node8" title=" " alt="" coords="399,95,465,121"/>
+<area shape="rect" id="node9" title=" " alt="" coords="489,95,569,121"/>
+<area shape="rect" id="node10" title=" " alt="" coords="593,95,652,121"/>
+<area shape="rect" id="node11" title=" " alt="" coords="677,95,739,121"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,169,96,196"/>
+<area shape="rect" id="node4" title=" " alt="" coords="121,169,207,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="231,169,318,196"/>
+<area shape="rect" id="node6" title=" " alt="" coords="342,169,413,196"/>
+</map>
