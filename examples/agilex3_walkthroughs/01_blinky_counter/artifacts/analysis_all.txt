@@ -1,0 +1,1274 @@
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 50 gates.
+[netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v' in 0.01 seconds.
+examples/agilex3_walkthroughs/01_blinky_counter/images/carry_chain.dot
+=== stats ===
+{
+  "design_name": "blinky_counter",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 24,
+    "tennm_lcell_comb": 24
+  },
+  "gates": 50,
+  "global_inputs": [
+    "clk",
+    "rst_n"
+  ],
+  "global_outputs": [
+    "led"
+  ],
+  "gnd_nets": [
+    "'0'"
+  ],
+  "modules": 1,
+  "nets": 74,
+  "top_module": "top_module",
+  "vcc_nets": [
+    "'1'"
+  ]
+}
+=== registers ===
+{
+  "flip_flops": 24,
+  "groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "'1'",
+      "members": [
+        "count[0]",
+        "count[10]",
+        "count[11]",
+        "count[12]",
+        "count[13]",
+        "count[14]",
+        "count[15]",
+        "count[16]",
+        "count[17]",
+        "count[18]",
+        "count[19]",
+        "count[1]",
+        "count[20]",
+        "count[21]",
+        "count[22]",
+        "count[23]",
+        "count[2]",
+        "count[3]",
+        "count[4]",
+        "count[5]",
+        "count[6]",
+        "count[7]",
+        "count[8]",
+        "count[9]"
+      ],
+      "size": 24
+    }
+  ]
+}
+=== scc ===
+{
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "count[0]",
+        "count[0]~0"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~111",
+        "count[1]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~106",
+        "count[2]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~101",
+        "count[3]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~96",
+        "count[4]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~91",
+        "count[5]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~86",
+        "count[6]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~81",
+        "count[7]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~76",
+        "count[8]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~71",
+        "count[9]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~66",
+        "count[10]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~61",
+        "count[11]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~56",
+        "count[12]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~51",
+        "count[13]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~46",
+        "count[14]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~41",
+        "count[15]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~36",
+        "count[16]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~31",
+        "count[17]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~26",
+        "count[18]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~21",
+        "count[19]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~16",
+        "count[20]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~11",
+        "count[21]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~6",
+        "count[22]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~1",
+        "count[23]"
+      ],
+      "size": 2
+    }
+  ],
+  "edges": 456,
+  "min_size": 2,
+  "vertices": 50
+}
+=== chain ===
+{
+  "chains": [
+    {
+      "length": 23,
+      "slices": [
+        {
+          "cell": "add_0~111",
+          "data_inputs": {
+            "datac": "count(1)",
+            "datad": "count(0)"
+          },
+          "lut_mask": "00000000F0000FF0",
+          "position": 0,
+          "sumout": "add_0~111_sumout",
+          "sumout_sink": [
+            "count[1].d"
+          ]
+        },
+        {
+          "cell": "add_0~106",
+          "data_inputs": {
+            "datac": "count(2)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 1,
+          "sumout": "add_0~106_sumout",
+          "sumout_sink": [
+            "count[2].d"
+          ]
+        },
+        {
+          "cell": "add_0~101",
+          "data_inputs": {
+            "datac": "count(3)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 2,
+          "sumout": "add_0~101_sumout",
+          "sumout_sink": [
+            "count[3].d"
+          ]
+        },
+        {
+          "cell": "add_0~96",
+          "data_inputs": {
+            "datac": "count(4)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 3,
+          "sumout": "add_0~96_sumout",
+          "sumout_sink": [
+            "count[4].d"
+          ]
+        },
+        {
+          "cell": "add_0~91",
+          "data_inputs": {
+            "datac": "count(5)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 4,
+          "sumout": "add_0~91_sumout",
+          "sumout_sink": [
+            "count[5].d"
+          ]
+        },
+        {
+          "cell": "add_0~86",
+          "data_inputs": {
+            "datac": "count(6)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 5,
+          "sumout": "add_0~86_sumout",
+          "sumout_sink": [
+            "count[6].d"
+          ]
+        },
+        {
+          "cell": "add_0~81",
+          "data_inputs": {
+            "datac": "count(7)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 6,
+          "sumout": "add_0~81_sumout",
+          "sumout_sink": [
+            "count[7].d"
+          ]
+        },
+        {
+          "cell": "add_0~76",
+          "data_inputs": {
+            "datac": "count(8)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 7,
+          "sumout": "add_0~76_sumout",
+          "sumout_sink": [
+            "count[8].d"
+          ]
+        },
+        {
+          "cell": "add_0~71",
+          "data_inputs": {
+            "datac": "count(9)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 8,
+          "sumout": "add_0~71_sumout",
+          "sumout_sink": [
+            "count[9].d"
+          ]
+        },
+        {
+          "cell": "add_0~66",
+          "data_inputs": {
+            "datac": "count(10)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 9,
+          "sumout": "add_0~66_sumout",
+          "sumout_sink": [
+            "count[10].d"
+          ]
+        },
+        {
+          "cell": "add_0~61",
+          "data_inputs": {
+            "datac": "count(11)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 10,
+          "sumout": "add_0~61_sumout",
+          "sumout_sink": [
+            "count[11].d"
+          ]
+        },
+        {
+          "cell": "add_0~56",
+          "data_inputs": {
+            "datac": "count(12)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 11,
+          "sumout": "add_0~56_sumout",
+          "sumout_sink": [
+            "count[12].d"
+          ]
+        },
+        {
+          "cell": "add_0~51",
+          "data_inputs": {
+            "datac": "count(13)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 12,
+          "sumout": "add_0~51_sumout",
+          "sumout_sink": [
+            "count[13].d"
+          ]
+        },
+        {
+          "cell": "add_0~46",
+          "data_inputs": {
+            "datac": "count(14)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 13,
+          "sumout": "add_0~46_sumout",
+          "sumout_sink": [
+            "count[14].d"
+          ]
+        },
+        {
+          "cell": "add_0~41",
+          "data_inputs": {
+            "datac": "count(15)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 14,
+          "sumout": "add_0~41_sumout",
+          "sumout_sink": [
+            "count[15].d"
+          ]
+        },
+        {
+          "cell": "add_0~36",
+          "data_inputs": {
+            "datac": "count(16)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 15,
+          "sumout": "add_0~36_sumout",
+          "sumout_sink": [
+            "count[16].d"
+          ]
+        },
+        {
+          "cell": "add_0~31",
+          "data_inputs": {
+            "datac": "count(17)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 16,
+          "sumout": "add_0~31_sumout",
+          "sumout_sink": [
+            "count[17].d"
+          ]
+        },
+        {
+          "cell": "add_0~26",
+          "data_inputs": {
+            "datac": "count(18)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 17,
+          "sumout": "add_0~26_sumout",
+          "sumout_sink": [
+            "count[18].d"
+          ]
+        },
+        {
+          "cell": "add_0~21",
+          "data_inputs": {
+            "datac": "count(19)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 18,
+          "sumout": "add_0~21_sumout",
+          "sumout_sink": [
+            "count[19].d"
+          ]
+        },
+        {
+          "cell": "add_0~16",
+          "data_inputs": {
+            "datac": "count(20)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 19,
+          "sumout": "add_0~16_sumout",
+          "sumout_sink": [
+            "count[20].d"
+          ]
+        },
+        {
+          "cell": "add_0~11",
+          "data_inputs": {
+            "datac": "count(21)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 20,
+          "sumout": "add_0~11_sumout",
+          "sumout_sink": [
+            "count[21].d"
+          ]
+        },
+        {
+          "cell": "add_0~6",
+          "data_inputs": {
+            "datac": "count(22)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 21,
+          "sumout": "add_0~6_sumout",
+          "sumout_sink": [
+            "count[22].d"
+          ]
+        },
+        {
+          "cell": "add_0~1",
+          "data_inputs": {
+            "datac": "led"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 22,
+          "sumout": "add_0~1_sumout",
+          "sumout_sink": [
+            "count[23].d"
+          ]
+        }
+      ]
+    }
+  ]
+}
+=== increment ===
+{
+  "cells": [
+    {
+      "cell": "add_0~1",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~7",
+        "datac": "led"
+      }
+    },
+    {
+      "cell": "add_0~101",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~107",
+        "datac": "count(3)"
+      }
+    },
+    {
+      "cell": "add_0~106",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~112",
+        "datac": "count(2)"
+      }
+    },
+    {
+      "cell": "add_0~11",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~17",
+        "datac": "count(21)"
+      }
+    },
+    {
+      "cell": "add_0~111",
+      "constant_inputs": {
+        "cin": 0,
+        "dataa": 0,
+        "datab": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "((datac & datad) | (cin & (datac | datad)))",
+        "sumout": "((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))"
+      },
+      "lut_mask": "00000000F0000FF0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "datac": "count(1)",
+        "datad": "count(0)"
+      }
+    },
+    {
+      "cell": "add_0~16",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~22",
+        "datac": "count(20)"
+      }
+    },
+    {
+      "cell": "add_0~21",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~27",
+        "datac": "count(19)"
+      }
+    },
+    {
+      "cell": "add_0~26",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~32",
+        "datac": "count(18)"
+      }
+    },
+    {
+      "cell": "add_0~31",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~37",
+        "datac": "count(17)"
+      }
+    },
+    {
+      "cell": "add_0~36",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~42",
+        "datac": "count(16)"
+      }
+    },
+    {
+      "cell": "add_0~41",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~47",
+        "datac": "count(15)"
+      }
+    },
+    {
+      "cell": "add_0~46",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~52",
+        "datac": "count(14)"
+      }
+    },
+    {
+      "cell": "add_0~51",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~57",
+        "datac": "count(13)"
+      }
+    },
+    {
+      "cell": "add_0~56",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~62",
+        "datac": "count(12)"
+      }
+    },
+    {
+      "cell": "add_0~6",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~12",
+        "datac": "count(22)"
+      }
+    },
+    {
+      "cell": "add_0~61",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~67",
+        "datac": "count(11)"
+      }
+    },
+    {
+      "cell": "add_0~66",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~72",
+        "datac": "count(10)"
+      }
+    },
+    {
+      "cell": "add_0~71",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~77",
+        "datac": "count(9)"
+      }
+    },
+    {
+      "cell": "add_0~76",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~82",
+        "datac": "count(8)"
+      }
+    },
+    {
+      "cell": "add_0~81",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~87",
+        "datac": "count(7)"
+      }
+    },
+    {
+      "cell": "add_0~86",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~92",
+        "datac": "count(6)"
+      }
+    },
+    {
+      "cell": "add_0~91",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~97",
+        "datac": "count(5)"
+      }
+    },
+    {
+      "cell": "add_0~96",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~102",
+        "datac": "count(4)"
+      }
+    },
+    {
+      "cell": "count[0]~0",
+      "constant_inputs": {
+        "cin": 0,
+        "datab": 0,
+        "datac": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "combout": "(! dataa)"
+      },
+      "lut_mask": "5555555555555555",
+      "mode": "normal",
+      "signal_inputs": {
+        "dataa": "count(0)"
+      }
+    }
+  ]
+}
+=== output ===
+{
+  "outputs": [
+    {
+      "driven_by": [
+        "count[23].q"
+      ],
+      "net": "led"
+    }
+  ]
+}
+=== order ===
+{
+  "chain_length": 23,
+  "order": [
+    {
+      "chain_position": 0,
+      "register": "count[1]"
+    },
+    {
+      "chain_position": 1,
+      "register": "count[2]"
+    },
+    {
+      "chain_position": 2,
+      "register": "count[3]"
+    },
+    {
+      "chain_position": 3,
+      "register": "count[4]"
+    },
+    {
+      "chain_position": 4,
+      "register": "count[5]"
+    },
+    {
+      "chain_position": 5,
+      "register": "count[6]"
+    },
+    {
+      "chain_position": 6,
+      "register": "count[7]"
+    },
+    {
+      "chain_position": 7,
+      "register": "count[8]"
+    },
+    {
+      "chain_position": 8,
+      "register": "count[9]"
+    },
+    {
+      "chain_position": 9,
+      "register": "count[10]"
+    },
+    {
+      "chain_position": 10,
+      "register": "count[11]"
+    },
+    {
+      "chain_position": 11,
+      "register": "count[12]"
+    },
+    {
+      "chain_position": 12,
+      "register": "count[13]"
+    },
+    {
+      "chain_position": 13,
+      "register": "count[14]"
+    },
+    {
+      "chain_position": 14,
+      "register": "count[15]"
+    },
+    {
+      "chain_position": 15,
+      "register": "count[16]"
+    },
+    {
+      "chain_position": 16,
+      "register": "count[17]"
+    },
+    {
+      "chain_position": 17,
+      "register": "count[18]"
+    },
+    {
+      "chain_position": 18,
+      "register": "count[19]"
+    },
+    {
+      "chain_position": 19,
+      "register": "count[20]"
+    },
+    {
+      "chain_position": 20,
+      "register": "count[21]"
+    },
+    {
+      "chain_position": 21,
+      "register": "count[22]"
+    },
+    {
+      "chain_position": 22,
+      "register": "count[23]"
+    }
+  ]
+}

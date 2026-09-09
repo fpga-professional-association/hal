@@ -1,0 +1,7 @@
+// clock-domain crossing summary produced by hal_cdc 0.1.0
+digraph "clock_domains" {
+  graph [rankdir="LR", labelloc="t", label="clock domains"];
+  node [shape="box", style="rounded,filled", fillcolor="white"];
+
+  "d_clk" [label="clk\\n24 registers"];
+}

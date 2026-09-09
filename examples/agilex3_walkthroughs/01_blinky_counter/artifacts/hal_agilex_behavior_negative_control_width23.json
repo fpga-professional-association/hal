@@ -1,0 +1,79 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.behavior.run_reference_check",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "blinky_counter",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "blinky_counter",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 48,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo",
+      "sha256": "ad7d2a1a5214b0e356495a6a0a5579e259e2f54a759c53072634f73657fa4871",
+      "size_bytes": 20373
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "The Python reference in the fixture directory is a faithful model of the RTL that was handed to Quartus; both are committed next to each other so the pair can be reviewed.",
+          "id": "reference-model",
+          "kind": "user_provided"
+        },
+        {
+          "description": "The comparison is two-valued: x/z propagation, timing and power-up behaviour are not modelled.",
+          "id": "two-valued",
+          "kind": "environment"
+        }
+      ],
+      "bounds": {
+        "cycle_bound": 1200,
+        "description": "simulated cycles; longer runs are not covered",
+        "unbounded": false
+      },
+      "id": "hal_agilex/behavior/reference-equivalence",
+      "method": {
+        "bounded": true,
+        "description": "Simulates the vendor export with hal_agilex.primitives and compares it against a Python model of the RTL the export was synthesised from.",
+        "kind": "simulation",
+        "name": "netlist versus RTL reference simulation"
+      },
+      "metrics": {
+        "cycles_checked": 1200
+      },
+      "scope": {
+        "artifact_ids": [
+          "blinky_counter"
+        ],
+        "description": "every primitive instance of the export",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_bounded",
+      "summary": "1200 pseudo-random cycles, including asynchronous clears, agree with the reference model. Nothing is claimed beyond that bound.",
+      "tags": [
+        "agilex",
+        "validation"
+      ],
+      "title": "The exported netlist matches the reference model for 1200 cycles"
+    }
+  ],
+  "generated_at": "2026-09-09T16:34:37Z",
+  "producer": {
+    "name": "hal_agilex.behavior",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,30 @@
+State:
+
+ID:0, Size:24, CLK: {7}, EN: {2}, R: {8}, S: {}
+  Successors:   {0}
+  Predecessors: {0}
+count[23], type: tennm_ff, id: 24, RS: 
+count[22], type: tennm_ff, id: 25, RS: 
+count[21], type: tennm_ff, id: 26, RS: 
+count[20], type: tennm_ff, id: 27, RS: 
+count[19], type: tennm_ff, id: 28, RS: 
+count[18], type: tennm_ff, id: 29, RS: 
+count[17], type: tennm_ff, id: 30, RS: 
+count[16], type: tennm_ff, id: 31, RS: 
+count[15], type: tennm_ff, id: 32, RS: 
+count[14], type: tennm_ff, id: 33, RS: 
+count[13], type: tennm_ff, id: 34, RS: 
+count[12], type: tennm_ff, id: 35, RS: 
+count[11], type: tennm_ff, id: 36, RS: 
+count[10], type: tennm_ff, id: 37, RS: 
+count[9],  type: tennm_ff, id: 38, RS: 
+count[8],  type: tennm_ff, id: 39, RS: 
+count[7],  type: tennm_ff, id: 40, RS: 
+count[6],  type: tennm_ff, id: 41, RS: 
+count[5],  type: tennm_ff, id: 42, RS: 
+count[4],  type: tennm_ff, id: 43, RS: 
+count[3],  type: tennm_ff, id: 44, RS: 
+count[2],  type: tennm_ff, id: 45, RS: 
+count[1],  type: tennm_ff, id: 46, RS: 
+count[0],  type: tennm_ff, id: 47, RS: 
+

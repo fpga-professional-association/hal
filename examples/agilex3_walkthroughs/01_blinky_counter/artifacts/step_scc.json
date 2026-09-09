@@ -1,0 +1,271 @@
+{
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "count[0]",
+        "count[0]~0"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~111",
+        "count[1]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~106",
+        "count[2]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~101",
+        "count[3]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~96",
+        "count[4]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~91",
+        "count[5]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~86",
+        "count[6]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~81",
+        "count[7]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~76",
+        "count[8]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~71",
+        "count[9]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~66",
+        "count[10]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~61",
+        "count[11]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~56",
+        "count[12]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~51",
+        "count[13]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~46",
+        "count[14]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~41",
+        "count[15]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~36",
+        "count[16]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~31",
+        "count[17]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~26",
+        "count[18]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~21",
+        "count[19]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~16",
+        "count[20]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~11",
+        "count[21]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~6",
+        "count[22]"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~1",
+        "count[23]"
+      ],
+      "size": 2
+    }
+  ],
+  "edges": 456,
+  "min_size": 2,
+  "vertices": 50
+}

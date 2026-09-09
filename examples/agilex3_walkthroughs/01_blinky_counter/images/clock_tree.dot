@@ -1,0 +1,27 @@
+digraph { comment="created by HAL plugin clock_tree_extractor"
+  35 [instance="count[12]" type="tennm_ff"];
+  43 [instance="count[4]" type="tennm_ff"];
+  34 [instance="count[13]" type="tennm_ff"];
+  32 [instance="count[15]" type="tennm_ff"];
+  31 [instance="count[16]" type="tennm_ff"];
+  28 [instance="count[19]" type="tennm_ff"];
+  29 [instance="count[18]" type="tennm_ff"];
+  46 [instance="count[1]" type="tennm_ff"];
+  27 [instance="count[20]" type="tennm_ff"];
+  26 [instance="count[21]" type="tennm_ff"];
+  36 [instance="count[11]" type="tennm_ff"];
+  44 [instance="count[3]" type="tennm_ff"];
+  45 [instance="count[2]" type="tennm_ff"];
+  42 [instance="count[5]" type="tennm_ff"];
+  41 [instance="count[6]" type="tennm_ff"];
+  39 [instance="count[8]" type="tennm_ff"];
+  37 [instance="count[10]" type="tennm_ff"];
+  40 [instance="count[7]" type="tennm_ff"];
+  24 [instance="count[23]" type="tennm_ff"];
+  38 [instance="count[9]" type="tennm_ff"];
+  clk [shape=circle];
+  47 [instance="count[0]" type="tennm_ff"];
+  30 [instance="count[17]" type="tennm_ff"];
+  25 [instance="count[22]" type="tennm_ff"];
+  33 [instance="count[14]" type="tennm_ff"];
+}

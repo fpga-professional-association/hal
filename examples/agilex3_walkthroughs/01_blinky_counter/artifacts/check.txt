@@ -1,0 +1,24 @@
+[ok  ] netlist loads with AGILEX_TENNM -- AGILEX_TENNM
+[ok  ] every ALM got semantics, none refused -- elaborated=24 refused=0
+[ok  ] 50 gates: 24 ff + 24 alm + gnd + vcc -- {'HAL_GND': 1, 'HAL_VCC': 1, 'tennm_ff': 24, 'tennm_lcell_comb': 24}
+[ok  ] boundary is clk, rst_n -> led -- ['clk', 'rst_n'] -> ['led']
+[ok  ] the netlist is flat: one module -- modules=1
+[ok  ] all 24 flip-flops share clk/clrn/ena -> one candidate bank -- groups=[24]
+[ok  ] the bank's clock is clk and its async clear is rst_n -- clk=clk clrn=rst_n
+[ok  ] the bank has no enable: ena is tied to the constant 1 -- ena='1'
+[ok  ] 24 strongly connected components, one per bit slice -- components=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+[ok  ] every loop is one flip-flop with its own ALM, nothing wider -- sizes=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2] biggest={'tennm_ff': 1, 'tennm_lcell_comb': 1}
+[ok  ] the 24 loops cover all 24 registers -- ffs=24
+[ok  ] exactly one carry chain -- chains=[23]
+[ok  ] the chain is 23 cells long (bits 1..23; bit 0 is a plain inverter) -- length=23
+[ok  ] the first slice is the only one with two register operands -- add_0~111 -> ['datac', 'datad']
+[ok  ] every other slice takes exactly one register operand: +0 with carry -- widths=[1]
+[ok  ] every chain slice's sumout feeds exactly one register d pin
+[ok  ] exactly one cell is in normal (non-arithmetic) mode: the LSB toggle -- cells=['count[0]~0']
+[ok  ] that cell inverts its single register input -- count[0]~0 = {'combout': '(! dataa)'}
+[ok  ] 23 arithmetic cells -- n=23
+[ok  ] the bottom of the chain starts from carry-in 0 -- cin=0
+[ok  ] led is driven by exactly one tennm_ff q pin -- [{'net': 'led', 'driven_by': ['count[23].q']}]
+[ok  ] led's register sits at the top of the carry chain -- count[23] at position 22 of 23
+
+all checks passed

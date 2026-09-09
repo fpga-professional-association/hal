@@ -1,0 +1,97 @@
+{
+  "chain_length": 23,
+  "order": [
+    {
+      "chain_position": 0,
+      "register": "count[1]"
+    },
+    {
+      "chain_position": 1,
+      "register": "count[2]"
+    },
+    {
+      "chain_position": 2,
+      "register": "count[3]"
+    },
+    {
+      "chain_position": 3,
+      "register": "count[4]"
+    },
+    {
+      "chain_position": 4,
+      "register": "count[5]"
+    },
+    {
+      "chain_position": 5,
+      "register": "count[6]"
+    },
+    {
+      "chain_position": 6,
+      "register": "count[7]"
+    },
+    {
+      "chain_position": 7,
+      "register": "count[8]"
+    },
+    {
+      "chain_position": 8,
+      "register": "count[9]"
+    },
+    {
+      "chain_position": 9,
+      "register": "count[10]"
+    },
+    {
+      "chain_position": 10,
+      "register": "count[11]"
+    },
+    {
+      "chain_position": 11,
+      "register": "count[12]"
+    },
+    {
+      "chain_position": 12,
+      "register": "count[13]"
+    },
+    {
+      "chain_position": 13,
+      "register": "count[14]"
+    },
+    {
+      "chain_position": 14,
+      "register": "count[15]"
+    },
+    {
+      "chain_position": 15,
+      "register": "count[16]"
+    },
+    {
+      "chain_position": 16,
+      "register": "count[17]"
+    },
+    {
+      "chain_position": 17,
+      "register": "count[18]"
+    },
+    {
+      "chain_position": 18,
+      "register": "count[19]"
+    },
+    {
+      "chain_position": 19,
+      "register": "count[20]"
+    },
+    {
+      "chain_position": 20,
+      "register": "count[21]"
+    },
+    {
+      "chain_position": 21,
+      "register": "count[22]"
+    },
+    {
+      "chain_position": 22,
+      "register": "count[23]"
+    }
+  ]
+}

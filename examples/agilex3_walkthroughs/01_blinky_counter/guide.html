@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 01 — blinky_counter</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+    --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+    --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+    --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+  --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+  --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+  --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+html { background: var(--bg); }
+body {
+  background: var(--bg); color: var(--fg); margin: 0;
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+main { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .35rem; letter-spacing: -.01em; }
+h2 {
+  font-size: 1.35rem; margin: 3.2rem 0 .9rem; padding-top: .9rem;
+  border-top: 1px solid var(--rule); letter-spacing: -.005em;
+}
+h3 { font-size: 1.08rem; margin: 2rem 0 .6rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p, li { margin: .7rem 0; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.6rem; }
+.meta { color: var(--muted); font-size: .85rem; margin: 0 0 2rem; }
+code {
+  background: var(--code-bg); color: var(--code-fg); border-radius: 4px;
+  padding: .1em .32em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .88em;
+}
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 7px; padding: .85rem 1rem; overflow-x: auto; font-size: .84rem;
+  line-height: 1.5; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+pre.cmd { background: var(--accent-bg); border-color: var(--accent); }
+pre.cmd::before {
+  content: "command"; display: block; font-family: inherit; font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: .45rem; font-weight: 600;
+}
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+.scroll { overflow-x: auto; max-width: 100%; }
+figure {
+  margin: 1.4rem 0; border: 1px solid var(--rule); border-radius: 8px;
+  padding: .75rem; background: var(--figure-bg);
+}
+figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+figcaption { font-size: .82rem; color: var(--muted); margin-top: .6rem; text-align: left; }
+@media (prefers-color-scheme: dark) { figcaption { color: #4a545e; } }
+:root[data-theme="dark"] figcaption { color: #4a545e; }
+:root[data-theme="light"] figcaption { color: var(--muted); }
+.note, .warn, .good, .bad {
+  border-left: 4px solid var(--rule); background: var(--code-bg);
+  padding: .7rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0; font-size: .95rem;
+}
+.warn { background: var(--warn-bg); border-left-color: var(--warn-rule); }
+.good { background: var(--good-bg); border-left-color: var(--good-rule); }
+.bad  { background: var(--bad-bg);  border-left-color: var(--bad-rule); }
+.note strong, .warn strong, .good strong, .bad strong { display: block; margin-bottom: .2rem; }
+.step { margin-top: 2.6rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; margin-top: 0; }
+.step > h3 .n {
+  display: inline-block; min-width: 1.8rem; text-align: center; background: var(--accent);
+  color: #fff; border-radius: 4px; font-size: .78rem; padding: .12rem .4rem;
+  font-variant-numeric: tabular-nums;
+}
+.reason { border-left: 4px solid var(--accent); background: var(--accent-bg); padding: .7rem 1rem;
+  border-radius: 0 6px 6px 0; margin: 1rem 0; }
+.reason strong { display: block; margin-bottom: .2rem; color: var(--accent); }
+ul.tight li { margin: .25rem 0; }
+.toc { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 8px; padding: .8rem 1.2rem; }
+.toc ol { margin: .3rem 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+.small { font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Reverse engineering an Agilex 3 netlist, walkthrough 01: <code>blinky_counter</code></h1>
+<p class="lede">A 24-bit free-running counter, synthesized for real by Quartus Prime Pro 26.1,
+taken apart with headless HAL until the RTL comes back. Everything here — the netlist, the
+commands, the numbers, the pictures — was produced by actually running the flow; nothing is
+illustrative.</p>
+<p class="meta">
+Device <strong>A3CW135BM16AE6S</strong> (Agilex 3, MBGA896) &middot;
+Quartus Prime Pro Edition 26.1.0 Build 110 03/26/2026 SC &middot;
+post-synthesis snapshot, no fitting &middot;
+gate library <code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code>
+</p>
+
+<div class="toc">
+<strong>What this walkthrough covers</strong>
+<ol>
+<li><a href="#design">The design we are going to lose</a></li>
+<li><a href="#synth">Synthesis and export: the exact commands</a></li>
+<li><a href="#contact">First contact with the netlist</a></li>
+<li><a href="#walk">The reverse-engineering walk, step by step</a></li>
+<li><a href="#reconstruct">Reconstruction, and an honest diff</a></li>
+<li><a href="#further">Going further</a></li>
+</ol>
+</div>
+
+<div class="note">
+<strong>Who this is for</strong>
+An engineer who can read Verilog and has never opened a gate-level netlist. No prior HAL
+knowledge is assumed. Every command is given in full and every conclusion is followed by the
+reasoning that justifies it — including the two places where a tool <em>fails</em> to help and
+you have to think instead.
+</div>
+
+<h2 id="design">1. The design we are going to lose</h2>
+
+<p>The whole exercise only means something if you know the answer in advance. Here is the RTL
+that was handed to Quartus. Twenty lines, one register, one output.</p>
+
+<pre><code>module blinky_counter (
+    input  wire clk,
+    input  wire rst_n,
+    output wire led
+);
+
+    reg [23:0] count;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            count &lt;= 24'd0;
+        end else begin
+            count &lt;= count + 24'd1;
+        end
+    end
+
+    assign led = count[23];
+
+endmodule</code></pre>
+<p class="small">Full commented source: <a href="design.v"><code>design.v</code></a>. Intended
+behaviour, written before synthesis: <a href="spec.md"><code>spec.md</code></a>.</p>
+
+<p>Three properties make it a good first target, and all three survive into much larger
+designs:</p>
+<ul class="tight">
+<li><strong>It is state, not logic.</strong> The register is driven by a function of itself.
+That feedback is what a netlist analysis can find without understanding anything.</li>
+<li><strong>The <code>+ 1</code> is not an adder.</strong> On an FPGA it becomes a chain of ALM
+cells connected through a dedicated carry wire. Recognising carry chains is most of what
+"finding arithmetic in a netlist" means in practice.</li>
+<li><strong>Almost nothing is observable.</strong> One output bit, 24 bits of state. A
+black-box observer would wait 8.4 million cycles to see a single transition, so the recovery
+has to be structural.</li>
+</ul>
+
+<p>The design deliberately avoids PLLs, RAM, DSP and I/O buffers, so the post-synthesis netlist
+contains only primitives that <code>AGILEX_TENNM.hgl</code> models. That is not a general
+property of Agilex netlists — it is a choice made so that walkthrough 01 has no unmodelled
+gates to apologise for.</p>
+
+<h2 id="synth">2. Synthesis and export: the exact commands</h2>
+
+<p>This is the same flow the fixtures in <code>tools/hal_agilex/</code> use, and it is
+reproducible from a Quartus Pro installation. Nothing was done by hand in a GUI.</p>
+
+<p>The project is three files. The settings:</p>
+<pre><code># quartus/blinky_counter.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY blinky_counter
+set_global_assignment -name VERILOG_FILE blinky_counter.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files</code></pre>
+
+<p>Then, in a scratch directory containing <code>design.v</code> copied to
+<code>blinky_counter.v</code>:</p>
+<pre class="cmd"><code>quartus_sh   -t build.tcl
+quartus_syn  blinky_counter -c blinky_counter
+quartus_eda  --simulation --format=verilog --tool=questasim \
+             --output_directory=simulation blinky_counter -c blinky_counter</code></pre>
+
+<p>Two things about this flow are load-bearing:</p>
+<ul class="tight">
+<li><strong>We stop after <code>quartus_syn</code>.</strong> No fitting means no placement, no
+routing and — the reason it matters here — <em>no I/O buffers</em>. A post-fit export would
+contain <code>tennm_io_ibuf</code>/<code>tennm_io_obuf</code> instances that
+<code>hal_agilex</code> deliberately does not model.</li>
+<li><strong><code>quartus_eda</code> is the export.</strong> Quartus Pro 26.1 has no VQM
+writer for these families; the EDA netlist writer's Verilog output (<code>.vo</code>) is what
+you get, and it is a genuine structural netlist of ALM cells.</li>
+</ul>
+
+<p>What Quartus reports it built:</p>
+<pre><code>Synthesis Status : Successful
+Top-level Entity Name : blinky_counter
+Family : Agilex 3
+Device : A3CW135BM16AE6S
+Logic utilization estimate (in ALMs) : 14 / 45,800 ( &lt; 1 % )
+Total dedicated logic registers : 24</code></pre>
+<p class="small">Kept as <a href="artifacts/quartus_syn.summary"><code>artifacts/quartus_syn.summary</code></a>.
+Note "14 ALMs" for 24 combinational cells: two ALM halves share a physical ALM. The
+<em>netlist</em> counts cells, the <em>report</em> counts silicon.</p>
+
+<h3>From <code>.vo</code> to something HAL can parse</h3>
+
+<p>HAL's Verilog parser is a structural netlist reader. Three things Quartus writes are outside
+what it accepts, so <code>tools/hal_agilex</code> rewrites them — exactly, or it refuses:</p>
+
+<table>
+<tr><th>in the <code>.vo</code></th><th>what the rewrite does</th><th>why it is exact</th></tr>
+<tr><td><code>tri1 devclrn;</code></td><td>becomes <code>wire devclrn; assign devclrn = 1'b1;</code></td>
+<td>a <code>tri1</code> with no driver <em>is</em> a constant 1</td></tr>
+<tr><td><code>.datac(~count[7])</code></td><td>the inversion is folded into <code>lut_mask</code>:
+mask bit <em>j</em> moves to <em>j</em> XOR (1&nbsp;&lt;&lt;&nbsp;i)</td>
+<td>relabelling a truth table's rows is not an approximation. An inversion on <code>cin</code>,
+<code>sharein</code> or a flip-flop pin is <em>refused</em>, because there it would change
+meaning</td></tr>
+<tr><td><code>.combout()</code>, <code>assign unknown = 1'bx;</code></td>
+<td>dropped</td><td>an unconnected output pin and a literal nothing reads</td></tr>
+</table>
+
+<pre class="cmd"><code>python tools/hal_agilex import \
+    examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v</code></pre>
+
+<p>You can watch the mask rewrite happen on one line. Quartus wrote, for the cell that computes
+bit 2 of the next count:</p>
+<pre><code>tennm_lcell_comb #(.lut_mask (64'h0000000000000F0F)) \add_0~106 (
+    .datac(~count[2]), .cin(\add_0~112 ), .sumout(\add_0~106_sumout ), .cout(\add_0~107 ));</code></pre>
+<p>and the import produced</p>
+<pre><code>tennm_lcell_comb #(.lut_mask (64'h000000000000F0F0)) \add_0~106 (
+    .datac(count[2]), .cin(\add_0~112 ), .sumout(\add_0~106_sumout ), .cout(\add_0~107 ));</code></pre>
+<p>The inversion moved out of the wire and into the mask: <code>0x0F0F</code> with
+<code>datac</code> inverted is the same function as <code>0xF0F0</code> with <code>datac</code>
+straight. Both files are committed here so you can diff them yourself.</p>
+
+<div class="good">
+<strong>Sanity check before analysing anything</strong>
+<code>hal_agilex inventory</code> enumerates every instance and every pin configuration, and
+reports anything outside the validated coverage instead of importing it quietly. For this
+export it returns <code>proven_under_assumptions</code>: 24 <code>tennm_ff</code> and 24
+<code>tennm_lcell_comb</code>, all in modelled configurations, nothing unsupported.
+(<a href="artifacts/hal_agilex_inventory.json">artifacts/hal_agilex_inventory.json</a>)
+</div>
+
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<p>Load it. From here on nothing looks at <code>design.v</code> — that file exists only so
+that section 5 can tell you how well you did.</p>
+
+<pre class="cmd"><code>export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+
+python3 tools/hal_viz module_tree \
+    examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/module_tree.svg</code></pre>
+
+<figure>
+<img src="images/module_tree.svg" alt="Module tree: a single top module containing 50 gates">
+<figcaption><strong>images/module_tree.svg</strong> — the entire module hierarchy.
+One node.</figcaption>
+</figure>
+
+<div class="warn">
+<strong>The first thing you lose is hierarchy</strong>
+This picture is not a bug in the tool; it is the netlist. Synthesis flattened the design, and
+a flat netlist has no module boundaries to draw. Here nothing was lost, because the source had
+no submodules — but on a real design this same picture is the moment you learn that the
+`uart_tx`/`fifo`/`crc` structure you were hoping to navigate no longer exists. Everything from
+here on has to be recovered from wires.
+</div>
+
+<p>Now the gates themselves.</p>
+
+<pre class="cmd"><code>python3 tools/hal_viz netlist_graph \
+    examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    --module top_module --show-boundary \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/netlist_graph.svg</code></pre>
+
+<figure>
+<img src="images/netlist_graph.svg" alt="Gate-level graph of the whole netlist: 50 gates">
+<figcaption><strong>images/netlist_graph.svg</strong> — all 50 gates of the design.
+Readable, and almost useless. Scroll it: the structure <em>is</em> in there, but you are not
+going to find it by looking.</figcaption>
+</figure>
+
+<h3>What the netlist actually tells you, for free</h3>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py stats</code></pre>
+
+<pre><code>{
+  "design_name": "blinky_counter",
+  "gates": 50,
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 24,
+    "tennm_lcell_comb": 24
+  },
+  "global_inputs": [ "clk", "rst_n" ],
+  "global_outputs": [ "led" ],
+  "modules": 1,
+  "nets": 74,
+  "top_module": "top_module"
+}</code></pre>
+
+<p>Read it as an inventory of what you have and what you do not:</p>
+
+<table>
+<tr><th>you can see</th><th>you cannot see</th></tr>
+<tr>
+<td>
+<ul class="tight">
+<li>every gate, its type and its exact configuration (the <code>lut_mask</code> is a
+parameter, not a secret)</li>
+<li>every wire, exactly</li>
+<li>the boundary: two inputs, one output</li>
+<li>which nets are constants</li>
+<li>that there are <strong>24 flip-flops</strong> — the state is 24 bits, full stop</li>
+<li>that there are 24 combinational cells, so the logic is shallow</li>
+</ul>
+</td>
+<td>
+<ul class="tight">
+<li>which flip-flops belong to the <em>same word</em></li>
+<li>the bit <em>order</em> within a word</li>
+<li>whether the design counts, shifts, accumulates or hashes</li>
+<li>what any signal means</li>
+<li>module hierarchy, comments, parameter names, the encoding of anything</li>
+<li>which of the 24 bits is "the interesting one"</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<div class="note">
+<strong>Two gates that are not vendor primitives</strong>
+<code>HAL_GND</code> and <code>HAL_VCC</code> do not exist on the device. HAL's Verilog parser
+needs a gate to materialise the <code>1'b0</code>/<code>1'b1</code> literals the export uses,
+so <code>AGILEX_TENNM.hgl</code> declares two with a deliberately un-vendor-like prefix. When
+you count gates, remember that two of them are bookkeeping.
+</div>
+
+<p>One more free fact worth its own line: the count of flip-flops is a hard upper bound on the
+state. A 24-flip-flop netlist cannot be hiding a 32-bit counter. That kind of arithmetic — the
+netlist as a budget — is often the fastest way to reject a hypothesis.</p>
+
+<h2 id="walk">4. The reverse-engineering walk, step by step</h2>
+
+<p>Seven steps. Each one is a command, the output it produced, and the reasoning that turns
+that output into a claim. Two of the steps are tools that <em>did not</em> answer the question,
+which is at least as instructive as the ones that did.</p>
+
+<p>Everything comes from one script,
+<a href="analysis.py"><code>analysis.py</code></a>, with one function per step. It reads the
+netlist and the gate library and nothing else.</p>
+
+<div class="step">
+<h3><span class="n">1</span> Sort the flip-flops by what controls them</h3>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py registers</code></pre>
+
+<pre><code>{
+  "flip_flops": 24,
+  "groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "'1'",
+      "members": [
+        "count[0]",
+        "count[10]",
+        "count[11]",
+        [... 20 more members, lexicographic order: "count[12]" .. "count[8]" ...]
+        "count[9]"
+      ],
+      "size": 24
+    }
+  ]
+}</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Two flip-flops can only belong to the same architectural register if they are clocked by the
+same net, cleared by the same net and enabled by the same net. Grouping by that triple is the
+cheapest possible first cut and it needs no plugin at all. Here it returns a single group of
+all 24 — so <em>at most</em> one register bank exists, and it is 24 bits wide.
+<br><br>
+Read the three control nets, too. <code>clk</code> reaches every <code>clk</code> pin and
+nothing else, which is what a clock looks like. <code>rst_n</code> reaches every
+<code>clrn</code> pin and nothing else, which is what a reset looks like — and because
+<code>clrn</code> is the primitive's <em>asynchronous active-low clear</em>, the reset polarity
+and the reset value (0) come for free from the gate library, not from a guess. And
+<code>ena</code> is tied to the constant 1 on all 24: <strong>there is no enable in this
+design</strong>. If you had gone looking for a "start" or "valid" signal, you would have found
+nothing, and that absence is a real fact about the circuit.
+</div>
+
+<div class="warn">
+<strong>What this step does <em>not</em> prove</strong>
+Sharing a clock, a reset and an enable is necessary, not sufficient. Two unrelated 12-bit
+registers would land in exactly the same bucket. This step narrows the search; it does not
+conclude anything. The steps that follow are what turn "24 flip-flops that could be a word"
+into "24 flip-flops that are one machine".
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">2</span> Find the feedback loops (strongly connected components)</h3>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py scc</code></pre>
+
+<pre><code>{
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "count[0]",
+        "count[0]~0"
+      ],
+      "size": 2
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "gates": [
+        "add_0~111",
+        "count[1]"
+      ],
+      "size": 2
+    },
+    [... 22 more components, all identical in shape: one tennm_ff with its one
+     tennm_lcell_comb, size 2 — {add_0~106, count[2]} .. {add_0~1, count[23]} ...]
+  ],
+  "edges": 456,
+  "min_size": 2,
+  "vertices": 50
+}</code></pre>
+
+<div class="reason">
+<strong>Reasoning — this is the important one</strong>
+Purely combinational logic is a <em>directed acyclic graph</em>: signals flow from inputs to
+outputs and never come back. So every cycle in the gate graph is a place where a value feeds
+its own future — that is the definition of state.
+<br><br>
+<code>graph_algorithm</code> builds the gate graph and asks igraph for its strongly connected
+components. Any component with more than one vertex is a feedback loop. Here there are
+<strong>exactly 24</strong>, and every one of them is a single flip-flop with its single ALM:
+the register's <code>q</code> into the cell, the cell's <code>sumout</code> back to the
+register's <code>d</code>. State lives in 24 places, one per bit.
+<br><br>
+What the components alone can <em>not</em> tell you is whether those 24 slices are 24
+independent toggle flops or one 24-bit machine. From the SCC view the two look identical,
+because a ripple-carry counter's only coupling between bits is the carry chain, and the carry
+chain flows strictly upward — bit <em>i</em> feeds bit <em>i</em>+1 and never comes back. It is
+acyclic, so a cycle search cannot see it. That question is answered by the next two steps:
+DANA's grouping of the registers, and the chain itself.
+<br><br>
+The contrast is what makes the step worth running. When the feedback <em>does</em> span the
+word — an LFSR, a CRC, a scrambler, where taps from several bits are folded back into one — the
+picture changes completely: the whole register collapses into one big component. So "one big
+SCC versus many bit-sized SCCs" is the first fork in the road: a word-level feedback machine on
+one side, a counter-like or pipeline-like structure on the other.
+</div>
+
+<div class="note">
+<strong>Why "these SCCs are your counters" is a real heuristic</strong>
+On a bigger design you will get many components, and their <em>sizes</em> are the first thing
+to read: a size-2 component is a stateful bit slice — a toggle bit, a counter bit, a pipeline
+stage, and at this level you cannot tell which; a component of <em>n</em> registers with
+combinational cells between them is a word-level feedback machine, an LFSR or a scrambler or an
+FSM state vector; and a huge component that touches many registers at once is control logic.
+Sorting components by size and looking at the biggest ones is, in practice, how you find the
+interesting machines first.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">3</span> Ask DANA to group the registers for you</h3>
+
+<p>HAL ships <code>dataflow_analysis</code> (DANA), a heuristic that groups flip-flops into
+word-level registers from their input and output dataflow. It is the tool you would reach for
+on a real design, so run it here even though step 1 already answered the question.</p>
+
+<pre class="cmd"><code>python3 tools/hal_viz dataflow \
+    examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/dataflow</code></pre>
+
+<pre><code>[hal_viz] running DANA dataflow analysis (this can take a while) ...
+[hal_viz] dataflow analysis recovered 1 register group(s)
+
+ID:0, Size:24, CLK: {7}, EN: {2}, R: {8}, S: {}
+  Successors:   {0}
+  Predecessors: {0}
+count[23], type: tennm_ff, id: 24
+count[22], type: tennm_ff, id: 25
+count[21], type: tennm_ff, id: 26
+[... all 24 bits of count, one line each ...]
+count[0],  type: tennm_ff, id: 47</code></pre>
+</div>
+
+<div class="step">
+<h3><span class="n">4</span> Follow the carry chain</h3>
+
+<p>Twenty-three of the 24 combinational cells in those loops are not wired like ordinary logic.
+On an Altera ALM the carry between adjacent cells is a <em>dedicated</em> connection: a net
+that leaves a <code>tennm_lcell_comb.cout</code> and enters another cell's <code>cin</code> can
+be nothing else. So the chain can be recovered exactly, with no heuristic at all — walk the
+<code>cout&nbsp;→&nbsp;cin</code> links.</p>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py chain</code></pre>
+
+<pre><code>{
+  "chains": [
+    {
+      "length": 23,
+      "slices": [
+        {
+          "cell": "add_0~111",
+          "data_inputs": {
+            "datac": "count(1)",
+            "datad": "count(0)"
+          },
+          "lut_mask": "00000000F0000FF0",
+          "position": 0,
+          "sumout": "add_0~111_sumout",
+          "sumout_sink": [
+            "count[1].d"
+          ]
+        },
+        {
+          "cell": "add_0~106",
+          "data_inputs": {
+            "datac": "count(2)"
+          },
+          "lut_mask": "000000000000F0F0",
+          "position": 1,
+          "sumout": "add_0~106_sumout",
+          "sumout_sink": [
+            "count[2].d"
+          ]
+        },
+        [... 21 more slices, positions 2..22, every one identical in shape to position 1:
+         a single datac operand, mask 000000000000F0F0, sumout feeding count[3].d ..
+         count[23].d. The last one, add_0~1 at position 22, takes its operand from the
+         net named led — which is count[23]'s own q ...]
+      ]
+    }
+  ]
+}</code></pre>
+
+<figure>
+<img src="images/carry_chain.svg" alt="Carry chain ladder: 23 ALM slices, each feeding one flip-flop, carry running upward">
+<figcaption><strong>images/carry_chain.svg</strong> — the same information as a ladder: one
+rank per chain position, the ALM slice on the left, the flip-flop it clocks on the right, the
+dedicated carry running up the middle and the register's <code>q</code> coming back down
+(dashed) as the slice's operand. Generated by
+<code>analysis.py&nbsp;--dot&nbsp;…</code> and rendered with <code>dot -Tsvg</code>.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+One chain, 23 cells long, and every cell's <code>sumout</code> goes to exactly one flip-flop's
+<code>d</code> pin. That is the shape of an <em>n</em>-bit arithmetic unit whose result is
+registered — and since step 2 showed the registers feed back into the same cells, the operand
+of the arithmetic is the register itself.
+<br><br>
+Note the arithmetic: 23 chain cells but 24 flip-flops. One register is <em>not</em> on the
+chain. Finding it, and finding out what drives it instead, is the next step and it is where
+the increment finally becomes visible.
+<br><br>
+The chain also gives you something names never would: an <strong>order</strong>. Carry flows
+from least significant to most significant, so the position of a slice in the chain <em>is</em>
+the bit index of the register it feeds. Bit order is a wiring property here, not a naming
+convention.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">5</span> Read the increment out of the masks</h3>
+
+<p>Each cell's function is in its <code>lut_mask</code> parameter. In arithmetic mode the
+64-bit mask is used as two 4-input halves:</p>
+
+<pre><code>f0 = lut_mask[      dataa + 2*datab + 4*datac + 8*datad ]   (bits  0..15)
+f1 = lut_mask[ 16 + dataa + 2*datab + 4*datac + 8*datad ]   (bits 16..31)
+
+sumout = f0 XOR cin
+cout   = (f0 AND cin) OR (NOT f0 AND f1)</code></pre>
+
+<p>That is the propagate/generate form of a carry chain, and it is not folklore: Quartus prints
+it next to every arithmetic instance in the <code>.vo</code> as an <code>// Equation(s):</code>
+comment. <code>hal_agilex</code> implements exactly that decoding and attaches the resulting
+Boolean functions to each gate with <code>Gate.add_boolean_function</code>, because a
+ten-input, three-output cell cannot carry a <code>lut_config</code> in the gate library.</p>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py increment</code></pre>
+
+<pre><code>{
+  "cells": [
+    [... 2 earlier cells: add_0~101, identical to add_0~106 below, and the top slice
+     add_0~1, identical except that it has no cout — nothing consumes it ...]
+    {
+      "cell": "add_0~106",
+      "constant_inputs": { [... dataa, datab, datad, datae, dataf: all 0 ...] },
+      "functions": {
+        "cout": "(cin &amp; datac)",
+        "sumout": "((cin | datac) &amp; ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~112",
+        "datac": "count(2)"
+      }
+    },
+    [... add_0~11, another middle slice ...]
+    {
+      "cell": "add_0~111",
+      "constant_inputs": { [... cin, dataa, datab, datae, dataf: all 0 ...] },
+      "functions": {
+        "cout": "((datac &amp; datad) | (cin &amp; (datac | datad)))",
+        "sumout": "((cin &amp; ((datac &amp; datad) | ((! datac) &amp; (! datad)))) | ((! cin) &amp; ((datac | datad) &amp; ((! datac) | (! datad)))))"
+      },
+      "lut_mask": "00000000F0000FF0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "datac": "count(1)",
+        "datad": "count(0)"
+      }
+    },
+    [... 18 more arithmetic slices, add_0~16 .. add_0~96, all identical in shape to
+     add_0~106: one datac operand, mask 000000000000F0F0 ...]
+    {
+      "cell": "count[0]~0",
+      "constant_inputs": { [... cin, datab, datac, datad, datae, dataf: all 0 ...] },
+      "functions": {
+        "combout": "(! dataa)"
+      },
+      "lut_mask": "5555555555555555",
+      "mode": "normal",
+      "signal_inputs": {
+        "dataa": "count(0)"
+      }
+    }
+  ]
+}</code></pre>
+
+<figure>
+<img src="images/slice_count7.svg" alt="Two-hop neighbourhood around one counter flip-flop">
+<figcaption><strong>images/slice_count7.svg</strong> — everything within two hops of one
+flip-flop, with pin labels. This is what one bit of the counter looks like: a register, the ALM
+slice that computes its next value, the carry in from below and the carry out to above.
+Generated with <code>hal_viz netlist_graph --gate … --depth 2 --pin-labels
+--show-boundary</code>.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Three shapes appear, and together they spell "+1":
+<ul class="tight">
+<li><strong>The 21 cells in the middle of the chain</strong> reduce to
+<code>sumout = datac ^ cin</code> and <code>cout = datac &amp; cin</code>, with
+<code>datac</code> being the register's own <code>q</code> and every other data input tied to
+0. A full-adder slice would have had <em>two</em> signal operands; this one has one, so the
+second addend bit is a constant <strong>0</strong> — and a chain whose addend is 0 everywhere
+does nothing except propagate a carry.</li>
+<li><strong>The bottom cell of the chain</strong> is the exception: two signal operands
+(<code>datac</code>, <code>datad</code>), a carry-in tied to 0, and the classic
+<code>f0 = p ^ q</code> / <code>f1 = p &amp; q</code> pair. It is adding two adjacent counter
+bits, which is what the bottom of an increment looks like once the "+1" has been folded in.</li>
+<li><strong>The top cell of the chain</strong> computes the same <code>sumout = datac ^ cin</code>
+as the middle ones but has no <code>cout</code> function at all: it drives the most significant
+bit, and a carry out of the top of a 24-bit increment has nowhere to go, so Quartus never
+synthesised one. An overflow flag or a wider counter would have consumed it.</li>
+<li><strong>The one cell not on the chain at all</strong> is in normal mode and computes
+<code>combout = !dataa</code> from a single register's <code>q</code> — a toggle. That is the
+least significant bit: <code>bit0_next = !bit0</code>.</li>
+</ul>
+So the whole structure is: invert the bottom bit, and ripple its carry up through 23 slices
+that each add nothing but the carry. That is precisely <code>r &lt;= r + 1</code>. Had the
+middle cells carried a second signal operand, it would have been <code>r &lt;= r + B</code>,
+an accumulator; had they carried an inverted operand and a carry-in of 1, a subtractor.
+</div>
+
+<div class="bad">
+<strong>A tool that does not help here, and why that is worth seeing</strong>
+<code>hal_agilex</code> has a carry-chain recogniser. Run it on this netlist:
+<pre class="cmd" style="margin-top:.6rem"><code>python3 tools/hal_agilex recognize \
+    examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo</code></pre>
+<pre><code>hal_agilex/recognize/no-adder | unknown
+  "1 carry chain(s) were followed and none matched the ripple-carry adder
+   pattern; this says nothing about what the design computes."
+  data: {"rejected": ["cell add_0~106 is not an arithmetic slice"]}</code></pre>
+It fails, and it fails <em>correctly</em>. Its pattern requires each slice to have exactly two
+operands (<code>f0 = p ^ q</code>, <code>f1 = p &amp; q</code>) because it was written against
+an accumulator fixture. An increment degenerates to one operand per slice, so the match is
+rejected — and note the status is <code>unknown</code>, not <code>refuted</code>: the tool says
+"I did not recognise this", not "this is not an adder". That distinction is the whole reason
+the findings schema has both words.
+<br><br>
+The human workaround is exactly what step 5 does: stop asking "is this the adder I know" and
+start reading the masks. A recogniser is a shortcut for shapes someone has already met; the
+mask decoding works on every shape.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">6</span> Find the output tap and pin down the bit order</h3>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py output
+python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py order</code></pre>
+
+<pre><code>{
+  "outputs": [
+    {
+      "driven_by": [
+        "count[23].q"
+      ],
+      "net": "led"
+    }
+  ]
+}</code></pre>
+
+<pre><code>{
+  "chain_length": 23,
+  "order": [
+    {
+      "chain_position": 0,
+      "register": "count[1]"
+    },
+    {
+      "chain_position": 1,
+      "register": "count[2]"
+    },
+[... chain positions 2 .. 21 feed count[3] .. count[22], one per slice ...]
+    {
+      "chain_position": 22,
+      "register": "count[23]"
+    }
+  ]
+}</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+The design's single output is driven directly by one flip-flop's <code>q</code> — no logic in
+between, so <code>led</code> <em>is</em> a state bit, not a decoded function of the state.
+<br><br>
+Which one? Step 4 gave the chain an order, and the order is the bit significance. The register
+that drives <code>led</code> hangs off the <strong>last</strong> slice of the chain, so it is
+the most significant bit of the counter. Combined with the 24-bit width from step 2, that is
+<code>led = r[23]</code>.
+<br><br>
+Read the ordering table carefully: chain position 0 feeds the register that is bit <em>1</em>,
+not bit 0, because the bottom slice consumes two bits at once. Bit 0 is the toggle cell from
+step 5. Off-by-one errors here are the single easiest way to get a counter recovery wrong.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">7</span> Ask the remaining tools, and take "nothing found" as an answer</h3>
+
+<p>Two more analyses in this repository apply to a design like this. Neither of them tells you
+anything new — and knowing <em>why</em> is part of learning which tool to reach for.</p>
+
+<h4>Clock and reset domains</h4>
+<pre class="cmd"><code>python3 tools/hal_viz clock_tree \
+    examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/clock_tree.svg
+
+python3 tools/hal_cdc discover ... &amp;&amp; python3 tools/hal_cdc audit ...</code></pre>
+
+<pre><code>domains          : clk
+registers        : 24 (0 with an unknown domain)
+crossings        : 0
+unknown inputs   : 0
+reset targets    : 24
+    reset_synchronizer_stage     24
+NOTE: structural screening only -- no timing, no metastability sign-off.
+findings: examples/agilex3_walkthroughs/01_blinky_counter/artifacts/cdc.findings.json
+domain graph: examples/agilex3_walkthroughs/01_blinky_counter/images/cdc_domains.dot</code></pre>
+
+<h4>Finite state machines</h4>
+<p><code>tools/hal_fsm</code> drives <code>solve_fsm</code> to recover a transition relation
+from a nominated state register. Technically this counter <em>is</em> a finite state machine:
+24 state bits, one transition per state, deterministic and total. Do not run it.</p>
+<div class="warn">
+<strong>Why not</strong>
+A state register of 24 bits has 2<sup>24</sup>&nbsp;=&nbsp;16,777,216 states and just as many
+transitions. Enumerating that is neither feasible nor useful: the resulting graph would be a
+16-million-node cycle, and no human would learn anything from it that
+"<code>r&nbsp;&lt;=&nbsp;r&nbsp;+&nbsp;1</code>" does not say in nine characters.
+<br><br>
+FSM solving pays off when the state space is small and irregular — a handshake controller, a
+protocol sequencer, a bus arbiter. Counters and datapath registers are the wrong input for it,
+and recognising that <em>before</em> you launch a solver is a skill worth having. The structural
+route taken in steps 1–6 scales to a 64-bit counter without breaking a sweat; the FSM route
+does not survive 32.
+</div>
+</div>
+
+
+<h2 id="reconstruct">5. Reconstruction, and an honest diff</h2>
+
+<p>Everything above adds up to a design. Written out, with names invented where the netlist has
+none to give:</p>
+
+<pre><code>module recovered_top (
+    input  wire clk,
+    input  wire rst_n,
+    output wire led
+);
+
+    reg [23:0] r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            r &lt;= 24'd0;
+        end else begin
+            r &lt;= r + 24'd1;
+        end
+    end
+
+    assign led = r[23];
+
+endmodule</code></pre>
+<p class="small">Committed, with a comment on every recovered fact, as
+<a href="recovered.v"><code>recovered.v</code></a>.</p>
+
+<h3>Does it actually reproduce the netlist?</h3>
+
+<p>Do not take the reconstruction on faith. <code>hal_agilex behavior</code> simulates the
+<em>exported netlist</em> with the validated primitive semantics and compares it, cycle by
+cycle, against a Python restatement of the recovered design
+(<a href="recovered_reference.py"><code>recovered_reference.py</code></a>).</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex behavior \
+    examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo \
+    --reference examples/agilex3_walkthroughs/01_blinky_counter/recovered_reference.py \
+    --cycles 1200 -o .../artifacts/hal_agilex_behavior.json</code></pre>
+
+<pre><code>proven_bounded | 1200 pseudo-random cycles, including asynchronous clears,
+                 agree with the reference model. Nothing is claimed beyond that bound.</code></pre>
+
+<div class="warn">
+<strong>Now find out what that check is worth</strong>
+A green result means nothing until you know what a red one would have taken. Two negative
+controls were run against the same netlist:
+<ul class="tight">
+<li><strong>Wrong increment</strong> (<code>+ 2</code> instead of <code>+ 1</code>) —
+<span style="white-space:nowrap"><code>bounded_counterexample</code></span> at
+<strong>cycle 1</strong>: <code>expected {'led': 0, 'count': 2}, got {'led': 0, 'count': 1}</code>.
+Caught immediately.
+(<a href="artifacts/hal_agilex_behavior_negative_control_plus2.json">artifact</a>)</li>
+<li><strong>Wrong width</strong> (23 bits instead of 24) — <code>proven_bounded</code>, i.e.
+<em>not</em> caught. Over 1200 cycles the counter never leaves the bottom 11 bits, so nothing
+above bit 10 is exercised and a wrong top-bit index is invisible.
+(<a href="artifacts/hal_agilex_behavior_negative_control_width23.json">artifact</a>)</li>
+</ul>
+So the simulation confirms the <em>increment</em>, the <em>reset</em> and the <em>absence of an
+enable</em> — and confirms nothing at all about the <em>width</em> or about which bit drives
+<code>led</code>. Those two facts rest entirely on the structural steps: the count of
+stateful bit slices and the length of the carry chain. This is the normal division of
+labour in netlist RE, and it is worth internalising: <strong>simulation checks the parts of a
+hypothesis that the reachable state space actually reaches; structure carries the rest.</strong>
+</div>
+
+<p class="small">The reference model reads the export's declared 24-bit bus as well as
+<code>led</code>, so all 24 state bits are compared each cycle. Even so, the bits that never
+move cannot be checked. Comparing only <code>led</code> would have been weaker still: it is 0
+in both models for the entire run.</p>
+
+<h3>What was recovered, and what was lost</h3>
+
+<table>
+<tr><th>property of <code>design.v</code></th><th>outcome</th><th>why</th></tr>
+<tr><td>port list <code>clk</code>, <code>rst_n</code>, <code>led</code></td>
+<td><strong>recovered exactly, names included</strong></td>
+<td>port names survive synthesis; they are in the <code>.vo</code> module header</td></tr>
+<tr><td>register width 24</td><td><strong>recovered exactly</strong></td>
+<td>24 stateful bit slices (one SCC per bit), joined by 23 chain slices + 1 LSB cell</td></tr>
+<tr><td>asynchronous, active-low reset to 0</td><td><strong>recovered exactly</strong></td>
+<td><code>clrn</code> is an asynchronous <em>clear</em> pin of the primitive; the polarity and
+the value 0 are properties of the cell, not guesses</td></tr>
+<tr><td>increment by 1, free-running</td><td><strong>recovered exactly</strong></td>
+<td>carry chain with no second operand, carry-in 0, LSB inverted; every <code>ena</code> tied
+to 1</td></tr>
+<tr><td>wrap-around at 2<sup>24</sup></td><td><strong>recovered exactly</strong></td>
+<td>the top slice's <code>cout</code> drives nothing</td></tr>
+<tr><td>bit order (which flip-flop is bit 0)</td><td><strong>recovered exactly</strong></td>
+<td>from the carry-chain order — a wiring property, independent of names</td></tr>
+<tr><td><code>led = count[23]</code></td><td><strong>recovered exactly</strong></td>
+<td>the only global output is driven by the <code>q</code> of the register at the top of the
+chain</td></tr>
+<tr><td>the name <code>count</code></td><td><em>not recoverable in principle</em></td>
+<td>Quartus happened to keep it (<code>count[7]</code>, <code>add_0~81</code>), and this
+walkthrough deliberately never used it. Strip the names and every conclusion above still
+holds</td></tr>
+<tr><td>module hierarchy</td><td><em>lost</em> (nothing to lose here)</td>
+<td>synthesis flattens; the design was already flat</td></tr>
+<tr><td>"it is a blinky, at ~3&nbsp;Hz on a 50&nbsp;MHz clock"</td><td><em>not in the netlist</em></td>
+<td>the clock frequency is a board fact. The netlist knows the counter divides by
+2<sup>24</sup>; what that means in seconds is context you have to supply</td></tr>
+<tr><td>coding style (<code>count + 1</code> vs. a toggle-flop chain)</td><td><em>lost</em></td>
+<td>both would synthesise to a carry chain; the netlist cannot distinguish source forms that
+compile to the same circuit</td></tr>
+<tr><td>power-up value</td><td><em>not modelled</em></td>
+<td>the export says <code>power_up = "dont_care"</code>. <code>hal_agilex</code> starts
+registers at 0 for simulation and says so; that is an assumption, not a recovery</td></tr>
+</table>
+
+<div class="good">
+<strong>The honest summary</strong>
+Functionally, the recovery is complete: <code>recovered.v</code> and <code>design.v</code> are
+the same circuit. Every identifier that carries <em>meaning</em> is gone or was never in the
+netlist. That asymmetry — perfect structure, zero semantics — is what netlist reverse
+engineering is, and it is why the hard part of a real job is not recovering the circuit but
+deciding what it is <em>for</em>.
+</div>
+
+<h2 id="further">6. Going further</h2>
+
+<h3>Re-run everything</h3>
+<pre class="cmd"><code># the whole toolchain, in the order this guide uses it
+HAL_BASE_PATH=&lt;build&gt; HAL_PY_PATH=&lt;build&gt;/lib PYTHONPATH=&lt;build&gt;/lib \
+    sh examples/agilex3_walkthroughs/01_blinky_counter/run_analyses.sh
+
+# just the assertions, for CI
+python3 examples/agilex3_walkthroughs/01_blinky_counter/check.py</code></pre>
+<p><a href="check.py"><code>check.py</code></a> re-derives every load-bearing claim in this
+guide and exits non-zero if any of them stops holding — a HAL change, a plugin change or a
+regenerated netlist will be caught rather than quietly invalidating the text.</p>
+
+<h3>Exercises that teach more than reading</h3>
+<ul>
+<li><strong>Strip the names.</strong> Rewrite <code>netlist.hal.v</code> with every gate and
+net renamed to <code>g1</code>, <code>n17</code>, … and re-run <code>analysis.py all</code>.
+Nothing in the walk should change. If something does, that step was leaning on a name.</li>
+<li><strong>Change the width and re-synthesise.</strong> Make the counter 12 or 40 bits and
+watch the number of bit-slice components and the chain length move with it. Then check whether the LSB is still a
+separate normal-mode cell, or whether Quartus packs it differently.</li>
+<li><strong>Add an enable.</strong> <code>if (en) count &lt;= count + 1;</code> — does
+<code>en</code> land on <code>tennm_ff.ena</code>, or does Quartus build a feedback multiplexer
+in the LUTs instead? Both happen in practice, and they look completely different in the
+netlist.</li>
+<li><strong>Make it a down-counter.</strong> The carry chain stays, the masks change. Read the
+new masks with <code>analysis.py increment</code> and work out the borrow.</li>
+<li><strong>Break the tools on purpose.</strong> Replace the increment with
+<code>count + addend</code> and watch <code>hal_agilex recognize</code> flip from
+<code>unknown</code> to a recognised ripple-carry adder — the same tool, the same netlist
+shape, a different answer, because now each slice really does have two operands.</li>
+</ul>
+
+<h3>Where to look in this repository</h3>
+<table>
+<tr><th>path</th><th>what it is for</th></tr>
+<tr><td><code>tools/hal_agilex/</code></td><td>the Agilex primitive semantics, the
+<code>.vo</code> reader/importer and the validated coverage list</td></tr>
+<tr><td><code>tools/hal_viz/</code></td><td>every picture in this guide</td></tr>
+<tr><td><code>tools/hal_explain/</code></td><td>composes findings from several analyses into a
+block model with evidence links — the next step up from a single walkthrough</td></tr>
+<tr><td><code>tools/hal_fsm/</code>, <code>tools/hal_cdc/</code></td><td>the tools that were
+<em>not</em> the right ones here; they are the right ones for control logic and multi-clock
+designs</td></tr>
+<tr><td><code>plugins/dataflow_analysis/</code></td><td>DANA, the register-grouping heuristic</td></tr>
+<tr><td><code>plugins/graph_algorithm/</code></td><td>the igraph bridge behind the SCC step</td></tr>
+<tr><td><code>.claude/skills/using-hal/</code></td><td>how to drive headless HAL in general</td></tr>
+</table>
+
+<hr>
+<p class="small">
+Every image in this guide was generated by the commands shown, from the netlist committed next
+to it. The <code>.dot</code> source of each diagram sits beside its <code>.svg</code> in
+<code>images/</code>; the JSON behind every quoted output is in <code>artifacts/</code>.
+</p>
+
+</main>
+</body>
+</html>

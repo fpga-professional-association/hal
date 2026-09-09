@@ -1,0 +1,482 @@
+{
+  "cells": [
+    {
+      "cell": "add_0~1",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~7",
+        "datac": "led"
+      }
+    },
+    {
+      "cell": "add_0~101",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~107",
+        "datac": "count(3)"
+      }
+    },
+    {
+      "cell": "add_0~106",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~112",
+        "datac": "count(2)"
+      }
+    },
+    {
+      "cell": "add_0~11",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~17",
+        "datac": "count(21)"
+      }
+    },
+    {
+      "cell": "add_0~111",
+      "constant_inputs": {
+        "cin": 0,
+        "dataa": 0,
+        "datab": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "((datac & datad) | (cin & (datac | datad)))",
+        "sumout": "((cin & ((datac & datad) | ((! datac) & (! datad)))) | ((! cin) & ((datac | datad) & ((! datac) | (! datad)))))"
+      },
+      "lut_mask": "00000000F0000FF0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "datac": "count(1)",
+        "datad": "count(0)"
+      }
+    },
+    {
+      "cell": "add_0~16",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~22",
+        "datac": "count(20)"
+      }
+    },
+    {
+      "cell": "add_0~21",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~27",
+        "datac": "count(19)"
+      }
+    },
+    {
+      "cell": "add_0~26",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~32",
+        "datac": "count(18)"
+      }
+    },
+    {
+      "cell": "add_0~31",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~37",
+        "datac": "count(17)"
+      }
+    },
+    {
+      "cell": "add_0~36",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~42",
+        "datac": "count(16)"
+      }
+    },
+    {
+      "cell": "add_0~41",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~47",
+        "datac": "count(15)"
+      }
+    },
+    {
+      "cell": "add_0~46",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~52",
+        "datac": "count(14)"
+      }
+    },
+    {
+      "cell": "add_0~51",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~57",
+        "datac": "count(13)"
+      }
+    },
+    {
+      "cell": "add_0~56",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~62",
+        "datac": "count(12)"
+      }
+    },
+    {
+      "cell": "add_0~6",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~12",
+        "datac": "count(22)"
+      }
+    },
+    {
+      "cell": "add_0~61",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~67",
+        "datac": "count(11)"
+      }
+    },
+    {
+      "cell": "add_0~66",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~72",
+        "datac": "count(10)"
+      }
+    },
+    {
+      "cell": "add_0~71",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~77",
+        "datac": "count(9)"
+      }
+    },
+    {
+      "cell": "add_0~76",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~82",
+        "datac": "count(8)"
+      }
+    },
+    {
+      "cell": "add_0~81",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~87",
+        "datac": "count(7)"
+      }
+    },
+    {
+      "cell": "add_0~86",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~92",
+        "datac": "count(6)"
+      }
+    },
+    {
+      "cell": "add_0~91",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~97",
+        "datac": "count(5)"
+      }
+    },
+    {
+      "cell": "add_0~96",
+      "constant_inputs": {
+        "dataa": 0,
+        "datab": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "cout": "(cin & datac)",
+        "sumout": "((cin | datac) & ((! cin) | (! datac)))"
+      },
+      "lut_mask": "000000000000F0F0",
+      "mode": "arithmetic",
+      "signal_inputs": {
+        "cin": "add_0~102",
+        "datac": "count(4)"
+      }
+    },
+    {
+      "cell": "count[0]~0",
+      "constant_inputs": {
+        "cin": 0,
+        "datab": 0,
+        "datac": 0,
+        "datad": 0,
+        "datae": 0,
+        "dataf": 0
+      },
+      "functions": {
+        "combout": "(! dataa)"
+      },
+      "lut_mask": "5555555555555555",
+      "mode": "normal",
+      "signal_inputs": {
+        "dataa": "count(0)"
+      }
+    }
+  ]
+}

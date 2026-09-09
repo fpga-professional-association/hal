@@ -1,0 +1,10 @@
+{
+  "outputs": [
+    {
+      "driven_by": [
+        "count[23].q"
+      ],
+      "net": "led"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "design_name": "blinky_counter",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 24,
+    "tennm_lcell_comb": 24
+  },
+  "gates": 50,
+  "global_inputs": [
+    "clk",
+    "rst_n"
+  ],
+  "global_outputs": [
+    "led"
+  ],
+  "gnd_nets": [
+    "'0'"
+  ],
+  "modules": 1,
+  "nets": 74,
+  "top_module": "top_module",
+  "vcc_nets": [
+    "'1'"
+  ]
+}

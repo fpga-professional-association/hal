@@ -1,0 +1,37 @@
+{
+  "flip_flops": 24,
+  "groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "'1'",
+      "members": [
+        "count[0]",
+        "count[10]",
+        "count[11]",
+        "count[12]",
+        "count[13]",
+        "count[14]",
+        "count[15]",
+        "count[16]",
+        "count[17]",
+        "count[18]",
+        "count[19]",
+        "count[1]",
+        "count[20]",
+        "count[21]",
+        "count[22]",
+        "count[23]",
+        "count[2]",
+        "count[3]",
+        "count[4]",
+        "count[5]",
+        "count[6]",
+        "count[7]",
+        "count[8]",
+        "count[9]"
+      ],
+      "size": 24
+    }
+  ]
+}
