@@ -350,9 +350,21 @@ def build_circuit(hal_py, netlist, name=None):
 
 
 def load_netlist(hal_py, path, gate_library=None):
-    """Load a HAL project directory, a ``.hal`` file or a netlist file."""
+    """Load a HAL project directory, a ``.hal`` file or a netlist file.
+
+    HAL's parsers are plugins, so the plugins are loaded here rather than being left to the
+    caller: ``plugin_manager.load_all_plugins()`` is idempotent, and without it every load
+    below silently returns ``None``.
+    """
     import os
 
+    try:
+        hal_py.plugin_manager.load_all_plugins()
+    except Exception as error:  # noqa: BLE001 - a parser is a plugin; say so plainly
+        raise HalSourceError(
+            "hal_py.plugin_manager.load_all_plugins() failed ({}); the netlist parsers are "
+            "plugins, so no netlist can be read without them.".format(error)
+        )
     factory = hal_py.NetlistFactory
     if os.path.isdir(path):
         netlist = factory.load_hal_project(str(path))

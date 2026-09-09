@@ -57,7 +57,13 @@ def load_plugins(hal_py):
 
 
 def load_netlist(hal_py, netlist_path, gate_library_path):
-    """Load an imported netlist with the ``AGILEX_TENNM`` library."""
+    """Load an imported netlist with the ``AGILEX_TENNM`` library.
+
+    Loads the plugins first: callers that already have a ``hal_py`` (a script running inside
+    ``hal --python-script``, a test) would otherwise get ``None`` back from a parser that was
+    never registered.
+    """
+    load_plugins(hal_py)
     netlist = hal_py.NetlistFactory.load_netlist(str(netlist_path), str(gate_library_path))
     if netlist is None:
         raise RuntimeError(

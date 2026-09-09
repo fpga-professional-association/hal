@@ -91,6 +91,13 @@ from the command line to create a project directory for it non-interactively. Ei
 gate library, e.g. one of the ones in `plugins/gate_libraries/definitions`. For instructions to create your own gate
 library and other useful tutorials, take a look at the [wiki](https://github.com/emsec/hal/wiki).
 
+If what you have is a *bitstream* rather than a netlist, [`tools/hal_bitstream`](tools/hal_bitstream/README.md)
+is the front door: `python tools/hal_bitstream load <bitstream> --project-dir <path/to/new/project>` detects the
+device family from the file itself, runs the open toolchain's converter chain for it (IceStorm's `icebox_vlog` plus
+yosys for iCE40, Trellis' `ecp_vlog` plus yosys for ECP5), loads the resulting netlist with the gate library that
+family needs, and records what produced it. A family whose converter is not installed — or that no open converter can turn into a netlist yet — is
+an error that says exactly that, never a silent or partial result.
+
 To *look* at a netlist without a GUI, use the batch visualization tool in [`tools/hal_viz`](tools/hal_viz/README.md):
 `python tools/hal_viz module_tree <path/to/unzipped/project> -o out/` renders the module hierarchy (and its
 `netlist_graph`, `dataflow` and `clock_tree` subcommands render scoped gate-level graphs, DANA register groups and

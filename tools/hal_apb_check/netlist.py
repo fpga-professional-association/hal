@@ -41,6 +41,7 @@ __all__ = [
     "NetlistFrontendError",
     "UnsupportedPrimitives",
     "import_hal",
+    "load_plugins",
     "load",
     "build_transition_system",
 ]
@@ -117,7 +118,19 @@ def import_hal(hal_libs=()):
     return hal_py
 
 
+def load_plugins(hal_py):
+    """Register HAL's parser plugins; idempotent, so every loader can just call it."""
+    try:
+        hal_py.plugin_manager.load_all_plugins()
+    except Exception as error:  # noqa: BLE001 - a parser is a plugin; say so plainly
+        raise NetlistFrontendError(
+            "hal_py.plugin_manager.load_all_plugins() failed ({}). The Verilog/VHDL parsers are "
+            "plugins, so a netlist cannot be read without them.".format(error)
+        )
+
+
 def _load_netlist(hal_py, netlist_path, project_path, gate_library):
+    load_plugins(hal_py)
     if project_path:
         if not os.path.isdir(project_path):
             raise NetlistFrontendError("no such HAL project directory: {}".format(project_path))
@@ -143,13 +156,6 @@ def _load_netlist(hal_py, netlist_path, project_path, gate_library):
 def load(netlist_path=None, project_path=None, gate_library=None, hal_libs=()):
     """Load a design and return ``(TransitionSystem, artifact_spec)``."""
     hal_py = import_hal(hal_libs)
-    try:
-        hal_py.plugin_manager.load_all_plugins()
-    except Exception as error:  # noqa: BLE001 - a parser is a plugin; say so plainly
-        raise NetlistFrontendError(
-            "hal_py.plugin_manager.load_all_plugins() failed ({}). The Verilog/VHDL parsers are "
-            "plugins, so a netlist cannot be read without them.".format(error)
-        )
     netlist, source = _load_netlist(hal_py, netlist_path, project_path, gate_library)
     system, net_refs, statistics = build_transition_system(hal_py, netlist)
     artifact = {

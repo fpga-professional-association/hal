@@ -201,3 +201,57 @@ jobs:
           path: ${{ github.workspace }}/build/plugin_scaffold_smoke
           if-no-files-found: warn
           retention-days: 7
+
+      # HAL's gate-library and netlist parsers are plugins, so a tool CLI that loads a netlist
+      # without plugin_manager.load_all_plugins() gets None back -- a bug that was found twice
+      # before it was fixed centrally in hal_viz.halenv. This runs one real, direct CLI netlist
+      # load per tool in a fresh interpreter (nothing has loaded the plugins for it) and asserts on
+      # what each command produced, so a tool that reintroduces the bug fails here.
+      - name: Tool CLI plugin-load regression check
+        id: tool_cli_plugin_load
+        shell: bash
+        run: |
+          python3 "$GITHUB_WORKSPACE/tests/headless_smoke/tool_cli_plugin_load_smoke.py" \
+            --hal-lib "$GITHUB_WORKSPACE/build/lib" \
+            --work-dir "$GITHUB_WORKSPACE/build/tool_cli_plugin_load"
+        env:
+          HAL_BASE_PATH: ${{runner.workspace}}/hal/build
+
+      - name: Upload tool CLI plugin-load artifacts
+        if: always() && steps.tool_cli_plugin_load.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tool-cli-plugin-load-ubuntu-24.04
+          path: ${{ github.workspace }}/build/tool_cli_plugin_load
+          if-no-files-found: warn
+          retention-days: 7
+
+      # tools/hal_bitstream's unit tests (run by ctest above) drive it with stub converters, which
+      # proves the registry and the error messages and nothing about IceStorm. This installs the
+      # real open toolchain and runs the shipped iCE40 fixture bitstream through
+      # iceunpack -> icebox_vlog -> yosys -> hal_py, checking the recovered LUTs and flip-flops,
+      # the provenance manifest and the HAL project round-trip. yosys is part of the chain, not an
+      # extra: icebox_vlog writes behavioural Verilog and HAL's parser reads cell netlists.
+      - name: Install open FPGA bitstream toolchain
+        shell: bash
+        run: sudo apt-get install -y fpga-icestorm yosys
+
+      - name: hal_bitstream end-to-end run
+        id: bitstream_smoke
+        shell: bash
+        run: |
+          python3 "$GITHUB_WORKSPACE/tests/headless_smoke/bitstream_smoke.py" \
+            --hal-lib "$GITHUB_WORKSPACE/build/lib" \
+            --work-dir "$GITHUB_WORKSPACE/build/bitstream_smoke" \
+            --keep
+        env:
+          HAL_BASE_PATH: ${{runner.workspace}}/hal/build
+
+      - name: Upload hal_bitstream artifacts
+        if: always() && steps.bitstream_smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hal-bitstream-ubuntu-24.04
+          path: ${{ github.workspace }}/build/bitstream_smoke
+          if-no-files-found: warn
+          retention-days: 7

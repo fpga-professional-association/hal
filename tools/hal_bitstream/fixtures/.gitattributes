@@ -1,0 +1,7 @@
+# The fixture bitstream is a device image, and the recorded converter output is checked against
+# the digests in ice40_blinky.manifest.json: no checkout setting (autocrlf, eol) may rewrite a byte
+# of any of them.
+*.bin binary
+ice40_blinky.v -text
+ice40_blinky.icebox_vlog.v -text
+ice40_blinky.manifest.json -text

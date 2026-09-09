@@ -127,6 +127,8 @@ def _inventory_from_netlist(args, reporter):
         )
         return view, netlist_path
 
+    # halenv.load_netlist loads HAL's plugin set itself (the gate library and netlist parsers are
+    # plugins), so this path does not have to -- and cannot forget to.
     from hal_viz.halenv import HalUnavailable, NetlistLoadError, import_hal_py, load_netlist
 
     try:

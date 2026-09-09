@@ -1,0 +1,73 @@
+{
+  "bitstream": {
+    "path": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.bin",
+    "sha256": "f7bde5ea79b457d12434d2e491ce477505596801f425ca0df9a74d142c7450aa",
+    "size_bytes": 104090
+  },
+  "created": "2026-09-09T04:58:59Z",
+  "detection": {
+    "candidates": [],
+    "evidence": "the iCE40 sync word 7E AA 99 7E at offset 4",
+    "family": "ice40",
+    "gate_library": "ice40ultra.hgl",
+    "method": "magic",
+    "name": "Lattice iCE40",
+    "status": "verified",
+    "toolchain": "Project IceStorm",
+    "vendor": "Lattice"
+  },
+  "duration_s": 1.284,
+  "gate_library": "/hal/plugins/gate_libraries/definitions/ice40ultra.hgl",
+  "netlist": {
+    "path": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.v",
+    "sha256": "cc589a555ac2c5b7f9edfa58f6fbfa15df99f53d842f764a8fcace1f1683ded0",
+    "size_bytes": 4669
+  },
+  "producer": {
+    "name": "hal_bitstream",
+    "version": "0.1.0"
+  },
+  "steps": [
+    {
+      "command": [
+        "/usr/bin/iceunpack",
+        "/hal/tools/hal_bitstream/fixtures/ice40_blinky.bin",
+        "/hal/tools/hal_bitstream/fixtures/ice40_blinky.0.asc"
+      ],
+      "input": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.bin",
+      "output": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.0.asc",
+      "program": "iceunpack",
+      "purpose": "unpack the packed bitstream into icebox's ASCII representation",
+      "resolved": "/usr/bin/iceunpack",
+      "version": "Usage: /usr/bin/iceunpack [options] [input-file [output-file]]"
+    },
+    {
+      "command": [
+        "/usr/bin/icebox_vlog",
+        "-n",
+        "chip",
+        "/hal/tools/hal_bitstream/fixtures/ice40_blinky.0.asc"
+      ],
+      "input": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.0.asc",
+      "output": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.1.v",
+      "program": "icebox_vlog",
+      "purpose": "recover the bitstream's logic as Verilog (behavioural: LUT equations, carry expressions and 'always @(posedge ...)' blocks, one per configured cell)",
+      "resolved": "/usr/bin/icebox_vlog",
+      "version": "Usage: icebox_vlog [options] [bitmap.asc]"
+    },
+    {
+      "command": [
+        "/usr/bin/yosys",
+        "-q",
+        "-p",
+        "read_verilog /hal/tools/hal_bitstream/fixtures/ice40_blinky.1.v; synth_ice40 -top chip; write_verilog -noattr -noexpr /hal/tools/hal_bitstream/fixtures/ice40_blinky.v"
+      ],
+      "input": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.1.v",
+      "output": "/hal/tools/hal_bitstream/fixtures/ice40_blinky.v",
+      "program": "yosys",
+      "purpose": "map icebox_vlog's behavioural Verilog onto the SB_* primitives HAL's netlist parser reads",
+      "resolved": "/usr/bin/yosys",
+      "version": "Yosys 0.33 (git sha1 2584903a060)"
+    }
+  ]
+}

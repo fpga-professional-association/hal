@@ -26,6 +26,25 @@ add_test(NAME runTest-new_plugin_standalone
          COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_new_plugin.py
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# hal_bitstream talks to external converters (IceStorm, Trellis, ...), so its unit tests drive the
+# whole tool with stub converters written into a temp directory: detection, chain planning, stdout
+# capture, the provenance manifest and every error message, on a machine with no FPGA toolchain and
+# no HAL. What they cannot cover -- that IceStorm's real output loads into hal_py -- is what
+# tests/headless_smoke/bitstream_smoke.py is for.
+add_test(NAME runTest-hal_bitstream_standalone
+         COMMAND ${Python3_EXECUTABLE} -m unittest discover
+                 -s ${CMAKE_SOURCE_DIR}/tools/hal_bitstream -t ${CMAKE_SOURCE_DIR}/tools
+                 -p "test_*.py"
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# install_dependencies.sh is checked against stub package managers (a fake apt-get on PATH), so this
+# needs neither root nor a network: it covers the fail-fast behaviour and the completeness of the
+# per-distribution package lists. What it cannot cover -- that the names exist in a real archive --
+# is what 'HAL_DEPENDENCIES_DRY_RUN=1 bash install_dependencies.sh' in a fresh container is for.
+add_test(NAME runTest-install_dependencies_standalone
+         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_install_dependencies.py
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_test(NAME runTest-hal_capabilities_standalone
          COMMAND ${Python3_EXECUTABLE} -m unittest discover
                  -s ${CMAKE_SOURCE_DIR}/tools/hal_capabilities -t ${CMAKE_SOURCE_DIR}/tools

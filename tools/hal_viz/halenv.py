@@ -15,8 +15,10 @@ __all__ = [
     "import_hal_py",
     "import_plugin",
     "load_all_plugins",
+    "ensure_plugins_loaded",
     "unload_all_plugins",
     "load_netlist",
+    "load_hal_project",
     "find_module",
     "find_gate",
 ]
@@ -80,12 +82,37 @@ def import_hal_py(extra_paths=()):
     return hal_py
 
 
+#: Ids of the ``hal_py`` modules whose plugins this process has already loaded. HAL's own
+#: ``plugin_manager.load_all_plugins()`` is idempotent, but it is not free (it walks the plugin
+#: directory and dlopens everything), so repeated calls from the loaders below are elided.
+_PLUGINS_LOADED = set()
+
+
 def load_all_plugins(hal_py):
     """Load all HAL plugins so ``hal_plugins.*`` modules become importable."""
     try:
         hal_py.plugin_manager.load_all_plugins()
     except Exception as exc:
         raise HalUnavailable("could not load HAL plugins: {}".format(exc))
+    _PLUGINS_LOADED.add(id(hal_py))
+
+
+def ensure_plugins_loaded(hal_py):
+    """Load HAL's plugins unless this process already did.
+
+    HAL's gate-library and netlist parsers are *plugins*: with no plugin loaded, nothing is
+    registered for ``.hgl``/``.v``/``.vhd``/``.hal`` and every load silently returns ``None`` --
+    the failure mode behind 'no gate library parser registered for file extension .hgl'. Calling
+    this from :func:`load_netlist` and :func:`load_hal_project` is what makes that impossible for
+    every tool that loads a netlist through this module: forgetting the call is no longer an
+    option, because there is no path that skips it.
+
+    Callers that want the plugins for their own sake (to ``import hal_plugins.*``) keep calling
+    :func:`load_all_plugins`; this is the cheap 'make sure' used by the loaders.
+    """
+    if id(hal_py) in _PLUGINS_LOADED:
+        return
+    load_all_plugins(hal_py)
 
 
 def unload_all_plugins(hal_py):
@@ -94,6 +121,7 @@ def unload_all_plugins(hal_py):
         hal_py.plugin_manager.unload_all_plugins()
     except Exception:
         pass
+    _PLUGINS_LOADED.discard(id(hal_py))
 
 
 def import_plugin(name):
@@ -108,27 +136,40 @@ def import_plugin(name):
     return module
 
 
+def load_hal_project(hal_py, path):
+    """Load a HAL project directory; loads HAL's plugins first if that has not happened yet."""
+    path = os.path.abspath(os.path.expanduser(str(path)))
+    if not os.path.isdir(path):
+        raise NetlistLoadError("HAL project directory does not exist: {}".format(path))
+    ensure_plugins_loaded(hal_py)
+    netlist = hal_py.NetlistFactory.load_hal_project(path)
+    if netlist is None:
+        raise NetlistLoadError(
+            "could not load HAL project from {}. Expected a directory produced by "
+            "unzipping one of the examples/ archives or by "
+            "'hal --import-netlist ... --project-dir ...'.".format(path)
+        )
+    return netlist
+
+
 def load_netlist(hal_py, path, gate_library=None):
     """Load a netlist from a HAL project directory or a netlist file.
 
     * a directory        -> ``NetlistFactory.load_hal_project``
     * a ``.hal`` file    -> ``NetlistFactory.load_netlist`` (library embedded)
     * any other file     -> ``NetlistFactory.load_netlist`` with ``gate_library``
+
+    HAL's parsers are plugins, so this calls :func:`ensure_plugins_loaded` first: a tool that
+    loads a netlist through this function cannot forget to load the plugins.
     """
     path = os.path.abspath(os.path.expanduser(str(path)))
     if not os.path.exists(path):
         raise NetlistLoadError("netlist path does not exist: {}".format(path))
 
     if os.path.isdir(path):
-        netlist = hal_py.NetlistFactory.load_hal_project(path)
-        if netlist is None:
-            raise NetlistLoadError(
-                "could not load HAL project from {}. Expected a directory produced by "
-                "unzipping one of the examples/ archives or by "
-                "'hal --import-netlist ... --project-dir ...'.".format(path)
-            )
-        return netlist
+        return load_hal_project(hal_py, path)
 
+    ensure_plugins_loaded(hal_py)
     suffix = os.path.splitext(path)[1].lower()
     if gate_library:
         library = os.path.abspath(os.path.expanduser(str(gate_library)))
