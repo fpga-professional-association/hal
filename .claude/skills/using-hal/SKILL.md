@@ -58,6 +58,8 @@ Core flags, from `app/main.cpp`:
 | `-i, --import-netlist <file>` | import a netlist (HDL, `.hal`, ...) into a new project |
 | `-p, --project-dir <dir>` | open an existing HAL project directory |
 | `-gl, --gate-library <file>` | gate library to use (`.hgl`/`.lib`) — required when importing HDL |
+| `-gls, --gate-library-search-list <list>` | ordered, comma-separated gate library files or directories for netlists whose cells come from several libraries; earlier entries win a gate type name collision, and it takes precedence over `--gate-library` |
+| `--black-box-fallback` | import cells that no gate library defines as black boxes (pins taken from the instantiation, all `inout`, no function) instead of aborting — off by default |
 | `-e, --empty-project <dir>` | create an empty project (requires `--gate-library`, excludes import/project-dir) |
 | `--volatile-mode` | don't write a `.hal` project file back to disk |
 | `--no-log` | don't create a `.log` file |
@@ -118,6 +120,18 @@ Semantics worth knowing:
 - **The netlist is borrowed, not owned.** HAL frees it after the script ends;
   don't stash it in something that outlives the run.
 
+A chip-top netlist whose cells come from several libraries (standard cells, RAM
+macros, pads) is imported against all of them at once, and unmapped cells can be
+degraded to black boxes rather than failing the import. Note that such a netlist
+cannot be written to and read back from a `.hal` file yet — re-import it with the
+same options instead.
+
+```bash
+hal --import-netlist chip_top.v \
+    --gate-library-search-list stdcells.lib,macros/ram.lib,pads.lib \
+    --black-box-fallback --project-dir ./out_project
+```
+
 ## Python API essentials
 
 Inside `hal --python` / `--python-script`, `hal_py` is already imported.
@@ -134,6 +148,13 @@ netlist = hal_py.NetlistFactory.load_netlist("<path/to/netlist>", "<path/to/gate
 
 # a .hal file already carries its gate library path
 netlist = hal_py.NetlistFactory.load_netlist("<path/to/design.hal>")
+
+# cells from several gate libraries, unmapped ones degraded to black boxes;
+# earlier entries of the list win a gate type name collision
+netlist = hal_py.NetlistFactory.load_netlist(
+    "<path/to/chip_top.v>", ["stdcells.lib", "macros/ram.lib"], black_box_fallback=True)
+lib = netlist.get_gate_library()
+black_boxes = [g for g in netlist.get_gates() if lib.is_black_box_gate_type(g.get_type())]
 ```
 
 `NetlistFactory` functions return `None` on failure — always check.

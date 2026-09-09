@@ -2,6 +2,7 @@
 
 #include "hal_core/netlist/endpoint.h"
 #include "hal_core/netlist/gate.h"
+#include "hal_core/netlist/gate_library/gate_library.h"
 #include "hal_core/netlist/netlist.h"
 #include "hal_core/netlist/netlist_factory.h"
 #include "hal_core/utilities/enums.h"
@@ -329,6 +330,20 @@ namespace hal
         m_gate_types     = gate_library->get_gate_types();
         m_gnd_gate_types = gate_library->get_gnd_gate_types();
         m_vcc_gate_types = gate_library->get_vcc_gate_types();
+
+        if (!m_black_box_fallback)
+        {
+            // black box gate types are synthesized into the gate library by an earlier import that asked for the
+            // fallback, they are backed by no gate library file. A strict import must not accept a cell just because
+            // somebody else was lenient about it before, so they are hidden from it.
+            for (const auto& [bb_name, bb_type] : gate_library->get_black_box_gate_types())
+            {
+                if (const auto it = m_gate_types.find(bb_name); it != m_gate_types.end() && it->second == bb_type)
+                {
+                    m_gate_types.erase(it);
+                }
+            }
+        }
 
         // create const 0 and const 1 net, will be removed if unused
         m_zero_net = m_netlist->create_net("'0'");
@@ -1166,6 +1181,130 @@ namespace hal
     // ###########      Assemble Netlist from Intermediate Format       ##########
     // ###########################################################################
 
+    Result<std::monostate> VerilogParser::create_black_box_gate_types()
+    {
+        // the netlist is bound to exactly one gate library and only accepts gate types that are part of it, so the
+        // black box types have to be added to the library that the netlist was instantiated with; they live for as
+        // long as that library instance does and are never written back to the gate library file
+        GateLibrary* gate_library = const_cast<GateLibrary*>(m_netlist->get_gate_library());
+        if (gate_library == nullptr)
+        {
+            return ERR("could not create black box gate types: netlist has no gate library");
+        }
+
+        // keep the order of first appearance so that the created gate types do not depend on hash map iteration order
+        std::vector<std::string> unresolved_types;
+        std::unordered_map<std::string, std::vector<std::pair<std::string, u32>>> ports_by_type;
+        std::unordered_map<std::string, std::unordered_map<std::string, u32>> port_index_by_type;
+        std::unordered_set<std::string> types_assigned_by_name;
+        std::unordered_set<std::string> types_assigned_by_order;
+
+        for (const auto& verilog_module : m_modules)
+        {
+            if (m_module_instantiation_count[verilog_module->m_name] == 0)
+            {
+                continue;
+            }
+
+            for (const auto& instance : verilog_module->m_instances)
+            {
+                const std::string& type_name = instance->m_type;
+
+                // known module or known gate type, nothing to stand in for
+                if (m_modules_by_name.find(type_name) != m_modules_by_name.end() || m_gate_types.find(type_name) != m_gate_types.end())
+                {
+                    continue;
+                }
+
+                if (ports_by_type.find(type_name) == ports_by_type.end())
+                {
+                    unresolved_types.push_back(type_name);
+                    ports_by_type.emplace(type_name, std::vector<std::pair<std::string, u32>>());
+                    port_index_by_type.emplace(type_name, std::unordered_map<std::string, u32>());
+                }
+
+                auto& ports      = ports_by_type.at(type_name);
+                auto& port_index = port_index_by_type.at(type_name);
+
+                for (u32 i = 0; i < instance->m_port_assignments.size(); i++)
+                {
+                    const auto& port_assignment = instance->m_port_assignments.at(i);
+
+                    const u32 width = static_cast<u32>(expand_assignment_expression(verilog_module.get(), port_assignment.m_assignment).size());
+                    if (width == 0)
+                    {
+                        continue;
+                    }
+
+                    std::string port_name;
+                    if (port_assignment.m_port_name.has_value())
+                    {
+                        types_assigned_by_name.insert(type_name);
+                        port_name = port_assignment.m_port_name.value();
+                    }
+                    else
+                    {
+                        // without port names all that is left is the position within the instantiation
+                        types_assigned_by_order.insert(type_name);
+                        port_name = "PORT_" + std::to_string(i);
+                    }
+
+                    if (const auto it = port_index.find(port_name); it != port_index.end())
+                    {
+                        u32& known_width = ports.at(it->second).second;
+                        if (known_width != width)
+                        {
+                            log_warning("verilog_parser",
+                                        "port '{}' of undefined cell type '{}' is instantiated with {} bit(s) in one place and {} bit(s) in another, using the wider one for the black box gate type.",
+                                        port_name,
+                                        type_name,
+                                        known_width,
+                                        width);
+                            known_width = std::max(known_width, width);
+                        }
+                    }
+                    else
+                    {
+                        port_index[port_name] = static_cast<u32>(ports.size());
+                        ports.push_back(std::make_pair(port_name, width));
+                    }
+                }
+            }
+        }
+
+        for (const auto& type_name : unresolved_types)
+        {
+            const bool by_name  = types_assigned_by_name.find(type_name) != types_assigned_by_name.end();
+            const bool by_order = types_assigned_by_order.find(type_name) != types_assigned_by_order.end();
+
+            if (by_name && by_order)
+            {
+                log_warning("verilog_parser", "undefined cell type '{}' is instantiated both by port name and by port order, the pins of its black box gate type may end up assigned incorrectly.", type_name);
+            }
+            else if (by_order)
+            {
+                log_warning("verilog_parser", "undefined cell type '{}' is instantiated by port order only, so the pins of its black box gate type are named by position.", type_name);
+            }
+
+            const auto res = gate_library->create_black_box_gate_type(type_name, ports_by_type.at(type_name));
+            if (res.is_error())
+            {
+                return ERR_APPEND(res.get_error(), "could not create black box gate type for undefined cell type '" + type_name + "'");
+            }
+
+            GateType* gt            = res.get();
+            m_gate_types[type_name] = gt;
+
+            log_warning("verilog_parser",
+                        "gate type '{}' is not defined in gate library '{}', instantiating it as a black box with {} pin(s) of unknown direction.",
+                        type_name,
+                        gate_library->get_name(),
+                        gt->get_pins().size());
+        }
+
+        return OK({});
+    }
+
     Result<std::monostate> VerilogParser::construct_netlist(VerilogModule* top_module)
     {
         m_netlist->set_design_name(top_module->m_name);
@@ -1202,6 +1341,15 @@ namespace hal
                 {
                     q.push(it->second);
                 }
+            }
+        }
+
+        // turn cells that the gate library does not define into black boxes, if the user asked for it
+        if (m_black_box_fallback)
+        {
+            if (const auto res = create_black_box_gate_types(); res.is_error())
+            {
+                return ERR_APPEND(res.get_error(), "could not construct netlist: unable to create black box gate types");
             }
         }
 
@@ -2005,7 +2153,7 @@ namespace hal
             else
             {
                 return ERR("could not create instance '" + instance_identifier + "' of type '" + instance_type + "': failed to find gate type '" + instance->m_type + "' in gate library '"
-                           + m_netlist->get_gate_library()->get_name() + "'");
+                           + m_netlist->get_gate_library()->get_name() + "' (load additional gate libraries or enable the black box fallback to accept undefined cells)");
             }
 
             // assign instance attributes

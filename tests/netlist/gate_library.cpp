@@ -134,4 +134,246 @@ namespace hal
         }
         TEST_END
     }
+
+    /**
+     * Testing the provenance of a gate library, i.e., the files it has been assembled from.
+     *
+     * Functions: get_source_paths, is_composite, set_path
+     */
+    TEST_F(GateLibraryTest, check_source_paths)
+    {
+        TEST_START
+        {
+            auto gl = std::make_unique<GateLibrary>("some_path.hgl", "gl");
+            EXPECT_EQ(gl->get_source_paths(), std::vector<std::filesystem::path>({"some_path.hgl"}));
+            EXPECT_FALSE(gl->is_composite());
+
+            // a single-source library follows its file when that is moved
+            gl->set_path("other_path.hgl");
+            EXPECT_EQ(gl->get_source_paths(), std::vector<std::filesystem::path>({"other_path.hgl"}));
+            EXPECT_FALSE(gl->is_composite());
+        }
+        {
+            // a library without a file has no provenance at all
+            auto gl = std::make_unique<GateLibrary>(std::filesystem::path(), "gl");
+            EXPECT_TRUE(gl->get_source_paths().empty());
+            EXPECT_FALSE(gl->is_composite());
+        }
+        TEST_END
+    }
+
+    /**
+     * Testing that a gate library can take over the gate types of other gate libraries, which is what netlists
+     * referencing cells from more than one gate library file rely on.
+     *
+     * Functions: absorb, get_source_paths, is_composite
+     */
+    TEST_F(GateLibraryTest, check_absorb)
+    {
+        TEST_START
+        {
+            NO_COUT_TEST_BLOCK;
+
+            auto gl_a = std::make_unique<GateLibrary>("a.hgl", "gl_a");
+            GateType* a_buf = gl_a->create_gate_type("BUF");
+            ASSERT_NE(a_buf, nullptr);
+            ASSERT_TRUE(a_buf->create_pin("I", PinDirection::input).is_ok());
+            ASSERT_TRUE(a_buf->create_pin("O", PinDirection::output).is_ok());
+            GateType* a_shared = gl_a->create_gate_type("SHARED");
+            ASSERT_NE(a_shared, nullptr);
+            ASSERT_TRUE(a_shared->create_pin("FROM_A", PinDirection::input).is_ok());
+            GateType* a_gnd = gl_a->create_gate_type("GND", {GateTypeProperty::ground});
+            ASSERT_NE(a_gnd, nullptr);
+            ASSERT_TRUE(a_gnd->create_pin("O", PinDirection::output, PinType::ground).is_ok());
+            a_gnd->add_boolean_function("O", BooleanFunction::Const(BooleanFunction::Value::ZERO));
+            ASSERT_TRUE(gl_a->mark_gnd_gate_type(a_gnd));
+            gl_a->add_include("a.include");
+            gl_a->set_gate_location_data_category("attribute");
+            gl_a->set_gate_location_data_identifiers("X", "Y");
+
+            auto gl_b = std::make_unique<GateLibrary>("b.hgl", "gl_b");
+            GateType* b_ram = gl_b->create_gate_type("RAM");
+            ASSERT_NE(b_ram, nullptr);
+            ASSERT_TRUE(b_ram->create_pin("D", PinDirection::input).is_ok());
+            GateType* b_shared = gl_b->create_gate_type("SHARED");
+            ASSERT_NE(b_shared, nullptr);
+            ASSERT_TRUE(b_shared->create_pin("FROM_B", PinDirection::input).is_ok());
+            gl_b->add_include("b.include");
+
+            auto composite = std::make_unique<GateLibrary>(std::filesystem::path(), "composite");
+            ASSERT_TRUE(composite->absorb(gl_a.get()).is_ok());
+            ASSERT_TRUE(composite->absorb(gl_b.get()).is_ok());
+
+            // all gate types are now part of the composite library
+            EXPECT_EQ(composite->get_gate_types().size(), 4);
+            ASSERT_TRUE(composite->contains_gate_type_by_name("BUF"));
+            ASSERT_TRUE(composite->contains_gate_type_by_name("RAM"));
+            ASSERT_TRUE(composite->contains_gate_type_by_name("GND"));
+            ASSERT_TRUE(composite->contains_gate_type_by_name("SHARED"));
+
+            // the library absorbed first wins the name collision
+            GateType* shared = composite->get_gate_type_by_name("SHARED");
+            ASSERT_NE(shared, nullptr);
+            EXPECT_EQ(shared, a_shared);
+            EXPECT_NE(shared->get_pin_by_name("FROM_A"), nullptr);
+            EXPECT_EQ(shared->get_pin_by_name("FROM_B"), nullptr);
+
+            // the absorbed gate types belong to the composite library now
+            for (const auto& [name, gt] : composite->get_gate_types())
+            {
+                EXPECT_EQ(gt->get_gate_library(), composite.get()) << "gate type '" << name << "' still points to its original library";
+                EXPECT_TRUE(composite->contains_gate_type(gt));
+            }
+
+            // gate type IDs are unique within the composite library
+            std::set<u32> ids;
+            for (const auto& [name, gt] : composite->get_gate_types())
+            {
+                UNUSED(name);
+                EXPECT_TRUE(ids.insert(gt->get_id()).second);
+            }
+
+            // GND markings and includes are carried over, provenance lists both files in order
+            EXPECT_EQ(composite->get_gnd_gate_types().size(), 1);
+            EXPECT_TRUE(composite->get_gnd_gate_types().find("GND") != composite->get_gnd_gate_types().end());
+            EXPECT_EQ(composite->get_includes(), std::vector<std::string>({"a.include", "b.include"}));
+
+            // the library absorbed first also decides how gate locations are stored
+            EXPECT_EQ(composite->get_gate_location_data_category(), "attribute");
+            EXPECT_EQ(composite->get_gate_location_data_identifiers(), std::make_pair(std::string("X"), std::string("Y")));
+
+            EXPECT_EQ(composite->get_source_paths(), std::vector<std::filesystem::path>({"a.hgl", "b.hgl"}));
+            EXPECT_TRUE(composite->is_composite());
+
+            // the absorbed libraries have been emptied out
+            EXPECT_TRUE(gl_a->get_gate_types().empty());
+            EXPECT_TRUE(gl_b->get_gate_types().empty());
+        }
+        {
+            NO_COUT_TEST_BLOCK;
+
+            // the same libraries in the other order let the other definition win
+            auto gl_a = std::make_unique<GateLibrary>("a.hgl", "gl_a");
+            ASSERT_NE(gl_a->create_gate_type("SHARED"), nullptr);
+            ASSERT_TRUE(gl_a->get_gate_type_by_name("SHARED")->create_pin("FROM_A", PinDirection::input).is_ok());
+
+            auto gl_b = std::make_unique<GateLibrary>("b.hgl", "gl_b");
+            ASSERT_NE(gl_b->create_gate_type("SHARED"), nullptr);
+            ASSERT_TRUE(gl_b->get_gate_type_by_name("SHARED")->create_pin("FROM_B", PinDirection::input).is_ok());
+
+            auto composite = std::make_unique<GateLibrary>(std::filesystem::path(), "composite");
+            ASSERT_TRUE(composite->absorb(gl_b.get()).is_ok());
+            ASSERT_TRUE(composite->absorb(gl_a.get()).is_ok());
+
+            GateType* shared = composite->get_gate_type_by_name("SHARED");
+            ASSERT_NE(shared, nullptr);
+            EXPECT_NE(shared->get_pin_by_name("FROM_B"), nullptr);
+            EXPECT_EQ(shared->get_pin_by_name("FROM_A"), nullptr);
+            EXPECT_EQ(composite->get_source_paths(), std::vector<std::filesystem::path>({"b.hgl", "a.hgl"}));
+        }
+        {
+            NO_COUT_TEST_BLOCK;
+
+            // explicitly asking for the opposite lets the later definition replace the earlier one
+            auto gl_a = std::make_unique<GateLibrary>("a.hgl", "gl_a");
+            ASSERT_NE(gl_a->create_gate_type("SHARED"), nullptr);
+            ASSERT_TRUE(gl_a->get_gate_type_by_name("SHARED")->create_pin("FROM_A", PinDirection::input).is_ok());
+
+            auto gl_b = std::make_unique<GateLibrary>("b.hgl", "gl_b");
+            ASSERT_NE(gl_b->create_gate_type("SHARED"), nullptr);
+            ASSERT_TRUE(gl_b->get_gate_type_by_name("SHARED")->create_pin("FROM_B", PinDirection::input).is_ok());
+
+            auto composite = std::make_unique<GateLibrary>(std::filesystem::path(), "composite");
+            ASSERT_TRUE(composite->absorb(gl_a.get()).is_ok());
+            ASSERT_TRUE(composite->absorb(gl_b.get(), true).is_ok());
+
+            EXPECT_EQ(composite->get_gate_types().size(), 1);
+            GateType* shared = composite->get_gate_type_by_name("SHARED");
+            ASSERT_NE(shared, nullptr);
+            EXPECT_NE(shared->get_pin_by_name("FROM_B"), nullptr);
+        }
+        {
+            NO_COUT_TEST_BLOCK;
+
+            // invalid input
+            auto gl = std::make_unique<GateLibrary>("a.hgl", "gl");
+            EXPECT_TRUE(gl->absorb(nullptr).is_error());
+            EXPECT_TRUE(gl->absorb(gl.get()).is_error());
+        }
+        TEST_END
+    }
+
+    /**
+     * Testing the creation of black box gate types standing in for cells that no gate library defines.
+     *
+     * Functions: create_black_box_gate_type, is_black_box_gate_type, get_black_box_gate_types
+     */
+    TEST_F(GateLibraryTest, check_black_box_gate_type)
+    {
+        TEST_START
+        {
+            NO_COUT_TEST_BLOCK;
+
+            auto gl = std::make_unique<GateLibrary>("a.hgl", "gl");
+
+            auto res = gl->create_black_box_gate_type("MY_RAM", {{"CLK", 1}, {"D", 4}, {"Q", 1}});
+            ASSERT_TRUE(res.is_ok());
+            GateType* bb = res.get();
+            ASSERT_NE(bb, nullptr);
+
+            // known to the library, and known to be a black box
+            EXPECT_TRUE(gl->contains_gate_type(bb));
+            EXPECT_TRUE(gl->is_black_box_gate_type(bb));
+            EXPECT_EQ(gl->get_black_box_gate_types().size(), 1);
+            EXPECT_TRUE(gl->get_black_box_gate_types().find("MY_RAM") != gl->get_black_box_gate_types().end());
+
+            // nothing is known about the internals of a black box
+            EXPECT_TRUE(bb->get_properties().empty());
+            EXPECT_TRUE(bb->get_boolean_functions().empty());
+
+            // single-bit ports become single pins, multi-bit ports become pin groups ordered from the highest bit down
+            EXPECT_EQ(bb->get_pin_names(), std::vector<std::string>({"CLK", "D(3)", "D(2)", "D(1)", "D(0)", "Q"}));
+            for (auto* pin : bb->get_pins())
+            {
+                EXPECT_EQ(pin->get_direction(), PinDirection::inout) << "pin '" << pin->get_name() << "' does not have unknown direction";
+            }
+            auto* group = bb->get_pin_group_by_name("D");
+            ASSERT_NE(group, nullptr);
+            EXPECT_EQ(group->get_pins().size(), 4);
+            // the bits are indexed from 0 regardless of the order the pins are listed in
+            EXPECT_EQ(bb->get_pin_by_name("D(0)")->get_group().second, 0);
+            EXPECT_EQ(bb->get_pin_by_name("D(3)")->get_group().second, 3);
+
+            // a gate type that is not a black box is not reported as one
+            GateType* regular = gl->create_gate_type("BUF");
+            ASSERT_NE(regular, nullptr);
+            EXPECT_FALSE(gl->is_black_box_gate_type(regular));
+            EXPECT_FALSE(gl->is_black_box_gate_type(nullptr));
+
+            // no black box may shadow an existing gate type
+            EXPECT_TRUE(gl->create_black_box_gate_type("BUF", {}).is_error());
+            EXPECT_TRUE(gl->create_black_box_gate_type("MY_RAM", {}).is_error());
+
+            // removing a black box takes its marking with it, so the name is free again
+            gl->remove_gate_type("MY_RAM");
+            EXPECT_FALSE(gl->is_black_box_gate_type(bb));
+            EXPECT_TRUE(gl->get_black_box_gate_types().empty());
+            EXPECT_TRUE(gl->create_black_box_gate_type("MY_RAM", {{"CLK", 1}}).is_ok());
+        }
+        {
+            NO_COUT_TEST_BLOCK;
+
+            // black box markings survive being absorbed into another library
+            auto gl = std::make_unique<GateLibrary>("a.hgl", "gl");
+            ASSERT_TRUE(gl->create_black_box_gate_type("MY_PAD", {{"PORT_0", 1}}).is_ok());
+
+            auto composite = std::make_unique<GateLibrary>(std::filesystem::path(), "composite");
+            ASSERT_TRUE(composite->absorb(gl.get()).is_ok());
+
+            GateType* bb = composite->get_gate_type_by_name("MY_PAD");
+            ASSERT_NE(bb, nullptr);
+            EXPECT_TRUE(composite->is_black_box_gate_type(bb));
+        }
+        TEST_END
+    }
 }    //namespace hal

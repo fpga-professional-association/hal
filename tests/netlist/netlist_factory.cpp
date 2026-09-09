@@ -284,6 +284,118 @@ namespace hal {
     }
 
     /**
+     * Testing the command line options for netlists that reference cells from more than one gate library and for
+     * cells that no gate library defines at all.
+     *
+     * Functions: load_netlist(project_dir, args)
+     */
+    TEST_F(NetlistFactoryTest, check_create_netlist_by_program_args_multi_library) {
+        TEST_START
+            // a second gate library holding a cell that the first one does not define
+            std::filesystem::path other_lib_path = test_utils::create_sandbox_file("other_min_test_gate_lib.lib",
+                                                                                   "library (OTHER_MIN_TEST_GATE_LIBRARY) {\n"
+                                                                                   "    define(cell);\n"
+                                                                                   "    cell(other_gate_1_to_1) {\n"
+                                                                                   "        pin(I) { direction: input; }\n"
+                                                                                   "        pin(O) { direction: output; } }\n"
+                                                                                   "}");
+
+            // a netlist mixing cells of both libraries
+            std::filesystem::path mixed_netlist_path = test_utils::create_sandbox_file("mixed.v",
+                                                                                       "module top (net_global_in, net_global_out);\n"
+                                                                                       "  input net_global_in;\n"
+                                                                                       "  output net_global_out;\n"
+                                                                                       "  wire net_0;\n"
+                                                                                       "gate_1_to_1 gate_0 ( .I (net_global_in), .O (net_0) );\n"
+                                                                                       "other_gate_1_to_1 gate_1 ( .I (net_0), .O (net_global_out) );\n"
+                                                                                       "endmodule");
+
+            // the gate library manager outlives a single test, so everything loaded here is dropped again at the end
+            // to keep the gate libraries the other tests match their netlists against unchanged
+            std::vector<std::filesystem::path> loaded_lib_keys;
+            {
+                // a single gate library cannot instantiate it
+                NO_COUT_TEST_BLOCK;
+                ProgramArguments p_args;
+                p_args.set_option("--import-netlist", std::vector<std::string>({mixed_netlist_path}));
+                p_args.set_option("--gate-library", std::vector<std::string>({m_g_lib_path}));
+                ProjectManager* pm = ProjectManager::instance();
+                pm->create_project_directory("import_mixed_single_lib");
+
+                EXPECT_EQ(netlist_factory::load_netlist(pm->get_project_directory(), p_args), nullptr);
+            }
+            {
+                // the ordered search list of both libraries can
+                NO_COUT_TEST_BLOCK;
+                ProgramArguments p_args;
+                p_args.set_option("--import-netlist", std::vector<std::string>({mixed_netlist_path}));
+                p_args.set_option("--gate-library-search-list", std::vector<std::string>({m_g_lib_path.string() + "," + other_lib_path.string()}));
+                ProjectManager* pm = ProjectManager::instance();
+                pm->create_project_directory("import_mixed_search_list");
+
+                auto nl = netlist_factory::load_netlist(pm->get_project_directory(), p_args);
+                ASSERT_NE(nl, nullptr);
+                EXPECT_EQ(nl->get_gates().size(), 2);
+                EXPECT_TRUE(nl->get_gate_library()->is_composite());
+                EXPECT_EQ(nl->get_gates(test_utils::gate_type_filter("gate_1_to_1")).size(), 1);
+                EXPECT_EQ(nl->get_gates(test_utils::gate_type_filter("other_gate_1_to_1")).size(), 1);
+
+                // a composite library is addressed by a key describing the ordered list it was built from
+                loaded_lib_keys.push_back(nl->get_gate_library()->get_path());
+            }
+
+            // a gate library of its own for the black box case, so that the synthesized gate types do not leak into
+            // the library the other tests use
+            std::filesystem::path bb_lib_path = test_utils::create_sandbox_file("black_box_min_test_gate_lib.lib", m_min_gl_content);
+            loaded_lib_keys.push_back(std::filesystem::absolute(bb_lib_path));
+            std::filesystem::path bb_netlist_path = test_utils::create_sandbox_file("black_box.v",
+                                                                                    "module top (net_global_in, net_global_out);\n"
+                                                                                    "  input net_global_in;\n"
+                                                                                    "  output net_global_out;\n"
+                                                                                    "  wire net_0;\n"
+                                                                                    "gate_1_to_1 gate_0 ( .I (net_global_in), .O (net_0) );\n"
+                                                                                    "UNDEFINED_CELL cell_0 ( .A (net_0), .Z (net_global_out) );\n"
+                                                                                    "endmodule");
+            {
+                // an undefined cell aborts the import by default
+                NO_COUT_TEST_BLOCK;
+                ProgramArguments p_args;
+                p_args.set_option("--import-netlist", std::vector<std::string>({bb_netlist_path}));
+                p_args.set_option("--gate-library", std::vector<std::string>({bb_lib_path}));
+                ProjectManager* pm = ProjectManager::instance();
+                pm->create_project_directory("import_black_box_strict");
+
+                EXPECT_EQ(netlist_factory::load_netlist(pm->get_project_directory(), p_args), nullptr);
+            }
+            {
+                // unless the black box fallback is asked for
+                NO_COUT_TEST_BLOCK;
+                ProgramArguments p_args;
+                p_args.set_option("--import-netlist", std::vector<std::string>({bb_netlist_path}));
+                p_args.set_option("--gate-library", std::vector<std::string>({bb_lib_path}));
+                p_args.set_option("--black-box-fallback", std::vector<std::string>());
+                ProjectManager* pm = ProjectManager::instance();
+                pm->create_project_directory("import_black_box_fallback");
+
+                auto nl = netlist_factory::load_netlist(pm->get_project_directory(), p_args);
+                ASSERT_NE(nl, nullptr);
+                ASSERT_EQ(nl->get_gates(test_utils::gate_type_filter("UNDEFINED_CELL")).size(), 1);
+
+                const GateLibrary* lib = nl->get_gate_library();
+                ASSERT_NE(lib, nullptr);
+                EXPECT_TRUE(lib->is_black_box_gate_type(nl->get_gates(test_utils::gate_type_filter("UNDEFINED_CELL")).at(0)->get_type()));
+            }
+            {
+                NO_COUT_TEST_BLOCK;
+                for (const auto& key : loaded_lib_keys)
+                {
+                    gate_library_manager::remove(key);
+                }
+            }
+        TEST_END
+    }
+
+    /**
     * Testing the creation of multiple netlists from a single HDL file by using multiple valid gate libraries
     *
     * Functions: load_netlists(hdl_file, ...)

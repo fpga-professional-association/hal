@@ -3609,6 +3609,101 @@ namespace hal {
             auto verilog_file           = test_utils::create_sandbox_file("netlist.v", netlist_input);
             VerilogParser verilog_parser;
             auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+     * Testing that a cell which the gate library does not define aborts the import unless the black box fallback
+     * has explicitly been enabled, in which case it becomes a black box gate type derived from its instantiation.
+     *
+     * Functions: instantiate, enable_black_box_fallback
+     */
+    TEST_F(VerilogParserTest, check_black_box_fallback)
+    {
+        TEST_START
+        std::string netlist_input("module top ("
+                                  "  net_global_in,"
+                                  "  net_global_out "
+                                  " ) ;"
+                                  "  input net_global_in ;"
+                                  "  output net_global_out ;"
+                                  "  wire [3:0] data ;"
+                                  "BUF gate_0 ("
+                                  "  .I (net_global_in ),"
+                                  "  .O (data[0] )"
+                                  " ) ;"
+                                  "MY_RAM ram_0 ("
+                                  "  .CLK (net_global_in ),"
+                                  "  .D (data[3:0] ),"
+                                  "  .Q (net_global_out )"
+                                  " ) ;"
+                                  "endmodule");
+        {
+            // the gate library does not know 'MY_RAM', which is an error by default
+            NO_COUT_TEST_BLOCK;
+            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
+            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", netlist_input);
+            VerilogParser verilog_parser;
+            EXPECT_FALSE(verilog_parser.is_black_box_fallback_enabled());
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            EXPECT_TRUE(nl_res.is_error());
+        }
+        {
+            // with the fallback enabled the unknown cell becomes a black box instead
+            NO_COUT_TEST_BLOCK;
+            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
+            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", netlist_input);
+            VerilogParser verilog_parser;
+            verilog_parser.enable_black_box_fallback(true);
+            EXPECT_TRUE(verilog_parser.is_black_box_fallback_enabled());
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            ASSERT_EQ(nl->get_gates().size(), 2);
+            const auto ram_gates = nl->get_gates(test_utils::gate_type_filter("MY_RAM"));
+            ASSERT_EQ(ram_gates.size(), 1);
+            Gate* ram = ram_gates.at(0);
+            EXPECT_EQ(ram->get_name(), "ram_0");
+
+            // the gate type has been synthesized and is marked as a black box
+            GateType* ram_type = ram->get_type();
+            ASSERT_NE(ram_type, nullptr);
+            EXPECT_TRUE(gate_lib->is_black_box_gate_type(ram_type));
+            EXPECT_TRUE(ram_type->get_properties().empty());
+
+            // its pins are derived from the instantiation, with unknown direction
+            EXPECT_EQ(ram_type->get_pin_names(), std::vector<std::string>({"CLK", "D(3)", "D(2)", "D(1)", "D(0)", "Q"}));
+            for (auto* pin : ram_type->get_pins())
+            {
+                EXPECT_EQ(pin->get_direction(), PinDirection::inout);
+            }
+
+            // the bits of the vector port are connected in the right order: data[0] is the one the buffer drives
+            const auto buf_gates = nl->get_gates(test_utils::gate_type_filter("BUF"));
+            ASSERT_EQ(buf_gates.size(), 1);
+            Net* data_0 = buf_gates.at(0)->get_fan_out_net("O");
+            ASSERT_NE(data_0, nullptr);
+            EXPECT_EQ(ram->get_fan_in_net("D(0)"), data_0);
+            EXPECT_NE(ram->get_fan_in_net("D(3)"), data_0);
+
+            // and the black box is hooked up to the rest of the netlist
+            EXPECT_NE(ram->get_fan_in_net("CLK"), nullptr);
+            EXPECT_NE(ram->get_fan_out_net("Q"), nullptr);
+        }
+        {
+            // ports assigned by order are named by position, as there is nothing else to go by
+            NO_COUT_TEST_BLOCK;
+            std::string by_order_input("module top ("
+                                       "  net_global_in,"
+                                       "  net_global_out "
+                                       " ) ;"
+                                       "  input net_global_in ;"
+                                       "  output net_global_out ;"
+                                       "MY_PAD pad_0 ( net_global_in, net_global_out ) ;"
+                                       "endmodule");
+            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
+            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", by_order_input);
+            VerilogParser verilog_parser;
+            verilog_parser.enable_black_box_fallback(true);
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib.get());
             ASSERT_TRUE(nl_res.is_ok());
             std::unique_ptr<Netlist> nl = nl_res.get();
             ASSERT_NE(nl, nullptr);
@@ -3702,6 +3797,43 @@ namespace hal {
             // the pins are connected to the correct nets
             EXPECT_EQ(group_a->get_pin_at_index(1).get()->get_net()->get_name(), "a(1)");
             EXPECT_EQ(group_b->get_pin_at_index(1).get()->get_net()->get_name(), "b(1)");
+            const auto pad_gates = nl->get_gates(test_utils::gate_type_filter("MY_PAD"));
+            ASSERT_EQ(pad_gates.size(), 1);
+            GateType* pad_type = pad_gates.at(0)->get_type();
+            ASSERT_NE(pad_type, nullptr);
+            EXPECT_TRUE(gate_lib->is_black_box_gate_type(pad_type));
+            EXPECT_EQ(pad_type->get_pin_names(), std::vector<std::string>({"PORT_0", "PORT_1"}));
+        }
+        {
+            // the black boxes end up in the gate library, which is shared with every other netlist loaded from the
+            // same gate library file; a strict import must not accept a cell just because an earlier one was lenient
+            NO_COUT_TEST_BLOCK;
+            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
+            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", netlist_input);
+
+            VerilogParser lenient_parser;
+            lenient_parser.enable_black_box_fallback(true);
+            auto lenient_res = lenient_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            ASSERT_TRUE(lenient_res.is_ok());
+            ASSERT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
+            GateType* first_bb = gate_lib->get_gate_type_by_name("MY_RAM");
+            ASSERT_NE(first_bb, nullptr);
+
+            // the same library, but this time nobody asked for the fallback
+            VerilogParser strict_parser;
+            EXPECT_TRUE(strict_parser.parse_and_instantiate(verilog_file, gate_lib.get()).is_error());
+
+            // while a second lenient import reuses the black box instead of synthesizing a second one
+            VerilogParser second_parser;
+            second_parser.enable_black_box_fallback(true);
+            auto second_res = second_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            ASSERT_TRUE(second_res.is_ok());
+            std::unique_ptr<Netlist> nl = second_res.get();
+            ASSERT_NE(nl, nullptr);
+            EXPECT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
+            const auto ram_gates = nl->get_gates(test_utils::gate_type_filter("MY_RAM"));
+            ASSERT_EQ(ram_gates.size(), 1);
+            EXPECT_EQ(ram_gates.at(0)->get_type(), first_bb);
         }
         TEST_END
     }

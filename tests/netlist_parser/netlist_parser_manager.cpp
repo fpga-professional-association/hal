@@ -7,6 +7,7 @@
 
 #include "gtest/gtest.h"
 #include "hal_core/utilities/program_arguments.h"
+#include "hal_core/utilities/program_options.h"
 
 #include <sstream>
 
@@ -81,8 +82,20 @@ namespace hal {
      */
     TEST_F(hdl_parser_managerTest, check_cli_options) {
         TEST_START
-            {// Access the cli-options (should be empty)
-                EXPECT_TRUE(netlist_parser_manager::get_cli_options().get_options().empty());
+            {// Access the cli-options: the parser manager offers the options that control how a netlist is imported
+                const ProgramOptions options = netlist_parser_manager::get_cli_options();
+                EXPECT_FALSE(options.get_options().empty());
+
+                // an ordered gate library search list for netlists whose cells come from several gate libraries
+                EXPECT_TRUE(options.is_registered("-gls"));
+                EXPECT_TRUE(options.is_registered("--gate-library-search-list"));
+
+                // the opt-in fallback that turns cells no gate library defines into black boxes
+                EXPECT_TRUE(options.is_registered("--black-box-fallback"));
+
+                // and nothing else
+                EXPECT_EQ(options.get_options().size(), 2);
+                EXPECT_FALSE(options.is_registered("--not-a-parser-option"));
             }
         TEST_END
     }

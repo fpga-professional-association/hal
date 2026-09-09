@@ -74,6 +74,17 @@ namespace hal
             }
         }
 
+        bool can_parse(const std::filesystem::path& file_path)
+        {
+            auto extension = utils::to_lower(file_path.extension().string());
+            if (!extension.empty() && extension[0] != '.')
+            {
+                extension = "." + extension;
+            }
+
+            return m_extension_to_parser.find(extension) != m_extension_to_parser.end();
+        }
+
         std::unique_ptr<GateLibrary> parse(std::filesystem::path file_path)
         {
             auto factory = get_parser_factory_for_file(file_path);

@@ -36,9 +36,20 @@ namespace hal
                 return ParserFactory();
             }
 
-            std::vector<std::unique_ptr<Netlist>>
-                dispatch_parse(const std::filesystem::path& file_name, std::unique_ptr<NetlistParser> parser, const GateLibrary* gate_library = nullptr, bool break_on_match = true)
+            std::vector<std::unique_ptr<Netlist>> dispatch_parse(const std::filesystem::path& file_name,
+                                                                 std::unique_ptr<NetlistParser> parser,
+                                                                 const GateLibrary* gate_library    = nullptr,
+                                                                 bool break_on_match                = true,
+                                                                 const ParserOptions& options       = ParserOptions())
             {
+                // with a fallback for unknown cells in place every gate library would match, so auto-detection and the
+                // black box fallback are mutually exclusive
+                if (options.black_box_fallback && gate_library == nullptr)
+                {
+                    log_warning("netlist_parser", "the black box fallback is ignored while auto-detecting the gate library, specify a gate library to use it.");
+                }
+                parser->enable_black_box_fallback(options.black_box_fallback && gate_library != nullptr);
+
                 auto begin_time = std::chrono::high_resolution_clock::now();
 
                 log_info("netlist_parser", "parsing '{}'...", file_name.string());
@@ -129,7 +140,12 @@ namespace hal
 
         ProgramOptions get_cli_options()
         {
-            return ProgramOptions();
+            ProgramOptions description("netlist parser options");
+            description.add({"-gls", "--gate-library-search-list"},
+                            "ordered, comma-separated list of gate library files or directories to load the netlist against; on a gate type name collision the entry that comes first wins",
+                            {ProgramOptions::A_REQUIRED_PARAMETER});
+            description.add("--black-box-fallback", "turn cells that no gate library defines into black boxes instead of aborting the import");
+            return description;
         }
 
         bool can_parse(const std::filesystem::path& file_name)
@@ -192,7 +208,32 @@ namespace hal
 
             const GateLibrary* gate_library = nullptr;
 
-            if (args.is_option_set("--gate-library"))
+            ParserOptions options;
+            options.black_box_fallback = args.is_option_set("--black-box-fallback");
+
+            if (args.is_option_set("--gate-library-search-list"))
+            {
+                if (args.is_option_set("--gate-library"))
+                {
+                    log_warning("netlist_parser", "both --gate-library and --gate-library-search-list are given, the search list takes precedence.");
+                }
+
+                const std::string search_list                 = args.get_parameter("--gate-library-search-list");
+                std::vector<std::filesystem::path> lib_paths   = gate_library_manager::resolve_search_list(gate_library_manager::split_search_list(search_list));
+                if (lib_paths.empty())
+                {
+                    log_error("netlist_parser", "could not resolve any gate library from search list '{}' specified by user.", search_list);
+                    return nullptr;
+                }
+
+                gate_library = gate_library_manager::load_multiple(lib_paths);
+                if (gate_library == nullptr)
+                {
+                    log_error("netlist_parser", "could not load gate libraries from search list '{}' specified by user.", search_list);
+                    return nullptr;
+                }
+            }
+            else if (args.is_option_set("--gate-library"))
             {
                 std::string gate_library_file = args.get_parameter("--gate-library");
                 gate_library                  = gate_library_manager::get_gate_library(gate_library_file);
@@ -203,10 +244,10 @@ namespace hal
                 }
             }
 
-            return parse(file_name, gate_library);
+            return parse(file_name, gate_library, options);
         }
 
-        std::unique_ptr<Netlist> parse(const std::filesystem::path& file_name, const GateLibrary* gate_library)
+        std::unique_ptr<Netlist> parse(const std::filesystem::path& file_name, const GateLibrary* gate_library, const ParserOptions& options)
         {
             ParserFactory factory = get_parser_factory_for_file(file_name);
             if (!factory)
@@ -214,7 +255,7 @@ namespace hal
                 return nullptr;
             }
 
-            std::vector<std::unique_ptr<Netlist>> netlists = dispatch_parse(file_name, factory(), gate_library);
+            std::vector<std::unique_ptr<Netlist>> netlists = dispatch_parse(file_name, factory(), gate_library, true, options);
 
             if (netlists.empty())
             {

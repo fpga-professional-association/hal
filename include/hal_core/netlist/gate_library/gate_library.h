@@ -27,7 +27,9 @@
 
 #include "hal_core/defines.h"
 #include "hal_core/netlist/gate_library/gate_type.h"
+#include "hal_core/utilities/result.h"
 
+#include <filesystem>
 #include <map>
 #include <set>
 #include <string>
@@ -37,6 +39,43 @@ namespace hal
 {
     /**
      * A gate library is a collection of gate types including their pins and Boolean functions.
+     *
+     * ### Composite gate libraries
+     *
+     * A gate library may be assembled from more than one source file, which is what real chip-top netlists require:
+     * standard cells, RAM macros, I/O pads, and analog models usually live in separate Liberty or HGL files.
+     * Such a library is built by absorbing the gate types of freshly parsed libraries into a single one
+     * (see `GateLibrary::absorb()` and `gate_library_manager::load_multiple()`), because a netlist in HAL is always
+     * bound to exactly one gate library and `Netlist::create_gate()` rejects gate types that are not part of it.
+     *
+     * The following semantics apply:
+     * - **Gate type ID collisions:** gate type IDs are only unique within a gate library. Absorbing a library
+     *   therefore re-assigns fresh IDs to all gate types taken over, so IDs of the source libraries are not preserved.
+     *   Refer to gate types by name, never by ID, across libraries.
+     * - **Gate type name collisions:** names are the identity used by every netlist parser. The gate library that
+     *   comes first in the ordered list wins, later definitions of the same name are discarded with a warning
+     *   (search-path semantics), unless the caller explicitly asks for the opposite.
+     * - **Provenance:** `get_source_paths()` returns the ordered list of files the library was assembled from.
+     *   For a library parsed from a single file, this is just its own path.
+     *
+     * ### Black box gate types
+     *
+     * Gate types created via `create_black_box_gate_type()` are synthesized by HAL, not read from any gate library
+     * file. They stand in for cells that a netlist instantiates but that no gate library defines. Their pins are
+     * derived from the netlist instantiation, so their direction is unknown and all of them are `PinDirection::inout`;
+     * they carry no properties and no Boolean functions. Use `is_black_box_gate_type()` to tell them apart from
+     * gate types that are backed by a gate library file, for instance before drawing conclusions from a
+     * gate type's (empty) properties.
+     *
+     * A netlist parser adds them to the very gate library the netlist is being instantiated with, as a netlist only
+     * accepts gate types of its own library. That library is usually owned by the gate library manager and shared
+     * with every other netlist loaded from the same file, so the black boxes of one import stay visible to the next
+     * one: importing the same netlist again reuses them instead of synthesizing them a second time, while an import
+     * that did not ask for the fallback ignores them and still fails on the cell they stand in for.
+     *
+     * Neither composite libraries nor black box gate types survive a `.hal` serialization round-trip yet: the
+     * serializer records a single gate library path and black box types exist in no file at all. Re-import the
+     * netlist with the same set of gate libraries and the same parser options instead.
      *
      * @ingroup gate_lib
      */
@@ -65,6 +104,75 @@ namespace hal
          * @returns The path to the gate library file.
          */
         std::filesystem::path get_path() const;
+
+        /**
+         * Get the ordered list of files the gate library has been assembled from.
+         *
+         * A library parsed from a single file reports exactly that file. A composite library reports the source
+         * files of all libraries it absorbed, in the order in which they were absorbed, which is the order in
+         * which gate type name collisions were resolved.
+         *
+         * @returns The ordered list of source paths.
+         */
+        const std::vector<std::filesystem::path>& get_source_paths() const;
+
+        /**
+         * Check whether the gate library has been assembled from more than one gate library file.
+         *
+         * @returns `true` if the gate library is a composite of multiple gate library files, `false` otherwise.
+         */
+        bool is_composite() const;
+
+        /**
+         * Take over all gate types of another gate library, consuming them.
+         *
+         * The gate types are moved, not copied, so `other` is left without any gate types and must not be used
+         * afterwards. Pass a freshly parsed library that nothing else refers to; absorbing a library that is
+         * registered with the gate library manager would pull the ground out from under every netlist using it.
+         *
+         * Gate types keep their name but are assigned a fresh ID within this library, VCC and GND markings as well
+         * as black box markings are carried over, and the source paths of `other` are appended to the ones of this
+         * library. On a gate type name collision the type already present in this library is kept unless
+         * `overwrite_existing` is set, in either case a warning is logged. As a library holds only one gate
+         * location data category, the first library absorbed into an empty one sets it.
+         *
+         * @param[in] other - The gate library to absorb.
+         * @param[in] overwrite_existing - Set `true` to let the gate types of `other` replace equally named gate types of this library, `false` to keep the existing ones. Defaults to `false`.
+         * @returns Ok on success, an error otherwise.
+         */
+        Result<std::monostate> absorb(GateLibrary* other, bool overwrite_existing = false);
+
+        /**
+         * Create a black box gate type standing in for a cell that no gate library defines.
+         *
+         * The ports are turned into pins in the given order: a port of width 1 becomes a single pin carrying the
+         * port name, a port of width n > 1 becomes a pin group of that name holding the pins `<name>(0)` to
+         * `<name>(n-1)`, ordered from the most significant bit down and indexed from 0, which is what a bus of a
+         * gate library read from a file looks like and what the netlist parsers expect when they connect one. As
+         * the direction of a port cannot be recovered from a netlist instantiation, every pin is created as
+         * `PinDirection::inout`. The gate type carries no properties, so that it is not mistaken for combinational
+         * or sequential logic, and no Boolean functions.
+         *
+         * @param[in] name - The name of the gate type.
+         * @param[in] ports - The ports as pairs of port name and port width, in the order in which the pins shall be created.
+         * @returns The new gate type on success, an error otherwise.
+         */
+        Result<GateType*> create_black_box_gate_type(const std::string& name, const std::vector<std::pair<std::string, u32>>& ports);
+
+        /**
+         * Check whether the given gate type is a black box gate type synthesized by HAL.
+         *
+         * @param[in] gate_type - The gate type.
+         * @returns `true` if the gate type is a black box gate type of this library, `false` otherwise.
+         */
+        bool is_black_box_gate_type(const GateType* gate_type) const;
+
+        /**
+         * Get all black box gate types of the library.
+         *
+         * @returns A map from black box gate type names to gate types.
+         */
+        std::unordered_map<std::string, GateType*> get_black_box_gate_types() const;
 
         /**
          * Hack to alter the path if gate library gets modified and written to a new location.
@@ -209,11 +317,19 @@ namespace hal
          */
         std::vector<std::string> get_includes() const;
 
+        /**
+         * Remove the gate type of the given name from the gate library, so that it can no longer be looked up by name
+         * and no longer stands in the way of a new gate type of that name. The gate type object itself stays alive for
+         * as long as the library does, so gates already created from it keep working.
+         *
+         * @param[in] name - The name of the gate type to remove.
+         */
         void remove_gate_type(const std::string& name);
 
     private:
         std::string m_name;
         std::filesystem::path m_path;
+        std::vector<std::filesystem::path> m_source_paths;
 
         std::string m_gate_location_data_category                            = "generic";
         std::pair<std::string, std::string> m_gate_location_data_identifiers = {"X_COORDINATE", "Y_COORDINATE"};
@@ -224,6 +340,7 @@ namespace hal
         std::unordered_map<std::string, GateType*> m_gate_type_map;
         std::unordered_map<std::string, GateType*> m_vcc_gate_types;
         std::unordered_map<std::string, GateType*> m_gnd_gate_types;
+        std::unordered_map<std::string, GateType*> m_black_box_gate_types;
 
         std::vector<std::string> m_includes;
 

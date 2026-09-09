@@ -50,6 +50,33 @@ namespace hal
             )")
 
             .def(
+                "load_netlist",
+                [](const std::filesystem::path& netlist_file, const std::vector<std::string>& gate_library_search_list, bool black_box_fallback) {
+                    return std::shared_ptr<Netlist>(netlist_factory::load_netlist(netlist_file, gate_library_search_list, black_box_fallback));
+                },
+                py::arg("netlist_file"),
+                py::arg("gate_library_search_list"),
+                py::arg("black_box_fallback") = false,
+                R"(
+                Create a netlist from the given file using an ordered list of gate libraries.
+
+                The entries of the search list may be gate library files, directories holding gate library files, or bare file names
+                that are looked up in the standard gate library directories. They are loaded into a single composite gate library, in
+                which the entry that comes first wins a gate type name collision.
+
+                With ``black_box_fallback`` set, cells that none of the gate libraries defines do not abort the import but become
+                black box gate types derived from the way they are instantiated. The resulting netlist then contains gates whose
+                function is unknown, so this is off by default. Such a netlist cannot be written to and read back from a ``.hal``
+                file yet, it has to be re-imported with the same search list and options.
+
+                :param pathlib.Path netlist_file: Path to the file.
+                :param list[str] gate_library_search_list: The ordered gate library search list.
+                :param bool black_box_fallback: Set ``True`` to turn cells that no gate library defines into black boxes.
+                :returns: The netlist on success, ``None`` otherwise.
+                :rtype: hal_py.Netlist or None
+            )")
+
+            .def(
                 "load_netlist_from_string",
                 [](const std::string& netlist_string, const std::filesystem::path& gate_library_file) {
                     return std::shared_ptr<Netlist>(netlist_factory::load_netlist_from_string(netlist_string, gate_library_file));

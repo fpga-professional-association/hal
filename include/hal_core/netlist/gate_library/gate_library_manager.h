@@ -28,6 +28,7 @@
 #include "hal_core/defines.h"
 
 #include <filesystem>
+#include <string>
 #include <vector>
 
 namespace hal
@@ -49,6 +50,59 @@ namespace hal
          * @returns The gate library on success, `nullptr` otherwise.
          */
         NETLIST_API GateLibrary* load(std::filesystem::path file_path, bool reload = false);
+
+        /**
+         * Resolve an ordered gate library search list into an ordered list of gate library files.
+         *
+         * Every entry may be
+         * - a path to a gate library file, which is taken as is,
+         * - a path to a directory, which is expanded into all gate library files below it, sorted by path so that
+         *   the result does not depend on the order in which the file system happens to return directory entries, or
+         * - a bare file name, which is looked up in the standard gate library directories.
+         *
+         * The order of the entries is preserved, as it decides which gate type wins a name collision when the
+         * libraries are loaded together (see `load_multiple()`). Duplicates are dropped, keeping the first
+         * occurrence. Entries that cannot be resolved are skipped with an error, so an empty result means that
+         * nothing at all could be resolved.
+         *
+         * @param[in] entries - The ordered gate library search list.
+         * @returns The ordered list of absolute paths to gate library files.
+         */
+        NETLIST_API std::vector<std::filesystem::path> resolve_search_list(const std::vector<std::string>& entries);
+
+        /**
+         * Split a gate library search list given as a single string into its entries.
+         *
+         * Entries are separated by `,` and surrounding whitespace is stripped, which keeps the syntax usable for
+         * both the command line and the Python bindings without clashing with drive letters or absolute paths.
+         *
+         * @param[in] search_list - The gate library search list, e.g. `"stdcells.lib, macros/ram.lib"`.
+         * @returns The entries of the search list in the order in which they were given.
+         */
+        NETLIST_API std::vector<std::string> split_search_list(const std::string& search_list);
+
+        /**
+         * Load multiple gate libraries at once and combine them into a single composite gate library.
+         *
+         * A netlist in HAL is bound to exactly one gate library, so netlists that mix cells from several Liberty or
+         * HGL files (standard cells, RAM macros, I/O pads, ...) need the libraries merged before instantiation.
+         * The files are parsed in the given order and their gate types are moved into one composite library, which
+         * gives the list search-path semantics: if two files define a gate type of the same name, the one from the
+         * file that comes first wins and the other is discarded with a warning. Gate type IDs are re-assigned by
+         * the composite library, so they do not match the IDs of the individual libraries.
+         *
+         * The composite library is owned by the gate library manager just like a library loaded from a single file,
+         * and it records the ordered source paths (see `GateLibrary::get_source_paths()`). Loading the same ordered
+         * list again returns the library that is already loaded unless `reload` is set. Note that the composite
+         * library does not correspond to any file on disk: netlists using it cannot be written to and read back
+         * from a `.hal` file yet, they have to be re-imported with the same search list instead.
+         *
+         * @param[in] file_paths - The ordered paths to the gate library files.
+         * @param[in] name - The name of the composite gate library. Defaults to an empty string, in which case the name is derived from the names of the loaded libraries.
+         * @param[in] reload - If `true`, reloads the composite library in case it is already loaded.
+         * @returns The composite gate library on success, `nullptr` otherwise.
+         */
+        NETLIST_API GateLibrary* load_multiple(const std::vector<std::filesystem::path>& file_paths, const std::string& name = "", bool reload = false);
 
         /**
          * Load all gate libraries available in standard gate library directories.

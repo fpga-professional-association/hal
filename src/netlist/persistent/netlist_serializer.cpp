@@ -645,7 +645,28 @@ namespace hal
                 rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
                 rapidjson::Value root(rapidjson::kObjectType);
 
-                root.AddMember("gate_library", nl->get_gate_library()->get_path().string(), allocator);
+                const GateLibrary* gate_library = nl->get_gate_library();
+
+                // the format records a single gate library file, which a composite library and gate types that exist
+                // in no file at all cannot be recovered from; say so instead of writing a file that silently fails to load
+                if (gate_library->is_composite())
+                {
+                    log_warning("netlist_persistent",
+                                "netlist uses the composite gate library '{}' assembled from {} files, which cannot be restored from a '.hal' file; re-import the netlist with the same gate "
+                                "library search list instead.",
+                                gate_library->get_name(),
+                                gate_library->get_source_paths().size());
+                }
+                if (!gate_library->get_black_box_gate_types().empty())
+                {
+                    log_warning("netlist_persistent",
+                                "gate library '{}' contains {} black box gate type(s) that are defined by no gate library file, so a netlist using them cannot be restored from a '.hal' file; "
+                                "re-import the netlist with the black box fallback enabled instead.",
+                                gate_library->get_name(),
+                                gate_library->get_black_box_gate_types().size());
+                }
+
+                root.AddMember("gate_library", gate_library->get_path().string(), allocator);
                 root.AddMember("id", nl->get_id(), allocator);
                 root.AddMember("input_file", nl->get_input_filename().string(), allocator);
                 root.AddMember("design_name", nl->get_design_name(), allocator);

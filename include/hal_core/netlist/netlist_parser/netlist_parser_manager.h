@@ -49,6 +49,18 @@ namespace hal
         using ParserFactory = std::function<std::unique_ptr<NetlistParser>()>;
 
         /**
+         * Options that control how a netlist file is turned into a netlist.
+         */
+        struct NETLIST_API ParserOptions
+        {
+            /**
+             * Set to `true` to turn cells that the gate library does not define into black box gate types instead of
+             * aborting the import. Defaults to `false`, which keeps the strict behavior.
+             */
+            bool black_box_fallback = false;
+        };
+
+        /**
          * Returns the command line interface options of the hdl parser manager
          *
          * @returns The options.
@@ -86,9 +98,10 @@ namespace hal
          *
          * @param[in] file_name - The input file.
          * @param[in] gate_library - The gate library used in the file.
+         * @param[in] options - The parser options. Defaults to the strict behavior.
          * @returns The netlist representation of the hdl code or a nullpointer on error.
          */
-        NETLIST_API std::unique_ptr<Netlist> parse(const std::filesystem::path& file_name, const GateLibrary* gate_library = nullptr);
+        NETLIST_API std::unique_ptr<Netlist> parse(const std::filesystem::path& file_name, const GateLibrary* gate_library = nullptr, const ParserOptions& options = ParserOptions());
 
         /**
          * If gatelibrary name is empty : tries to match the HDL file with each of the preloaded gate libraries

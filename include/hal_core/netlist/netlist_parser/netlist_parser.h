@@ -82,5 +82,44 @@ namespace hal
                 return ERR(res.get_error());
             }
         }
+
+        /**
+         * Enable or disable the black box fallback.
+         *
+         * With the fallback disabled (the default), instantiating a cell that the gate library does not define is an
+         * error that aborts the import of the whole netlist. With it enabled, such a cell is turned into a black box
+         * gate type derived from the way it is instantiated, and only a warning is logged. This trades strictness for
+         * the ability to load chip-top netlists whose gate libraries are incomplete, so the resulting netlist contains
+         * gates whose function is unknown. Use `GateLibrary::is_black_box_gate_type()` to identify them.
+         *
+         * The black boxes are added to the gate library the netlist is instantiated with, which is usually shared with
+         * every other netlist loaded from the same gate library file. A parse with the fallback disabled therefore
+         * ignores the black boxes it finds in that library and still fails on the cells they stand in for, so that
+         * whether an import is strict depends on this setting alone and not on what was imported before it.
+         *
+         * Parsers that do not implement the fallback ignore this setting.
+         *
+         * @param[in] enable - Set `true` to enable the black box fallback, `false` to abort on unknown cells.
+         */
+        void enable_black_box_fallback(bool enable)
+        {
+            m_black_box_fallback = enable;
+        }
+
+        /**
+         * Check whether the black box fallback is enabled.
+         *
+         * @returns `true` if the black box fallback is enabled, `false` otherwise.
+         */
+        bool is_black_box_fallback_enabled() const
+        {
+            return m_black_box_fallback;
+        }
+
+    protected:
+        /**
+         * Set to `true` if cells that are not defined by the gate library shall become black box gate types.
+         */
+        bool m_black_box_fallback = false;
     };
 }    // namespace hal

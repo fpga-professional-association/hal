@@ -103,6 +103,42 @@ namespace hal
             }
         }
 
+        std::unique_ptr<Netlist> load_netlist(const std::filesystem::path& netlist_file, const std::vector<std::string>& gate_library_search_list, bool black_box_fallback)
+        {
+            if (access(netlist_file.c_str(), F_OK | R_OK) == -1)
+            {
+                log_critical("netlist", "could not access file '{}'.", netlist_file.string());
+                return nullptr;
+            }
+
+            std::vector<std::filesystem::path> lib_paths = gate_library_manager::resolve_search_list(gate_library_search_list);
+            if (lib_paths.empty())
+            {
+                log_critical("netlist", "could not resolve any gate library from the given search list, will not load netlist.");
+                return nullptr;
+            }
+
+            GateLibrary* lib = gate_library_manager::load_multiple(lib_paths);
+            if (lib == nullptr)
+            {
+                log_critical("netlist", "could not load the given gate libraries, will not load netlist.");
+                return nullptr;
+            }
+
+            if (netlist_file.extension() == ".hal")
+            {
+                if (black_box_fallback)
+                {
+                    log_warning("netlist", "the black box fallback does not apply to '.hal' files and is ignored.");
+                }
+                return netlist_serializer::deserialize_from_file(netlist_file, lib);
+            }
+
+            netlist_parser_manager::ParserOptions options;
+            options.black_box_fallback = black_box_fallback;
+            return netlist_parser_manager::parse(netlist_file, lib, options);
+        }
+
         std::unique_ptr<Netlist> load_hal_project(const std::filesystem::path& project_dir)
         {
             if (!std::filesystem::is_directory(project_dir))

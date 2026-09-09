@@ -6,7 +6,9 @@
 #include "hal_core/utilities/log.h"
 #include "hal_core/utilities/utils.h"
 
+#include <algorithm>
 #include <iostream>
+#include <set>
 
 namespace hal
 {
@@ -70,6 +72,20 @@ namespace hal
 
                 return OK({});
             }
+
+            /**
+             * Build the key under which a composite gate library is cached. It is not a path on disk, it only has to
+             * identify the ordered list of files the library was assembled from.
+             */
+            std::filesystem::path get_composite_key(const std::vector<std::filesystem::path>& file_paths)
+            {
+                std::string key = "<multi>";
+                for (u32 i = 0; i < file_paths.size(); i++)
+                {
+                    key += (i == 0 ? "" : "+") + file_paths.at(i).string();
+                }
+                return std::filesystem::path(key);
+            }
         }    // namespace
 
         GateLibrary* load(std::filesystem::path file_path, bool reload)
@@ -108,6 +124,180 @@ namespace hal
 
             GateLibrary* res                     = gate_lib.get();
             m_gate_libraries[file_path.string()] = std::move(gate_lib);
+            return res;
+        }
+
+        std::vector<std::string> split_search_list(const std::string& search_list)
+        {
+            std::vector<std::string> entries;
+
+            for (const auto& part : utils::split(search_list, ','))
+            {
+                const std::string entry = utils::trim(part);
+                if (!entry.empty())
+                {
+                    entries.push_back(entry);
+                }
+            }
+
+            return entries;
+        }
+
+        std::vector<std::filesystem::path> resolve_search_list(const std::vector<std::string>& entries)
+        {
+            std::vector<std::filesystem::path> resolved;
+            std::set<std::string> already_resolved;
+
+            auto append = [&resolved, &already_resolved](const std::filesystem::path& path) {
+                const std::filesystem::path absolute_path = std::filesystem::absolute(path);
+                if (already_resolved.insert(absolute_path.string()).second)
+                {
+                    resolved.push_back(absolute_path);
+                }
+                else
+                {
+                    log_info("gate_library_manager", "gate library file '{}' is listed more than once, ignoring the later occurrence.", absolute_path.string());
+                }
+            };
+
+            for (const auto& entry : entries)
+            {
+                if (entry.empty())
+                {
+                    continue;
+                }
+
+                std::error_code ec;
+                const std::filesystem::path entry_path(entry);
+
+                if (std::filesystem::is_directory(entry_path, ec))
+                {
+                    // sort so that the resulting order does not depend on the order the file system reports
+                    std::vector<std::filesystem::path> in_directory;
+                    for (const auto& lib_path : utils::RecursiveDirectoryRange(entry_path))
+                    {
+                        if (gate_library_parser_manager::can_parse(lib_path.path()))
+                        {
+                            in_directory.push_back(lib_path.path());
+                        }
+                    }
+                    std::sort(in_directory.begin(), in_directory.end());
+
+                    if (in_directory.empty())
+                    {
+                        log_warning("gate_library_manager", "gate library search list entry '{}' is a directory that does not contain any gate library files.", entry);
+                        continue;
+                    }
+
+                    for (const auto& lib_path : in_directory)
+                    {
+                        append(lib_path);
+                    }
+                }
+                else if (std::filesystem::exists(entry_path, ec))
+                {
+                    append(entry_path);
+                }
+                else
+                {
+                    // not a path that exists, so search the standard gate library directories for the file name
+                    const auto stripped_name = entry_path.filename();
+                    const auto lib_path      = utils::get_file(stripped_name, utils::get_gate_library_directories());
+                    if (lib_path.empty())
+                    {
+                        log_error("gate_library_manager", "could not resolve gate library search list entry '{}': no such file, directory, or gate library in the default directories.", entry);
+                        continue;
+                    }
+                    append(lib_path);
+                }
+            }
+
+            return resolved;
+        }
+
+        GateLibrary* load_multiple(const std::vector<std::filesystem::path>& file_paths, const std::string& name, bool reload)
+        {
+            if (file_paths.empty())
+            {
+                log_error("gate_library_manager", "could not load gate libraries: no gate library file given.");
+                return nullptr;
+            }
+
+            // a single library needs no composition, so keep it addressable by its own file
+            if (file_paths.size() == 1)
+            {
+                return load(file_paths.front(), reload);
+            }
+
+            std::vector<std::filesystem::path> absolute_paths;
+            for (const auto& file_path : file_paths)
+            {
+                if (!std::filesystem::exists(file_path))
+                {
+                    log_error("gate_library_manager", "gate library file '{}' does not exist.", file_path.string());
+                    return nullptr;
+                }
+                absolute_paths.push_back(std::filesystem::absolute(file_path));
+            }
+
+            const std::filesystem::path key = get_composite_key(absolute_paths);
+
+            if (!reload)
+            {
+                if (auto it = m_gate_libraries.find(key); it != m_gate_libraries.end())
+                {
+                    log_info("gate_library_manager", "the gate libraries '{}' are already loaded as a composite gate library.", key.string());
+                    return it->second.get();
+                }
+            }
+
+            // parse fresh copies: the gate types are moved into the composite library, which must not tear apart a
+            // library that is already loaded and possibly in use by a netlist
+            std::vector<std::unique_ptr<GateLibrary>> parsed_libraries;
+            for (const auto& file_path : absolute_paths)
+            {
+                std::unique_ptr<GateLibrary> parsed = gate_library_parser_manager::parse(file_path);
+                if (parsed == nullptr)
+                {
+                    log_error("gate_library_manager", "could not load gate library '{}' as part of a composite gate library.", file_path.string());
+                    return nullptr;
+                }
+                parsed_libraries.push_back(std::move(parsed));
+            }
+
+            std::string composite_name = name;
+            if (composite_name.empty())
+            {
+                for (u32 i = 0; i < parsed_libraries.size(); i++)
+                {
+                    composite_name += (i == 0 ? "" : "+") + parsed_libraries.at(i)->get_name();
+                }
+            }
+
+            // start out without a path so that the source paths of the absorbed libraries are the only provenance
+            std::shared_ptr<GateLibrary> composite = std::make_shared<GateLibrary>(std::filesystem::path(), composite_name);
+
+            for (u32 i = 0; i < parsed_libraries.size(); i++)
+            {
+                if (auto res = composite->absorb(parsed_libraries.at(i).get()); res.is_error())
+                {
+                    log_error("gate_library_manager", "could not absorb gate library '{}' into composite gate library:\n{}", absolute_paths.at(i).string(), res.get_error().get());
+                    return nullptr;
+                }
+            }
+
+            composite->set_path(key);
+
+            if (auto res = prepare_library(composite); res.is_error())
+            {
+                log_error("gate_library_manager", "error encountered while loading composite gate library:\n{}", res.get_error().get());
+                return nullptr;
+            }
+
+            log_info("gate_library_manager", "loaded composite gate library '{}' from {} gate library files.", composite->get_name(), absolute_paths.size());
+
+            GateLibrary* res      = composite.get();
+            m_gate_libraries[key] = std::move(composite);
             return res;
         }
 

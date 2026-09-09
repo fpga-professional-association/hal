@@ -65,10 +65,18 @@ namespace hal
 
         /**
          * Parses the gate library file depending on its file extension.
-         * 
+         *
          * @param[in] file_path - The input path.
          * @returns The gate library.
          */
         NETLIST_API std::unique_ptr<GateLibrary> parse(std::filesystem::path file_path);
+
+        /**
+         * Check whether a gate library parser is registered for the file extension of the given path.
+         *
+         * @param[in] file_path - The input path.
+         * @returns `true` if the file can be parsed, `false` otherwise.
+         */
+        NETLIST_API bool can_parse(const std::filesystem::path& file_path);
     }    // namespace gate_library_parser_manager
 }    // namespace hal

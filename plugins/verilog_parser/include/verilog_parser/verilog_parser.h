@@ -250,6 +250,7 @@ namespace hal
 
         // construct netlist from intermediate format
         Result<std::monostate> construct_netlist(VerilogModule* top_module);
+        Result<std::monostate> create_black_box_gate_types();
         Result<Module*>
             instantiate_module(const std::string& instance_name, VerilogModule* verilog_module, Module* parent, const std::unordered_map<std::string, std::string>& parent_module_assignments);
 

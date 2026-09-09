@@ -41,6 +41,47 @@ namespace hal
             :rtype: pathlib.Path
         )");
 
+        py_gate_library.def_property_readonly("source_paths", &GateLibrary::get_source_paths, R"(
+            The ordered list of files the gate library has been assembled from.
+
+            :type: list[pathlib.Path]
+        )");
+
+        py_gate_library.def("get_source_paths", &GateLibrary::get_source_paths, R"(
+            Get the ordered list of files the gate library has been assembled from.
+
+            A library parsed from a single file reports exactly that file. A composite library reports the source files of all
+            libraries it was assembled from, in the order in which gate type name collisions were resolved.
+
+            :returns: The ordered list of source paths.
+            :rtype: list[pathlib.Path]
+        )");
+
+        py_gate_library.def("is_composite", &GateLibrary::is_composite, R"(
+            Check whether the gate library has been assembled from more than one gate library file.
+
+            :returns: ``True`` if the gate library is a composite of multiple gate library files, ``False`` otherwise.
+            :rtype: bool
+        )");
+
+        py_gate_library.def("is_black_box_gate_type", &GateLibrary::is_black_box_gate_type, py::arg("gate_type"), R"(
+            Check whether the given gate type is a black box gate type synthesized by HAL.
+
+            Black box gate types stand in for cells that no gate library defines. Their pins are derived from the netlist
+            instantiation, so they have no properties, no Boolean functions, and all their pins are inout.
+
+            :param hal_py.GateType gate_type: The gate type.
+            :returns: ``True`` if the gate type is a black box gate type of this library, ``False`` otherwise.
+            :rtype: bool
+        )");
+
+        py_gate_library.def("get_black_box_gate_types", &GateLibrary::get_black_box_gate_types, borrowed(), R"(
+            Get all black box gate types of the library.
+
+            :returns: A dict from black box gate type names to gate types.
+            :rtype: dict[str,hal_py.GateType]
+        )");
+
         py_gate_library.def("set_gate_location_data_category", &GateLibrary::set_gate_location_data_category, py::arg("category"), R"(
             Set the data category of the gate location information.
 

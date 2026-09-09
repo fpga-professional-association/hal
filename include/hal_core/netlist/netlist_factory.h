@@ -81,7 +81,30 @@ namespace hal
         NETLIST_API std::unique_ptr<Netlist> load_netlist(const std::filesystem::path& netlist_file, GateLibrary* gate_library);
 
         /**
-         * @brief Create a netlist from the given string. 
+         * @brief Create a netlist from the given file using an ordered list of gate libraries.
+         *
+         * The entries of the search list may be gate library files, directories holding gate library files, or bare
+         * file names that are looked up in the standard gate library directories. They are loaded into a single
+         * composite gate library, in which the entry that comes first wins a gate type name collision
+         * (see `gate_library_manager::load_multiple()`).
+         *
+         * With `black_box_fallback` set, cells that none of the gate libraries defines do not abort the import but
+         * become black box gate types derived from the way they are instantiated. The resulting netlist then
+         * contains gates whose function is unknown, so this is off by default.
+         *
+         * Note that a netlist loaded from multiple gate libraries or with black boxes cannot be written to and read
+         * back from a `.hal` file yet, it has to be re-imported with the same search list and options.
+         *
+         * @param[in] netlist_file - Path to the netlist file.
+         * @param[in] gate_library_search_list - The ordered gate library search list.
+         * @param[in] black_box_fallback - Set `true` to turn cells that no gate library defines into black boxes. Defaults to `false`.
+         * @returns The netlist on success, a `nullptr` otherwise.
+         */
+        NETLIST_API std::unique_ptr<Netlist>
+            load_netlist(const std::filesystem::path& netlist_file, const std::vector<std::string>& gate_library_search_list, bool black_box_fallback = false);
+
+        /**
+         * @brief Create a netlist from the given string.
          * 
          * The string must contain a netlist in HAL-(JSON)-format.
          *
