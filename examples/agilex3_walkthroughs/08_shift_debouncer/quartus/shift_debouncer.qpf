@@ -1,0 +1,3 @@
+QUARTUS_VERSION = "26.1"
+
+PROJECT_REVISION = "shift_debouncer"

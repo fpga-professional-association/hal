@@ -1,0 +1,109 @@
+== A. the 4-flop feedback group ==
+
+flops        : cnt[0] cnt[1] cnt[2] cnt[3]
+next-state   : cnt[0]~1 cnt[1]~2 cnt[2]~3 cnt[3]~0
+outside nets in the group's next-state cone: sync(1)
+
+Every one of the 4 cells reads all 4 group outputs, so nothing about
+the SUPPORT of the next-state functions orders the bits: they are
+symmetric.  Ordering has to come from the transition function itself.
+
+Enumerate it.  There are 2**4 = 16 states of the group and 1 outside
+net(s), so 32 transitions -- exhaustive, not sampled.
+
+  with sync(1)=0:
+    fixed points (state maps to itself): 0000
+
+  with sync(1)=1:
+    fixed points (state maps to itself): 1111
+
+One fixed point per setting of the outside net, and a different one
+each time.  A free-running counter has NO fixed point; an LFSR has one
+only at the degenerate all-zero (or all-one) word.  A fixed point that
+MOVES with an input is a saturation: the group stops instead of
+wrapping.  Walk the orbits to see it.
+
+  with sync(1)=0: the 16 state(s) form one path of length 16:
+    1111 -> 1110 -> 1101 -> 1100 -> 1011 -> 1010 -> 1001 -> 1000 -> 0111 -> 0110 -> 0101 -> 0100 -> 0011 -> 0010 -> 0001 -> 0000  -> (holds)
+
+  with sync(1)=1: the 16 state(s) form one path of length 16:
+    0000 -> 0001 -> 0010 -> 0011 -> 0100 -> 0101 -> 0110 -> 0111 -> 1000 -> 1001 -> 1010 -> 1011 -> 1100 -> 1101 -> 1110 -> 1111  -> (holds)
+
+Both orbits cover all 16 states, run in opposite directions, and end in
+a hold.  So the group is a bidirectional walk over a linear order with a
+clamp at each end -- a SATURATING UP/DOWN COUNTER, and the outside net
+chooses the direction.  Nothing was assumed; this is the whole
+transition relation.
+
+The path also hands over the bit weights.  Number the states by their
+position on the up path and read each flop's column:
+
+    position :  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    cnt[0]   :  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1   flips every  1 step(s)
+    cnt[1]   :  0  0  1  1  0  0  1  1  0  0  1  1  0  0  1  1   flips every  2 step(s)
+    cnt[2]   :  0  0  0  0  1  1  1  1  0  0  0  0  1  1  1  1   flips every  4 step(s)
+    cnt[3]   :  0  0  0  0  0  0  0  0  1  1  1  1  1  1  1  1   flips every  8 step(s)
+
+    => bit order, least significant first: cnt[0] cnt[1] cnt[2] cnt[3]
+    => the states along the up path are 0,1,2,...,15 in plain binary,
+       so the group is a 4-bit binary counter, not a Gray or one-hot
+       encoding, and it takes 15 steps to cross from one end stop to
+       the other.
+
+== B. the self-holding flag state ==
+
+next-state cell: i38~0
+pins           : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1), datae=cnt(2), dataf=1'b0
+func           : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+It reads itself and every bit of the counter.  Enumerate all
+32 combinations of (flag, counter value):
+
+    counter     flag=0 -> next   flag=1 -> next   behaviour
+    ---------------------------------------------------------
+     0 (0000)        0                0            CLEAR
+     1 (0001)        0                1            hold
+     2 (0010)        0                1            hold
+     3 (0011)        0                1            hold
+     4 (0100)        0                1            hold
+     5 (0101)        0                1            hold
+     6 (0110)        0                1            hold
+     7 (0111)        0                1            hold
+     8 (1000)        0                1            hold
+     9 (1001)        0                1            hold
+    10 (1010)        0                1            hold
+    11 (1011)        0                1            hold
+    12 (1100)        0                1            hold
+    13 (1101)        0                1            hold
+    14 (1110)        0                1            hold
+    15 (1111)        1                1            SET
+
+    SET   at counter value(s): 15
+    CLEAR at counter value(s): 0
+    HOLD  at counter value(s): 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+
+    The two values that move the flag are exactly the two end stops
+    of the counter from part A.  Everything in between holds.  That
+    is hysteresis -- a Schmitt trigger built out of a counter and a
+    latch -- and it is why a burst of noise cannot toggle the
+    output: noise never lets the counter reach an end stop.
+
+== C. the combinational output cell btn_rise~0 ==
+
+drives  : btn_rise (a primary output)
+pins    : dataa=btn_state, datab=state_d~q
+func    : (dataa & (! datab))
+
+    btn_state     state_d~q     out
+    0             0             0
+    1             0             1
+    0             1             0
+    1             1             0
+
+    High for exactly one of the four combinations: the one where the
+    flop is 1 and its delayed copy is 0.  That is a rising-edge
+    detector, and it settles step 05's ambiguity: the second chain
+    is an edge detector, because something in the netlist actually
+    compares the two stages.  The synchronizer chain has no such
+    comparator -- nothing reads its two stages together.
+

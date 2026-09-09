@@ -1,0 +1,50 @@
+digraph registers {
+  rankdir=LR;
+  bgcolor="transparent";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10,
+        color="#455a64", fontcolor="#102027"];
+  edge [fontname="Helvetica", fontsize=8];
+  subgraph cluster_dl { label="pure delay flops"; style="rounded"; color="#2e7d32"; fontcolor="#2e7d32";
+    "state_d" [fillcolor="#c8e6c9"];
+    "sync[0]" [fillcolor="#c8e6c9"];
+    "sync[1]" [fillcolor="#c8e6c9"];
+  }
+  subgraph cluster_w { label="mutually coupled word"; style="rounded"; color="#ef6c00"; fontcolor="#ef6c00";
+    "cnt[0]" [fillcolor="#ffe0b2"];
+    "cnt[1]" [fillcolor="#ffe0b2"];
+    "cnt[2]" [fillcolor="#ffe0b2"];
+    "cnt[3]" [fillcolor="#ffe0b2"];
+  }
+  subgraph cluster_h { label="self-holding bit"; style="rounded"; color="#6a1b9a"; fontcolor="#6a1b9a";
+    "state" [fillcolor="#e1bee7"];
+  }
+  "cnt[0]" -> "cnt[0]" [color="#ef6c00", style=bold];
+  "cnt[1]" -> "cnt[0]" [color="#ef6c00"];
+  "cnt[2]" -> "cnt[0]" [color="#ef6c00"];
+  "cnt[3]" -> "cnt[0]" [color="#ef6c00"];
+  "sync[1]" -> "cnt[0]" [color="#90a4ae"];
+  "cnt[0]" -> "cnt[1]" [color="#ef6c00"];
+  "cnt[1]" -> "cnt[1]" [color="#ef6c00", style=bold];
+  "cnt[2]" -> "cnt[1]" [color="#ef6c00"];
+  "cnt[3]" -> "cnt[1]" [color="#ef6c00"];
+  "sync[1]" -> "cnt[1]" [color="#90a4ae"];
+  "cnt[0]" -> "cnt[2]" [color="#ef6c00"];
+  "cnt[1]" -> "cnt[2]" [color="#ef6c00"];
+  "cnt[2]" -> "cnt[2]" [color="#ef6c00", style=bold];
+  "cnt[3]" -> "cnt[2]" [color="#ef6c00"];
+  "sync[1]" -> "cnt[2]" [color="#90a4ae"];
+  "cnt[0]" -> "cnt[3]" [color="#ef6c00"];
+  "cnt[1]" -> "cnt[3]" [color="#ef6c00"];
+  "cnt[2]" -> "cnt[3]" [color="#ef6c00"];
+  "cnt[3]" -> "cnt[3]" [color="#ef6c00", style=bold];
+  "sync[1]" -> "cnt[3]" [color="#90a4ae"];
+  "cnt[0]" -> "state" [color="#90a4ae"];
+  "cnt[1]" -> "state" [color="#90a4ae"];
+  "cnt[2]" -> "state" [color="#90a4ae"];
+  "cnt[3]" -> "state" [color="#90a4ae"];
+  "state" -> "state" [color="#ef6c00", style=bold];
+  "state" -> "state_d" [color="#90a4ae"];
+  "btn_raw" [shape=ellipse, fillcolor="#bbdefb"];
+  "btn_raw" -> "sync[0]" [color="#1565c0", style=dotted];
+  "sync[0]" -> "sync[1]" [color="#2e7d32"];
+}

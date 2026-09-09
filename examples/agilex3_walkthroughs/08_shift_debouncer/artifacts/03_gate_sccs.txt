@@ -1,0 +1,19 @@
+$ graph_algorithm.get_connected_components(graph, strong=True, min_size=2)
+
+2 non-trivial strongly connected component(s) in the GATE graph:
+
+  SCC 0: 8 gates, 4 of them flip-flops
+     flip-flops: cnt[0] cnt[1] cnt[2] cnt[3]
+     all gates : cnt[0] cnt[0]~1 cnt[1] cnt[1]~2 cnt[2] cnt[2]~3 cnt[3] cnt[3]~0
+
+  SCC 1: 2 gates, 1 of them flip-flops
+     flip-flops: state
+     all gates : i38~0 state
+
+flip-flops in NO non-trivial SCC (3): state_d sync[0] sync[1]
+
+A flop inside a feedback loop can hold or evolve a value of its own.
+A flop outside every loop can only pass a value along: its next value
+is a function of things that are not itself.  That is the first real
+cut through this netlist, and it was made without looking at a single
+instance name.

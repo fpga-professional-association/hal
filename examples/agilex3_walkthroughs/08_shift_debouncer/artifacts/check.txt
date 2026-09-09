@@ -1,0 +1,64 @@
+== tier 1: no HAL build required
+[ok  ] export contains only modelled primitives  -- {'tennm_ff': 8, 'tennm_lcell_comb': 6}
+[ok  ] export has 8 flip-flops  -- 8
+[ok  ] export has 6 ALM cells  -- 6
+[ok  ] design.v's '8 flip-flops expected' prediction holds  -- 2 sync + 4 counter + state + state_d
+[ok  ] hal_agilex inventory reports no coverage gap  -- ['proven_under_assumptions']
+[ok  ] hal_agilex recognize finds no carry chain (there is no adder here)  -- ['hal_agilex/recognize/no-adder']
+[ok  ] shipped inventory histogram is 8 ff + 6 ALM  -- {'tennm_ff': 8, 'tennm_lcell_comb': 6}
+[ok  ] shipped inventory records 14 instances  -- 14
+[ok  ] shipped behaviour finding is proven_bounded at 200 cycles  -- proven_bounded / 200
+[ok  ] netlist.hal.v behaves identically to the vendor export  -- 0 mismatching output samples over 600 cycles
+[ok  ] export matches reference.py (the RTL model) for 3000 cycles  -- {}
+[ok  ] export matches recovered_reference.py (the reconstruction) for 3000 cycles  -- {}
+[ok  ] control A: removing the saturation clamp IS caught  -- caught at cycle 2
+[ok  ] control A is caught almost immediately (cycle < 10)  -- 2
+[ok  ] control B: an off-by-one end stop SURVIVES the shipped 200-cycle bound  -- this is a real coverage hole, not a pass
+[ok  ] control B is caught at 2000 cycles  -- caught at cycle 280
+[ok  ] control B's first divergence is at cycle 280  -- 280
+[ok  ] probe finds a single clock port  -- clk
+[ok  ] probe finds the asynchronous reset port  -- rst_n
+[ok  ] probe is left with exactly one data input  -- btn_raw
+[ok  ] probe separates the level output from the pulse output  -- btn_state / btn_rise
+[ok  ] press latency is 18 cycles  -- 18
+[ok  ] release latency is 18 cycles too  -- 18
+[ok  ] the pulse is exactly one cycle wide and fires once  -- width 1 x1
+[ok  ] the shortest accepted press is 15 cycles  -- 15
+[ok  ] a 14-cycle press produces no output change at all  -- k=14 -> 0, k=15 -> 1
+[ok  ] the burst really does bounce (16 edges in 24 samples)  -- 16
+[ok  ] the level output does not move at all during the burst  -- 0
+[ok  ] exactly one pulse comes out of the whole burst  -- {'burst_len': 24, 'raw_edges_in_burst': 16, 'level_edges_in_burst': 0, 'level_rises_at': 44, 'cycles_after_settling': 16, 'pulse_count': 1, 'pulse_widths': [1]}
+[ok  ] the level rises 16 cycles after the line settles, not 18  -- the burst left the integrator part-way up
+[ok  ] square waves with a half-period below 15 are rejected outright  -- {5: 0, 10: 0, 14: 0, 15: 25, 16: 23, 20: 19}
+[ok  ] a half-period of 15 gets through  -- {5: 0, 10: 0, 14: 0, 15: 25, 16: 23, 20: 19}
+
+== tier 2: structural analysis (needs a built HAL)
+[ok  ] all 6 ALM cells elaborate, none refused  -- elaborated=6 checked_ff=8
+[ok  ] 16 gates: 8 ff + 6 ALM + gnd + vcc  -- {'HAL_GND': 1, 'HAL_VCC': 1, 'tennm_ff': 8, 'tennm_lcell_comb': 6}
+[ok  ] the boundary is btn_raw/clk/rst_n -> btn_rise/btn_state  -- ['btn_raw', 'clk', 'rst_n'] -> ['btn_rise', 'btn_state']
+[ok  ] the netlist is flat: one module  -- 1
+[ok  ] exactly one clock net drives every flip-flop  -- ['clk']
+[ok  ] exactly one asynchronous clear net  -- ['rst_n']
+[ok  ] every enable is tied to the constant 1: no clock enables at all  -- ["1'b1"]
+[ok  ] all 8 flops share one control-pin signature  -- 1 signature(s)
+[ok  ] the gate graph has exactly 2 non-trivial SCCs, of 8 and 2 gates  -- [8, 2]
+[ok  ] 3 flip-flops sit outside every gate-level loop  -- state_d sync[0] sync[1]
+[ok  ] the register graph splits into one 4-flop word, one holder, 3 delays  -- words=[4] holders=['state'] delays=['state_d', 'sync[0]', 'sync[1]']
+[ok  ] the 4-flop word is cnt[0..3]  -- cnt[0] cnt[1] cnt[2] cnt[3]
+[ok  ] the self-holding singleton is the state bit  -- ['state']
+[ok  ] the delay flops form a 2-chain and a 1-chain  -- [2, 1]
+[ok  ] the 2-chain is sync[0] -> sync[1] and is fed by btn_raw  -- sync[0] -> sync[1]
+[ok  ] 6 ALM cells, and two of them share a lut_mask  -- EAAAAAA8EAAAAAA8 vs EAAAAAA8EAAAAAA8
+[ok  ] the two cells sharing a mask read different nets
+[ok  ] the counter's external control net is sync(1)  -- ['sync(1)']
+[ok  ] both directions walk all 16 states as a single path  -- {'0': 16, '1': 16}
+[ok  ] one path runs 0000 -> 1111 and the other 1111 -> 0000
+[ok  ] the up path is 0,1,2,...,15 in plain binary  -- 0000 0001 0010 0011 ...
+[ok  ] the traversal is 15 steps -- the number probe C measured  -- 15
+[ok  ] bit order recovered from the path is cnt[0],cnt[1],cnt[2],cnt[3]  -- cnt[0] cnt[1] cnt[2] cnt[3]
+[ok  ] the hysteresis bit is SET only at counter value 15  -- [15]
+[ok  ] the hysteresis bit is CLEARed only at counter value 0  -- [0]
+[ok  ] the hysteresis bit HOLDs at all 14 values in between  -- [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+[ok  ] the output cell is a rising-edge detector  -- {'0': 0, '1': 1, '2': 0, '3': 0}
+
+all checks passed

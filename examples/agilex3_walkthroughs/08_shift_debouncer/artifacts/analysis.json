@@ -1,0 +1,471 @@
+{
+  "clock_reset": {
+    "clock_nets": [
+      "clk"
+    ],
+    "enable_nets": [
+      "1'b1"
+    ],
+    "num_ffs": 8,
+    "reset_nets": [
+      "rst_n"
+    ],
+    "signatures": [
+      {
+        "gates": [
+          "cnt[0]",
+          "cnt[1]",
+          "cnt[2]",
+          "cnt[3]",
+          "state",
+          "state_d",
+          "sync[0]",
+          "sync[1]"
+        ],
+        "pins": [
+          "clk",
+          "rst_n",
+          "1'b1",
+          "1'b0",
+          "1'b0",
+          "1'b0"
+        ]
+      }
+    ]
+  },
+  "elaborate": {
+    "checked_ff": 8,
+    "constants": 2,
+    "elaborated": 6,
+    "types": {
+      "HAL_GND": 1,
+      "HAL_VCC": 1,
+      "tennm_ff": 8,
+      "tennm_lcell_comb": 6
+    }
+  },
+  "gate_scc": {
+    "ffs_outside_gate_sccs": [
+      "state_d",
+      "sync[0]",
+      "sync[1]"
+    ],
+    "gate_sccs": [
+      [
+        "cnt[0]",
+        "cnt[0]~1",
+        "cnt[1]",
+        "cnt[1]~2",
+        "cnt[2]",
+        "cnt[2]~3",
+        "cnt[3]",
+        "cnt[3]~0"
+      ],
+      [
+        "i38~0",
+        "state"
+      ]
+    ]
+  },
+  "luts": {
+    "btn_rise~0": {
+      "function": "(dataa & (! datab))",
+      "lut_mask": "2222222222222222",
+      "out": "btn_rise",
+      "pin_nets": {
+        "dataa": "btn_state",
+        "datab": "state_d~q"
+      },
+      "pins": [
+        "dataa=btn_state",
+        "datab=state_d~q"
+      ]
+    },
+    "cnt[0]~1": {
+      "function": "((datac & (datae & (dataa & datad))) | (((! datab) & (((((! datad) | datae) & (datad | (! datae))) & (dataa | datac)) | ((datad | datae) & (dataf | ((! datae) & ((! dataa) & (! datac))))))) | ((! dataf) & ((datac & ((! datab) & (((! datad) & datae) | (datad & (! datae))))) | (((! datab) & (datae | (dataa & datad))) & ((! datac) & ((! datae) | ((! dataa) | (! datad)))))))))",
+      "lut_mask": "B3333332B3333332",
+      "out": "cnt[0]~1_combout",
+      "pin_nets": {
+        "dataa": "cnt(3)",
+        "datab": "cnt(0)",
+        "datac": "cnt(1)",
+        "datad": "cnt(2)",
+        "datae": "sync(1)"
+      },
+      "pins": [
+        "dataa=cnt(3)",
+        "datab=cnt(0)",
+        "datac=cnt(1)",
+        "datad=cnt(2)",
+        "datae=sync(1)"
+      ]
+    },
+    "cnt[1]~2": {
+      "function": "(((! datae) & ((datad & ((! datac) & ((! dataa) & (! datab)))) | (((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))) & ((! datad) | dataf)))) | ((datae & ((((! datab) & datac) | (datab & (! datac))) & (((! datad) | dataf) | ((! dataa) & (datab & (! datac)))))) | (datad & (((datab | datac) & (datae & (dataa | (! datab)))) | (((! datae) & (! dataf)) & ((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))))))))",
+      "lut_mask": "BC3CC3C2BC3CC3C2",
+      "out": "cnt[1]~2_combout",
+      "pin_nets": {
+        "dataa": "cnt(3)",
+        "datab": "cnt(0)",
+        "datac": "cnt(1)",
+        "datad": "cnt(2)",
+        "datae": "sync(1)"
+      },
+      "pins": [
+        "dataa=cnt(3)",
+        "datab=cnt(0)",
+        "datac=cnt(1)",
+        "datad=cnt(2)",
+        "datae=sync(1)"
+      ]
+    },
+    "cnt[2]~3": {
+      "function": "((((((! datac) & (! datad)) & (dataa & ((! datab) & (! datae)))) | ((datae & (! dataf)) & ((! dataa) & ((! datad) & (datab & datac))))) | ((datae & dataf) & ((! datad) & (datab & datac)))) | (((datad & ((datac & dataf) | (datab | datae))) & ((! datae) | (((! datab) | (! datac)) | (dataa & dataf)))) | (((datab & datac) & (dataa & (datae & (! dataf)))) | (datad & ((! dataf) & ((! datae) & ((! datab) & datac)))))))",
+      "lut_mask": "BFC0FC02BFC0FC02",
+      "out": "cnt[2]~3_combout",
+      "pin_nets": {
+        "dataa": "cnt(3)",
+        "datab": "cnt(0)",
+        "datac": "cnt(1)",
+        "datad": "cnt(2)",
+        "datae": "sync(1)"
+      },
+      "pins": [
+        "dataa=cnt(3)",
+        "datab=cnt(0)",
+        "datac=cnt(1)",
+        "datad=cnt(2)",
+        "datae=sync(1)"
+      ]
+    },
+    "cnt[3]~0": {
+      "function": "((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))",
+      "lut_mask": "EAAAAAA8EAAAAAA8",
+      "out": "cnt[3]~0_combout",
+      "pin_nets": {
+        "dataa": "cnt(3)",
+        "datab": "cnt(0)",
+        "datac": "cnt(1)",
+        "datad": "cnt(2)",
+        "datae": "sync(1)"
+      },
+      "pins": [
+        "dataa=cnt(3)",
+        "datab=cnt(0)",
+        "datac=cnt(1)",
+        "datad=cnt(2)",
+        "datae=sync(1)"
+      ]
+    },
+    "i38~0": {
+      "function": "((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))",
+      "lut_mask": "EAAAAAA8EAAAAAA8",
+      "out": "i38~0_combout",
+      "pin_nets": {
+        "dataa": "btn_state",
+        "datab": "cnt(3)",
+        "datac": "cnt(0)",
+        "datad": "cnt(1)",
+        "datae": "cnt(2)"
+      },
+      "pins": [
+        "dataa=btn_state",
+        "datab=cnt(3)",
+        "datac=cnt(0)",
+        "datad=cnt(1)",
+        "datae=cnt(2)"
+      ]
+    }
+  },
+  "netlist": "netlist.hal.v",
+  "register_scc": {
+    "chains": [
+      [
+        "sync[0]",
+        "sync[1]"
+      ],
+      [
+        "state_d"
+      ]
+    ],
+    "components": [
+      [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]"
+      ],
+      [
+        "state"
+      ],
+      [
+        "state_d"
+      ],
+      [
+        "sync[0]"
+      ],
+      [
+        "sync[1]"
+      ]
+    ],
+    "delays": [
+      "state_d",
+      "sync[0]",
+      "sync[1]"
+    ],
+    "holders": [
+      "state"
+    ],
+    "words": [
+      [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]"
+      ]
+    ]
+  },
+  "registers": {
+    "cnt[0]": {
+      "d_driver": "cnt[0]~1",
+      "d_driver_type": "tennm_lcell_comb",
+      "d_ffs": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]",
+        "sync[1]"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "cnt(0)",
+      "self_feedback": true
+    },
+    "cnt[1]": {
+      "d_driver": "cnt[1]~2",
+      "d_driver_type": "tennm_lcell_comb",
+      "d_ffs": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]",
+        "sync[1]"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "cnt(1)",
+      "self_feedback": true
+    },
+    "cnt[2]": {
+      "d_driver": "cnt[2]~3",
+      "d_driver_type": "tennm_lcell_comb",
+      "d_ffs": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]",
+        "sync[1]"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "cnt(2)",
+      "self_feedback": true
+    },
+    "cnt[3]": {
+      "d_driver": "cnt[3]~0",
+      "d_driver_type": "tennm_lcell_comb",
+      "d_ffs": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]",
+        "sync[1]"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "cnt(3)",
+      "self_feedback": true
+    },
+    "state": {
+      "d_driver": "i38~0",
+      "d_driver_type": "tennm_lcell_comb",
+      "d_ffs": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]",
+        "state"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "btn_state",
+      "self_feedback": true
+    },
+    "state_d": {
+      "d_driver": "state",
+      "d_driver_type": "tennm_ff",
+      "d_ffs": [
+        "state"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "state_d~q",
+      "self_feedback": false
+    },
+    "sync[0]": {
+      "d_driver": null,
+      "d_driver_type": null,
+      "d_ffs": [],
+      "d_inputs": [
+        "btn_raw"
+      ],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "sync(0)",
+      "self_feedback": false
+    },
+    "sync[1]": {
+      "d_driver": "sync[0]",
+      "d_driver_type": "tennm_ff",
+      "d_ffs": [
+        "sync[0]"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_net": "1'b1",
+      "q_net": "sync(1)",
+      "self_feedback": false
+    }
+  },
+  "semantics": {
+    "flag": {
+      "cell": "i38~0",
+      "clear_values": [
+        0
+      ],
+      "hold_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "name": "state",
+      "set_values": [
+        15
+      ]
+    },
+    "group": {
+      "bit_order_lsb_first": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]"
+      ],
+      "external_nets": [
+        "sync(1)"
+      ],
+      "flops": [
+        "cnt[0]",
+        "cnt[1]",
+        "cnt[2]",
+        "cnt[3]"
+      ],
+      "orbits": {
+        "0": [
+          "1111",
+          "1110",
+          "1101",
+          "1100",
+          "1011",
+          "1010",
+          "1001",
+          "1000",
+          "0111",
+          "0110",
+          "0101",
+          "0100",
+          "0011",
+          "0010",
+          "0001",
+          "0000"
+        ],
+        "1": [
+          "0000",
+          "0001",
+          "0010",
+          "0011",
+          "0100",
+          "0101",
+          "0110",
+          "0111",
+          "1000",
+          "1001",
+          "1010",
+          "1011",
+          "1100",
+          "1101",
+          "1110",
+          "1111"
+        ]
+      },
+      "path_length": 16
+    },
+    "output_cell": {
+      "free_nets": [
+        "btn_state",
+        "state_d~q"
+      ],
+      "name": "btn_rise~0",
+      "rows": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 0
+      }
+    }
+  },
+  "stats": {
+    "gate_types": {
+      "HAL_GND": 1,
+      "HAL_VCC": 1,
+      "tennm_ff": 8,
+      "tennm_lcell_comb": 6
+    },
+    "inputs": [
+      "btn_raw",
+      "clk",
+      "rst_n"
+    ],
+    "num_gates": 16,
+    "num_modules": 1,
+    "num_nets": 19,
+    "outputs": [
+      "btn_rise",
+      "btn_state"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+Every tennm_lcell_comb, with the function HAL derived from its
+lut_mask, and the nets on its used data pins.
+
+btn_rise~0  ->  btn_rise   lut_mask=2222222222222222
+    pins : dataa=btn_state, datab=state_d~q
+    func : (dataa & (! datab))
+
+cnt[0]~1  ->  cnt[0]~1_combout   lut_mask=B3333332B3333332
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((datac & (datae & (dataa & datad))) | (((! datab) & (((((! datad) | datae) & (datad | (! datae))) & (dataa | datac)) | ((datad | datae) & (dataf | ((! datae) & ((! dataa) & (! datac))))))) | ((! dataf) & ((datac & ((! datab) & (((! datad) & datae) | (datad & (! datae))))) | (((! datab) & (datae | (dataa & datad))) & ((! datac) & ((! datae) | ((! dataa) | (! datad)))))))))
+
+cnt[1]~2  ->  cnt[1]~2_combout   lut_mask=BC3CC3C2BC3CC3C2
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : (((! datae) & ((datad & ((! datac) & ((! dataa) & (! datab)))) | (((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))) & ((! datad) | dataf)))) | ((datae & ((((! datab) & datac) | (datab & (! datac))) & (((! datad) | dataf) | ((! dataa) & (datab & (! datac)))))) | (datad & (((datab | datac) & (datae & (dataa | (! datab)))) | (((! datae) & (! dataf)) & ((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))))))))
+
+cnt[2]~3  ->  cnt[2]~3_combout   lut_mask=BFC0FC02BFC0FC02
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((((((! datac) & (! datad)) & (dataa & ((! datab) & (! datae)))) | ((datae & (! dataf)) & ((! dataa) & ((! datad) & (datab & datac))))) | ((datae & dataf) & ((! datad) & (datab & datac)))) | (((datad & ((datac & dataf) | (datab | datae))) & ((! datae) | (((! datab) | (! datac)) | (dataa & dataf)))) | (((datab & datac) & (dataa & (datae & (! dataf)))) | (datad & ((! dataf) & ((! datae) & ((! datab) & datac)))))))
+
+cnt[3]~0  ->  cnt[3]~0_combout   lut_mask=EAAAAAA8EAAAAAA8
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+i38~0  ->  i38~0_combout   lut_mask=EAAAAAA8EAAAAAA8
+    pins : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1), datae=cnt(2)
+    func : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+lut_mask values used by more than one cell:
+  EAAAAAA8EAAAAAA8  cnt[3]~0 i38~0
+
+Two cells sharing a mask do NOT compute the same thing: the mask is a
+truth table over the ALM's own pins, and the same table over different
+nets is a different function of the circuit.  Read the pin list, always.

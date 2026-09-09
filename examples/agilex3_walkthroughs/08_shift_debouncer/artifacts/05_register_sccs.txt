@@ -1,0 +1,34 @@
+The same edges as step 04, between flip-flops only, self-loops removed.
+Strongly connected components of THAT graph:
+
+  component 0: 4 flop(s)  cnt[0] cnt[1] cnt[2] cnt[3]
+  component 1: 1 flop(s)  state
+  component 2: 1 flop(s)  state_d
+  component 3: 1 flop(s)  sync[0]
+  component 4: 1 flop(s)  sync[1]
+
+=> 1 multi-flop component(s): cnt[0] cnt[1] cnt[2] cnt[3]
+=> 1 self-holding singleton(s): state
+=> 3 pure delay flop(s): state_d sync[0] sync[1]
+
+The pure delay flops, chained by their own edges:
+
+  chain of 2: sync[0]  ->  sync[1]
+     head sync[0] takes D from: btn_raw
+  chain of 1: state_d  ->  (nothing)
+     head state_d takes D from: state
+
+Read the chains carefully, because this is the trap in this design.
+Structurally, a two-flop CLOCK-DOMAIN SYNCHRONIZER and a two-flop
+EDGE-DETECTOR PAIR are the same object: flop -> flop, no enable, no
+feedback, one clock.  Nothing in the graph distinguishes them.  The only
+difference is what feeds the head of the chain:
+
+  * a chain fed by a PRIMARY INPUT is (or at least can be) a
+    synchronizer -- the input is asynchronous until proven otherwise;
+  * a chain fed by an internal flop is a delayed copy of that flop, and
+    a delayed copy exists to be compared with the original, i.e. to
+    detect an edge.
+
+That is an argument from intent, not from structure.  It is the weakest
+inference in this walkthrough and the guide says so.

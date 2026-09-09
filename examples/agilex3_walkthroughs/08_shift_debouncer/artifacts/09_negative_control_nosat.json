@@ -1,0 +1,80 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.behavior.run_reference_check",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "shift_debouncer",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "shift_debouncer",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 14,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/08_shift_debouncer/shift_debouncer.vo",
+      "sha256": "47a569c5accaec01ef36f31b013495ed5f86675bf42a4b8275aed3c159f8e99a",
+      "size_bytes": 7007
+    }
+  ],
+  "findings": [
+    {
+      "bounds": {
+        "cycle_bound": 200,
+        "unbounded": false
+      },
+      "counterexample": {
+        "cycle_bound": 2,
+        "description": "reference/netlist divergence",
+        "witness": [
+          {
+            "cycle": 2,
+            "signal": "btn_raw",
+            "value": "1"
+          },
+          {
+            "cycle": 2,
+            "signal": "rst_n",
+            "value": "1"
+          }
+        ]
+      },
+      "id": "hal_agilex/behavior/reference-mismatch",
+      "method": {
+        "bounded": true,
+        "description": "Simulates the vendor export with hal_agilex.primitives and compares it against a Python model of the RTL the export was synthesised from.",
+        "kind": "simulation",
+        "name": "netlist versus RTL reference simulation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "shift_debouncer"
+        ],
+        "description": "every primitive instance of the export",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "severity": "critical",
+      "status": "bounded_counterexample",
+      "summary": "Mismatch at cycle 2: expected {'btn_state': 1, 'btn_rise': 1}, got {'btn_state': 0, 'btn_rise': 0}.",
+      "tags": [
+        "agilex",
+        "validation"
+      ],
+      "title": "The exported netlist does not match the reference model"
+    }
+  ],
+  "generated_at": "2026-09-09T18:06:48Z",
+  "producer": {
+    "name": "hal_agilex.behavior",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

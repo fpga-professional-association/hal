@@ -1,0 +1,30 @@
+For every flip-flop: the gate that drives its D pin, and the flip-flops
+and primary inputs that D depends on through combinational cells only.
+'self' marks a flop whose own output is in its next-state cone -- it can
+hold, count or accumulate.  A flop without it is a pure delay stage.
+
+FF         self  D driven by      D depends on (FFs)               D <- PI    ENA
+--------------------------------------------------------------------------------------------------------
+cnt[0]     self  cnt[0]~1         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[1]     self  cnt[1]~2         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[2]     self  cnt[2]~3         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[3]     self  cnt[3]~0         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+state      self  i38~0            cnt[0],cnt[1],cnt[2],cnt[3],state -          1'b1
+state_d    .     state            state                            -          1'b1
+sync[0]    .     (port)           -                                btn_raw    1'b1
+sync[1]    .     sync[0]          sync[0]                          -          1'b1
+
+Three shapes are visible in that table, and they are the three textbook
+blocks this design is made of:
+
+  * a flop whose D is a primary input, feeding a flop whose D is that
+    first flop: a two-stage delay line straight off an input port;
+  * a group of flops that all depend on each other and on themselves:
+    a word-sized register with internal feedback -- a counter, an LFSR
+    or an accumulator; step 07 decides which;
+  * a self-dependent single bit fed by that group, followed by one more
+    pure delay flop.
+
+Note what is NOT here: not one flop has a computed clock enable, and no
+flop's D cone reaches the primary input except the head of the delay
+line.  The button never touches the counter directly.

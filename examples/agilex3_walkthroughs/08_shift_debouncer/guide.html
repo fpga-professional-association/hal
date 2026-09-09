@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 08 — shift_debouncer</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+    --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+    --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+    --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+  --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+  --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+  --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+html { background: var(--bg); }
+body {
+  background: var(--bg); color: var(--fg); margin: 0;
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+main { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .35rem; letter-spacing: -.01em; }
+h2 {
+  font-size: 1.35rem; margin: 3.2rem 0 .9rem; padding-top: .9rem;
+  border-top: 1px solid var(--rule); letter-spacing: -.005em;
+}
+h3 { font-size: 1.08rem; margin: 2rem 0 .6rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p, li { margin: .7rem 0; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.6rem; }
+.meta { color: var(--muted); font-size: .85rem; margin: 0 0 2rem; }
+code {
+  background: var(--code-bg); color: var(--code-fg); border-radius: 4px;
+  padding: .1em .32em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .88em;
+}
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 7px; padding: .85rem 1rem; overflow-x: auto; font-size: .84rem;
+  line-height: 1.5; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+pre.cmd { background: var(--accent-bg); border-color: var(--accent); }
+pre.cmd::before {
+  content: "command"; display: block; font-family: inherit; font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: .45rem; font-weight: 600;
+}
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+.scroll { overflow-x: auto; max-width: 100%; }
+figure {
+  margin: 1.4rem 0; border: 1px solid var(--rule); border-radius: 8px;
+  padding: .75rem; background: var(--figure-bg);
+}
+figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+figcaption { font-size: .82rem; color: var(--muted); margin-top: .6rem; text-align: left; }
+@media (prefers-color-scheme: dark) { figcaption { color: #4a545e; } }
+:root[data-theme="dark"] figcaption { color: #4a545e; }
+:root[data-theme="light"] figcaption { color: var(--muted); }
+.note, .warn, .good, .bad {
+  border-left: 4px solid var(--rule); background: var(--code-bg);
+  padding: .7rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0; font-size: .95rem;
+}
+.warn { background: var(--warn-bg); border-left-color: var(--warn-rule); }
+.good { background: var(--good-bg); border-left-color: var(--good-rule); }
+.bad  { background: var(--bad-bg);  border-left-color: var(--bad-rule); }
+.note strong, .warn strong, .good strong, .bad strong { display: block; margin-bottom: .2rem; }
+.step { margin-top: 2.6rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; margin-top: 0; }
+.step > h3 .n {
+  display: inline-block; min-width: 1.8rem; text-align: center; background: var(--accent);
+  color: #fff; border-radius: 4px; font-size: .78rem; padding: .12rem .4rem;
+  font-variant-numeric: tabular-nums;
+}
+.reason { border-left: 4px solid var(--accent); background: var(--accent-bg); padding: .7rem 1rem;
+  border-radius: 0 6px 6px 0; margin: 1rem 0; }
+.reason strong { display: block; margin-bottom: .2rem; color: var(--accent); }
+ul.tight li { margin: .25rem 0; }
+.toc { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 8px; padding: .8rem 1.2rem; }
+.toc ol { margin: .3rem 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+.small { font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Reverse engineering an Agilex 3 netlist, walkthrough 08: <code>shift_debouncer</code></h1>
+<p class="lede">A button debouncer — three textbook structures stacked on top of each other:
+a two-flop synchronizer, a saturating up/down counter, and a hysteresis bit. Synthesized for
+real by Quartus Prime Pro 26.1, then taken apart twice: once structurally with headless HAL,
+once behaviourally by driving the netlist as a black box. The interesting part is that the
+three blocks are <em>not</em> equally visible from the two directions. One of them is almost
+invisible structurally; one of them is almost invisible behaviourally; the third is the only
+one both halves agree on immediately.</p>
+<p class="meta">
+Device <strong>A3CW135BM16AE6S</strong> (Agilex 3, MBGA896) &middot;
+Quartus Prime Pro Edition 26.1.0 Build 110 03/26/2026 SC &middot;
+post-synthesis snapshot, no fitting &middot;
+gate library <code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code>
+</p>
+
+<div class="toc">
+<strong>What this walkthrough covers</strong>
+<ol>
+<li><a href="#design">The design we are going to lose</a></li>
+<li><a href="#synth">Synthesis, export, import</a></li>
+<li><a href="#contact">First contact: the census</a></li>
+<li><a href="#structure">Half A — structure (steps 1–8)</a></li>
+<li><a href="#behaviour">Half B — behaviour (steps 9–12)</a></li>
+<li><a href="#agree">Where the two halves meet</a></li>
+<li><a href="#controls">Negative controls (step 13)</a></li>
+<li><a href="#reconstruct">Reconstruction (step 14)</a></li>
+<li><a href="#lost">Recovered vs. lost</a></li>
+<li><a href="#negative">Negative space: what neither half can tell you</a></li>
+<li><a href="#further">Exercises</a></li>
+<li><a href="#repro">Reproducing all of it</a></li>
+</ol>
+</div>
+
+<div class="note">
+<strong>Who this is for</strong>
+An engineer who can read Verilog and has met a gate-level netlist once or twice.
+Walkthroughs <a href="../01_blinky_counter/guide.html">01</a> (counters and carry chains) and
+<a href="../03_uart_tx/guide.html">03</a> (structure versus behaviour as two independent
+halves) are useful background but not required. What is new here is a design whose three
+sub-blocks each fail a <em>different</em> analysis, so the guide is really about knowing which
+tool answers which question.
+</div>
+
+<h2 id="design">1. The design we are going to lose</h2>
+
+<p>The exercise only means something if the answer exists in advance. The RTL handed to
+Quartus is a button debouncer built out of three stacked textbook blocks:</p>
+
+<pre><code>[... module header elided: ports clk, rst_n, btn_raw, btn_state, btn_rise ...]
+
+    // 1. two-flop synchronizer
+    reg [1:0] sync;
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n) sync &lt;= 2'b00;
+        else        sync &lt;= {sync[0], btn_raw};
+    wire sync_level = sync[1];
+
+    // 2. saturating up/down counter
+    localparam [3:0] CNT_MAX = 4'hF;
+    localparam [3:0] CNT_MIN = 4'h0;
+    reg [3:0] cnt;
+    wire at_max = (cnt == CNT_MAX);
+    wire at_min = (cnt == CNT_MIN);
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n)                        cnt &lt;= CNT_MIN;
+        else if ( sync_level &amp;&amp; !at_max)   cnt &lt;= cnt + 4'd1;
+        else if (!sync_level &amp;&amp; !at_min)   cnt &lt;= cnt - 4'd1;
+        // else: hold - THIS is the saturation
+
+    // 3. hysteresis (Schmitt) output
+    reg state;
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n)      state &lt;= 1'b0;
+        else if (at_max) state &lt;= 1'b1;
+        else if (at_min) state &lt;= 1'b0;
+
+    // 4. rising-edge detector
+    reg state_d;
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n) state_d &lt;= 1'b0;
+        else        state_d &lt;= state;
+
+    assign btn_state = state;
+    assign btn_rise  = state &amp; ~state_d;</code></pre>
+<p class="small">Reformatted for width: the module header is elided, the long explanatory
+comment blocks between statements are dropped, and each <code>always</code> block's
+<code>begin</code>/<code>end</code> pair is removed with the branch bodies pulled up onto
+their conditions. No statement was changed. Full commented source:
+<a href="design.v"><code>design.v</code></a>. The intended behaviour, written before synthesis,
+is <a href="spec.md"><code>spec.md</code></a> — it is the answer key. Read it <em>after</em>
+section 8, or before you start if you only want the tour.</p>
+
+<p>Four properties make this worth a walkthrough:</p>
+<ul class="tight">
+<li><strong>Two structurally identical two-flop chains.</strong> <code>sync[0]→sync[1]</code>
+and <code>state→state_d</code> are the same object: flop into flop, no enable, no feedback,
+one clock. A synchronizer and an edge-detector delay are <em>indistinguishable by shape</em>.
+Telling them apart needs an argument the graph cannot supply.</li>
+<li><strong>The threshold is not stored anywhere.</strong> "15 consecutive stable samples" is
+the counter's <em>width</em>, not a constant. There is no <code>15</code> in the netlist to
+find.</li>
+<li><strong>Every hold is inside a LUT.</strong> The saturation and the hysteresis are both
+implemented by the next-state function, never by a clock enable. Any analysis that groups
+registers by control-pin signature learns nothing here.</li>
+<li><strong>The counter is not an adder.</strong> Because it must count both ways
+<em>and</em> clamp, Quartus never reached for the carry chain. Every arithmetic-recognition
+tool in the box returns "nothing found", and that is the correct answer.</li>
+</ul>
+
+<p>A prediction before we start, straight off the RTL: eight flip-flops —
+2 synchronizer + 4 counter + <code>state</code> + <code>state_d</code>. Keep it in mind; the
+census in section 3 is where it gets tested.</p>
+
+<h2 id="synth">2. Synthesis, export, import</h2>
+
+<p>Same flow as the rest of the series: post-<em>synthesis</em> only, so no fitting, no
+placement, no I/O buffers.</p>
+
+<pre><code># quartus/shift_debouncer.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY shift_debouncer
+set_global_assignment -name VERILOG_FILE ../design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files</code></pre>
+
+<p>Quartus's own resource summary
+(<a href="artifacts/quartus_synthesis.rpt"><code>artifacts/quartus_synthesis.rpt</code></a>) is
+worth reading before the netlist, because it already tells you the shape of what is coming:</p>
+
+<pre><code>; Estimate of Logic utilization (ALMs needed) ; 5                 ;
+;                                             ;                   ;
+; Combinational ALUT usage for logic          ; 6                 ;
+;     -- 8 input functions                    ; 0                 ;
+;     -- 7 input functions                    ; 0                 ;
+;     -- 6 input functions                    ; 0                 ;
+;     -- 5 input functions                    ; 5                 ;
+;     -- 4 input functions                    ; 0                 ;
+;     -- &lt;=3 input functions                  ; 1                 ;
+;                                             ;                   ;
+; Dedicated logic registers                   ; 8                 ;
+;                                             ;                   ;
+; I/O pins                                    ; 5                 ;</code></pre>
+
+<p>Five five-input functions and one small one, for eight registers. Nothing here needs more
+than five inputs, which is why the whole design stays inside the primitive coverage that
+<code>tools/hal_agilex</code> has validated — no fracturable 7-input mode, no synchronous
+clear pin.</p>
+
+<p>Notice what this <code>.qsf</code> does <em>not</em> contain. Walkthroughs
+<a href="../03_uart_tx/guide.html">03</a> and <a href="../06_accumulator_alu/guide.html">06</a>
+had to add <code>ALLOW_SYNCH_CTRL_USAGE OFF</code> and friends to stop Quartus mapping "the
+counter parks at zero while idle" onto the flip-flop's synchronous-clear pin, which is outside
+the validated primitive coverage. This design never asks for that, because it has no idle
+state and no reset-to-zero condition other than <code>rst_n</code> — the counter is always
+either counting or clamped. Step 2 confirms it from the other end: every <code>sclr</code>
+pin in the export is tied to <code>1'b0</code>.</p>
+
+<pre class="cmd"><code>quartus_syn shift_debouncer -c shift_debouncer
+quartus_eda --simulation --format=verilog --tool=questasim \
+            --output_directory=simulation shift_debouncer -c shift_debouncer
+python3 tools/hal_agilex import shift_debouncer.vo -o netlist.hal.v</code></pre>
+
+<p>The import step rewrites the vendor <code>.vo</code> into Verilog that HAL's front end can
+read: inversions on ALM data inputs are folded into <code>lut_mask</code>, and
+<code>tri1</code> nets become plain wires tied to <code>1'b1</code>. It is a rewrite, so it
+has to be checked rather than trusted — <code>check.py</code> simulates both files side by
+side for 600 cycles and requires zero mismatching output samples.</p>
+
+<div class="warn">
+<strong>Names survive in this export</strong>
+Unlike walkthroughs <a href="../03_uart_tx/guide.html">03</a> and 10, this one is
+<em>not</em> blinded: the export still carries <code>cnt[0]</code>, <code>sync[1]</code>,
+<code>state</code>. That is realistic — a lot of vendor exports do — but it means you have to
+be disciplined. Every step below reaches its conclusion from structure or from measurement,
+and the names are only ever used as labels afterwards. Where a step's conclusion <em>would</em>
+have been unreachable without the names, the guide says so explicitly (there is exactly one
+such place, and it is step 5).
+</div>
+
+<h2 id="contact">3. First contact: the census</h2>
+
+<p>Before any analysis: what is actually in the file, and is all of it modelled?</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex inventory shift_debouncer.vo -o artifacts/inventory.findings.json</code></pre>
+
+<pre><code>[... artifact block elided: path, sha256, device A3CW135BM16AE6S, gate_count 14 ...]
+      "data": {
+        "histogram": {
+          "tennm_ff": 8,
+          "tennm_lcell_comb": 6
+        }
+      },
+      "id": "hal_agilex/inventory/fully-covered",
+      "status": "proven_under_assumptions",
+      "summary": "All 14 instances are tennm_ff or tennm_lcell_comb, each in a
+                  configuration this package models and has validated against
+                  the vendor export.",
+      "title": "Every primitive in the export is inside the validated coverage"</code></pre>
+<p class="small">Reflowed for width; the <code>summary</code> string is one line in
+<a href="artifacts/inventory.findings.json"><code>artifacts/inventory.findings.json</code></a>.</p>
+
+<div class="good">
+<strong>The prediction held</strong>
+Eight <code>tennm_ff</code>, exactly as counted off the RTL: two synchronizer flops, four
+counter bits, <code>state</code>, <code>state_d</code>. This is worth pausing on, because in
+this series predictions usually <em>don't</em> hold — walkthrough 03 predicted ten shift-register
+flops and got nine, because the top bit was a constant and synthesis deleted it. Here nothing
+was optimised away: every flop in the source has a real, non-constant next state, so all eight
+survive. A prediction that holds is evidence too; it just is not a lesson.
+</div>
+
+<p>The other pre-flight command is the one that finds arithmetic:</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex recognize shift_debouncer.vo -o artifacts/recognize.findings.json</code></pre>
+
+<pre><code>      "status": "unknown",
+      "summary": "0 carry chain(s) were followed and none matched the ripple-carry
+                  adder pattern; this says nothing about what the design computes.",
+      "title": "No carry-chain adder recognized"</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+In walkthroughs 01 and <a href="../06_accumulator_alu/guide.html">06</a> this command was the
+whole first act: find the carry chain, prove the slice is a full adder, read the width off the
+chain. Here it returns nothing, and the finding is careful to say that this
+<em>says nothing about what the design computes</em>. That is the correct epistemic status.
+There <em>is</em> a counter in this netlist; it simply was not built out of an adder, because
+a counter that must go both directions and clamp at both ends is cheaper as four independent
+5-input LUTs than as an adder plus muxes plus comparators. If you take "no carry chain" to mean
+"no counter", you will walk straight past the middle third of this design.
+</div>
+
+<h2 id="structure">4. Half A — structure</h2>
+
+<p>Everything in this half is produced by
+<a href="analyze.py"><code>analyze.py</code></a>, which writes one numbered text file per step
+into <a href="artifacts/"><code>artifacts/</code></a> and a machine-readable
+<a href="artifacts/analysis.json"><code>analysis.json</code></a> that
+<a href="check.py"><code>check.py</code></a> asserts on. It reads
+<code>netlist.hal.v</code> and nothing else.</p>
+
+<pre class="cmd"><code>export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib
+export PYTHONPATH=/work/build/lib:tools
+python3 examples/agilex3_walkthroughs/08_shift_debouncer/analyze.py \
+    --repo . -o examples/agilex3_walkthroughs/08_shift_debouncer/artifacts</code></pre>
+
+<div class="step">
+<h3><span class="n">1</span> The census, from HAL's side</h3>
+
+<pre><code>$ cat artifacts/01_stats.txt
+design name        : shift_debouncer
+gate library       : AGILEX_TENNM
+gates              : 16
+nets               : 19
+modules            : 1
+
+gate types:
+  tennm_ff                 8
+  tennm_lcell_comb         6
+  HAL_GND                  1
+  HAL_VCC                  1
+
+primary inputs  ( 3): btn_raw clk rst_n
+primary outputs ( 2): btn_rise btn_state
+
+module tree:
+  top_module (id 1, type 'shift_debouncer') gates=16 submodules=0
+
+8 flip-flops and 6 ALM cells.  Three ports in, two out.  Flat: one
+module, so the hierarchy was flattened by synthesis and carries no
+information about how the source was partitioned.</code></pre>
+
+<figure>
+<img src="images/module_tree.svg" alt="Module hierarchy: a single top_module node containing 16 gates">
+<figcaption>The entire module hierarchy, drawn by
+<code>python3 tools/hal_viz module_tree netlist.hal.v -g AGILEX_TENNM.hgl -o images/module_tree.svg</code>.
+One node. The three-block structure the author wrote is not in here — synthesis flattened it,
+and nothing in the netlist records that it ever existed.</figcaption>
+</figure>
+
+<figure>
+<img src="images/netlist_graph.svg" alt="Gate-level graph of all 16 gates with port boundary and pin labels">
+<figcaption>All 16 gates at once
+(<code>hal_viz netlist_graph netlist.hal.v -g AGILEX_TENNM.hgl --show-boundary --pin-labels</code>).
+Small enough to draw whole, which is a luxury this series usually does not have. You can see a
+dense knot on the left and a thin tail on the right, and that is genuinely most of the answer —
+but "I can see it" is not a result, so the next five steps derive it.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+16 gates for 14 instances: HAL materialises the two constant nets as
+<code>HAL_GND</code>/<code>HAL_VCC</code> gates, so its census is always two higher than the
+vendor inventory's. Both numbers are right; they count different things. The 3-in/2-out
+boundary is the first real constraint: with one clock and one reset among the inputs, there is
+exactly <em>one</em> data input, so whatever this block does, it does to a single bit.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">2</span> Flip-flop control pins: one domain, and no enables at all</h3>
+
+<pre><code>$ cat artifacts/02_clock_reset.txt
+Every flip-flop control pin, grouped by the net that drives it.
+
+clk:
+  clk        x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+clrn (asynchronous clear, active low):
+  rst_n      x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+ena (clock enable):
+  1'b1       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+sclr (synchronous clear):
+  1'b0       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+[... aload and sload: also 1'b0 on all eight, elided ...]
+
+Control-pin signature (clk, clrn, ena, sclr, aload, sload) -&gt; flops:
+
+  (clk, rst_n, 1'b1, 1'b0, 1'b0, 1'b0) x8
+      cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+All 8 flip-flops share one signature: one clock net, one asynchronous
+clear net, and every other control pin tied to a constant.  So:
+
+  * one clock domain -- no CDC analysis to do, and no clock gating;
+  * one asynchronous reset, active low, hitting every flop;
+  * NO clock enables at all.  Whatever makes a register hold its value
+    in this design is done in the LUT that drives its D pin, not with
+    the flip-flop's enable.  Register grouping by control signature
+    therefore yields exactly one group here and tells us nothing about
+    the internal structure.  That has to come from the dataflow.</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+This is a step that succeeds by producing <em>no</em> information, and it is important to
+notice that rather than skip past it. In walkthrough 03 the enable nets were the whole game:
+the prescaler and the frame counter were the same width and only their enables told them
+apart. Here every <code>ena</code> is <code>1'b1</code>. Both "holds" in this design — the
+counter's saturation and the hysteresis bit's hold — are implemented as
+<em>next-state functions that return the current value</em>, not as gated clocks. A tool that
+looks for enable structure finds one group of eight and stops. So the next step has to be
+about dataflow, not about control pins.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">3</span> Strongly connected components of the gate graph</h3>
+
+<pre><code>$ cat artifacts/03_gate_sccs.txt
+$ graph_algorithm.get_connected_components(graph, strong=True, min_size=2)
+
+2 non-trivial strongly connected component(s) in the GATE graph:
+
+  SCC 0: 8 gates, 4 of them flip-flops
+     flip-flops: cnt[0] cnt[1] cnt[2] cnt[3]
+     all gates : cnt[0] cnt[0]~1 cnt[1] cnt[1]~2 cnt[2] cnt[2]~3 cnt[3] cnt[3]~0
+
+  SCC 1: 2 gates, 1 of them flip-flops
+     flip-flops: state
+     all gates : i38~0 state
+
+flip-flops in NO non-trivial SCC (3): state_d sync[0] sync[1]
+
+A flop inside a feedback loop can hold or evolve a value of its own.
+A flop outside every loop can only pass a value along: its next value
+is a function of things that are not itself.  That is the first real
+cut through this netlist, and it was made without looking at a single
+instance name.</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Three groups, cleanly: a four-flop knot, a one-flop knot, and three flops with no feedback at
+all. Compare this with walkthrough 03, where the gate-level SCC produced one giant blob
+because a control flag gated a counter that fed the flag back — everything was mutually
+reachable and the answer was useless. Here it is sharp, because the three blocks form a
+<em>pipeline</em>: the counter reads the synchronizer but the synchronizer never reads the
+counter; the state bit reads the counter but the counter never reads the state bit. A strict
+one-way dataflow between blocks is what makes gate-level SCCs informative, and it is not
+something you can count on.
+<br><br>
+Note the import: <code>from hal_plugins import graph_algorithm</code>. A bare
+<code>import graph_algorithm</code> silently picks up nothing useful and has broken three
+walkthroughs in this series.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">4</span> The register dependency graph</h3>
+
+<pre><code>$ cat artifacts/04_register_graph.txt
+For every flip-flop: the gate that drives its D pin, and the flip-flops
+and primary inputs that D depends on through combinational cells only.
+'self' marks a flop whose own output is in its next-state cone -- it can
+hold, count or accumulate.  A flop without it is a pure delay stage.
+
+FF         self  D driven by      D depends on (FFs)               D &lt;- PI    ENA
+------------------------------------------------------------------------------------
+cnt[0]     self  cnt[0]~1         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -    1'b1
+cnt[1]     self  cnt[1]~2         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -    1'b1
+cnt[2]     self  cnt[2]~3         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -    1'b1
+cnt[3]     self  cnt[3]~0         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -    1'b1
+state      self  i38~0            cnt[0],cnt[1],cnt[2],cnt[3],state   -    1'b1
+state_d    .     state            state                              -    1'b1
+sync[0]    .     (port)           -                            btn_raw     1'b1
+sync[1]    .     sync[0]          sync[0]                            -    1'b1
+
+[... the closing commentary paragraph elided; it is repeated in step 5 ...]</code></pre>
+<p class="small">Column spacing tightened to fit the page; the file itself pads to a wider
+table.</p>
+
+<figure>
+<img src="images/register_graph.svg" alt="Register dependency graph: btn_raw feeding a two-flop chain, into a four-flop cluster, into a self-holding bit, into one more flop">
+<figcaption>The same table as a picture, written by <code>analyze.py</code> and rendered with
+Graphviz (<a href="images/register_graph.dot"><code>images/register_graph.dot</code></a>).
+Green: the pure delay flops. Orange: the mutually coupled word. Purple: the self-holding bit.
+Blue ellipse: the primary input. Bold orange self-loops mark every flop whose own output is in
+its next-state cone — the four counter bits and the state bit, five in all.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Three shapes, and they line up one-to-one with the SCC result. The important negative
+observation is in the <code>D &lt;- PI</code> column: <strong>only one flop in the whole design
+can see the input port</strong>, and it is not in the counter. Whatever the counter integrates,
+it integrates something that has already been through two registers. That is the first hint
+that the leading pair is a synchronizer rather than, say, a two-stage input pipeline — but it
+is only a hint, and step 5 is where that gets confronted honestly.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">5</span> Register-level SCCs, and the one thing structure cannot decide</h3>
+
+<pre><code>$ cat artifacts/05_register_sccs.txt
+The same edges as step 04, between flip-flops only, self-loops removed.
+Strongly connected components of THAT graph:
+
+  component 0: 4 flop(s)  cnt[0] cnt[1] cnt[2] cnt[3]
+  component 1: 1 flop(s)  state
+  component 2: 1 flop(s)  state_d
+  component 3: 1 flop(s)  sync[0]
+  component 4: 1 flop(s)  sync[1]
+
+=&gt; 1 multi-flop component(s): cnt[0] cnt[1] cnt[2] cnt[3]
+=&gt; 1 self-holding singleton(s): state
+=&gt; 3 pure delay flop(s): state_d sync[0] sync[1]
+
+The pure delay flops, chained by their own edges:
+
+  chain of 2: sync[0]  -&gt;  sync[1]
+     head sync[0] takes D from: btn_raw
+  chain of 1: state_d  -&gt;  (nothing)
+     head state_d takes D from: state
+
+Read the chains carefully, because this is the trap in this design.
+Structurally, a two-flop CLOCK-DOMAIN SYNCHRONIZER and a two-flop
+EDGE-DETECTOR PAIR are the same object: flop -&gt; flop, no enable, no
+feedback, one clock.  Nothing in the graph distinguishes them.  The only
+difference is what feeds the head of the chain:
+
+  * a chain fed by a PRIMARY INPUT is (or at least can be) a
+    synchronizer -- the input is asynchronous until proven otherwise;
+  * a chain fed by an internal flop is a delayed copy of that flop, and
+    a delayed copy exists to be compared with the original, i.e. to
+    detect an edge.
+
+That is an argument from intent, not from structure.  It is the weakest
+inference in this walkthrough and the guide says so.</code></pre>
+
+<div class="bad">
+<strong>The honest version of the synchronizer claim</strong>
+There is <em>no</em> evidence in this netlist that <code>sync[0]→sync[1]</code> is a clock-domain
+synchronizer. A synchronizer and a two-cycle input pipeline are the same eight transistors;
+the difference lives entirely in a timing constraint file and in the designer's head, and
+neither is in a <code>.vo</code>. What the netlist does support is the weaker claim: a two-deep
+delay line on the only data port, whose stages are never compared with each other and whose tail
+is the only thing the rest of the design reads. Everything downstream is identical either way,
+which is why <code>recovered.v</code> reproduces the export exactly while still being agnostic
+about <em>why</em> those two flops are there. Contrast this with the <code>state→state_d</code>
+pair: step 8 finds a cell in the netlist that <em>compares the two stages</em>, which is
+positive evidence for "edge detector" and has nothing to do with intent.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">6</span> The ALM masks — and why the Boolean text is not the answer</h3>
+
+<pre><code>$ cat artifacts/06_lut_functions.txt
+Every tennm_lcell_comb, with the function HAL derived from its
+lut_mask, and the nets on its used data pins.
+
+btn_rise~0  -&gt;  btn_rise   lut_mask=2222222222222222
+    pins : dataa=btn_state, datab=state_d~q
+    func : (dataa &amp; (! datab))
+
+cnt[0]~1  -&gt;  cnt[0]~1_combout   lut_mask=B3333332B3333332
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((datac &amp; (datae &amp; (dataa &amp; datad))) | (((! datab) &amp; (((((! datad) |
+           datae) &amp; (datad | (! datae))) &amp; (dataa | datac)) | ((datad | datae) &amp;
+           [... 320 more characters of the same expression, elided ...]
+
+[... cnt[1]~2, cnt[2]~3, cnt[3]~0 elided: same five pins, masks
+     BC3CC3C2BC3CC3C2, BFC0FC02BFC0FC02, EAAAAAA8EAAAAAA8, and
+     comparably unreadable expressions ...]
+
+i38~0  -&gt;  i38~0_combout   lut_mask=EAAAAAA8EAAAAAA8
+    pins : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1), datae=cnt(2)
+    func : [... same 400-character expression as cnt[3]~0, elided ...]
+
+lut_mask values used by more than one cell:
+  EAAAAAA8EAAAAAA8  cnt[3]~0 i38~0
+
+Two cells sharing a mask do NOT compute the same thing: the mask is a
+truth table over the ALM's own pins, and the same table over different
+nets is a different function of the circuit.  Read the pin list, always.</code></pre>
+
+<figure>
+<img src="images/counter_cone.svg" alt="Close-up of the cnt[3]~0 cell with its five register inputs and its one flip-flop output">
+<figcaption>One counter bit's next-state cell, close up:
+<code>hal_viz netlist_graph netlist.hal.v -g AGILEX_TENNM.hgl --gate 'cnt[3]~0' --depth 1
+--show-boundary --pin-labels</code>. Seven gates. Note that <code>--depth 2</code> is useless
+on a design this small — the depth-2 neighbourhood of <em>any</em> flop here is all 16 gates,
+i.e. the whole netlist. The right radius for a close-up is a property of the design, not a
+habit.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Two things to take away, one of them a trap.
+<br><br>
+<strong>The trap:</strong> <code>cnt[3]~0</code> and <code>i38~0</code> have
+<em>byte-for-byte identical</em> <code>lut_mask</code> values. They are not the same function.
+<code>cnt[3]~0</code> reads <code>(cnt[3], cnt[0], cnt[1], cnt[2], sync[1])</code> on
+<code>dataa..datae</code>; <code>i38~0</code> reads
+<code>(state, cnt[3], cnt[0], cnt[1], cnt[2])</code> on the same pins. Same truth table, shifted
+one position along a different variable list, so: same shape of logic ("hold unless you are at
+an end"), completely different circuit meaning. Any tool that fingerprints cells by mask alone
+will merge these two.
+<br><br>
+<strong>The bigger point:</strong> the Boolean expressions themselves are useless to a human.
+HAL derives them faithfully from the mask, but a 400-character sum-of-products over five
+variables tells you nothing, and it is not even minimal — note the <code>dataf</code> terms in
+the full text, which survive because <code>dataf</code> is tied to ground and the simplifier
+left them in. Do not read these. <em>Evaluate</em> them, which is step 7.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">7</span> Enumerate the four-flop group's whole transition relation</h3>
+
+<p>Four flops that all read each other and themselves, plus one external net. That is
+2<sup>4</sup> × 2<sup>1</sup> = 32 transitions — small enough to enumerate <em>completely</em>,
+so the result is not a sample and there is no bound to state.</p>
+
+<pre><code>$ sed -n '/== A/,/== B/p' artifacts/07_word_semantics.txt
+== A. the 4-flop feedback group ==
+
+flops        : cnt[0] cnt[1] cnt[2] cnt[3]
+next-state   : cnt[0]~1 cnt[1]~2 cnt[2]~3 cnt[3]~0
+outside nets in the group's next-state cone: sync(1)
+
+Every one of the 4 cells reads all 4 group outputs, so nothing about
+the SUPPORT of the next-state functions orders the bits: they are
+symmetric.  Ordering has to come from the transition function itself.
+
+Enumerate it.  There are 2**4 = 16 states of the group and 1 outside
+net(s), so 32 transitions -- exhaustive, not sampled.
+
+  with sync(1)=0:
+    fixed points (state maps to itself): 0000
+
+  with sync(1)=1:
+    fixed points (state maps to itself): 1111
+
+One fixed point per setting of the outside net, and a different one
+each time.  A free-running counter has NO fixed point; an LFSR has one
+only at the degenerate all-zero (or all-one) word.  A fixed point that
+MOVES with an input is a saturation: the group stops instead of
+wrapping.  Walk the orbits to see it.
+
+  with sync(1)=0: the 16 state(s) form one path of length 16:
+    1111 -&gt; 1110 -&gt; 1101 -&gt; 1100 -&gt; 1011 -&gt; 1010 -&gt; 1001 -&gt; 1000 -&gt; 0111
+    -&gt; 0110 -&gt; 0101 -&gt; 0100 -&gt; 0011 -&gt; 0010 -&gt; 0001 -&gt; 0000  -&gt; (holds)
+
+  with sync(1)=1: the 16 state(s) form one path of length 16:
+    0000 -&gt; 0001 -&gt; 0010 -&gt; 0011 -&gt; 0100 -&gt; 0101 -&gt; 0110 -&gt; 0111 -&gt; 1000
+    -&gt; 1001 -&gt; 1010 -&gt; 1011 -&gt; 1100 -&gt; 1101 -&gt; 1110 -&gt; 1111  -&gt; (holds)
+
+[... the closing "Both orbits cover all 16 states ..." paragraph elided; the
+     bit-weight table that follows it is quoted separately just below ...]</code></pre>
+<p class="small">The two orbit lines are one line each in the file; wrapped here.</p>
+
+<pre><code>$ sed -n '/hands over the bit weights/,/the other\./p' artifacts/07_word_semantics.txt
+The path also hands over the bit weights.  Number the states by their
+position on the up path and read each flop's column:
+
+    position :  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    cnt[0]   :  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1   flips every  1 step(s)
+    cnt[1]   :  0  0  1  1  0  0  1  1  0  0  1  1  0  0  1  1   flips every  2 step(s)
+    cnt[2]   :  0  0  0  0  1  1  1  1  0  0  0  0  1  1  1  1   flips every  4 step(s)
+    cnt[3]   :  0  0  0  0  0  0  0  0  1  1  1  1  1  1  1  1   flips every  8 step(s)
+
+    =&gt; bit order, least significant first: cnt[0] cnt[1] cnt[2] cnt[3]
+    =&gt; the states along the up path are 0,1,2,...,15 in plain binary,
+       so the group is a 4-bit binary counter, not a Gray or one-hot
+       encoding, and it takes 15 steps to cross from one end stop to
+       the other.</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+This is the step that pays for the whole walkthrough, and the method generalises.
+<br><br>
+In walkthrough 03 the counter bits were ordered by the size of their in-group dependency:
+bit <em>i</em> depended on bits 0…<em>i</em>−1, so sorting by support size recovered the
+significance. <strong>That does not work here.</strong> All four cells read all four bits —
+the support is symmetric and carries zero ordering information. Saturation is what did it:
+detecting "am I at 0 or at 15" needs every bit, so every bit's next state needs every bit.
+<br><br>
+So the ordering came from somewhere else: the <em>orbit</em>. Apply the transition function
+repeatedly and the 16 states turn out to form a single path with a self-loop at the end, in
+each direction. A path gives every state a position, and "position" is the counter's value by
+construction — no naming, no assumption. Then each flop's column along that path has an
+obvious period, and 1, 2, 4, 8 is the binary weighting. The encoding was <em>derived</em>, not
+recognised.
+<br><br>
+And the shape of the orbit is the classification. Free-running counter: one cycle of length 16,
+no fixed point. Maximal LFSR: one cycle of length 15 plus a lone fixed point. Saturating
+counter: a path ending in a fixed point, and the fixed point <em>moves</em> when the direction
+input changes. You can tell these three apart from the orbit alone, which is a much more robust
+test than pattern-matching on cells.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">8</span> The hysteresis bit and the edge detector</h3>
+
+<pre><code>$ sed -n '/== B/,/HOLD  at/p' artifacts/07_word_semantics.txt
+== B. the self-holding flag state ==
+
+next-state cell: i38~0
+pins           : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1),
+                 datae=cnt(2), dataf=1'b0
+func           : [... the 400-character expression, elided ...]
+
+It reads itself and every bit of the counter.  Enumerate all
+32 combinations of (flag, counter value):
+
+    counter     flag=0 -&gt; next   flag=1 -&gt; next   behaviour
+    ---------------------------------------------------------
+     0 (0000)        0                0            CLEAR
+     1 (0001)        0                1            hold
+     2 (0010)        0                1            hold
+     3 (0011)        0                1            hold
+    [... values 4..13, all 'hold', elided ...]
+    14 (1110)        0                1            hold
+    15 (1111)        1                1            SET
+
+    SET   at counter value(s): 15
+    CLEAR at counter value(s): 0
+    HOLD  at counter value(s): 1 2 3 4 5 6 7 8 9 10 11 12 13 14</code></pre>
+
+<figure>
+<img src="images/hysteresis_cone.svg" alt="Close-up of the i38~0 cell reading the state flop and all four counter bits">
+<figcaption>The hysteresis cell close up:
+<code>hal_viz netlist_graph netlist.hal.v -g AGILEX_TENNM.hgl --gate 'i38~0' --depth 1
+--show-boundary --pin-labels</code>. Five register inputs, one register output, and the
+output is one of its own inputs. There is no separate "== 15" or "== 0" comparator anywhere in
+this netlist: both comparisons were folded into this one 5-input truth table, and again into
+each of the four counter cells.</figcaption>
+</figure>
+
+<pre><code>$ sed -n '/== C/,$p' artifacts/07_word_semantics.txt
+== C. the combinational output cell btn_rise~0 ==
+
+drives  : btn_rise (a primary output)
+pins    : dataa=btn_state, datab=state_d~q
+func    : (dataa &amp; (! datab))
+
+    btn_state     state_d~q     out
+    0             0             0
+    1             0             1
+    0             1             0
+    1             1             0
+
+    High for exactly one of the four combinations: the one where the
+    flop is 1 and its delayed copy is 0.  That is a rising-edge
+    detector, and it settles step 05's ambiguity: the second chain
+    is an edge detector, because something in the netlist actually
+    compares the two stages.  The synchronizer chain has no such
+    comparator -- nothing reads its two stages together.</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Two exhaustive tables, 32 rows and 4 rows, and between them the top third of the design is
+settled without a single assumption.
+<br><br>
+The 32-row table is the definition of hysteresis: the output moves only at the counter's two
+end stops and holds at all fourteen values in between. That is a Schmitt trigger, and it is
+<em>why</em> the debouncer works — noise can jitter the counter around the middle forever
+without ever moving the output. Note also which values the table depends on: the two that
+move the flag are exactly the two fixed points step 7 found. The two halves of the netlist
+agree with each other before any simulation happens.
+<br><br>
+The 4-row table is what rescues step 5. A cell exists whose two inputs are the two stages of
+the <code>state→state_d</code> chain, and it computes "now and not before". A structure that
+compares a signal with its own delayed copy <em>is</em> an edge detector — no argument from
+intent needed. The synchronizer chain has no such cell: nothing in the netlist ever looks at
+<code>sync[0]</code> and <code>sync[1]</code> together. The asymmetry between the two
+identical-looking chains is not in the chains, it is in what reads them.
+</div>
+</div>
+
+<h2 id="behaviour">5. Half B — behaviour</h2>
+
+<p>The structural half now claims: a two-deep delay line, a 4-bit saturating up/down counter
+that needs 15 steps end to end, and a hysteresis bit driven by its end stops. None of that tells
+you what the block costs in latency, how long a press has to be, or whether it actually rejects
+contact bounce. For that you drive it.</p>
+
+<p><a href="probe.py"><code>probe.py</code></a> simulates the <em>vendor export</em>
+(<code>shift_debouncer.vo</code>) with <code>tools/hal_agilex</code>'s reference simulator. No
+HAL build required, and it reads no artifact from half A.</p>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/08_shift_debouncer/probe.py -o artifacts/ --images images/</code></pre>
+
+<div class="step">
+<h3><span class="n">9</span> Ports, and the two latencies</h3>
+
+<pre><code>$ head -32 artifacts/08_probe.txt
+netlist: shift_debouncer.vo (14 instances)
+ports: 3 inputs, 2 outputs
+  inputs : clk rst_n btn_raw
+  outputs: btn_state btn_rise
+
+nets on every flip-flop clk pin : {'clk': 8}
+nets on every flip-flop clrn pin: {'rst_n': 8}
+=&gt; clock = clk, asynchronous reset = rst_n
+=&gt; 1 input(s) left: btn_raw
+
+Probe A -- hold btn_raw low, raise it at cycle 4 and never let go.
+
+  btn_state : 000000000000000000000011111111111111111111111111111111111111
+  btn_rise  : 000000000000000000000010000000000000000000000000000000000000
+  btn_raw   : 000011111111111111111111111111111111111111111111111111111111
+
+  one output goes high and STAYS high  -&gt; the level output : btn_state
+  one output goes high for a single cycle -&gt; the pulse output: btn_rise
+  btn_state rises at cycle 22 -&gt; 18 cycles after the press
+  btn_rise is high on cycle 22 only, 1 cycle(s) wide, and never again
+  =&gt; the pulse output is a one-cycle marker for the rising edge of the level
+
+Probe B -- same press, released at cycle 30.
+
+  btn_raw   : 000011111111111111111111111111000000000000000000000000000000
+  btn_state : 000000000000000000000011111111111111111111111111000000000000
+  btn_rise  : 000000000000000000000010000000000000000000000000000000000000
+
+  btn_state is high on cycles 22..47 and falls at cycle 48
+  =&gt; release latency = 18 cycles, the same as the press latency
+  =&gt; the delay is symmetric: whatever integrates the input runs at the
+     same rate in both directions</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+18 cycles, both ways. Half A predicts exactly that number without ever running a simulation:
+2 for the delay line + 15 for the counter traversal + 1 for the state flop to catch the end
+stop = 18. Nobody arranged for the two halves to agree — the probe never reads
+<code>analysis.json</code> and the analysis never reads <code>probe.json</code>.
+<br><br>
+Symmetry matters as evidence too. A shift-register debouncer (the other common design, and the
+one this module's name half-suggests) is also symmetric, so this does not discriminate. But an
+RC-style or leaky-integrator design would <em>not</em> be, so the symmetry rules out a whole
+family.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">10</span> How short a press is still accepted?</h3>
+
+<pre><code>$ sed -n '/Probe C/,/two directions/p' artifacts/08_probe.txt
+Probe C -- press for exactly k cycles, then release, for k = 0..20.
+Does the level output ever go high?
+
+  k= 0  btn_state high: no
+  k= 1  btn_state high: no
+  [... k = 2..12, all 'no', elided ...]
+  k=13  btn_state high: no
+  k=14  btn_state high: no
+  k=15  btn_state high: yes   (rises at cycle 22)
+  k=16  btn_state high: yes   (rises at cycle 22)
+  k=17  btn_state high: yes   (rises at cycle 22)
+  [... k = 18..20, all 'yes' at cycle 22, elided ...]
+
+  =&gt; the shortest accepted press is 15 cycles
+  =&gt; that is exactly the 15 steps the counter of analyze.py step 07 needs
+     to walk from one end stop to the other.  The structural claim and
+     the behavioural measurement are the same number, arrived at from
+     two directions that never looked at each other.</code></pre>
+
+<div class="good">
+<strong>15 = 15</strong>
+The structural derivation got 15 from an orbit length — a property of a truth table, with no
+notion of time in it at all. The behavioural measurement got 15 by pressing a button for
+varying numbers of clock cycles. Those are genuinely independent routes to the same number,
+and their agreement is the strongest single piece of evidence in this walkthrough.
+</div>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Notice the second column: every accepted press produces a rise at <em>cycle 22</em>, no matter
+how long the press is. A press of 20 cycles is not faster than a press of 15. That is the
+signature of an integrator with a fixed ceiling: once the counter is at 15 it stops, so extra
+press time buys nothing. A shift-register debouncer would look the same here — which is
+exactly why probe D below matters.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">11</span> The bounce burst</h3>
+
+<pre><code>$ sed -n '/Probe D/,/whole job/p' artifacts/08_probe.txt
+Probe D -- a contact-bounce burst: 24 chattering samples starting at
+cycle 4, then the line settles high.
+
+  stimulus  : 110010110100101101001011
+  btn_raw   : 000011001011010010110100101111111111111111111111111111111111[...]
+  btn_state : 000000000000000000000000000000000000000000001111111111111111[...]
+  btn_rise  : 000000000000000000000000000000000000000000001000000000000000[...]
+
+  btn_raw has 16 edges inside the burst (cycles 4..27)
+  btn_state has 0 edges inside the burst
+  btn_state rises once, at cycle 44 -- 16 cycles after the line settles
+  btn_rise pulses 1 time(s): cycle 44 for 1 cycle(s)
+
+  Note the 16 cycles, not 18: a cold press (probe A) takes 18 cycles, but
+  this burst ended on two high samples, so the integrator was already
+  part-way up when the line settled.  The debounce delay is a function of
+  the integrator's STATE, not a fixed pipeline depth -- which is exactly
+  what a counter-based debouncer is and a shift-register one is not.
+
+  =&gt; 16 bouncing edges in, ONE clean edge out.  That is the whole job.</code></pre>
+<p class="small">The three trace lines are 84 characters each in the file; truncated here at
+60 with <code>[...]</code>, all of the removed tail being a constant level.</p>
+
+<figure>
+<img src="images/bounce_waveform.svg" alt="Waveform: btn_raw chattering for 24 cycles then settling high; btn_state flat then rising once; btn_rise a single one-cycle pulse">
+<figcaption>Probe D as a waveform, drawn by <code>probe.py</code> from the trace itself — no
+plotting library, no external font. Sixteen edges on <code>btn_raw</code>; none at all on
+<code>btn_state</code> until the line has been stable long enough; one single-cycle
+<code>btn_rise</code> pulse.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+The 16-versus-18 discrepancy is the most informative number in the behavioural half, and it
+would be very easy to round away as noise. It is not noise: it is the one measurement that
+separates the two candidate debouncer architectures.
+<br><br>
+A <strong>shift-register</strong> debouncer ("output changes when the last N samples all
+agree") has a <em>fixed</em> latency: N cycles after the line settles, always, regardless of
+what happened before. A <strong>counter/integrator</strong> debouncer has a
+<em>state-dependent</em> latency: the delay is however far the counter still has to travel. Our
+burst ended on <code>...011</code>, two high samples, so the counter had already climbed a
+little and the final leg was 16 cycles instead of 18.
+<br><br>
+Half A already knew the answer — it enumerated a counter. But if you only had the black box,
+this is the experiment that decides it, and the module being called
+"<code>shift_debouncer</code>" would have led you the wrong way. Names in a netlist are a hint,
+never evidence.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">12</span> A square wave that never sits still</h3>
+
+<pre><code>$ sed -n '/Probe E/,$p' artifacts/08_probe.txt
+Probe E -- a square wave on btn_raw: half a period high, half low, forever.
+If the block were a plain synchronizer the output would just follow it.
+
+  half-period  5 cycles ( 10 cycle period): btn_state changes 0 time(s)
+  half-period 10 cycles ( 20 cycle period): btn_state changes 0 time(s)
+  half-period 14 cycles ( 28 cycle period): btn_state changes 0 time(s)
+  half-period 15 cycles ( 30 cycle period): btn_state changes 25 time(s)
+  half-period 16 cycles ( 32 cycle period): btn_state changes 23 time(s)
+  half-period 20 cycles ( 40 cycle period): btn_state changes 19 time(s)
+
+  =&gt; anything with a half-period of 14 cycles or less is rejected
+  =&gt; the block is not a filter with a smooth roll-off; it is a threshold.
+     Below 15 consecutive stable samples: nothing at all comes out.
+     At or above it: the full transition.</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+A 14-cycle half-period gets rejected <em>completely</em> — zero output transitions in 400
+cycles, not attenuated ones. A 15-cycle half-period gets through at full amplitude. There is no
+in-between. Anyone reaching for the word "low-pass filter" should stop here: this is a
+non-linear threshold, and the counter's clamps are what make it one. Without the clamps the
+counter would wrap and the output would toggle on essentially any input pattern, which is
+precisely what negative control A in step 13 demonstrates.
+</div>
+</div>
+
+<h2 id="agree">6. Where the two halves meet</h2>
+
+<table>
+<tr><th>claim</th><th>half A (structure)</th><th>half B (behaviour)</th></tr>
+<tr><td>one clock domain, one async active-low reset</td>
+    <td><code>02_clock_reset.txt</code>: one <code>clk</code> net and one <code>clrn</code> net across all 8 flops</td>
+    <td><code>08_probe.txt</code>: the same two nets found from the pin lists before any simulation</td></tr>
+<tr><td>exactly one data input</td>
+    <td><code>01_stats.txt</code>: 3 primary inputs, two of them the clock and reset</td>
+    <td>probe A: raising it is what makes both outputs move</td></tr>
+<tr><td>threshold = <strong>15</strong> consecutive samples</td>
+    <td>step 7: the orbit is a path of 16 states, so 15 steps end to end</td>
+    <td>probe C: <em>k</em> = 14 rejected, <em>k</em> = 15 accepted</td></tr>
+<tr><td>latency = <strong>18</strong> cycles</td>
+    <td>2 delay stages + 15 counter steps + 1 state flop</td>
+    <td>probe A and B: 18 cycles on the press, 18 on the release</td></tr>
+<tr><td>the level output holds between end stops</td>
+    <td>step 8: 32-row table, SET at 15, CLEAR at 0, HOLD at 1…14</td>
+    <td>probe D: 16 input edges, zero output edges</td></tr>
+<tr><td>the pulse output is a rising-edge detector</td>
+    <td>step 8: 4-row table, high only for (1, 0)</td>
+    <td>probe A and D: exactly one 1-cycle pulse per accepted press</td></tr>
+<tr><td>the integrator is a counter, not a shift register</td>
+    <td>step 7: 4 mutually coupled flops, orbit = a path with clamps</td>
+    <td>probe D: latency depends on the integrator's prior state (16, not 18)</td></tr>
+</table>
+
+<h2 id="controls">7. Negative controls</h2>
+
+<p>"The netlist agrees with the model" only means something if a <em>wrong</em> model would have
+disagreed. Two controls, both derived from <code>reference.py</code> by a one-line edit.</p>
+
+<div class="step">
+<h3><span class="n">13</span> Break the model on purpose</h3>
+
+<h4>Control A — remove the saturation clamp</h4>
+
+<pre class="cmd"><code>sed 's/ and not at_max:/:/; s/ and not at_min:/:/' reference.py &gt; /tmp/ctl_nosat.py
+python3 tools/hal_agilex --strict behavior shift_debouncer.vo \
+    --reference /tmp/ctl_nosat.py --cycles 200 \
+    -o artifacts/09_negative_control_nosat.json</code></pre>
+
+<pre><code>$ diff reference.py /tmp/ctl_nosat.py
+52c52
+&lt;     if sync_level and not at_max:
+---
+&gt;     if sync_level:
+54c54
+&lt;     elif not sync_level and not at_min:
+---
+&gt;     elif not sync_level:
+
+$ python3 tools/hal_agilex --strict behavior [...] ; echo "exit=$?"
+strict: hal_agilex/behavior/reference-mismatch is bounded_counterexample
+exit=2
+
+$ [... reading artifacts/09_negative_control_nosat.json ...]
+status  : bounded_counterexample
+title   : The exported netlist does not match the reference model
+summary : Mismatch at cycle 2: expected {'btn_state': 1, 'btn_rise': 1},
+          got {'btn_state': 0, 'btn_rise': 0}.</code></pre>
+<p class="small">The three labelled lines are the <code>status</code>, <code>title</code> and
+<code>summary</code> fields read out of the findings document — the file itself is JSON, not
+this layout. The <code>summary</code> string is one line there; wrapped here.</p>
+
+<p>Caught at cycle <strong>2</strong>. Without the clamp the model's counter wraps from 0 down
+to 15 on the very first idle cycle, the hysteresis bit fires, and the real netlist does not
+follow. Good: the check has teeth.</p>
+
+<h4>Control B — keep the clamp, but one count early</h4>
+
+<pre class="cmd"><code>sed 's/^CNT_MAX = 0xF/CNT_MAX = 0xE/' reference.py &gt; /tmp/ctl_max14.py
+python3 tools/hal_agilex behavior shift_debouncer.vo --reference /tmp/ctl_max14.py \
+    --cycles 200  -o artifacts/09_negative_control_max14_200.json
+python3 tools/hal_agilex behavior shift_debouncer.vo --reference /tmp/ctl_max14.py \
+    --cycles 2000 -o artifacts/09_negative_control_max14_2000.json</code></pre>
+
+<pre><code>$ [... reading the two findings documents ...]
+09_negative_control_max14_200.json
+  status  : proven_bounded
+  summary : 200 pseudo-random cycles, including asynchronous clears, agree with
+            the reference model. Nothing is claimed beyond that bound.
+
+09_negative_control_max14_2000.json
+  status  : bounded_counterexample
+  summary : Mismatch at cycle 280: expected {'btn_state': 1, 'btn_rise': 1},
+            got {'btn_state': 0, 'btn_rise': 0}.</code></pre>
+<p class="small">Again the <code>status</code>/<code>summary</code> fields read out of the two
+JSON documents, with the summary strings wrapped.</p>
+
+<div class="bad">
+<strong>The shipped 200-cycle evidence would not have caught this bug</strong>
+<a href="artifacts/behavior.findings.json"><code>artifacts/behavior.findings.json</code></a> —
+the committed proof that this netlist matches its RTL — is a 200-cycle run. A model with the
+end stop at 14 instead of 15 <em>passes</em> that run and is only caught at cycle 280. The
+finding says <em>"Nothing is claimed beyond that bound"</em> and it means it.
+<br><br>
+This is not a flaw in the tool; it is a coverage hole with a specific shape, and the shape is
+worth understanding. The behaviour that distinguishes 14 from 15 only occurs when the counter
+reaches an end stop, and reaching an end stop requires 15 <em>correlated</em> samples in a
+row. Independent uniform random bits give you that roughly once in 2<sup>15</sup> attempts —
+the random walk almost never wanders that far. So the region of the state space where this
+design does its only interesting work is precisely the region random stimulus does not reach.
+<br><br>
+Probe C finds the same bug in one targeted experiment, and step 7 finds it by enumeration
+without any stimulus at all. Three methods, three different coverage profiles: that is the
+argument for running all three rather than picking a favourite.
+</div>
+</div>
+
+<h2 id="reconstruct">8. Reconstruction</h2>
+
+<div class="step">
+<h3><span class="n">14</span> Write the RTL back, then check it</h3>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the design rewritten from the netlist
+alone, with every claim citing the artifact it came from. The core of it:</p>
+
+<pre><code>[... ports, register declarations and their evidence comments elided ...]
+
+    // Not present as nets.  Both comparisons were absorbed into the LUT masks;
+    // they are written out here because the enumerated truth tables in
+    // artifacts/07_word_semantics.txt say the cells behave exactly like this.
+    wire at_max = (cnt == 4'hF);   // the fixed point of the up direction
+    wire at_min = (cnt == 4'h0);   // the fixed point of the down direction
+
+    assign btn_state = state;                  // q pin straight to the port
+    assign btn_rise  = state &amp; ~state_d;       // lut_mask 64'h2222...2222 over
+                                               // (dataa=state, datab=state_d)
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            sync &lt;= 2'b00; cnt &lt;= 4'h0; state &lt;= 1'b0; state_d &lt;= 1'b0;
+        end
+        else begin
+            sync &lt;= {sync[0], btn_raw};
+
+            if (sync[1] &amp;&amp; !at_max)       cnt &lt;= cnt + 4'd1;
+            else if (!sync[1] &amp;&amp; !at_min) cnt &lt;= cnt - 4'd1;
+
+            if (at_max)      state &lt;= 1'b1;
+            else if (at_min) state &lt;= 1'b0;
+
+            state_d &lt;= state;
+        end
+    end</code></pre>
+<p class="small">Reformatted for width the same way as the <code>design.v</code> excerpt above:
+the reset branch collapsed onto one line, the <code>if</code>/<code>else if</code> bodies
+pulled up onto their conditions, and the port list, register declarations and their (much
+longer) evidence comments elided. Full text:
+<a href="recovered.v"><code>recovered.v</code></a>.</p>
+
+<p>Writing plausible RTL is easy; the claim only counts once it is executed against the
+export. <a href="recovered_reference.py"><code>recovered_reference.py</code></a> is
+<code>recovered.v</code> as a Python model, written from the same artifacts, and
+<code>check.py</code> runs it against the exported netlist for 3000 cycles:</p>
+
+<pre><code>[ok  ] export matches reference.py (the RTL model) for 3000 cycles
+[ok  ] export matches recovered_reference.py (the reconstruction) for 3000 cycles</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+<code>recovered_reference.py</code> ends up almost identical to <code>reference.py</code>.
+That is the <em>result</em>, not a shortcut — but it does mean the equivalence check is weaker
+evidence than it looks, because the two files can share a mistake. The independent evidence is
+elsewhere: the exhaustive tables in step 7 and 8 (which have no bound at all), and the
+behavioural probes in steps 9–12 (which were measured, not modelled). The 3000-cycle
+simulation is the cheapest of the three kinds of evidence here, and it is quoted last on
+purpose.
+<br><br>
+One genuine difference from the original: <code>at_max</code> and <code>at_min</code> are
+<em>nets in the source and not in the netlist</em>. Quartus folded both comparisons into each
+of the five 5-input cells that needed them. The reconstruction writes them out as wires
+because that is readable RTL, but a reader should know that no such signal exists in the
+silicon, and that re-synthesising <code>recovered.v</code> is what would put them back the
+same way.
+</div>
+</div>
+
+<h2 id="lost">9. Recovered vs. lost</h2>
+
+<table>
+<tr><th>property</th><th>recovered?</th><th>from what</th></tr>
+<tr><td>port directions and roles (clock, async reset, data in, level out, pulse out)</td>
+    <td>yes</td><td>pin nets + probe A</td></tr>
+<tr><td>8 flip-flops in one clock domain, no enables</td><td>yes</td><td><code>02_clock_reset.txt</code></td></tr>
+<tr><td>the three-block split (delay line / counter / hysteresis bit)</td><td>yes</td><td><code>03</code>, <code>05</code></td></tr>
+<tr><td>counter width = 4, encoding = plain binary, LSB = <code>cnt[0]</code></td><td>yes</td><td>step 7 orbit, exhaustive</td></tr>
+<tr><td>saturation at both ends (not wrap-around)</td><td>yes</td><td>step 7 fixed points, exhaustive</td></tr>
+<tr><td>hysteresis: set at 15, clear at 0, hold between</td><td>yes</td><td>step 8, 32 rows, exhaustive</td></tr>
+<tr><td>rising-edge detector on the level output</td><td>yes</td><td>step 8, 4 rows, exhaustive</td></tr>
+<tr><td>threshold 15 samples, latency 18 cycles, symmetric</td><td>yes</td><td>probes A, B, C</td></tr>
+<tr><td>the design is counter-based, not shift-register-based</td><td>yes</td><td>step 7 + probe D's 16-vs-18</td></tr>
+<tr><td><strong>that the leading pair is a CDC synchronizer</strong></td><td><strong>no</strong></td><td>indistinguishable from a 2-stage pipeline; see step 5</td></tr>
+<tr><td><strong>that <code>btn_raw</code> is asynchronous at all</strong></td><td><strong>no</strong></td><td>a timing property; not in a post-synthesis netlist</td></tr>
+<tr><td>the source's parameter names (<code>CNT_MAX</code>, <code>DEBOUNCE_MAX</code>)</td><td>no</td><td>compile-time constants leave no trace</td></tr>
+<tr><td>the <code>at_max</code>/<code>at_min</code> wires</td><td>no</td><td>folded into five LUT masks; no such net exists</td></tr>
+<tr><td>the module hierarchy the author wrote</td><td>no</td><td>flattened; <code>01_stats.txt</code> shows one module</td></tr>
+<tr><td>the intended clock frequency, and hence the real debounce time in ms</td><td>no</td><td>needs an <code>.sdc</code> or a board, not a netlist</td></tr>
+<tr><td>power-up values</td><td>no</td><td>every flop is <code>power_up ("dont_care")</code>; the model assumes 0</td></tr>
+</table>
+
+<h2 id="negative">10. Negative space: what neither half can tell you</h2>
+
+<h3>What structure cannot decide</h3>
+<ul class="tight">
+<li><strong>Synchronizer versus pipeline.</strong> The headline example, covered in step 5.
+Two flops in a row is two flops in a row. The <em>reason</em> for them lives in an
+<code>.sdc</code> file and in the designer's head. If you are auditing a real design for
+missing CDC hardware, a netlist can tell you where synchronizers <em>could</em> be but never
+where they were <em>meant</em> to be.</li>
+<li><strong>Which end stop is "pressed".</strong> The netlist says the counter counts up when
+<code>sync[1]</code> is high and that the flag is set at the top. It does not say that "high"
+means "the user is touching the button" — an active-low button with a pull-up would produce a
+bit-for-bit identical netlist and the opposite meaning. Polarity conventions are outside the
+gates.</li>
+<li><strong>Anything about time.</strong> "15 samples" is a cycle count. Whether that is
+15&nbsp;ns or 15&nbsp;ms depends on a clock this file does not contain. Every debouncer
+specification a human would write ("20&nbsp;ms of bounce rejection") is therefore
+unrecoverable in principle, not just in practice.</li>
+<li><strong>Shared masks are not shared functions.</strong> <code>cnt[3]~0</code> and
+<code>i38~0</code> have identical <code>lut_mask</code> values and do entirely different jobs
+(step 6). Structural fingerprinting that hashes cells by mask will merge them.</li>
+</ul>
+
+<h3>What behaviour cannot prove</h3>
+<ul class="tight">
+<li><strong>Unreachable counter states.</strong> After reset the counter is 0, and from there
+it can only walk the path. Nothing a simulation does can put it at, say, 7 with the state bit
+already high in a way that violates the path — so simulation never visits the parts of the
+32-state space that only reset glitches or SEUs could reach. The exhaustive tables in steps 7
+and 8 <em>do</em> cover all 32, which is why they are worth more than the 3000-cycle run.</li>
+<li><strong>Anything at the far end of a random walk.</strong> Control B in step 13 is the
+concrete demonstration: an off-by-one end stop survives 200 pseudo-random cycles because
+random stimulus essentially never produces 15 correlated samples. The interesting region of a
+debouncer's state space is exactly the region random testing does not reach.</li>
+<li><strong>Metastability, glitches, X propagation.</strong> The simulator is two-valued and
+zero-delay. The one hardware phenomenon this design exists to survive is the one thing the
+model cannot represent — which is a fair summary of why synchronizers are argued about rather
+than tested.</li>
+<li><strong>Power-up state.</strong> Every <code>tennm_ff</code> here is
+<code>power_up ("dont_care")</code>. The simulator starts at zero because it has to start
+somewhere. On real silicon the first few cycles after configuration are not covered by any
+claim on this page.</li>
+</ul>
+
+<h3>The three blocks, and which method sees them</h3>
+<table>
+<tr><th>block</th><th>structurally it looks like</th><th>behaviourally it looks like</th><th>could be confused with</th></tr>
+<tr><td>two-flop synchronizer</td>
+    <td>a 2-chain of enable-less flops fed by a port — <em>identical</em> to the edge-detector pair</td>
+    <td>2 of the 18 latency cycles, and nothing else; invisible on its own</td>
+    <td>an input pipeline stage, a retiming artefact, an edge-detector delay</td></tr>
+<tr><td>saturating counter</td>
+    <td>4 mutually coupled flops, symmetric support, one external control net</td>
+    <td>the 15-sample threshold and the state-dependent latency (16 vs 18)</td>
+    <td>a free-running counter, an LFSR, a shift-register debouncer</td></tr>
+<tr><td>hysteresis bit</td>
+    <td>a self-holding singleton whose next state reads the whole counter</td>
+    <td>total rejection below threshold, full transition above it — no roll-off</td>
+    <td>a register with a clock enable (there are none here), a low-pass filter</td></tr>
+</table>
+
+<p>The pattern is worth stating plainly: the synchronizer is the block structure sees but cannot
+interpret; the counter's <em>saturation</em> is the block behaviour sees but random stimulus
+misses; the hysteresis bit is the one both halves nail immediately, because it is small enough
+to enumerate and dramatic enough to measure. A single method would have gone wrong on two out
+of three.</p>
+
+<h2 id="further">11. Exercises</h2>
+
+<ol>
+<li><strong>Break the orbit test.</strong> Edit <code>design.v</code> to remove the clamps
+(a plain wrapping up/down counter), re-synthesize, and re-run <code>analyze.py</code>. Step 7
+should report <em>no</em> fixed points and a cycle instead of a path. Does the rest of the
+analysis still make sense, and what does step 8's table look like when the counter can wrap?</li>
+<li><strong>Widen it.</strong> Change the counter to 5 bits. Predict the new threshold and
+latency from the structure before running probe C, then check. At what width does the
+exhaustive enumeration in step 7 stop being cheap, and what would you do instead?</li>
+<li><strong>Build the other debouncer.</strong> Write a shift-register debouncer (output
+changes when the last 15 samples agree), synthesize it, and run probe D against both. Confirm
+that the shift-register version's post-burst latency is a constant while this one's is not.
+Which structural step first tells the two apart?</li>
+<li><strong>Attack the mask trap.</strong> Write a script that groups the six ALM cells by
+<code>lut_mask</code> alone, and then by (mask, pin-to-net role) — where "role" means something
+like "which of my inputs are my own group's outputs". Confirm the first grouping merges
+<code>cnt[3]~0</code> with <code>i38~0</code> and the second does not.</li>
+<li><strong>Find control B faster.</strong> Control B (end stop at 14) needs 280 random cycles.
+Design a stimulus that catches it in under 40, and explain what property of the design you
+exploited. Then argue whether a coverage metric could have found that stimulus automatically.</li>
+<li><strong>Blind it.</strong> Walkthroughs 03 and 10 ship an <code>anonymize.py</code>. Write
+one for this design and re-run <code>analyze.py</code> on the blinded netlist. Every step
+should produce the same <em>shape</em> of answer. Which sentences in this guide would you have
+to rewrite?</li>
+</ol>
+
+<h2 id="repro">12. Reproducing all of it</h2>
+
+<p>Everything on this page is generated by one script, in the order the guide presents it:</p>
+
+<pre class="cmd"><code>export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib
+export PYTHONPATH=/work/build/lib:tools
+sh examples/agilex3_walkthroughs/08_shift_debouncer/run_analysis.sh</code></pre>
+
+<p>The claims are re-asserted by <a href="check.py"><code>check.py</code></a>, in two tiers:</p>
+
+<pre class="cmd"><code># tier 1: no HAL build needed
+python3 examples/agilex3_walkthroughs/08_shift_debouncer/check.py
+
+# tier 2: the same, plus every structural claim
+export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib
+export PYTHONPATH=/work/build/lib:tools
+python3 examples/agilex3_walkthroughs/08_shift_debouncer/check.py --with-hal</code></pre>
+
+<pre><code>$ tail -8 artifacts/check.txt
+[ok  ] the traversal is 15 steps -- the number probe C measured  -- 15
+[ok  ] bit order recovered from the path is cnt[0],cnt[1],cnt[2],cnt[3]  -- cnt[0] cnt[1] cnt[2] cnt[3]
+[ok  ] the hysteresis bit is SET only at counter value 15  -- [15]
+[ok  ] the hysteresis bit is CLEARed only at counter value 0  -- [0]
+[ok  ] the hysteresis bit HOLDs at all 14 values in between  -- [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+[ok  ] the output cell is a rising-edge detector  -- {'0': 0, '1': 1, '2': 0, '3': 0}
+
+all checks passed</code></pre>
+
+<p>Tier 1 covers the export's primitive coverage, that <code>netlist.hal.v</code> is the same
+circuit as the vendor <code>.vo</code>, the agreement with both Python models, the two negative
+controls and every number the probe prints. Tier 2 adds the structural conclusions from
+<code>analysis.json</code>. Full transcript:
+<a href="artifacts/check.txt"><code>artifacts/check.txt</code></a>.</p>
+
+<hr>
+
+<p class="small">Every figure on this page was generated from
+<code>netlist.hal.v</code> or from a simulation trace, by <code>tools/hal_viz</code>,
+<code>analyze.py</code> and <code>probe.py</code>. Every quoted output is a file in
+<a href="artifacts/"><code>artifacts/</code></a>; elisions are marked in square brackets and
+nothing else was edited except for line wrapping, which is noted where it happens. Series
+index: <a href="../01_blinky_counter/guide.html">01</a> ·
+<a href="../02_traffic_fsm/guide.html">02</a> ·
+<a href="../03_uart_tx/guide.html">03</a> ·
+<a href="../04_pwm_generator/guide.html">04</a> ·
+<a href="../05_lfsr_prng/guide.html">05</a> ·
+<a href="../06_accumulator_alu/guide.html">06</a> ·
+<strong>08</strong> ·
+<a href="../10_crc8_checker/guide.html">10</a>.</p>
+
+</main>
+</body>
+</html>

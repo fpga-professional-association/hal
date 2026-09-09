@@ -1,0 +1,346 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 18:35:30"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module shift_debouncer (
+	btn_state,
+	btn_rise,
+	clk,
+	rst_n,
+	btn_raw);
+output 	btn_state;
+output 	btn_rise;
+input 	clk;
+input 	rst_n;
+input 	btn_raw;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \state~q ;
+wire \state_d~q ;
+wire \btn_rise~0_combout ;
+wire \i38~0_combout ;
+wire \cnt[3]~0_combout ;
+wire \cnt[0]~1_combout ;
+wire \cnt[1]~2_combout ;
+wire \cnt[2]~3_combout ;
+wire [3:0] cnt;
+wire [1:0] sync;
+
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+state(
+	.clk(clk),
+	.d(\i38~0_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state~q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+state_d(
+	.clk(clk),
+	.d(\state~q ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state_d~q ));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h4444444444444444),
+  .shared_arith ("off"))
+\btn_rise~0 (
+// Equation(s):
+// \btn_rise~0_combout  = (\state~q  & !\state_d~q )
+
+	.dataa(~\state~q ),
+	.datab(~\state_d~q ),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\btn_rise~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\cnt[3] (
+	.clk(clk),
+	.d(\cnt[3]~0_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(cnt[3]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\cnt[0] (
+	.clk(clk),
+	.d(\cnt[0]~1_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(cnt[0]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\cnt[1] (
+	.clk(clk),
+	.d(\cnt[1]~2_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(cnt[1]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\cnt[2] (
+	.clk(clk),
+	.d(\cnt[2]~3_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(cnt[2]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h1555555715555557),
+  .shared_arith ("off"))
+\i38~0 (
+// Equation(s):
+// \i38~0_combout  = ( cnt[2] & ( ((cnt[3] & (cnt[0] & cnt[1]))) | (\state~q ) ) ) | ( !cnt[2] & ( (\state~q  & ( ((cnt[1]) | (cnt[0])) | (cnt[3]))) ) )
+
+	.dataa(~\state~q ),
+	.datab(~cnt[3]),
+	.datac(~cnt[0]),
+	.datad(~cnt[1]),
+	.datae(~cnt[2]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i38~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\sync[1] (
+	.clk(clk),
+	.d(sync[0]),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(sync[1]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h1555555715555557),
+  .shared_arith ("off"))
+\cnt[3]~0 (
+// Equation(s):
+// \cnt[3]~0_combout  = ( sync[1] & ( ((cnt[0] & (cnt[1] & cnt[2]))) | (cnt[3]) ) ) | ( !sync[1] & ( (cnt[3] & ( ((cnt[2]) | (cnt[1])) | (cnt[0]))) ) )
+
+	.dataa(~cnt[3]),
+	.datab(~cnt[0]),
+	.datac(~cnt[1]),
+	.datad(~cnt[2]),
+	.datae(~sync[1]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\cnt[3]~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h4CCCCCCD4CCCCCCD),
+  .shared_arith ("off"))
+\cnt[0]~1 (
+// Equation(s):
+// \cnt[0]~1_combout  = ( sync[1] & ( (!cnt[0]) | ((cnt[3] & (cnt[1] & cnt[2]))) ) ) | ( !sync[1] & ( (!cnt[0] & ( ((cnt[2]) | (cnt[1])) | (cnt[3]))) ) )
+
+	.dataa(~cnt[3]),
+	.datab(~cnt[0]),
+	.datac(~cnt[1]),
+	.datad(~cnt[2]),
+	.datae(~sync[1]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\cnt[0]~1_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h43C33C3D43C33C3D),
+  .shared_arith ("off"))
+\cnt[1]~2 (
+// Equation(s):
+// \cnt[1]~2_combout  = ( sync[1] & ( (!cnt[0] & ( ((cnt[1])))) | (cnt[0] & ( (!cnt[1]) | ((cnt[3] & cnt[2])))) ) ) | ( !sync[1] & ( (!cnt[0] & (!cnt[1] & ( (cnt[2]) | (cnt[3])))) | (cnt[0] & ( ((cnt[1])))) ) )
+
+	.dataa(~cnt[3]),
+	.datab(~cnt[0]),
+	.datac(~cnt[1]),
+	.datad(~cnt[2]),
+	.datae(~sync[1]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\cnt[1]~2_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h403F03FD403F03FD),
+  .shared_arith ("off"))
+\cnt[2]~3 (
+// Equation(s):
+// \cnt[2]~3_combout  = ( sync[1] & ( (!cnt[0] & ( ((cnt[2])))) | (cnt[0] & ( (!cnt[1] & ( (cnt[2]))) | (cnt[1] & ( (!cnt[2]) | (cnt[3]))))) ) ) | ( !sync[1] & ( (!cnt[0] & ( (!cnt[1] & (cnt[3] & !cnt[2])) | (cnt[1] & ( (cnt[2]))))) | (cnt[0] & ( 
+// ((cnt[2])))) ) )
+
+	.dataa(~cnt[3]),
+	.datab(~cnt[0]),
+	.datac(~cnt[1]),
+	.datad(~cnt[2]),
+	.datae(~sync[1]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\cnt[2]~3_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\sync[0] (
+	.clk(clk),
+	.d(btn_raw),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(sync[0]));
+
+assign btn_rise = \btn_rise~0_combout ;
+
+assign btn_state = \state~q ;
+
+endmodule

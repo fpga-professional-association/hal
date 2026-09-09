@@ -1,0 +1,397 @@
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/08_shift_debouncer/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.00 seconds.
+[netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/08_shift_debouncer/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 16 gates.
+[netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/08_shift_debouncer/netlist.hal.v' in 0.00 seconds.
+elaborate: {'elaborated': 6, 'checked_ff': 8, 'constants': 2, 'types': {'tennm_ff': 8, 'tennm_lcell_comb': 6, 'HAL_GND': 1, 'HAL_VCC': 1}}
+============================================================================
+== 01_stats.txt
+============================================================================
+design name        : shift_debouncer
+gate library       : AGILEX_TENNM
+gates              : 16
+nets               : 19
+modules            : 1
+
+gate types:
+  tennm_ff                 8
+  tennm_lcell_comb         6
+  HAL_GND                  1
+  HAL_VCC                  1
+
+primary inputs  ( 3): btn_raw clk rst_n
+primary outputs ( 2): btn_rise btn_state
+
+module tree:
+  top_module (id 1, type 'shift_debouncer') gates=16 submodules=0
+
+8 flip-flops and 6 ALM cells.  Three ports in, two out.  Flat: one
+module, so the hierarchy was flattened by synthesis and carries no
+information about how the source was partitioned.
+
+============================================================================
+== 02_clock_reset.txt
+============================================================================
+Every flip-flop control pin, grouped by the net that drives it.
+
+clk:
+  clk        x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+clrn (asynchronous clear, active low):
+  rst_n      x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+ena (clock enable):
+  1'b1       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+sclr (synchronous clear):
+  1'b0       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+aload (asynchronous load):
+  1'b0       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+sload (synchronous load):
+  1'b0       x8   cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+Control-pin signature (clk, clrn, ena, sclr, aload, sload) -> flops:
+
+  (clk, rst_n, 1'b1, 1'b0, 1'b0, 1'b0) x8
+      cnt[0] cnt[1] cnt[2] cnt[3] state state_d sync[0] sync[1]
+
+All 8 flip-flops share one signature: one clock net, one asynchronous
+clear net, and every other control pin tied to a constant.  So:
+
+  * one clock domain -- no CDC analysis to do, and no clock gating;
+  * one asynchronous reset, active low, hitting every flop;
+  * NO clock enables at all.  Whatever makes a register hold its value
+    in this design is done in the LUT that drives its D pin, not with
+    the flip-flop's enable.  Register grouping by control signature
+    therefore yields exactly one group here and tells us nothing about
+    the internal structure.  That has to come from the dataflow.
+
+============================================================================
+== 03_gate_sccs.txt
+============================================================================
+$ graph_algorithm.get_connected_components(graph, strong=True, min_size=2)
+
+2 non-trivial strongly connected component(s) in the GATE graph:
+
+  SCC 0: 8 gates, 4 of them flip-flops
+     flip-flops: cnt[0] cnt[1] cnt[2] cnt[3]
+     all gates : cnt[0] cnt[0]~1 cnt[1] cnt[1]~2 cnt[2] cnt[2]~3 cnt[3] cnt[3]~0
+
+  SCC 1: 2 gates, 1 of them flip-flops
+     flip-flops: state
+     all gates : i38~0 state
+
+flip-flops in NO non-trivial SCC (3): state_d sync[0] sync[1]
+
+A flop inside a feedback loop can hold or evolve a value of its own.
+A flop outside every loop can only pass a value along: its next value
+is a function of things that are not itself.  That is the first real
+cut through this netlist, and it was made without looking at a single
+instance name.
+
+============================================================================
+== 04_register_graph.txt
+============================================================================
+For every flip-flop: the gate that drives its D pin, and the flip-flops
+and primary inputs that D depends on through combinational cells only.
+'self' marks a flop whose own output is in its next-state cone -- it can
+hold, count or accumulate.  A flop without it is a pure delay stage.
+
+FF         self  D driven by      D depends on (FFs)               D <- PI    ENA
+--------------------------------------------------------------------------------------------------------
+cnt[0]     self  cnt[0]~1         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[1]     self  cnt[1]~2         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[2]     self  cnt[2]~3         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+cnt[3]     self  cnt[3]~0         cnt[0],cnt[1],cnt[2],cnt[3],sync[1] -          1'b1
+state      self  i38~0            cnt[0],cnt[1],cnt[2],cnt[3],state -          1'b1
+state_d    .     state            state                            -          1'b1
+sync[0]    .     (port)           -                                btn_raw    1'b1
+sync[1]    .     sync[0]          sync[0]                          -          1'b1
+
+Three shapes are visible in that table, and they are the three textbook
+blocks this design is made of:
+
+  * a flop whose D is a primary input, feeding a flop whose D is that
+    first flop: a two-stage delay line straight off an input port;
+  * a group of flops that all depend on each other and on themselves:
+    a word-sized register with internal feedback -- a counter, an LFSR
+    or an accumulator; step 07 decides which;
+  * a self-dependent single bit fed by that group, followed by one more
+    pure delay flop.
+
+Note what is NOT here: not one flop has a computed clock enable, and no
+flop's D cone reaches the primary input except the head of the delay
+line.  The button never touches the counter directly.
+
+============================================================================
+== 05_register_sccs.txt
+============================================================================
+The same edges as step 04, between flip-flops only, self-loops removed.
+Strongly connected components of THAT graph:
+
+  component 0: 4 flop(s)  cnt[0] cnt[1] cnt[2] cnt[3]
+  component 1: 1 flop(s)  state
+  component 2: 1 flop(s)  state_d
+  component 3: 1 flop(s)  sync[0]
+  component 4: 1 flop(s)  sync[1]
+
+=> 1 multi-flop component(s): cnt[0] cnt[1] cnt[2] cnt[3]
+=> 1 self-holding singleton(s): state
+=> 3 pure delay flop(s): state_d sync[0] sync[1]
+
+The pure delay flops, chained by their own edges:
+
+  chain of 2: sync[0]  ->  sync[1]
+     head sync[0] takes D from: btn_raw
+  chain of 1: state_d  ->  (nothing)
+     head state_d takes D from: state
+
+Read the chains carefully, because this is the trap in this design.
+Structurally, a two-flop CLOCK-DOMAIN SYNCHRONIZER and a two-flop
+EDGE-DETECTOR PAIR are the same object: flop -> flop, no enable, no
+feedback, one clock.  Nothing in the graph distinguishes them.  The only
+difference is what feeds the head of the chain:
+
+  * a chain fed by a PRIMARY INPUT is (or at least can be) a
+    synchronizer -- the input is asynchronous until proven otherwise;
+  * a chain fed by an internal flop is a delayed copy of that flop, and
+    a delayed copy exists to be compared with the original, i.e. to
+    detect an edge.
+
+That is an argument from intent, not from structure.  It is the weakest
+inference in this walkthrough and the guide says so.
+
+============================================================================
+== 06_lut_functions.txt
+============================================================================
+Every tennm_lcell_comb, with the function HAL derived from its
+lut_mask, and the nets on its used data pins.
+
+btn_rise~0  ->  btn_rise   lut_mask=2222222222222222
+    pins : dataa=btn_state, datab=state_d~q
+    func : (dataa & (! datab))
+
+cnt[0]~1  ->  cnt[0]~1_combout   lut_mask=B3333332B3333332
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((datac & (datae & (dataa & datad))) | (((! datab) & (((((! datad) | datae) & (datad | (! datae))) & (dataa | datac)) | ((datad | datae) & (dataf | ((! datae) & ((! dataa) & (! datac))))))) | ((! dataf) & ((datac & ((! datab) & (((! datad) & datae) | (datad & (! datae))))) | (((! datab) & (datae | (dataa & datad))) & ((! datac) & ((! datae) | ((! dataa) | (! datad)))))))))
+
+cnt[1]~2  ->  cnt[1]~2_combout   lut_mask=BC3CC3C2BC3CC3C2
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : (((! datae) & ((datad & ((! datac) & ((! dataa) & (! datab)))) | (((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))) & ((! datad) | dataf)))) | ((datae & ((((! datab) & datac) | (datab & (! datac))) & (((! datad) | dataf) | ((! dataa) & (datab & (! datac)))))) | (datad & (((datab | datac) & (datae & (dataa | (! datab)))) | (((! datae) & (! dataf)) & ((dataa | datab) & (((! datab) | datac) & (datab | (! datac)))))))))
+
+cnt[2]~3  ->  cnt[2]~3_combout   lut_mask=BFC0FC02BFC0FC02
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((((((! datac) & (! datad)) & (dataa & ((! datab) & (! datae)))) | ((datae & (! dataf)) & ((! dataa) & ((! datad) & (datab & datac))))) | ((datae & dataf) & ((! datad) & (datab & datac)))) | (((datad & ((datac & dataf) | (datab | datae))) & ((! datae) | (((! datab) | (! datac)) | (dataa & dataf)))) | (((datab & datac) & (dataa & (datae & (! dataf)))) | (datad & ((! dataf) & ((! datae) & ((! datab) & datac)))))))
+
+cnt[3]~0  ->  cnt[3]~0_combout   lut_mask=EAAAAAA8EAAAAAA8
+    pins : dataa=cnt(3), datab=cnt(0), datac=cnt(1), datad=cnt(2), datae=sync(1)
+    func : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+i38~0  ->  i38~0_combout   lut_mask=EAAAAAA8EAAAAAA8
+    pins : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1), datae=cnt(2)
+    func : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+lut_mask values used by more than one cell:
+  EAAAAAA8EAAAAAA8  cnt[3]~0 i38~0
+
+Two cells sharing a mask do NOT compute the same thing: the mask is a
+truth table over the ALM's own pins, and the same table over different
+nets is a different function of the circuit.  Read the pin list, always.
+
+============================================================================
+== 07_word_semantics.txt
+============================================================================
+== A. the 4-flop feedback group ==
+
+flops        : cnt[0] cnt[1] cnt[2] cnt[3]
+next-state   : cnt[0]~1 cnt[1]~2 cnt[2]~3 cnt[3]~0
+outside nets in the group's next-state cone: sync(1)
+
+Every one of the 4 cells reads all 4 group outputs, so nothing about
+the SUPPORT of the next-state functions orders the bits: they are
+symmetric.  Ordering has to come from the transition function itself.
+
+Enumerate it.  There are 2**4 = 16 states of the group and 1 outside
+net(s), so 32 transitions -- exhaustive, not sampled.
+
+  with sync(1)=0:
+    fixed points (state maps to itself): 0000
+
+  with sync(1)=1:
+    fixed points (state maps to itself): 1111
+
+One fixed point per setting of the outside net, and a different one
+each time.  A free-running counter has NO fixed point; an LFSR has one
+only at the degenerate all-zero (or all-one) word.  A fixed point that
+MOVES with an input is a saturation: the group stops instead of
+wrapping.  Walk the orbits to see it.
+
+  with sync(1)=0: the 16 state(s) form one path of length 16:
+    1111 -> 1110 -> 1101 -> 1100 -> 1011 -> 1010 -> 1001 -> 1000 -> 0111 -> 0110 -> 0101 -> 0100 -> 0011 -> 0010 -> 0001 -> 0000  -> (holds)
+
+  with sync(1)=1: the 16 state(s) form one path of length 16:
+    0000 -> 0001 -> 0010 -> 0011 -> 0100 -> 0101 -> 0110 -> 0111 -> 1000 -> 1001 -> 1010 -> 1011 -> 1100 -> 1101 -> 1110 -> 1111  -> (holds)
+
+Both orbits cover all 16 states, run in opposite directions, and end in
+a hold.  So the group is a bidirectional walk over a linear order with a
+clamp at each end -- a SATURATING UP/DOWN COUNTER, and the outside net
+chooses the direction.  Nothing was assumed; this is the whole
+transition relation.
+
+The path also hands over the bit weights.  Number the states by their
+position on the up path and read each flop's column:
+
+    position :  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    cnt[0]   :  0  1  0  1  0  1  0  1  0  1  0  1  0  1  0  1   flips every  1 step(s)
+    cnt[1]   :  0  0  1  1  0  0  1  1  0  0  1  1  0  0  1  1   flips every  2 step(s)
+    cnt[2]   :  0  0  0  0  1  1  1  1  0  0  0  0  1  1  1  1   flips every  4 step(s)
+    cnt[3]   :  0  0  0  0  0  0  0  0  1  1  1  1  1  1  1  1   flips every  8 step(s)
+
+    => bit order, least significant first: cnt[0] cnt[1] cnt[2] cnt[3]
+    => the states along the up path are 0,1,2,...,15 in plain binary,
+       so the group is a 4-bit binary counter, not a Gray or one-hot
+       encoding, and it takes 15 steps to cross from one end stop to
+       the other.
+
+== B. the self-holding flag state ==
+
+next-state cell: i38~0
+pins           : dataa=btn_state, datab=cnt(3), datac=cnt(0), datad=cnt(1), datae=cnt(2), dataf=1'b0
+func           : ((datac & (datab & (datad & datae))) | (dataa & ((datab & ((! datad) & (! datae))) | ((((! dataf) & (((! datab) & ((! datac) & datad)) | ((datad | datae) & ((! datad) | (! datae))))) & (datab | (datae | (datac | (! datad))))) | ((((datac & ((! datad) & (! datae))) | ((! datae) & ((! datac) & datad))) & ((! datab) & (! dataf))) | ((datac & (dataf | (datad & datae))) | ((datad & dataf) | (datae & (dataf | (datab & datad))))))))))
+
+It reads itself and every bit of the counter.  Enumerate all
+32 combinations of (flag, counter value):
+
+    counter     flag=0 -> next   flag=1 -> next   behaviour
+    ---------------------------------------------------------
+     0 (0000)        0                0            CLEAR
+     1 (0001)        0                1            hold
+     2 (0010)        0                1            hold
+     3 (0011)        0                1            hold
+     4 (0100)        0                1            hold
+     5 (0101)        0                1            hold
+     6 (0110)        0                1            hold
+     7 (0111)        0                1            hold
+     8 (1000)        0                1            hold
+     9 (1001)        0                1            hold
+    10 (1010)        0                1            hold
+    11 (1011)        0                1            hold
+    12 (1100)        0                1            hold
+    13 (1101)        0                1            hold
+    14 (1110)        0                1            hold
+    15 (1111)        1                1            SET
+
+    SET   at counter value(s): 15
+    CLEAR at counter value(s): 0
+    HOLD  at counter value(s): 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+
+    The two values that move the flag are exactly the two end stops
+    of the counter from part A.  Everything in between holds.  That
+    is hysteresis -- a Schmitt trigger built out of a counter and a
+    latch -- and it is why a burst of noise cannot toggle the
+    output: noise never lets the counter reach an end stop.
+
+== C. the combinational output cell btn_rise~0 ==
+
+drives  : btn_rise (a primary output)
+pins    : dataa=btn_state, datab=state_d~q
+func    : (dataa & (! datab))
+
+    btn_state     state_d~q     out
+    0             0             0
+    1             0             1
+    0             1             0
+    1             1             0
+
+    High for exactly one of the four combinations: the one where the
+    flop is 1 and its delayed copy is 0.  That is a rising-edge
+    detector, and it settles step 05's ambiguity: the second chain
+    is an edge detector, because something in the netlist actually
+    compares the two stages.  The synchronizer chain has no such
+    comparator -- nothing reads its two stages together.
+
+
+rendered /work/examples/agilex3_walkthroughs/08_shift_debouncer/images/register_graph.svg
+wrote /work/examples/agilex3_walkthroughs/08_shift_debouncer/artifacts/analysis.json

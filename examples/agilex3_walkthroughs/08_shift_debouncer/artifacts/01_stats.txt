@@ -1,0 +1,21 @@
+design name        : shift_debouncer
+gate library       : AGILEX_TENNM
+gates              : 16
+nets               : 19
+modules            : 1
+
+gate types:
+  tennm_ff                 8
+  tennm_lcell_comb         6
+  HAL_GND                  1
+  HAL_VCC                  1
+
+primary inputs  ( 3): btn_raw clk rst_n
+primary outputs ( 2): btn_rise btn_state
+
+module tree:
+  top_module (id 1, type 'shift_debouncer') gates=16 submodules=0
+
+8 flip-flops and 6 ALM cells.  Three ports in, two out.  Flat: one
+module, so the hierarchy was flattened by synthesis and carries no
+information about how the source was partitioned.

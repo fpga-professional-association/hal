@@ -1,0 +1,59 @@
+{
+  "accepted_by_press_width": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0,
+    "9": 0,
+    "10": 0,
+    "11": 0,
+    "12": 0,
+    "13": 0,
+    "14": 0,
+    "15": 1,
+    "16": 1,
+    "17": 1,
+    "18": 1,
+    "19": 1,
+    "20": 1
+  },
+  "bounce": {
+    "burst_len": 24,
+    "cycles_after_settling": 16,
+    "level_edges_in_burst": 0,
+    "level_rises_at": 44,
+    "pulse_count": 1,
+    "pulse_widths": [
+      1
+    ],
+    "raw_edges_in_burst": 16
+  },
+  "burst": "110010110100101101001011",
+  "clock": "clk",
+  "data_input": "btn_raw",
+  "level_output": "btn_state",
+  "min_accepted_press_cycles": 15,
+  "outputs": [
+    "btn_state",
+    "btn_rise"
+  ],
+  "press_latency_cycles": 18,
+  "pulse_output": "btn_rise",
+  "pulse_width_cycles": 1,
+  "pulses_per_press": 1,
+  "release_latency_cycles": 18,
+  "reset": "rst_n",
+  "square_wave_output_edges": {
+    "5": 0,
+    "10": 0,
+    "14": 0,
+    "15": 25,
+    "16": 23,
+    "20": 19
+  }
+}
