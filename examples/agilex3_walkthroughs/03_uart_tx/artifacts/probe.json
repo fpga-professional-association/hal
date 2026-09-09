@@ -1,0 +1,48 @@
+{
+  "bit_period_cycles": 16,
+  "busy_cycles": 161,
+  "clock": "PORT_02",
+  "frame_slots": 10,
+  "framing_slots": {
+    "0": 0,
+    "9": 1
+  },
+  "payload_inputs_in_wire_order": [
+    "PORT_06",
+    "PORT_04",
+    "PORT_03",
+    "PORT_08",
+    "PORT_01",
+    "PORT_12",
+    "PORT_00",
+    "PORT_10"
+  ],
+  "request": "PORT_09",
+  "reset": "PORT_11",
+  "serial_output": "PORT_07",
+  "slots_all_one_payload": [
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "slots_all_zero_payload": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "status_output": "PORT_05"
+}

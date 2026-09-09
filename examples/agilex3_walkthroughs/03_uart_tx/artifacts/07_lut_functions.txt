@@ -1,0 +1,91 @@
+Every tennm_lcell_comb, with the function hal_agilex derived from
+its lut_mask, and the nets on its used data pins.
+
+g_003  ->  n_029   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_001, datac=PORT_08
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_004  ->  n_040   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_002, datac=PORT_00
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_005  ->  n_023   lut_mask=8000800080008000
+    pins : dataa=n_015, datab=n_017, datac=n_004, datad=n_031
+    func : ((dataa & datab) & (datac & datad))
+
+g_007  ->  n_014   lut_mask=2222222222222222
+    pins : dataa=PORT_05, datab=n_004
+    func : (dataa & (! datab))
+
+g_008  ->  n_020   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_034, datac=PORT_06
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_009  ->  n_028   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_032, datac=PORT_03
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_011  ->  n_010   lut_mask=2A802A802A802A80
+    pins : dataa=PORT_05, datab=n_013, datac=n_026, datad=n_011
+    func : (((! datad) | ((! datab) | (! datac))) & (dataa & (datad | (datab & datac))))
+
+g_013  ->  n_025   lut_mask=2AAAAAAA80000000
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031, dataf=n_013
+    func : ((dataf | ((datab & datac) & (datad & datae))) & (dataa & ((! dataf) | (((! datab) | (! datac)) | ((! datad) | (! datae))))))
+
+g_014  ->  PORT_07   lut_mask=5555555555555555
+    pins : dataa=n_009
+    func : (! dataa)
+
+g_015  ->  n_036   lut_mask=28A0A0A028A0A0A0
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031
+    func : ((datac | (datae & (datab & datad))) & (dataa & ((! datac) | ((! datae) | ((! datab) | (! datad))))))
+
+g_016  ->  n_039   lut_mask=2AAA80002AAA8000
+    pins : dataa=PORT_05, datab=n_013, datac=n_026, datad=n_011, datae=n_019
+    func : ((datae | (datad & (datab & datac))) & (dataa & ((! datae) | ((! datad) | ((! datab) | (! datac))))))
+
+g_023  ->  n_005   lut_mask=EEEEE4EEEEEEEEEE
+    pins : dataa=PORT_05, datab=PORT_09, datac=n_013, datad=n_026, datae=n_011, dataf=n_019
+    func : ((datab & ((! dataa) | (datac & (! datae)))) | (dataa & ((datac | (! dataf)) | ((! datad) | datae))))
+
+g_025  ->  n_003   lut_mask=2828282828282828
+    pins : dataa=PORT_05, datab=n_004, datac=n_031
+    func : (dataa & (((! datab) & datac) | (datab & (! datac))))
+
+g_026  ->  n_012   lut_mask=D5555555D5555555
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031
+    func : ((! dataa) | ((datab & datac) & (datad & datae)))
+
+g_028  ->  n_000   lut_mask=2828282828282828
+    pins : dataa=PORT_05, datab=n_013, datac=n_026
+    func : (dataa & (((! datab) & datac) | (datab & (! datac))))
+
+g_030  ->  n_030   lut_mask=1054B0F41054B0F4
+    pins : dataa=PORT_05, datab=PORT_09, datac=n_002, datad=PORT_10, datae=n_023
+    func : ((((! datad) | (dataa | ((! datab) & datae))) & (datac & ((! dataa) | ((! datae) & ((! datad) | (datab & (! dataf))))))) | (((! datad) & ((! dataa) & datab)) | (datad & ((! datae) & (datac & ((! datab) | (dataa & dataf)))))))
+
+g_033  ->  n_038   lut_mask=D555555580000000
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031, dataf=PORT_09
+    func : (((! dataa) & dataf) | ((dataa & datab) & (datae & (datac & datad))))
+
+g_035  ->  n_035   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_027, datac=PORT_04
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_036  ->  n_022   lut_mask=2888288828882888
+    pins : dataa=PORT_05, datab=n_015, datac=n_004, datad=n_031
+    func : ((datab | (datac & datad)) & (dataa & ((! datab) | ((! datac) | (! datad)))))
+
+g_037  ->  n_007   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_033, datac=PORT_01
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+
+g_038  ->  n_024   lut_mask=FE32BABAFE32BABA
+    pins : dataa=n_009, datab=PORT_05, datac=PORT_09, datad=n_037, datae=n_023
+    func : ((datad | ((! datab) | (! datae))) & ((datab & datae) | (dataa | ((! datab) & datac))))
+
+g_039  ->  n_021   lut_mask=8D8D8D8D8D8D8D8D
+    pins : dataa=PORT_05, datab=n_016, datac=PORT_12
+    func : ((dataa & datab) | ((! dataa) & (! datac)))
+

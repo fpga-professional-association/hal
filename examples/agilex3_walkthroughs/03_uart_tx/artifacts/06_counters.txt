@@ -1,0 +1,54 @@
+The feedback blob from step 05 is nine flops, not one register.  Take
+it apart in two moves.
+
+(a) MINIMUM FEEDBACK VERTEX.  Remove one flop at a time and ask whether
+    the rest is still cyclic.  A flop whose removal makes the whole blob
+    acyclic is carrying ALL of the feedback: that is a control flag, not
+    a datapath bit.
+
+    without g_002    -> still cyclic
+    without g_010    -> still cyclic
+    without g_012    -> still cyclic
+    without g_017    -> still cyclic
+    without g_019    -> still cyclic
+    without g_020    -> still cyclic
+    without g_021    -> ACYCLIC
+    without g_022    -> still cyclic
+    without g_027    -> still cyclic
+
+    => feedback flop(s): g_021
+
+(b) THE ENABLE NETS.  With the flag set aside, 8 flops remain and the
+    graph between them is acyclic.  Which of them gate the others?
+
+    g_010    ena = n_012    computed from g_002 g_017 g_019 g_027
+    g_020    ena = n_012    computed from g_002 g_017 g_019 g_027
+    g_022    ena = n_012    computed from g_002 g_017 g_019 g_027
+
+    => 4 flop(s) appear in the enable of other flops: g_002 g_017 g_019 g_027
+    => 4 flop(s) are the ones being gated (plus whatever shares their
+       dependency structure): g_010 g_012 g_020 g_022
+
+    A register whose enable is a function of a second register only
+    advances when that second register says so.  The gating group is the
+    fast counter (the prescaler); the gated group is the slow one.
+
+(c) BIT ORDER inside each group.  In a ripple/carry counter, bit i's
+    next state depends on bits 0..i-1 and on itself, and on nothing
+    above it.  Sorting each group by the size of its in-group D-support
+    therefore recovers the bit significance:
+
+    fast counter, LSB first:
+      bit 0  g_002    D depends on (only itself and the flag)
+      bit 1  g_027    D depends on g_002
+      bit 2  g_017    D depends on g_002 g_027
+      bit 3  g_019    D depends on g_002 g_017 g_027
+
+    slow counter, LSB first:
+      bit 0  g_012    D depends on (only itself and the flag)
+      bit 1  g_022    D depends on g_012
+      bit 2  g_010    D depends on g_012 g_022
+      bit 3  g_020    D depends on g_010 g_012 g_022
+
+    Both groups are 4 bits wide.  Nothing about their WIDTH
+    distinguished them -- only the dataflow did.

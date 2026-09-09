@@ -1,0 +1,17 @@
+design name        : top
+gate library       : AGILEX_TENNM
+gates              : 42
+nets               : 53
+modules            : 1
+
+gate types:
+  tennm_lcell_comb         22
+  tennm_ff                 18
+  HAL_GND                  1
+  HAL_VCC                  1
+
+primary inputs  (11): PORT_00 PORT_01 PORT_02 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_11 PORT_12
+primary outputs ( 2): PORT_05 PORT_07
+
+module tree:
+  top_module (id 1, type 'top') gates=42 submodules=0

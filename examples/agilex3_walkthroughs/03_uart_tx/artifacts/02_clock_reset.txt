@@ -1,0 +1,16 @@
+Every flip-flop control pin, grouped by the net that drives it.
+
+clk:
+  PORT_02    x18  g_000 g_001 g_002 g_006 g_010 g_012 g_017 g_018 g_019 g_020 g_021 g_022 g_024 g_027 g_029 g_031 g_032 g_034
+
+clrn (asynchronous clear):
+  PORT_11    x18  g_000 g_001 g_002 g_006 g_010 g_012 g_017 g_018 g_019 g_020 g_021 g_022 g_024 g_027 g_029 g_031 g_032 g_034
+
+ena:
+  1'b1       x8   g_001 g_002 g_006 g_012 g_017 g_019 g_021 g_027
+  n_038      x7   g_000 g_018 g_024 g_029 g_031 g_032 g_034
+  n_012      x3   g_010 g_020 g_022
+
+One clock net and one clear net across all 18 flip-flops: a single
+clock domain with one asynchronous reset.  Nothing here needs a CDC
+analysis; everything here is one synchronous machine.

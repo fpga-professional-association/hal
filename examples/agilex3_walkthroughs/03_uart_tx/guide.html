@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 03 — uart_tx</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+    --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+    --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+    --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181d; --fg: #e6e9ec; --muted: #9aa5b1; --rule: #2b3138;
+  --code-bg: #1c2127; --code-fg: #e6e9ec; --accent: #79b0f0; --accent-bg: #182432;
+  --warn-bg: #2c2415; --warn-rule: #b8860b; --good-bg: #16281c; --good-rule: #4caf72;
+  --bad-bg: #2c1a19; --bad-rule: #e06c60; --figure-bg: #eef1f4;
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6570; --rule: #e2e6ea;
+  --code-bg: #f6f8fa; --code-fg: #24292f; --accent: #1f5fa9; --accent-bg: #eaf2fc;
+  --warn-bg: #fff6e5; --warn-rule: #d99b28; --good-bg: #eaf7ee; --good-rule: #2f8a4d;
+  --bad-bg: #fdeded; --bad-rule: #c0392b; --figure-bg: #ffffff;
+}
+html { background: var(--bg); }
+body {
+  background: var(--bg); color: var(--fg); margin: 0;
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+main { max-width: 54rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .35rem; letter-spacing: -.01em; }
+h2 {
+  font-size: 1.35rem; margin: 3.2rem 0 .9rem; padding-top: .9rem;
+  border-top: 1px solid var(--rule); letter-spacing: -.005em;
+}
+h3 { font-size: 1.08rem; margin: 2rem 0 .6rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p, li { margin: .7rem 0; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.6rem; }
+.meta { color: var(--muted); font-size: .85rem; margin: 0 0 2rem; }
+code {
+  background: var(--code-bg); color: var(--code-fg); border-radius: 4px;
+  padding: .1em .32em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .88em;
+}
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 7px; padding: .85rem 1rem; overflow-x: auto; font-size: .84rem;
+  line-height: 1.5; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+pre.cmd { background: var(--accent-bg); border-color: var(--accent); }
+pre.cmd::before {
+  content: "command"; display: block; font-family: inherit; font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: .45rem; font-weight: 600;
+}
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+.scroll { overflow-x: auto; max-width: 100%; }
+figure {
+  margin: 1.4rem 0; border: 1px solid var(--rule); border-radius: 8px;
+  padding: .75rem; background: var(--figure-bg);
+}
+figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+figcaption { font-size: .82rem; color: var(--muted); margin-top: .6rem; text-align: left; }
+@media (prefers-color-scheme: dark) { figcaption { color: #4a545e; } }
+:root[data-theme="dark"] figcaption { color: #4a545e; }
+:root[data-theme="light"] figcaption { color: var(--muted); }
+.note, .warn, .good, .bad {
+  border-left: 4px solid var(--rule); background: var(--code-bg);
+  padding: .7rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0; font-size: .95rem;
+}
+.warn { background: var(--warn-bg); border-left-color: var(--warn-rule); }
+.good { background: var(--good-bg); border-left-color: var(--good-rule); }
+.bad  { background: var(--bad-bg);  border-left-color: var(--bad-rule); }
+.note strong, .warn strong, .good strong, .bad strong { display: block; margin-bottom: .2rem; }
+.step { margin-top: 2.6rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; margin-top: 0; }
+.step > h3 .n {
+  display: inline-block; min-width: 1.8rem; text-align: center; background: var(--accent);
+  color: #fff; border-radius: 4px; font-size: .78rem; padding: .12rem .4rem;
+  font-variant-numeric: tabular-nums;
+}
+.reason { border-left: 4px solid var(--accent); background: var(--accent-bg); padding: .7rem 1rem;
+  border-radius: 0 6px 6px 0; margin: 1rem 0; }
+.reason strong { display: block; margin-bottom: .2rem; color: var(--accent); }
+ul.tight li { margin: .25rem 0; }
+.toc { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 8px; padding: .8rem 1.2rem; }
+.toc ol { margin: .3rem 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+.small { font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Reverse engineering an Agilex 3 netlist, walkthrough 03: <code>uart_tx</code></h1>
+<p class="lede">A minimal 8N1 UART transmitter, synthesized for real by Quartus Prime Pro 26.1,
+blinded, and then taken apart twice — once structurally with headless HAL, once behaviourally
+by driving the netlist as a black box. The two halves never look at each other until the end,
+and then they have to agree. Every number and every picture below came out of the scripts
+sitting next to this file.</p>
+<p class="meta">
+Device <strong>A3CW135BM16AE6S</strong> (Agilex 3, MBGA896) &middot;
+Quartus Prime Pro Edition 26.1.0 Build 110 03/26/2026 SC &middot;
+post-synthesis snapshot, no fitting &middot;
+gate library <code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code>
+</p>
+
+<div class="toc">
+<strong>What this walkthrough covers</strong>
+<ol>
+<li><a href="#design">The design we are going to lose</a></li>
+<li><a href="#synth">Synthesis, export, and blinding</a></li>
+<li><a href="#contact">First contact: the census</a></li>
+<li><a href="#structure">Half A — structure (steps 1–7)</a></li>
+<li><a href="#behaviour">Half B — behaviour (steps 8–11)</a></li>
+<li><a href="#agree">Where the two halves meet</a></li>
+<li><a href="#reconstruct">Reconstruction, and the Quartus round trip</a></li>
+<li><a href="#lost">Recovered vs. lost</a></li>
+<li><a href="#further">Going further</a></li>
+</ol>
+</div>
+
+<div class="note">
+<strong>Who this is for</strong>
+An engineer who can read Verilog and has met a gate-level netlist once or twice. Walkthroughs
+<a href="../01_blinky_counter/guide.html">01</a> and
+<a href="../02_traffic_fsm/guide.html">02</a> are useful background but not required. What is
+new here is the <em>method</em>: a design with a datapath and a control path, attacked from two
+independent directions, so that each half can be checked against the other instead of against
+the answer key.
+</div>
+
+<h2 id="design">1. The design we are going to lose</h2>
+
+<p>The exercise only means something if the answer exists in advance. The RTL handed to Quartus
+is a textbook 8N1 transmitter: ten bit slots of sixteen clocks each, one start bit low, eight
+data bits least-significant first, one stop bit high.</p>
+
+<pre><code>[... the module header elided: ports clk, rst_n, tx_start, tx_data[7:0], tx,
+     tx_busy; parameter DIV_W = 4; localparams N_SLOTS = 10, BIT_W = 4 ...]
+
+    reg [DIV_W-1:0]   baud_cnt;  // prescaler
+    reg [BIT_W-1:0]   bit_cnt;   // frame position, 0..N_SLOTS
+    reg [N_SLOTS-1:0] shreg;     // the serializer
+    reg               busy;      // the entire control FSM: two states
+
+    wire baud_tick = &amp;baud_cnt;
+    wire frame_end = (bit_cnt == N_SLOTS[BIT_W-1:0]);
+
+    assign tx      = shreg[0];   // the LSB of the shift register is the line
+    assign tx_busy = busy;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            baud_cnt &lt;= {DIV_W{1'b0}};
+            bit_cnt  &lt;= {BIT_W{1'b0}};
+            shreg    &lt;= {N_SLOTS{1'b1}};   // idle line is high
+            busy     &lt;= 1'b0;
+        end
+        else if (!busy) begin
+            baud_cnt &lt;= {DIV_W{1'b0}};
+            bit_cnt  &lt;= {BIT_W{1'b0}};
+            if (tx_start) begin
+                shreg &lt;= {1'b1, tx_data, 1'b0};
+                busy  &lt;= 1'b1;
+            end
+        end
+        else begin
+            baud_cnt &lt;= baud_cnt + 1'b1;
+            if (baud_tick) begin
+                shreg   &lt;= {1'b1, shreg[N_SLOTS-1:1]};  // shift right, fill 1
+                bit_cnt &lt;= bit_cnt + 1'b1;
+            end
+            if (frame_end) busy &lt;= 1'b0;
+        end
+    end</code></pre>
+<p class="small">Code verbatim; the explanatory comment lines between statements are dropped
+here. Full commented source: <a href="design.v"><code>design.v</code></a>. The intended
+behaviour, written before synthesis, is <a href="spec.md"><code>spec.md</code></a> — it is the
+answer key. Read it <em>after</em> section 6, or before you start if you only want the tour;
+reading it in the middle spoils every step it would otherwise validate.</p>
+
+<p>Four properties of this design are what make it worth a walkthrough:</p>
+<ul class="tight">
+<li><strong>It has a datapath and a control path.</strong> Walkthrough 01 had feedback only;
+walkthrough 02 had control only. Here the shift register is pure dataflow with no feedback at
+all, and the counters and the flag are pure feedback. Telling those apart <em>is</em> the
+analysis.</li>
+<li><strong>The two counters are the same width.</strong> Four bits each, on purpose. Any tool
+that separates registers by width will fail; only dataflow separates them.</li>
+<li><strong>The bit period is not stored anywhere.</strong> <code>CLK_DIV = 2**DIV_W = 16</code>
+is a compile-time parameter and the prescaler wraps by being four bits wide. There is no
+constant 16 in the netlist to find. Recovering "16" means counting flip-flops, or measuring.</li>
+<li><strong>It is observable.</strong> Unlike a 24-bit blinky, a UART shows you its whole state
+machine in 161 clock cycles through one pin. That makes the black-box half viable, and lets the
+two halves be genuinely independent.</li>
+</ul>
+
+<h2 id="synth">2. Synthesis, export, and blinding</h2>
+
+<p>Same flow as the rest of the series: post-<em>synthesis</em> only, so no fitting, no
+placement and no I/O buffers.</p>
+
+<pre><code># quartus/uart_tx.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY uart_tx
+set_global_assignment -name VERILOG_FILE ../design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION OFF
+set_global_assignment -name AUTO_RAM_RECOGNITION OFF
+set_global_assignment -name AUTO_DSP_RECOGNITION OFF
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF</code></pre>
+
+<p>The last four lines are not cosmetic, and the <code>.qsf</code>'s own comments say why: they
+keep the export inside the primitive coverage that <code>tools/hal_agilex</code> has validated.
+Without <code>ALLOW_SYNCH_CTRL_USAGE OFF</code>, Quartus maps "the counter parks at zero while
+idle" onto the flip-flop's synchronous-clear pin, which is outside that coverage and makes the
+export un-importable. The RTL was also written so that every next-state function has at most six
+inputs, to keep Quartus out of the ALM's fracturable seven-input mode for the same reason.</p>
+
+<pre class="cmd"><code>quartus_syn uart_tx -c uart_tx
+quartus_eda --simulation --format=verilog --tool=questasim \
+            --output_directory=simulation uart_tx -c uart_tx</code></pre>
+
+<p>The export is <a href="uart_tx.vo"><code>uart_tx.vo</code></a>, kept verbatim. Before
+analysing anything, ask whether every cell in it is one you have semantics for:</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex inventory \
+    examples/agilex3_walkthroughs/03_uart_tx/uart_tx.vo</code></pre>
+
+<pre><code>"design_name": "uart_tx",
+"device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+"gate_count": 40,
+"histogram": { "tennm_ff": 18, "tennm_lcell_comb": 22 },
+"status": "proven_under_assumptions",
+"summary": "All 40 instances are tennm_ff or tennm_lcell_comb, each in a
+            configuration this package models and has validated against
+            the vendor export."</code></pre>
+<p class="small">Reformatted from
+<a href="artifacts/inventory.json"><code>artifacts/inventory.json</code></a>, which is the
+full findings document.</p>
+
+<div class="good">
+<strong>What that status licenses, and what it does not</strong>
+<code>proven_under_assumptions</code> means the enumeration found nothing outside the modelled
+set — and the document lists the assumptions it rests on, including one that is explicitly
+<em>not</em> discharged: coverage is defined by <code>tools/hal_agilex/primitives.py</code>,
+whose semantics were validated by simulating this export against the RTL it came from. It is a
+statement about the netlist text, not about an execution. Everything downstream inherits it.
+</div>
+
+<h3>Import, then blind</h3>
+
+<pre class="cmd"><code>python3 tools/hal_agilex import \
+    examples/agilex3_walkthroughs/03_uart_tx/uart_tx.vo \
+    -o examples/agilex3_walkthroughs/03_uart_tx/netlist.hal.v
+
+python3 examples/agilex3_walkthroughs/03_uart_tx/anonymize.py \
+    examples/agilex3_walkthroughs/03_uart_tx/netlist.hal.v \
+    -o examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v</code></pre>
+
+<p>The import rewrites the three things HAL's Verilog parser will not accept — <code>tri1</code>
+nets, pin inversions (folded exactly into <code>lut_mask</code>) and unconnected pins — or
+refuses. The blinding matters more here than in walkthrough 02, because Quartus's export keeps
+the RTL's identifiers: <code>netlist.hal.v</code> still contains <code>shreg[3]</code>,
+<code>baud_cnt</code>, <code>busy</code> and a <code>tx_data</code> bus. A walkthrough that reads
+the answer off the net names has not reverse engineered anything.</p>
+
+<p><a href="anonymize.py"><code>anonymize.py</code></a> therefore produces
+<a href="netlist_anon.hal.v"><code>netlist_anon.hal.v</code></a>: the module becomes
+<code>top</code>, every port becomes a scalar <code>PORT_nn</code> (buses exploded — a bitstream
+gives you pins, not vectors), every internal net a scalar <code>n_nnn</code>, every instance a
+<code>g_nnn</code>, and the ordering is scrambled by a salted hash so neighbouring indices carry
+no information either. Gate types, pin names and parameters are untouched; those are device
+facts. The map is written to
+<a href="netlist_anon.hal.v.map.json"><code>netlist_anon.hal.v.map.json</code></a> and is not
+opened until section 8.</p>
+
+<div class="warn">
+<strong>Blinding has to be checked, not assumed</strong>
+A rename that quietly changed the circuit would invalidate everything.
+<a href="check.py"><code>check.py</code></a> simulates <code>netlist.hal.v</code> and
+<code>netlist_anon.hal.v</code> side by side for 400 cycles of pseudo-random stimulus including
+two asynchronous clears, driving each through its own port names, and requires zero mismatching
+output samples.
+</div>
+
+<h2 id="contact">3. First contact: the census</h2>
+
+<p>From here to section 6, nothing reads <code>design.v</code>, <code>spec.md</code>,
+<code>netlist.hal.v</code> or the name map. The structural half runs from
+<a href="analyze.py"><code>analyze.py</code></a>:</p>
+
+<pre class="cmd"><code>export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+
+python3 examples/agilex3_walkthroughs/03_uart_tx/analyze.py \
+    --repo . -o examples/agilex3_walkthroughs/03_uart_tx/artifacts</code></pre>
+
+<p>One run writes every <code>artifacts/0N_*.txt</code> quoted below, the register graph, and
+<a href="artifacts/analysis.json"><code>artifacts/analysis.json</code></a> with the
+machine-readable conclusions that <code>check.py</code> asserts on. It loads the netlist through
+<code>hal_agilex.hal_adapter</code>, which attaches the ALM semantics per gate after loading and
+refuses anything outside the validated coverage:</p>
+
+<pre><code>elaborate: {'elaborated': 22, 'checked_ff': 18, 'constants': 2,
+            'types': {'HAL_GND': 1, 'HAL_VCC': 1,
+                      'tennm_ff': 18, 'tennm_lcell_comb': 22}}</code></pre>
+<p class="small">The line <code>analyze.py</code> prints, reflowed; the same numbers are the
+<code>elaborate</code> block of
+<a href="artifacts/analysis.json"><code>analysis.json</code></a>. Nothing was refused. This step
+is not optional. <code>tennm_lcell_comb</code> carries no <code>lut_config</code> in the gate
+library, so a tool that loads the netlist and asks HAL for Boolean functions gets empty ones —
+and will happily analyse a design whose combinational logic it cannot see.</p>
+
+<h2 id="structure">4. Half A — structure</h2>
+
+<p>Seven steps, all from the one <code>analyze.py</code> run above. Each step gives the file it
+wrote, that file's real content, and the reasoning that turns it into a claim — including what
+the claim does <em>not</em> cover.</p>
+
+<div class="step">
+<h3><span class="n">1</span> Count what you have</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/01_stats.txt</code></pre>
+
+<pre><code>design name        : top
+gate library       : AGILEX_TENNM
+gates              : 42
+nets               : 53
+modules            : 1
+
+gate types:
+  tennm_lcell_comb         22
+  tennm_ff                 18
+  HAL_GND                  1
+  HAL_VCC                  1
+
+primary inputs  (11): PORT_00 PORT_01 PORT_02 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_11 PORT_12
+primary outputs ( 2): PORT_05 PORT_07
+
+module tree:
+  top_module (id 1, type 'top') gates=42 submodules=0</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Eighteen flip-flops is a hard upper bound on the state: whatever this design is, it cannot be
+hiding more than 18 bits. Twenty-two combinational cells for 18 registers is a shallow,
+register-dominated design — a datapath, not an arithmetic unit. One module, because
+post-synthesis Quartus output is flat; a flat netlist cannot even tell you whether there ever
+<em>was</em> a hierarchy.
+<br><br>
+The port numbering is already informative in a way that has nothing to do with the design:
+<code>PORT_05</code> and <code>PORT_07</code> are outputs sitting in the middle of the input
+numbering, because the anonymiser sorted ports by a salted hash of their original names. Eleven
+in, two out. Two of the eleven inputs will turn out to be the clock and the reset, which leaves
+nine, and there is no way yet to know which.
+</div>
+
+<div class="note">
+<strong>42 gates, 40 instances</strong>
+The inventory in section 2 counted <strong>40</strong> instances in the <code>.vo</code>; HAL
+reports <strong>42</strong> gates. The difference is <code>HAL_GND</code> and
+<code>HAL_VCC</code>, which do not exist on the device: HAL's Verilog parser needs a gate to
+materialise the <code>1'b0</code>/<code>1'b1</code> literals the export uses, so
+<code>AGILEX_TENNM.hgl</code> declares two with a deliberately un-vendor-like prefix. When you
+count gates, two of them are bookkeeping.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">2</span> Group every flip-flop control pin by the net that drives it</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/02_clock_reset.txt</code></pre>
+
+<pre><code>Every flip-flop control pin, grouped by the net that drives it.
+
+clk:
+  PORT_02    x18  g_000 g_001 g_002 g_006 g_010 g_012 g_017 g_018 g_019 g_020 g_021 g_022 g_024 g_027 g_029 g_031 g_032 g_034
+
+clrn (asynchronous clear):
+  PORT_11    x18  g_000 g_001 g_002 g_006 g_010 g_012 g_017 g_018 g_019 g_020 g_021 g_022 g_024 g_027 g_029 g_031 g_032 g_034
+
+ena:
+  1'b1       x8   g_001 g_002 g_006 g_012 g_017 g_019 g_021 g_027
+  n_038      x7   g_000 g_018 g_024 g_029 g_031 g_032 g_034
+  n_012      x3   g_010 g_020 g_022
+
+[... 3 closing lines of the file elided: the script's own note that one clock
+     net and one clear net across 18 flip-flops means a single clock domain
+     with one asynchronous reset, and that nothing here needs a CDC analysis ...]</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+This is the cheapest high-value table in netlist reverse engineering and it answers three
+questions at once. One net on all 18 <code>clk</code> pins: a single clock domain, so no CDC
+analysis is needed and every later step may assume one time base. One net on all 18
+<code>clrn</code> pins: one asynchronous reset — and because <code>clrn</code> is the
+primitive's asynchronous active-low <em>clear</em>, the polarity and the reset value 0 come from
+the gate library rather than from a guess.
+<br><br>
+The enable column is the first real structural signal. Three groups, not one. A clock enable is
+design intent leaking through synthesis: something in the RTL said "only update this when…".
+Eight flops are always enabled; seven share one gated enable net; three share another. Seven and
+three are odd numbers — neither is a plausible register width on its own, which is a hint that
+enable grouping alone will not partition this design.
+</div>
+
+<div class="warn">
+<strong>What this does not tell you</strong>
+Nothing here says which flip-flops belong to the same word, what any of them holds, or what
+<code>n_038</code> and <code>n_012</code> compute. It also does not tell you which of the nine
+remaining inputs is a clock enable source, a data bit, or a request. The pin table narrows; it
+does not conclude.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">3</span> Find the feedback: strongly connected components of the gate graph</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/03_gate_sccs.txt</code></pre>
+
+<pre><code>$ graph_algorithm.get_connected_components(graph, strong=True, min_size=2)
+
+3 non-trivial strongly connected component(s) in the GATE graph:
+
+  SCC 0: 19 gates, 9 of them flip-flops
+     flip-flops: g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+     all gates : g_002 g_007 g_010 g_011 g_012 g_013 g_015 g_016 g_017 g_019 g_020 g_021 g_022 g_023 g_025 g_026 g_027 g_028 g_036
+
+  SCC 1: 2 gates, 1 of them flip-flops
+     flip-flops: g_001
+     all gates : g_001 g_030
+
+  SCC 2: 2 gates, 1 of them flip-flops
+     flip-flops: g_006
+     all gates : g_006 g_038
+
+flip-flops in NO non-trivial SCC (7): g_000 g_018 g_024 g_029 g_031 g_032 g_034
+
+[... 6 closing lines of the file elided: the script's own warning that the big
+     component is not "one register", because the gate graph merges everything
+     mutually reachable and the fine structure has to come from the register
+     graph below ...]</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Combinational logic is acyclic by construction, so every cycle in the gate graph is a place
+where a value feeds its own future. That is the definition of state that does not depend on
+names.
+<br><br>
+The answer splits the design into three shapes. One nineteen-gate component containing nine
+flip-flops: mutual feedback, so this is the control. Two two-gate components, each a single
+flip-flop with a single cell — a flop that can hold its own value. And <strong>seven flip-flops
+in no cycle at all</strong>, which is the strongest single statement in the whole structural
+half: a register outside every feedback loop cannot count, cannot accumulate and cannot hold a
+value that depends on its own history. It can only pass a value along.
+<br><br>
+Now cross-reference step 2. The seven acyclic flops are <em>exactly</em> the seven that share
+the enable net <code>n_038</code>. Two independent structural facts pointing at the same set is
+worth more than either alone.
+</div>
+
+<div class="bad">
+<strong>Where the textbook move stops working</strong>
+The nineteen-gate component is <em>not</em> "one register". The gate graph merges everything
+mutually reachable, and a control flag that gates a counter while the counter feeds the flag
+back is mutually reachable with it. So the gate-level SCC answers only the coarse question —
+inside feedback or not — and hands you a nine-flop blob with no internal structure. Steps 4 to 6
+exist because of that.
+<br><br>
+The two size-2 components are the same trap in miniature: <code>g_001</code> and
+<code>g_006</code> look like little state machines because each has a self-loop through one
+cell. Step 5 will show they are the head and the tail of the same chain as the acyclic seven —
+they hold their value through a feedback multiplexer while the other seven hold theirs through
+the <code>ena</code> pin. Two ways of writing the same "keep what you have", one of which a
+cycle search sees and one of which it does not.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">4</span> Build the register graph, pin by pin</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/04_register_graph.txt</code></pre>
+
+<pre><code>For every flip-flop: the flip-flops and primary inputs its D pin depends
+on (through combinational cells only), and the same for its ENA pin.
+'self' marks a flop whose own output is in its next-state cone -- it can
+hold or count; a flop without it can only be loaded from somewhere else.
+
+FF       self  D depends on (FFs)                 D &lt;- PI      ENA
+----------------------------------------------------------------------------------------------------
+g_000    .     g_021,g_031                        PORT_01      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_001    self  g_001,g_002,g_017,g_019,g_021,g_027 PORT_09,PORT_10 1'b1
+g_002    self  g_002,g_021                        -            1'b1
+g_006    self  g_002,g_006,g_017,g_019,g_021,g_027,g_034 PORT_09      1'b1
+g_010    self  g_010,g_012,g_021,g_022            -            n_012 &lt;- g_002,g_017,g_019,g_021,g_027
+g_012    self  g_002,g_012,g_017,g_019,g_021,g_027 -            1'b1
+g_017    self  g_002,g_017,g_021,g_027            -            1'b1
+g_018    .     g_001,g_021                        PORT_00      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_019    self  g_002,g_017,g_019,g_021,g_027      -            1'b1
+g_020    self  g_010,g_012,g_020,g_021,g_022      -            n_012 &lt;- g_002,g_017,g_019,g_021,g_027
+g_021    self  g_010,g_012,g_020,g_021,g_022      PORT_09      1'b1
+g_022    self  g_012,g_021,g_022                  -            n_012 &lt;- g_002,g_017,g_019,g_021,g_027
+g_024    .     g_021,g_029                        PORT_03      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_027    self  g_002,g_021,g_027                  -            1'b1
+g_029    .     g_000,g_021                        PORT_08      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_031    .     g_018,g_021                        PORT_12      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_032    .     g_021,g_024                        PORT_04      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_034    .     g_021,g_032                        PORT_06      n_038 &lt;- g_002,g_017,g_019,g_021,g_027+PORT_09</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+This table is the primitive everything else is built from, and it is worth understanding
+exactly what it computes. For each flip-flop, walk backwards from its <code>d</code> pin through
+combinational cells only, stopping at another flip-flop's output or at a net with no driver
+inside the design. The result is the set of registers and primary inputs the next value actually
+depends on. Do the same for the <code>ena</code> pin, unless the enable is a constant.
+<br><br>
+Three shapes are visible without any further processing. Nine rows have no <code>self</code> and
+name exactly one non-<code>g_021</code> flop in their D column plus one primary input — a stage
+that is either loaded from outside or handed a value by exactly one predecessor. Eight rows have
+<code>self</code> and reference only each other. And <code>g_021</code> appears in the D column
+of <em>every single row</em>, which is what a global mode bit looks like.
+</div>
+
+<figure>
+<img src="artifacts/register_graph.svg" alt="Register dependency graph: nine flip-flops in a green 'no feedback' cluster forming a chain, nine in an orange 'inside feedback' cluster, with enable edges and primary inputs">
+<figcaption><strong>artifacts/register_graph.svg</strong> — the same table as a picture, written
+by <code>analyze.py</code> as <code>artifacts/register_graph.dot</code> and rendered with
+<code>dot -Tsvg</code>. Green box: the flops with no feedback, drawn with their green D edges,
+which form a single line. Orange box: the flops inside feedback. Dashed purple edges are enable
+dependencies (register → the enable pin of another register); dotted grey edges come from the
+blue primary-input ellipses. The green line running through the green box is the whole
+conclusion of step 5, before step 5 has run.</figcaption>
+</figure>
+</div>
+
+<div class="step">
+<h3><span class="n">5</span> Split the register graph: control versus datapath</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/05_register_sccs.txt</code></pre>
+
+<pre><code>The same edges as step 04, but between flip-flops only, and with the
+self-loops removed.  Strongly connected components of THAT graph:
+
+  component 0:  9 flop(s)  g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+  component 1:  1 flop(s)  g_000
+[... components 2..9, one flop each: g_001, g_006, g_018, g_024, g_029,
+     g_031, g_032, g_034 ...]
+
+=&gt; 9 flop(s) sit inside feedback: g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+=&gt; 9 flop(s) do not: g_000 g_001 g_006 g_018 g_024 g_029 g_031 g_032 g_034
+
+A register that is not inside any feedback loop cannot count and cannot
+hold a value that depends on its own history through other registers.
+It can only pass a value along.  Nine of them, in one clock domain, is
+a serializer -- and the edges between them give the order:
+
+  chain of  9: g_001  -&gt;  g_018  -&gt;  g_031  -&gt;  g_000  -&gt;  g_029  -&gt;  g_024  -&gt;  g_032  -&gt;  g_034  -&gt;  g_006
+
+head g_001: D depends on primary input(s) PORT_09,PORT_10 and no datapath flop
+tail g_006: drives the netlist output
+
+Per-stage primary inputs along the chain (the parallel load port):
+  g_001    &lt;- PORT_09,PORT_10
+  g_018    &lt;- PORT_00
+  g_031    &lt;- PORT_12
+  g_000    &lt;- PORT_01
+  g_029    &lt;- PORT_08
+  g_024    &lt;- PORT_03
+  g_032    &lt;- PORT_04
+  g_034    &lt;- PORT_06
+  g_006    &lt;- PORT_09</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+The difference between this and step 3 is two deletions: only flip-flop-to-flip-flop edges, and
+no self-loops. Both are principled. Dropping the combinational cells stops a shared LUT from
+merging two unrelated registers; dropping self-loops asks "does this flop's value come back to
+it <em>through another register</em>", which is the question that distinguishes a machine from a
+holding element.
+<br><br>
+With those two changes the picture inverts: the nine-flop blob stays, but the two size-2
+components of step 3 dissolve, and now <strong>nine</strong> flops are outside all feedback
+instead of seven. Nine registers in one clock domain that can only pass values along is a
+serializer, and — this is the part worth pausing on — the graph gives you its <em>order</em> for
+free. Each stage names exactly one predecessor, so the chain is forced: there is no heuristic
+and no tie to break.
+<br><br>
+Eight of the nine stages also take a primary input directly into their D cone. A shift register
+whose every stage has a private input is a <em>parallel-load</em> shift register, so those eight
+inputs are one word, presented at load time. The chain order is therefore also the transmission
+order, up to the direction of travel.
+</div>
+
+<div class="warn">
+<strong>Two things this step gets wrong if you read it too fast</strong>
+<ul class="tight">
+<li>The load table has <strong>nine</strong> entries, not eight, and <code>PORT_09</code> appears
+twice — once at the tail on its own, once at the head next to <code>PORT_10</code>. Structure
+cannot tell you that <code>PORT_09</code> is a request rather than a ninth data bit. The cone
+walk reports what the D pin depends on, and a stage whose load <em>value</em> is a constant still
+depends on the load <em>condition</em>. Half B settles this from the outside in one probe.</li>
+<li>Nine stages is not nine bits of anything you can name yet. It is nine flip-flops. Whether
+the word being shifted is eight bits, nine, or ten with one deleted is not decidable here — see
+section 6.</li>
+</ul>
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">6</span> Take the control blob apart</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/06_counters.txt</code></pre>
+
+<pre><code>[... 2 opening lines elided: "The feedback blob from step 05 is nine flops,
+     not one register.  Take it apart in two moves." ...]
+
+(a) MINIMUM FEEDBACK VERTEX.  Remove one flop at a time and ask whether
+    the rest is still cyclic.  A flop whose removal makes the whole blob
+    acyclic is carrying ALL of the feedback: that is a control flag, not
+    a datapath bit.
+
+    without g_002    -> still cyclic
+[... five more rows, all "still cyclic": g_010, g_012, g_017, g_019, g_020 ...]
+    without g_021    -> ACYCLIC
+    without g_022    -> still cyclic
+    without g_027    -> still cyclic
+
+    =&gt; feedback flop(s): g_021
+
+(b) THE ENABLE NETS.  With the flag set aside, 8 flops remain and the
+    graph between them is acyclic.  Which of them gate the others?
+
+    g_010    ena = n_012    computed from g_002 g_017 g_019 g_027
+    g_020    ena = n_012    computed from g_002 g_017 g_019 g_027
+    g_022    ena = n_012    computed from g_002 g_017 g_019 g_027
+
+    =&gt; 4 flop(s) appear in the enable of other flops: g_002 g_017 g_019 g_027
+    =&gt; 4 flop(s) are the ones being gated (plus whatever shares their
+       dependency structure): g_010 g_012 g_020 g_022
+
+[... 3 lines elided: "A register whose enable is a function of a second
+     register only advances when that second register says so.  The gating
+     group is the fast counter (the prescaler); the gated group is the slow
+     one." ...]
+
+(c) BIT ORDER inside each group.  In a ripple/carry counter, bit i's
+    next state depends on bits 0..i-1 and on itself, and on nothing
+    above it.  Sorting each group by the size of its in-group D-support
+    therefore recovers the bit significance:
+
+    fast counter, LSB first:
+      bit 0  g_002    D depends on (only itself and the flag)
+      bit 1  g_027    D depends on g_002
+      bit 2  g_017    D depends on g_002 g_027
+      bit 3  g_019    D depends on g_002 g_017 g_027
+
+    slow counter, LSB first:
+      bit 0  g_012    D depends on (only itself and the flag)
+      bit 1  g_022    D depends on g_012
+      bit 2  g_010    D depends on g_012 g_022
+      bit 3  g_020    D depends on g_010 g_012 g_022
+
+    Both groups are 4 bits wide.  Nothing about their WIDTH
+    distinguished them -- only the dataflow did.</code></pre>
+
+<div class="reason">
+<strong>Reasoning — three moves, each answering a different question</strong>
+<br><br>
+<strong>(a) Which flop is the mode bit?</strong> Delete one vertex at a time and re-test the
+blob for cycles. Exactly one deletion makes it acyclic: <code>g_021</code>. That is a minimum
+feedback vertex set of size one, and it says something strong — every loop in the control passes
+through this single flop. A datapath bit cannot have that property; a global "we are doing a
+thing now" flag is the only shape that does. Note also that <code>g_021</code> was already in
+every row of step 4's D column, so two different tests agree.
+<br><br>
+<strong>(b) Which of the rest gates which?</strong> With the flag set aside the remaining eight
+form an acyclic graph, and the enable pins break the tie: <code>g_002</code>,
+<code>g_017</code>, <code>g_019</code> and <code>g_027</code> appear inside the enable cone of
+other registers, and <code>g_010</code>, <code>g_012</code>, <code>g_020</code>,
+<code>g_022</code> do not. A register whose enable is a function of a second register only
+advances when that second register says so. The gating group is the prescaler; the gated group
+is the slow counter. Widths would never have separated these — they are both four bits, on
+purpose.
+<br><br>
+<strong>(c) Which bit is which?</strong> In a ripple counter, bit <em>i</em>'s next state reads
+bits 0…<em>i</em>−1 and itself and nothing above. Sorting by the size of the in-group D-support
+therefore recovers significance directly. Both groups come out as a clean 0,1,2,3 staircase,
+which is also a consistency check: if a group were not a counter, the supports would not nest.
+</div>
+
+<div class="note">
+<strong>Read (b) carefully — the split is by exclusion, not by evidence</strong>
+Only <strong>three</strong> flops carry the <code>n_012</code> enable — <code>g_010</code>,
+<code>g_020</code>, <code>g_022</code> — and step 2's pin table says so too. The fourth member of
+the slow group, <code>g_012</code>, has <code>ena = 1'b1</code>; the script places it there
+because it is what is left over after removing the gating four. That is a weaker argument than
+the other three rows, and the artifact's own wording admits it ("plus whatever shares their
+dependency structure"). It happens to be right — <code>g_012</code> gates itself inside its D
+logic instead of on its enable pin, and step 7 shows the same <code>tick</code> term appearing
+there — but a reader who wants the claim airtight should check that cell rather than take the
+grouping on faith.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">7</span> Read the LUT masks</h3>
+
+<pre class="cmd"><code>cat examples/agilex3_walkthroughs/03_uart_tx/artifacts/07_lut_functions.txt</code></pre>
+
+<pre><code>[... 22 cells in the file; six of them, chosen because they carry the control ...]
+
+g_005  -&gt;  n_023   lut_mask=8000800080008000
+    pins : dataa=n_015, datab=n_017, datac=n_004, datad=n_031
+    func : ((dataa &amp; datab) &amp; (datac &amp; datad))
+
+g_026  -&gt;  n_012   lut_mask=D5555555D5555555
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031
+    func : ((! dataa) | ((datab &amp; datac) &amp; (datad &amp; datae)))
+
+g_033  -&gt;  n_038   lut_mask=D555555580000000
+    pins : dataa=PORT_05, datab=n_015, datac=n_017, datad=n_004, datae=n_031, dataf=PORT_09
+    func : (((! dataa) &amp; dataf) | ((dataa &amp; datab) &amp; (datae &amp; (datac &amp; datad))))
+
+g_023  -&gt;  n_005   lut_mask=EEEEE4EEEEEEEEEE
+    pins : dataa=PORT_05, datab=PORT_09, datac=n_013, datad=n_026, datae=n_011, dataf=n_019
+    func : ((datab &amp; ((! dataa) | (datac &amp; (! datae)))) | (dataa &amp; ((datac | (! dataf)) | ((! datad) | datae))))
+
+g_030  -&gt;  n_030   lut_mask=1054B0F41054B0F4
+    pins : dataa=PORT_05, datab=PORT_09, datac=n_002, datad=PORT_10, datae=n_023
+    func : ((((! datad) | (dataa | ((! datab) &amp; datae))) &amp; (datac &amp; ((! dataa) | ((! datae) &amp; ((! datad) | (datab &amp; (! dataf))))))) | (((! datad) &amp; ((! dataa) &amp; datab)) | (datad &amp; ((! datae) &amp; (datac &amp; ((! datab) | (dataa &amp; dataf)))))))
+
+g_014  -&gt;  PORT_07   lut_mask=5555555555555555
+    pins : dataa=n_009
+    func : (! dataa)</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Substitute what steps 5 and 6 established. <code>n_004</code>, <code>n_031</code>,
+<code>n_015</code>, <code>n_017</code> are the outputs of <code>g_002</code>,
+<code>g_027</code>, <code>g_017</code>, <code>g_019</code> — the fast counter, bits 0 to 3.
+<code>n_013</code>, <code>n_026</code>, <code>n_011</code>, <code>n_019</code> are the slow
+counter, bits 0 to 3. <code>PORT_05</code> is the flag <code>g_021</code> (see the note below).
+Then:
+<ul class="tight">
+<li><strong><code>g_005</code></strong> is the AND of all four fast-counter bits. That is a
+terminal count with no constant in it: the divisor is the counter's <em>width</em>, so a
+four-bit prescaler means one tick every 16 clocks. Call the term <code>tick</code>.</li>
+<li><strong><code>g_026</code></strong> is <code>n_012 = !flag | tick</code> — the enable on the
+three upper slow-counter flops. So while the flag is high the slow counter advances only on the
+prescaler's terminal count, exactly as step 6(b) inferred; while the flag is low the enable is
+unconditionally high, which is how those flops get parked at whatever their D logic says when
+idle.</li>
+<li><strong><code>g_033</code></strong> is <code>n_038 = (!flag &amp; PORT_09) | (flag &amp;
+tick)</code> — the enable shared by the seven chain flops from steps 2 and 3. One net, two jobs:
+load when idle and requested, shift when busy and the prescaler ticks. This is the cell that
+makes <code>PORT_09</code> appear in the ENA column of step 4.</li>
+<li><strong><code>g_023</code></strong> drives the flag's own D pin. Its <code>flag = 1</code>
+branch, <code>(datac | !dataf) | (!datad | datae)</code> over the slow counter's bits 0,3,1,2, is
+0 for exactly one assignment: bit3=1, bit2=0, bit1=1, bit0=0. That is <strong>10</strong>. So
+the flag clears when the slow counter reaches 10 and is otherwise set from <code>PORT_09</code>
+while idle. The comparison constant that does not exist in the RTL as a constant is nonetheless
+readable straight out of a 64-bit mask.</li>
+<li><strong><code>g_030</code></strong> drives the head of the chain, and its pin list is the
+whole story of a shift-register stage: the flag, the request, its own output
+(<code>n_002</code>), one primary input (<code>PORT_10</code>) and <code>tick</code>
+(<code>n_023</code>). Hold, load, or shift.</li>
+<li><strong><code>g_014</code></strong> is a pure inverter from <code>n_009</code>, the tail
+flop's output, to the primary output <code>PORT_07</code>. <strong>The chain stores the
+complement of the line.</strong> Nothing in this netlist holds the frame the right way up, and
+the reset value 0 on every flop is what makes the idle line high.</li>
+</ul>
+</div>
+
+<div class="warn">
+<strong>Two ways to misread this artifact</strong>
+<ul class="tight">
+<li><strong><code>dataa=PORT_05</code> does not mean the cell reads an output pin.</strong> In
+the file on disk that pin is wired to <code>n_006</code>, the flag flop's <code>q</code>, and the
+netlist then says <code>assign PORT_05 = n_006;</code>. HAL merges the two into one net and names
+it after the port. Seeing an output port name on a data pin is a naming artifact of net merging,
+not a feedback path from a pad.</li>
+<li><strong>The printed expression can mention a pin that is tied off.</strong>
+<code>g_030</code>'s function names <code>dataf</code>, but <code>dataf</code> is not in its pin
+list — it is tied to <code>gnd</code>, and the mask's two halves
+(<code>1054B0F4</code>&nbsp;/&nbsp;<code>1054B0F4</code>) are identical, so the function does not
+actually depend on it. The expression is a direct rendering of the mask, not a minimised form.
+Always read the <code>pins</code> line next to the <code>func</code> line.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>What the structural half has, at the end of step 7</strong>
+One clock, one asynchronous clear. A 9-stage parallel-load shift chain whose tail is inverted to
+the output. A 4-bit free-running prescaler whose terminal count gates a 4-bit slow counter. One
+flag that carries all the feedback, set by <code>PORT_09</code> and cleared when the slow counter
+hits 10. What it does <em>not</em> have: which port is the request and which are data, what the
+frame looks like on the wire, what order the data bits go out in, and how long a bit lasts in
+clock cycles — the "16" is implied by a four-bit prescaler, but nothing has measured it.
+</div>
+</div>
+
+<h2 id="behaviour">5. Half B — behaviour</h2>
+
+<p>Everything above came from reading the netlist. This half never reads it: it drives it.
+<a href="probe.py"><code>probe.py</code></a> loads the blinded netlist with
+<code>tools/hal_agilex</code>'s reference simulator — the same validated ALM and flip-flop
+semantics, in pure Python, with no HAL build required — and treats it as a box with eleven inputs
+and two outputs.</p>
+
+<pre class="cmd"><code>python3 examples/agilex3_walkthroughs/03_uart_tx/probe.py \
+    --netlist examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v \
+    -o examples/agilex3_walkthroughs/03_uart_tx/artifacts</code></pre>
+
+<p>It writes <a href="artifacts/07_probe.txt"><code>artifacts/07_probe.txt</code></a> (quoted
+below), <a href="artifacts/probe.json"><code>artifacts/probe.json</code></a>, and
+<a href="artifacts/07_frame.svg"><code>artifacts/07_frame.svg</code></a>. Nothing in it reads
+<code>netlist.hal.v</code>, <code>design.v</code>, <code>spec.md</code> or the name map.</p>
+
+<div class="step">
+<h3><span class="n">8</span> Find the clock, the reset, and the one input that does anything</h3>
+
+<pre><code>ports: 11 inputs, 2 outputs
+  inputs : PORT_00 PORT_01 PORT_02 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_11 PORT_12
+  outputs: PORT_05 PORT_07
+
+nets on every flip-flop clk pin : {'PORT_02': 18}
+nets on every flip-flop clrn pin: {'PORT_11': 18}
+=&gt; clock = PORT_02, asynchronous reset = PORT_11
+=&gt; ONE clock domain: 18 flip-flops, one clock net, one clear net
+
+9 input(s) left to identify: PORT_00 PORT_01 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_12
+
+Probe A -- hold everything at 0 after reset, then raise exactly one
+input for one cycle, and see whether any output ever changes.
+
+  PORT_00  -&gt; outputs that moved: none
+  PORT_01  -&gt; outputs that moved: none
+  PORT_03  -&gt; outputs that moved: none
+  PORT_04  -&gt; outputs that moved: none
+  PORT_06  -&gt; outputs that moved: none
+  PORT_08  -&gt; outputs that moved: none
+  PORT_09  -&gt; outputs that moved: ['PORT_05', 'PORT_07']
+  PORT_10  -&gt; outputs that moved: none
+  PORT_12  -&gt; outputs that moved: none
+
+=&gt; request/start input = PORT_09
+=&gt; the other 8 inputs are payload: PORT_00 PORT_01 PORT_03 PORT_04 PORT_06 PORT_08 PORT_10 PORT_12</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+The first two lines are the one place this half looks at structure, and it is fair game: which
+net lands on a <code>clk</code> pin and which on a <code>clrn</code> pin is a property of the
+device's primitives, not of the design. You cannot find a clock by wiggling pins — a clock is
+what you wiggle <em>with</em>.
+<br><br>
+Probe A is deliberately crude: reset, hold everything low, raise one input for exactly one cycle,
+run 400 cycles, and ask whether either output ever took a different value than it would have
+otherwise. Exactly one input passes. That is the request, and by elimination the other eight are
+payload — a byte that is captured rather than continuously observed, which is why raising a data
+line on its own does nothing at all.
+<br><br>
+This single result resolves the ambiguity step 5 could not: <code>PORT_09</code> is the load
+condition, not the ninth data bit, and the chain's nine "load inputs" are eight data bits and one
+request that reaches the tail because the tail's load value is a constant.
+</div>
+
+<div class="warn">
+<strong>What a null result is worth here</strong>
+"None of these eight inputs can move an output on their own" is a real fact, but it is a
+statement about <em>this</em> stimulus. A probe that never asserts the request will never
+observe the payload, and if the design had a second, rarer request path — a mode pin, a
+different trigger — this probe would have called it payload. Probe A tells you where to point
+the next experiment; it does not enumerate the interface.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">9</span> Pulse the request and watch the two outputs separate</h3>
+
+<pre><code>Probe B -- pulse the request with all payload inputs at 0.
+  PORT_05: 000111111111111111111111111111111111111111111111111111111111
+[... the printed trace is the first 200 of 400 cycles: after these 60 characters
+     it stays 1 through cycle 163, then 0 to the end of the excerpt ...]
+     run lengths: 0x3 1x161 0x236
+  PORT_07: 111000000000000000000000000000000000000000000000000000000000
+[... same 200-cycle excerpt: 0 through cycle 146, then 1 to the end ...]
+     run lengths: 1x3 0x144 1x253
+
+=&gt; status flag output = PORT_05 (few transitions, one long pulse)
+=&gt; serial output      = PORT_07 (the frame)
+
+status high for 161 cycles (cycles 3..163)
+serial run lengths with payload 0: 1x3 0x144 1x253
+=&gt; the low plateau is 144 cycles long</code></pre>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Two outputs, and you do not yet know which is which. Pulse the request once and count
+transitions: one of them makes a single long excursion and returns, the other has structure
+inside that window. The first is a status flag; the second carries whatever the design is
+serialising. No naming convention was needed, only shape.
+<br><br>
+Two numbers fall out immediately and both are load-bearing. The flag is high for
+<strong>161</strong> cycles. The line is low for a plateau of <strong>144</strong> cycles inside
+that window, having been high before (idle) and going high again after. 144 = 9 × 16 is not
+something you can conclude yet, but 161 and 144 are measurements, and any reconstruction has to
+reproduce both.
+<br><br>
+Note what the payload-all-zero trace hands you for free: with every data bit at 0 the line is
+low for the entire data field, so the plateau is the start bit plus eight zero data bits, and
+the transition at its end is the beginning of something that is not payload-dependent. That is
+the first evidence of framing.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">10</span> Raise one payload bit at a time and watch which slot moves</h3>
+
+<pre><code>Probe C -- raise exactly one payload input and see which slot of the
+frame flips.  That gives the bit period, the slot count, the bit order
+and the polarity of the framing bits, all at once.
+
+  PORT_00  changes the line on cycles 115..130  (16 cycles)
+  PORT_01  changes the line on cycles 83..98  (16 cycles)
+  PORT_03  changes the line on cycles 51..66  (16 cycles)
+  PORT_04  changes the line on cycles 35..50  (16 cycles)
+  PORT_06  changes the line on cycles 19..34  (16 cycles)
+  PORT_08  changes the line on cycles 67..82  (16 cycles)
+  PORT_10  changes the line on cycles 131..146  (16 cycles)
+  PORT_12  changes the line on cycles 99..114  (16 cycles)
+
+=&gt; every payload input owns exactly one contiguous window of 16 cycle(s)
+=&gt; consecutive windows are 16 cycles apart -&gt; the bit period is 16
+=&gt; payload order on the wire (first sent first): PORT_06 PORT_04 PORT_03 PORT_08 PORT_01 PORT_12 PORT_00 PORT_10
+
+first payload window starts 16 cycles after the status flag rises
+=&gt; 1 framing slot(s) before the payload
+=&gt; the frame is 10 slot(s) long (161 busy cycles / 16 cycles per slot)
+!! 161 busy cycles is NOT a whole number of slots: 10*16 = 160, so the
+!! status flag stays high for 1 extra cycle(s) after the last slot.
+!! Do not round this away -- it is a real property of the control logic
+!! and any reconstruction has to reproduce it.</code></pre>
+
+<div class="reason">
+<strong>Reasoning — this is the step that pays for the whole half</strong>
+One differential experiment per payload input: run the frame with that input low, run it again
+with it high, and take the set of cycles where the two traces differ. Every input owns exactly
+one contiguous window. That single observation carries four independent facts.
+<ul class="tight">
+<li><strong>The window width is the bit period.</strong> Sixteen cycles, measured, not inferred
+from the prescaler's width. Half A said "four-bit prescaler, so probably 16"; Half B says 16
+because it counted.</li>
+<li><strong>The windows tile.</strong> Consecutive starts are 16 apart with no gaps, so the
+frame is a fixed grid of slots and the design is not doing anything adaptive between bits.</li>
+<li><strong>The window order is the transmission order.</strong> This is the recovery of "which
+pin is bit 0" — a fact that names would normally give you and that here comes from a
+stopwatch.</li>
+<li><strong>The slots the windows do not cover are framing.</strong> The first payload window
+starts one period after the flag rises, so exactly one slot precedes the payload; 161 busy
+cycles over a 16-cycle period gives ten slots, so exactly one follows it.</li>
+</ul>
+</div>
+
+<div class="warn">
+<strong>The remainder is not noise</strong>
+161 is not divisible by 16, and the probe refuses to round: it prints the arithmetic and says
+the flag stays high one cycle past the last slot. A reconstruction that emits a clean
+10&nbsp;×&nbsp;16 = 160-cycle busy pulse is wrong, and would be caught. Section 6 shows where the
+extra cycle comes from structurally — the flag's clear condition is a comparison against the
+slot counter, and the counter reaches its terminal value one cycle before the flag can act on
+it. Two independent observations of one implementation detail.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="n">11</span> Sample the middle of every slot</h3>
+
+<pre><code>slot values, payload all 0 : 0 0 0 0 0 0 0 0 0 1
+slot values, payload all 1 : 0 1 1 1 1 1 1 1 1 1
+=&gt; slots [0, 9] do not depend on the payload -&gt; framing bits, values [0, 1]
+=&gt; 8 payload slots between them -&gt; 8N1-style frame, LSB first</code></pre>
+
+<figure>
+<img src="artifacts/07_frame.svg" alt="Recovered UART frame waveform: ten slots of sixteen clock cycles, labelled start, d0 through d7, stop, drawn from the probe's own trace">
+<figcaption><strong>artifacts/07_frame.svg</strong> — drawn by <code>probe.py</code> directly
+from the trace it captured, with no waveform library and no external font. The line is the
+payload-all-zero frame from probe B, so it is low for the start bit and all eight data bits and
+high for the stop bit, followed by one further slot of idle. The dashed rules are the recovered
+16-cycle grid and the labels are the probe's own slot indices — <code>start</code>,
+<code>d0</code>…<code>d7</code>, <code>stop</code> — which is a naming decision the measurement
+justifies but does not prove.</figcaption>
+</figure>
+
+<div class="reason">
+<strong>Reasoning</strong>
+Run the frame twice more, with the payload all zero and all one, and sample the middle of every
+slot. Two slots take the same value in both runs: slot 0 is always 0 and slot 9 is always 1.
+Those are constants in the frame, which is what a start bit and a stop bit are. The eight slots
+between them follow the payload exactly, so there is no parity, no encoding, and no inversion
+anywhere in the data field.
+<br><br>
+Eight data bits, one low start bit, one high stop bit, no parity: that is 8N1. The name comes
+from a domain convention, not from the netlist — but the shape it names was measured.
+</div>
+
+<div class="note">
+<strong>What Half B has, and what it can never have</strong>
+The probe recovered: the clock and reset ports, the request port, which output is status and
+which is serial, a 16-cycle bit period, a 10-slot frame, start bit 0, stop bit 1, the payload
+order, and the one-cycle busy tail. It did not recover: that there are two counters, that one
+gates the other, that the shift register is nine flops deep rather than ten, that the chain
+stores the complement of the line, or that a single flag carries all the feedback. None of those
+are visible from the pins, and one of them — the nine-versus-ten — will contradict what a naive
+reading of the frame suggests.
+</div>
+</div>
+
+<h2 id="agree">6. Where the two halves meet</h2>
+
+<p>Now compare, for the first time. Neither script has read the other's output.</p>
+
+<table>
+<tr><th>fact</th><th>Half A said (structure)</th><th>Half B said (behaviour)</th></tr>
+<tr><td>clock, reset</td><td><code>PORT_02</code> on 18 <code>clk</code> pins,
+<code>PORT_11</code> on 18 <code>clrn</code> pins</td><td>the same, from the same pin scan —
+the one fact both halves take from the primitives</td></tr>
+<tr><td>which input is the request</td><td>cannot say; <code>PORT_09</code> appears in the load
+cone <em>and</em> in the enable cone of the chain</td><td><code>PORT_09</code>, the only input
+that moves an output on its own</td></tr>
+<tr><td>bit period</td><td>a 4-bit prescaler whose terminal count is the AND of its four bits
+(<code>g_005</code>), so 2<sup>4</sup></td><td>16 cycles, measured as the width of each payload
+window</td></tr>
+<tr><td>frame length</td><td>the flag clears when the slow counter reaches 10
+(<code>g_023</code>'s mask)</td><td>10 slots, from 161 busy cycles at 16 cycles per slot</td></tr>
+<tr><td>the extra cycle</td><td>the clear is a comparison the flag acts on one edge later</td>
+<td>161 = 10 × 16 + 1, flagged explicitly rather than rounded</td></tr>
+<tr><td>payload order</td><td>the chain order <code>g_001 → g_018 → g_031 → g_000 → g_029 →
+g_024 → g_032 → g_034 → g_006</code>, with one primary input per stage</td>
+<td><code>PORT_06 PORT_04 PORT_03 PORT_08 PORT_01 PORT_12 PORT_00 PORT_10</code>, first sent
+first</td></tr>
+</table>
+
+<p>The last row is the one to check by hand, because it is the one place where two completely
+different methods produce the same ordered list of eight names. Take Half A's chain from
+<strong>tail to head</strong> — the tail drives the output, so it goes out first — and read off
+each stage's primary input, dropping the tail's, which is the request:</p>
+
+<pre><code>chain, tail first : g_006     g_034     g_032     g_024     g_029     g_000     g_031     g_018     g_001
+its primary input : PORT_09   PORT_06   PORT_04   PORT_03   PORT_08   PORT_01   PORT_12   PORT_00   PORT_09,PORT_10
+                    (request)
+drop the request  :           PORT_06   PORT_04   PORT_03   PORT_08   PORT_01   PORT_12   PORT_00   PORT_10
+
+probe C, first sent first:    PORT_06   PORT_04   PORT_03   PORT_08   PORT_01   PORT_12   PORT_00   PORT_10</code></pre>
+
+<div class="good">
+<strong>Identical, eight for eight</strong>
+A wiring order recovered by walking D-pin cones through combinational cells, and a timing order
+recovered by toggling pins and timestamping the difference, agree exactly. Neither is a
+heuristic that was tuned against the other. This is the strongest evidence in the walkthrough
+that the recovery is right, and it is available <em>before</em> anyone opens the name map.
+</div>
+
+<div class="bad">
+<strong>And one place where they disagree — read this before writing any RTL</strong>
+Half B measured a <strong>10-slot</strong> frame. Half A found a <strong>9-stage</strong> chain.
+Both are correct.
+<br><br>
+The original shift register was ten bits wide, and its top bit was loaded with 1 and shifted in
+as 1. A bit that is constant is not a register: synthesis deleted it, and what remains is a
+nine-deep chain whose head is fed by a constant fill. The tenth slot on the wire is produced by
+the chain running empty for one more period, not by a flip-flop.
+<br><br>
+This is a common and expensive trap. If you reconstruct a ten-bit shift register you get a
+design that behaves identically and does not match the netlist; if you reconstruct nine slots you
+get a design that matches the netlist's flop count and transmits a short frame. The netlist's
+answer is nine flops <em>and</em> ten slots, and only holding both facts at once gets you
+there. Note also which direction the error would run: nothing in the structural half hints that a
+bit is missing. It took the behavioural half to say "ten".
+</div>
+
+<h2 id="reconstruct">7. Reconstruction, and the Quartus round trip</h2>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the design rewritten from the blinded
+netlist alone, with every construct traceable to a step above. It is written to match the
+netlist's structure, not the original author's style:</p>
+
+<pre><code>module recovered_top (
+    input  wire       clk,       // PORT_02: the only net on all 18 clk pins
+    input  wire       rst_n,     // PORT_11: the only net on all 18 clrn pins
+    input  wire       start,     // PORT_09: the only remaining input that makes
+                                 //          an output move
+    input  wire [7:0] data,      // PORT_06,04,03,08,01,12,00,10 -- in that
+                                 //          order on the wire, so this is the
+                                 //          bus, least significant bit first
+    output wire       serial,    // PORT_07: carries the frame
+    output wire       status     // PORT_05: high for 161 cycles per frame
+);
+
+    reg [3:0] prescale;          // group A: gates the others
+    reg [3:0] slot;              // group B: gated by group A
+    reg [8:0] sr;                // group C: the 9-deep chain
+    reg       busy;              // group D: the one feedback flop
+
+    wire tick  = &amp;prescale;      // g_005
+    wire load  = ~busy &amp; start;  // the two halves of g_033
+    wire shift =  busy &amp; tick;
+
+    assign serial = ~sr[0];      // g_014 is an inverter
+    assign status = busy;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            prescale &lt;= 4'd0; slot &lt;= 4'd0; sr &lt;= 9'd0; busy &lt;= 1'b0;
+        end else begin
+            busy     &lt;= busy ? ~(slot == 4'd10) : start;   // g_023's mask
+            prescale &lt;= busy ? prescale + 4'd1 : 4'd0;
+            if (!busy)      slot &lt;= 4'd0;
+            else if (tick)  slot &lt;= slot + 4'd1;
+            if (load)       sr &lt;= {~data, 1'b1};
+            else if (shift) sr &lt;= {1'b0, sr[8:1]};
+        end
+    end
+
+endmodule</code></pre>
+<p class="small">Abridged — the code is verbatim, the comments are condensed; the committed
+file carries the full derivation in its header. Two
+things in it are discoveries rather than assumptions, and both were argued above: the chain is
+nine deep, not ten, and it stores the <em>complement</em> of the line, so the reset value of 0
+everywhere is what puts the idle line high.</p>
+
+<h3>Checking it against the netlist</h3>
+
+<p><a href="check.py"><code>check.py</code></a> simulates the exported netlist with the validated
+primitive semantics and compares it, cycle by cycle, against
+<a href="reference.py"><code>reference.py</code></a> — an executable restatement of the
+specification — for 1200 pseudo-random cycles including two asynchronous clears, requiring zero
+mismatching cycles. Then it re-runs the probe and asserts every number in Half B.</p>
+
+<h3>The round trip: synthesise the reconstruction</h3>
+
+<p>This walkthrough does one thing the earlier two do not. There is a second Quartus project,
+identical to the first apart from the top-level entity and the source file, which synthesises
+<code>recovered.v</code> with the same device and the same settings:</p>
+
+<pre><code># quartus/recovered.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY recovered_top
+set_global_assignment -name VERILOG_FILE ../recovered.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION OFF
+set_global_assignment -name AUTO_RAM_RECOGNITION OFF
+set_global_assignment -name AUTO_DSP_RECOGNITION OFF
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF</code></pre>
+
+<p>The result is <a href="recovered.vo"><code>recovered.vo</code></a>, a second vendor export
+committed next to the first. Count its primitives:</p>
+
+<pre class="cmd"><code>cd examples/agilex3_walkthroughs/03_uart_tx
+for f in uart_tx.vo recovered.vo; do
+    printf '%s: %s tennm_ff, %s tennm_lcell_comb\n' "$f" \
+        "$(grep -o tennm_ff "$f" | wc -l)" "$(grep -o tennm_lcell_comb "$f" | wc -l)"
+done</code></pre>
+
+<pre><code>uart_tx.vo: 18 tennm_ff, 22 tennm_lcell_comb
+recovered.vo: 18 tennm_ff, 22 tennm_lcell_comb</code></pre>
+
+<div class="good">
+<strong>What the round trip proves, and what it does not</strong>
+The same synthesiser, on the same device, with the same settings, turns the reconstruction into
+the same census: 18 flip-flops and 22 ALM cells, matching the original export exactly. That is a
+meaningful end-to-end check and it is <em>structural</em>, which makes it complementary to every
+simulation in this guide: it would catch a reconstruction that behaved correctly while carrying
+an extra register — a ten-bit shift chain, say, or a comparator built from a stored constant.
+<br><br>
+It is not an equivalence proof and it is not even a strong structural match. Two designs can
+share a census and differ in their wiring; Quartus could also have absorbed a redundant register
+and hidden the difference. Read it as one more independent way for the reconstruction to have
+been wrong, that it was not.
+</div>
+
+<h2 id="lost">8. Recovered vs. lost</h2>
+
+<p>Now, and only now, open <a href="netlist_anon.hal.v.map.json">the map</a>. The nine-stage
+chain <code>g_001 → … → g_006</code> is <code>shreg[8]</code> down to <code>shreg[0]</code>, in
+that order. The fast counter <code>g_002, g_027, g_017, g_019</code> is
+<code>baud_cnt[0..3]</code>; the slow counter <code>g_012, g_022, g_010, g_020</code> is
+<code>bit_cnt[0..3]</code>; the flag <code>g_021</code> is <code>busy</code>. The payload order
+<code>PORT_06 … PORT_10</code> is <code>tx_data[0]</code> … <code>tx_data[7]</code>. Every
+structural conclusion above lands exactly, in the right order, with the right bit
+significance.</p>
+
+<table>
+<tr><th>property of <code>design.v</code></th><th>outcome</th><th>why</th></tr>
+<tr><td>one clock, one asynchronous active-low reset</td><td><strong>recovered exactly</strong></td>
+<td>step 2: one net on 18 <code>clk</code> pins, one on 18 <code>clrn</code> pins; polarity and
+reset value are properties of the primitive</td></tr>
+<tr><td>the shift register, and its stage order</td><td><strong>recovered exactly</strong></td>
+<td>step 5: nine flops outside all feedback, each naming exactly one predecessor — a forced
+order, no heuristic</td></tr>
+<tr><td>two 4-bit counters, and which gates which</td><td><strong>recovered exactly</strong></td>
+<td>step 6: minimum feedback vertex, then the enable cones. Width could not have done it — they
+are the same width on purpose</td></tr>
+<tr><td>bit significance inside each counter</td><td><strong>recovered exactly</strong></td>
+<td>step 6(c): nested D-supports. A wiring property, independent of names</td></tr>
+<tr><td>the <code>busy</code> flag as the whole control FSM</td><td><strong>recovered exactly</strong></td>
+<td>step 6(a): one flop whose removal makes the control acyclic</td></tr>
+<tr><td>the frame — 10 slots, 16 cycles each, start 0, stop 1, LSB first</td>
+<td><strong>recovered exactly</strong></td>
+<td>steps 10–11, by measurement; the order independently confirmed by the chain in step 5</td></tr>
+<tr><td>the 161-cycle busy pulse, including the tail</td><td><strong>recovered exactly</strong></td>
+<td>step 9 measured it; step 7 explains it from <code>g_023</code>'s comparison against 10</td></tr>
+<tr><td>which port is the request</td><td><strong>recovered</strong>, but only behaviourally</td>
+<td>step 8. Structure put <code>PORT_09</code> in both a load cone and an enable cone and could
+not choose</td></tr>
+<tr><td><code>shreg[9]</code>, the tenth shift bit</td><td><em>gone from the netlist entirely</em></td>
+<td>it was loaded with 1 and shifted in as 1, so it was a constant and synthesis deleted it. The
+frame still has ten slots. Deleted logic leaves no trace — only the mismatch between the two
+halves reveals it</td></tr>
+<tr><td>the polarity of the stored frame</td><td><em>changed by synthesis</em></td>
+<td>the netlist stores the complement and inverts at the output pin (<code>g_014</code>).
+Faithful reconstruction means reproducing the inversion, which no line of <code>design.v</code>
+asks for</td></tr>
+<tr><td>the parameter <code>DIV_W</code> and the constant <code>CLK_DIV = 16</code></td>
+<td><em>not in the netlist</em></td>
+<td>the prescaler wraps because it is four bits wide. There is no 16 anywhere to find; you count
+flip-flops, or you measure</td></tr>
+<tr><td>every identifier — <code>shreg</code>, <code>baud_cnt</code>, <code>bit_cnt</code>,
+<code>busy</code>, <code>tx_data</code></td><td><em>removed on purpose</em></td>
+<td>Quartus's export kept them; <code>anonymize.py</code> removed them because a
+bitstream-derived netlist never had them. Every conclusion above holds without them</td></tr>
+<tr><td>"it is a UART at 115200 baud"</td><td><em>not in the netlist</em></td>
+<td>the netlist knows the bit period is 16 clocks. What that is in baud is a board fact you have
+to supply</td></tr>
+<tr><td>module hierarchy, comments, the <code>8N1</code> name itself</td><td><em>lost</em></td>
+<td>synthesis flattens, and a frame shape is not a name. "8N1" is a domain convention applied to
+a measured shape — say so in your report</td></tr>
+<tr><td>power-up values</td><td><em>not modelled</em></td>
+<td>the export says <code>power_up = "dont_care"</code>; the simulator starts registers at 0 and
+says so. That is an assumption, not a recovery</td></tr>
+</table>
+
+<h3>The negative space: what each half could never have told you</h3>
+
+<div class="warn">
+<strong>What simulation cannot prove here</strong>
+The probe ran 400 cycles per experiment, with one-hot, all-zero and all-one payloads and a
+single request pulse. It
+cannot see: a second request path that needs two inputs at once; behaviour after the frame that
+depends on state the probe never reached; anything about internal structure at all. Most
+sharply — the probe measured ten slots and would have been perfectly satisfied by a ten-bit
+shift register. <strong>Simulation checks the parts of a hypothesis that the stimulus actually
+reaches; it says nothing about how the circuit is built.</strong>
+</div>
+
+<div class="warn">
+<strong>What structure cannot prove here</strong>
+The register graph cannot tell a request from a data bit, because both arrive at a D pin through
+combinational cells. It cannot tell you that a bit period is 16 <em>cycles</em> rather than 16 of
+something else, because nothing in a static graph has a time axis. It cannot tell you which of
+two outputs a receiver would call "the line". And it silently under-counts anything synthesis
+deleted: the missing tenth bit is invisible to every structural step in this guide.
+<br><br>
+The division of labour is the lesson. Structure carries width, order, grouping and mechanism.
+Behaviour carries timing, polarity, roles and the parts of the design that no longer exist as
+gates. Neither half is a check on itself; run both, and let the overlap be the check.
+</div>
+
+<h2 id="further">9. Going further</h2>
+
+<h3>Re-run everything</h3>
+
+<pre class="cmd"><code># the structural half (needs a built HAL and, for the picture, Graphviz)
+export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+python3 examples/agilex3_walkthroughs/03_uart_tx/analyze.py \
+    --repo . -o examples/agilex3_walkthroughs/03_uart_tx/artifacts
+
+# the behavioural half (plain Python: no HAL, no Quartus, no Graphviz)
+python3 examples/agilex3_walkthroughs/03_uart_tx/probe.py \
+    --netlist examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v \
+    -o examples/agilex3_walkthroughs/03_uart_tx/artifacts
+
+# the assertions
+cd examples/agilex3_walkthroughs/03_uart_tx
+python3 check.py                                    # tier 1
+HAL_PY_PATH=/work/build/lib python3 check.py --with-hal   # tier 1 + tier 2</code></pre>
+
+<p><a href="check.py"><code>check.py</code></a> re-derives every load-bearing claim on this page
+and exits non-zero if one stops holding. It is deliberately split in two, because the two tiers
+cost very different things to run:</p>
+
+<table>
+<tr><th>tier</th><th>needs</th><th>what it asserts</th></tr>
+<tr><td><strong>1 — always</strong></td><td>Python and <code>tools/hal_agilex</code></td>
+<td>the export contains only modelled primitives (18 <code>tennm_ff</code>, 22
+<code>tennm_lcell_comb</code>, inventory reporting no gap); the blinded netlist is behaviourally
+identical to the import over 400 cycles; the export matches <code>reference.py</code> over 1200
+cycles; and the probe recovers the clock, reset, request, both outputs, the 16-cycle period, the
+10-slot frame, start 0 / stop 1, the LSB-first payload order and the 161-cycle busy pulse</td></tr>
+<tr><td><strong>2 — with a built HAL</strong></td><td>tier 1, plus <code>HAL_PY_PATH</code></td>
+<td>runs <code>analyze.py</code> and asserts the structure: exactly one clock net and one clear
+net; the 9 control / 9 datapath split; one 9-deep chain that is <code>shreg[8]</code>…<code>shreg[0]</code>
+in order; exactly one flop carrying all the feedback and that it is <code>busy</code>; that the
+gating counter is <code>baud_cnt[0..3]</code> and the gated one <code>bit_cnt[0..3]</code>, LSB
+first; and that the gate-level SCC leaves 7 of the 9 chain flops outside feedback</td></tr>
+</table>
+
+<p>Tier 2 is where the map is finally used: it translates the recovered gate names back through
+<code>netlist_anon.hal.v.map.json</code> and requires the recovered chain to be
+<code>shreg[8]</code> through <code>shreg[0]</code> in exactly that order. That is the assertion
+that would break first if a HAL change, a plugin change or a regenerated netlist quietly
+invalidated this text.</p>
+
+<div class="note">
+<strong>Two numbering wrinkles in the committed files</strong>
+The two halves are independent scripts that both number their artifacts, so
+<code>artifacts/</code> contains two different files beginning <code>07_</code>:
+<code>07_lut_functions.txt</code> from <code>analyze.py</code> and <code>07_probe.txt</code> from
+<code>probe.py</code>. Separately, the header comment in <code>recovered.v</code> refers to
+"<code>artifacts/06_lut_functions.txt</code>" and names <code>g_034</code> as the output
+inverter; the artifact on disk is <code>07_lut_functions.txt</code> and the inverter driving
+<code>PORT_07</code> is <code>g_014</code> (<code>g_034</code> is a shift-chain flop). The
+artifacts are the authority; this page follows them.
+</div>
+
+<h3>Exercises that change the answer</h3>
+<ul>
+<li><strong>Change <code>DIV_W</code> to 3 or 5 and re-synthesise.</strong> The fast counter
+gains or loses a flip-flop and every payload window in probe C changes width to match. Watch the
+one number that is <em>only</em> recoverable two different ways move in both of them at once.</li>
+<li><strong>Add a parity bit.</strong> The frame grows to 11 slots and one of them will follow
+neither the all-zero nor the all-one payload trace — probe C's "framing bits" test will report a
+slot that depends on the payload but owns no window. Work out what that report should say before
+you run it.</li>
+<li><strong>Make the stop bit two slots long.</strong> Nothing structural changes except the
+constant in <code>g_023</code>'s mask. This is the cleanest demonstration in the series that a
+comparison constant lives in a truth table, not in a register.</li>
+<li><strong>Remove <code>ALLOW_SYNCH_CTRL_USAGE OFF</code> and re-export.</strong> Quartus will
+fold "park at zero while idle" onto the flip-flops' synchronous-clear pins,
+<code>hal_agilex inventory</code> will report an <code>unsupported</code> finding instead of
+<code>proven_under_assumptions</code>, and the import will refuse. That refusal is the tooling
+working, and it is worth seeing once.</li>
+<li><strong>Delete the chain's constant fill.</strong> Load <code>shreg[9]</code> with 0 instead
+of 1 and re-synthesise: the deleted flip-flop comes back, the chain becomes ten deep, and the
+nine-versus-ten disagreement in section 6 disappears. Then decide which of the two netlists is
+the more honest thing to hand a student.</li>
+<li><strong>Blind it harder.</strong> Randomise the <em>pin order</em> inside each ALM as well as
+the names. Nothing in this walkthrough should change, because every step reads pin roles rather
+than pin positions. If something does change, that step was leaning on the export's formatting.</li>
+</ul>
+
+<h3>Where to look in this repository</h3>
+<table>
+<tr><th>path</th><th>what it is for</th></tr>
+<tr><td><code>tools/hal_agilex/</code></td><td>the Agilex primitive semantics, the
+<code>.vo</code> reader/importer, the validated coverage list, and the reference simulator that
+Half B runs on</td></tr>
+<tr><td><code>plugins/graph_algorithm/</code></td><td>the igraph bridge behind step 3</td></tr>
+<tr><td><code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code></td><td>the gate
+library; the source of the <code>clrn</code> semantics step 2 relies on</td></tr>
+<tr><td><code>tools/hal_viz/</code>, <code>tools/hal_fsm/</code>, <code>tools/hal_cdc/</code></td>
+<td>the tools this walkthrough did not need: one clock domain, and a control FSM with exactly
+two states</td></tr>
+<tr><td><code>.claude/skills/using-hal/</code></td><td>how to drive headless HAL in general</td></tr>
+</table>
+
+<hr>
+<p class="small">
+Device <code>A3CW135BM16AE6S</code> (Agilex 3, MBGA896) &middot; Quartus Prime Pro Edition
+26.1.0 Build 110 03/26/2026 SC &middot; post-synthesis export, no fitting. Every quoted output on
+this page is a file in <code>artifacts/</code>, produced by the scripts committed beside it; both
+images are generated, not drawn. The Altera copyright headers in <code>uart_tx.vo</code> and
+<code>recovered.vo</code> are the ones <code>quartus_eda</code> wrote and are kept verbatim; no
+vendor simulation models, device databases or encrypted libraries are redistributed here.
+</p>
+
+</main>
+</body>
+</html>

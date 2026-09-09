@@ -1,0 +1,84 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.inventory.build_document",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "uart_tx",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "uart_tx",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 40,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/03_uart_tx/uart_tx.vo",
+      "sha256": "a883b31b270c7ed89c8ca4ecb4e6eb873f232b7d809744c742066c40ee5bd219",
+      "size_bytes": 18909
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "Coverage means the primitive semantics in tools/hal_agilex/primitives.py, which were validated by simulating this export against the RTL it was synthesised from.",
+          "id": "coverage-list",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so an instance cannot have been skipped silently.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the netlist text, not about an execution",
+        "unbounded": true
+      },
+      "data": {
+        "histogram": {
+          "tennm_ff": 18,
+          "tennm_lcell_comb": 22
+        }
+      },
+      "id": "hal_agilex/inventory/fully-covered",
+      "method": {
+        "bounded": false,
+        "description": "Enumeration of every instance in the export and of the pin configuration of each one; no solver and no simulation involved.",
+        "kind": "structural",
+        "name": "primitive inventory"
+      },
+      "scope": {
+        "artifact_ids": [
+          "uart_tx"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "All 40 instances are tennm_ff or tennm_lcell_comb, each in a configuration this package models and has validated against the vendor export.",
+      "tags": [
+        "agilex",
+        "coverage"
+      ],
+      "title": "Every primitive in the export is inside the validated coverage"
+    }
+  ],
+  "generated_at": "2026-09-08T23:36:13Z",
+  "notes": [
+    "export header: device=Altera A3CW135BM16AE6S Package MBGA896; exported_at=09/08/2026 18:35:57; tool=Quartus Prime; tool_version=Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+  ],
+  "producer": {
+    "name": "hal_agilex.inventory",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

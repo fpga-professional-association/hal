@@ -1,0 +1,37 @@
+The same edges as step 04, but between flip-flops only, and with the
+self-loops removed.  Strongly connected components of THAT graph:
+
+  component 0:  9 flop(s)  g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+  component 1:  1 flop(s)  g_000
+  component 2:  1 flop(s)  g_001
+  component 3:  1 flop(s)  g_006
+  component 4:  1 flop(s)  g_018
+  component 5:  1 flop(s)  g_024
+  component 6:  1 flop(s)  g_029
+  component 7:  1 flop(s)  g_031
+  component 8:  1 flop(s)  g_032
+  component 9:  1 flop(s)  g_034
+
+=> 9 flop(s) sit inside feedback: g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+=> 9 flop(s) do not: g_000 g_001 g_006 g_018 g_024 g_029 g_031 g_032 g_034
+
+A register that is not inside any feedback loop cannot count and cannot
+hold a value that depends on its own history through other registers.
+It can only pass a value along.  Nine of them, in one clock domain, is
+a serializer -- and the edges between them give the order:
+
+  chain of  9: g_001  ->  g_018  ->  g_031  ->  g_000  ->  g_029  ->  g_024  ->  g_032  ->  g_034  ->  g_006
+
+head g_001: D depends on primary input(s) PORT_09,PORT_10 and no datapath flop
+tail g_006: drives the netlist output
+
+Per-stage primary inputs along the chain (the parallel load port):
+  g_001    <- PORT_09,PORT_10
+  g_018    <- PORT_00
+  g_031    <- PORT_12
+  g_000    <- PORT_01
+  g_029    <- PORT_08
+  g_024    <- PORT_03
+  g_032    <- PORT_04
+  g_034    <- PORT_06
+  g_006    <- PORT_09

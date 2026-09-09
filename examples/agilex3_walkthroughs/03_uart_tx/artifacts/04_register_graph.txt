@@ -1,0 +1,25 @@
+For every flip-flop: the flip-flops and primary inputs its D pin depends
+on (through combinational cells only), and the same for its ENA pin.
+'self' marks a flop whose own output is in its next-state cone -- it can
+hold or count; a flop without it can only be loaded from somewhere else.
+
+FF       self  D depends on (FFs)                 D <- PI      ENA
+----------------------------------------------------------------------------------------------------
+g_000    .     g_021,g_031                        PORT_01      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_001    self  g_001,g_002,g_017,g_019,g_021,g_027 PORT_09,PORT_10 1'b1
+g_002    self  g_002,g_021                        -            1'b1
+g_006    self  g_002,g_006,g_017,g_019,g_021,g_027,g_034 PORT_09      1'b1
+g_010    self  g_010,g_012,g_021,g_022            -            n_012 <- g_002,g_017,g_019,g_021,g_027
+g_012    self  g_002,g_012,g_017,g_019,g_021,g_027 -            1'b1
+g_017    self  g_002,g_017,g_021,g_027            -            1'b1
+g_018    .     g_001,g_021                        PORT_00      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_019    self  g_002,g_017,g_019,g_021,g_027      -            1'b1
+g_020    self  g_010,g_012,g_020,g_021,g_022      -            n_012 <- g_002,g_017,g_019,g_021,g_027
+g_021    self  g_010,g_012,g_020,g_021,g_022      PORT_09      1'b1
+g_022    self  g_012,g_021,g_022                  -            n_012 <- g_002,g_017,g_019,g_021,g_027
+g_024    .     g_021,g_029                        PORT_03      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_027    self  g_002,g_021,g_027                  -            1'b1
+g_029    .     g_000,g_021                        PORT_08      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_031    .     g_018,g_021                        PORT_12      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_032    .     g_021,g_024                        PORT_04      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09
+g_034    .     g_021,g_032                        PORT_06      n_038 <- g_002,g_017,g_019,g_021,g_027+PORT_09

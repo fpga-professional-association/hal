@@ -1,0 +1,69 @@
+ports: 11 inputs, 2 outputs
+  inputs : PORT_00 PORT_01 PORT_02 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_11 PORT_12
+  outputs: PORT_05 PORT_07
+
+nets on every flip-flop clk pin : {'PORT_02': 18}
+nets on every flip-flop clrn pin: {'PORT_11': 18}
+=> clock = PORT_02, asynchronous reset = PORT_11
+=> ONE clock domain: 18 flip-flops, one clock net, one clear net
+
+9 input(s) left to identify: PORT_00 PORT_01 PORT_03 PORT_04 PORT_06 PORT_08 PORT_09 PORT_10 PORT_12
+
+Probe A -- hold everything at 0 after reset, then raise exactly one
+input for one cycle, and see whether any output ever changes.
+
+  PORT_00  -> outputs that moved: none
+  PORT_01  -> outputs that moved: none
+  PORT_03  -> outputs that moved: none
+  PORT_04  -> outputs that moved: none
+  PORT_06  -> outputs that moved: none
+  PORT_08  -> outputs that moved: none
+  PORT_09  -> outputs that moved: ['PORT_05', 'PORT_07']
+  PORT_10  -> outputs that moved: none
+  PORT_12  -> outputs that moved: none
+
+=> request/start input = PORT_09
+=> the other 8 inputs are payload: PORT_00 PORT_01 PORT_03 PORT_04 PORT_06 PORT_08 PORT_10 PORT_12
+
+Probe B -- pulse the request with all payload inputs at 0.
+  PORT_05: 00011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000000000000000000000000000000000000
+     run lengths: 0x3 1x161 0x236
+  PORT_07: 11100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111
+     run lengths: 1x3 0x144 1x253
+
+=> status flag output = PORT_05 (few transitions, one long pulse)
+=> serial output      = PORT_07 (the frame)
+
+status high for 161 cycles (cycles 3..163)
+serial run lengths with payload 0: 1x3 0x144 1x253
+=> the low plateau is 144 cycles long
+
+Probe C -- raise exactly one payload input and see which slot of the
+frame flips.  That gives the bit period, the slot count, the bit order
+and the polarity of the framing bits, all at once.
+
+  PORT_00  changes the line on cycles 115..130  (16 cycles)
+  PORT_01  changes the line on cycles 83..98  (16 cycles)
+  PORT_03  changes the line on cycles 51..66  (16 cycles)
+  PORT_04  changes the line on cycles 35..50  (16 cycles)
+  PORT_06  changes the line on cycles 19..34  (16 cycles)
+  PORT_08  changes the line on cycles 67..82  (16 cycles)
+  PORT_10  changes the line on cycles 131..146  (16 cycles)
+  PORT_12  changes the line on cycles 99..114  (16 cycles)
+
+=> every payload input owns exactly one contiguous window of 16 cycle(s)
+=> consecutive windows are 16 cycles apart -> the bit period is 16
+=> payload order on the wire (first sent first): PORT_06 PORT_04 PORT_03 PORT_08 PORT_01 PORT_12 PORT_00 PORT_10
+
+first payload window starts 16 cycles after the status flag rises
+=> 1 framing slot(s) before the payload
+=> the frame is 10 slot(s) long (161 busy cycles / 16 cycles per slot)
+!! 161 busy cycles is NOT a whole number of slots: 10*16 = 160, so the
+!! status flag stays high for 1 extra cycle(s) after the last slot.
+!! Do not round this away -- it is a real property of the control logic
+!! and any reconstruction has to reproduce it.
+
+slot values, payload all 0 : 0 0 0 0 0 0 0 0 0 1
+slot values, payload all 1 : 0 1 1 1 1 1 1 1 1 1
+=> slots [0, 9] do not depend on the payload -> framing bits, values [0, 1]
+=> 8 payload slots between them -> 8N1-style frame, LSB first

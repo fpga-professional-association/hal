@@ -1,0 +1,24 @@
+$ graph_algorithm.get_connected_components(graph, strong=True, min_size=2)
+
+3 non-trivial strongly connected component(s) in the GATE graph:
+
+  SCC 0: 19 gates, 9 of them flip-flops
+     flip-flops: g_002 g_010 g_012 g_017 g_019 g_020 g_021 g_022 g_027
+     all gates : g_002 g_007 g_010 g_011 g_012 g_013 g_015 g_016 g_017 g_019 g_020 g_021 g_022 g_023 g_025 g_026 g_027 g_028 g_036
+
+  SCC 1: 2 gates, 1 of them flip-flops
+     flip-flops: g_001
+     all gates : g_001 g_030
+
+  SCC 2: 2 gates, 1 of them flip-flops
+     flip-flops: g_006
+     all gates : g_006 g_038
+
+flip-flops in NO non-trivial SCC (7): g_000 g_018 g_024 g_029 g_031 g_032 g_034
+
+Read this carefully.  The big component is NOT 'one register': the
+gate graph merges everything that is mutually reachable, and a control
+flag that gates a counter while the counter feeds the flag back is
+mutually reachable with it.  The gate-level SCC therefore answers only
+the coarse question -- which gates are inside feedback and which are
+not -- and the fine structure has to come from the register graph below.

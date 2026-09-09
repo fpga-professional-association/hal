@@ -1,0 +1,793 @@
+{
+  "clock_reset": {
+    "clock_nets": [
+      "PORT_02"
+    ],
+    "enable_nets": {
+      "1'b1": [
+        "g_001",
+        "g_002",
+        "g_006",
+        "g_012",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "n_012": [
+        "g_010",
+        "g_020",
+        "g_022"
+      ],
+      "n_038": [
+        "g_000",
+        "g_018",
+        "g_024",
+        "g_029",
+        "g_031",
+        "g_032",
+        "g_034"
+      ]
+    },
+    "reset_nets": [
+      "PORT_11"
+    ]
+  },
+  "counters": {
+    "fast_counter": [
+      "g_002",
+      "g_027",
+      "g_017",
+      "g_019"
+    ],
+    "feedback_flops": [
+      "g_021"
+    ],
+    "flag": "g_021",
+    "slow_counter": [
+      "g_012",
+      "g_022",
+      "g_010",
+      "g_020"
+    ]
+  },
+  "elaborate": {
+    "checked_ff": 18,
+    "constants": 2,
+    "elaborated": 22,
+    "types": {
+      "HAL_GND": 1,
+      "HAL_VCC": 1,
+      "tennm_ff": 18,
+      "tennm_lcell_comb": 22
+    }
+  },
+  "gate_scc": {
+    "ffs_outside_gate_sccs": [
+      "g_000",
+      "g_018",
+      "g_024",
+      "g_029",
+      "g_031",
+      "g_032",
+      "g_034"
+    ],
+    "gate_sccs": [
+      [
+        "g_002",
+        "g_007",
+        "g_010",
+        "g_011",
+        "g_012",
+        "g_013",
+        "g_015",
+        "g_016",
+        "g_017",
+        "g_019",
+        "g_020",
+        "g_021",
+        "g_022",
+        "g_023",
+        "g_025",
+        "g_026",
+        "g_027",
+        "g_028",
+        "g_036"
+      ],
+      [
+        "g_001",
+        "g_030"
+      ],
+      [
+        "g_006",
+        "g_038"
+      ]
+    ]
+  },
+  "luts": {
+    "g_003": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_029",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_001",
+        "datac=PORT_08"
+      ]
+    },
+    "g_004": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_040",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_002",
+        "datac=PORT_00"
+      ]
+    },
+    "g_005": {
+      "function": "((dataa & datab) & (datac & datad))",
+      "lut_mask": "8000800080008000",
+      "out": "n_023",
+      "pins": [
+        "dataa=n_015",
+        "datab=n_017",
+        "datac=n_004",
+        "datad=n_031"
+      ]
+    },
+    "g_007": {
+      "function": "(dataa & (! datab))",
+      "lut_mask": "2222222222222222",
+      "out": "n_014",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_004"
+      ]
+    },
+    "g_008": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_020",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_034",
+        "datac=PORT_06"
+      ]
+    },
+    "g_009": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_028",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_032",
+        "datac=PORT_03"
+      ]
+    },
+    "g_011": {
+      "function": "(((! datad) | ((! datab) | (! datac))) & (dataa & (datad | (datab & datac))))",
+      "lut_mask": "2A802A802A802A80",
+      "out": "n_010",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_013",
+        "datac=n_026",
+        "datad=n_011"
+      ]
+    },
+    "g_013": {
+      "function": "((dataf | ((datab & datac) & (datad & datae))) & (dataa & ((! dataf) | (((! datab) | (! datac)) | ((! datad) | (! datae))))))",
+      "lut_mask": "2AAAAAAA80000000",
+      "out": "n_025",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_015",
+        "datac=n_017",
+        "datad=n_004",
+        "datae=n_031",
+        "dataf=n_013"
+      ]
+    },
+    "g_014": {
+      "function": "(! dataa)",
+      "lut_mask": "5555555555555555",
+      "out": "PORT_07",
+      "pins": [
+        "dataa=n_009"
+      ]
+    },
+    "g_015": {
+      "function": "((datac | (datae & (datab & datad))) & (dataa & ((! datac) | ((! datae) | ((! datab) | (! datad))))))",
+      "lut_mask": "28A0A0A028A0A0A0",
+      "out": "n_036",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_015",
+        "datac=n_017",
+        "datad=n_004",
+        "datae=n_031"
+      ]
+    },
+    "g_016": {
+      "function": "((datae | (datad & (datab & datac))) & (dataa & ((! datae) | ((! datad) | ((! datab) | (! datac))))))",
+      "lut_mask": "2AAA80002AAA8000",
+      "out": "n_039",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_013",
+        "datac=n_026",
+        "datad=n_011",
+        "datae=n_019"
+      ]
+    },
+    "g_023": {
+      "function": "((datab & ((! dataa) | (datac & (! datae)))) | (dataa & ((datac | (! dataf)) | ((! datad) | datae))))",
+      "lut_mask": "EEEEE4EEEEEEEEEE",
+      "out": "n_005",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=PORT_09",
+        "datac=n_013",
+        "datad=n_026",
+        "datae=n_011",
+        "dataf=n_019"
+      ]
+    },
+    "g_025": {
+      "function": "(dataa & (((! datab) & datac) | (datab & (! datac))))",
+      "lut_mask": "2828282828282828",
+      "out": "n_003",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_004",
+        "datac=n_031"
+      ]
+    },
+    "g_026": {
+      "function": "((! dataa) | ((datab & datac) & (datad & datae)))",
+      "lut_mask": "D5555555D5555555",
+      "out": "n_012",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_015",
+        "datac=n_017",
+        "datad=n_004",
+        "datae=n_031"
+      ]
+    },
+    "g_028": {
+      "function": "(dataa & (((! datab) & datac) | (datab & (! datac))))",
+      "lut_mask": "2828282828282828",
+      "out": "n_000",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_013",
+        "datac=n_026"
+      ]
+    },
+    "g_030": {
+      "function": "((((! datad) | (dataa | ((! datab) & datae))) & (datac & ((! dataa) | ((! datae) & ((! datad) | (datab & (! dataf))))))) | (((! datad) & ((! dataa) & datab)) | (datad & ((! datae) & (datac & ((! datab) | (dataa & dataf)))))))",
+      "lut_mask": "1054B0F41054B0F4",
+      "out": "n_030",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=PORT_09",
+        "datac=n_002",
+        "datad=PORT_10",
+        "datae=n_023"
+      ]
+    },
+    "g_033": {
+      "function": "(((! dataa) & dataf) | ((dataa & datab) & (datae & (datac & datad))))",
+      "lut_mask": "D555555580000000",
+      "out": "n_038",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_015",
+        "datac=n_017",
+        "datad=n_004",
+        "datae=n_031",
+        "dataf=PORT_09"
+      ]
+    },
+    "g_035": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_035",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_027",
+        "datac=PORT_04"
+      ]
+    },
+    "g_036": {
+      "function": "((datab | (datac & datad)) & (dataa & ((! datab) | ((! datac) | (! datad)))))",
+      "lut_mask": "2888288828882888",
+      "out": "n_022",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_015",
+        "datac=n_004",
+        "datad=n_031"
+      ]
+    },
+    "g_037": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_007",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_033",
+        "datac=PORT_01"
+      ]
+    },
+    "g_038": {
+      "function": "((datad | ((! datab) | (! datae))) & ((datab & datae) | (dataa | ((! datab) & datac))))",
+      "lut_mask": "FE32BABAFE32BABA",
+      "out": "n_024",
+      "pins": [
+        "dataa=n_009",
+        "datab=PORT_05",
+        "datac=PORT_09",
+        "datad=n_037",
+        "datae=n_023"
+      ]
+    },
+    "g_039": {
+      "function": "((dataa & datab) | ((! dataa) & (! datac)))",
+      "lut_mask": "8D8D8D8D8D8D8D8D",
+      "out": "n_021",
+      "pins": [
+        "dataa=PORT_05",
+        "datab=n_016",
+        "datac=PORT_12"
+      ]
+    }
+  },
+  "netlist": "examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v",
+  "register_scc": {
+    "chains": [
+      [
+        "g_001",
+        "g_018",
+        "g_031",
+        "g_000",
+        "g_029",
+        "g_024",
+        "g_032",
+        "g_034",
+        "g_006"
+      ]
+    ],
+    "components": [
+      [
+        "g_002",
+        "g_010",
+        "g_012",
+        "g_017",
+        "g_019",
+        "g_020",
+        "g_021",
+        "g_022",
+        "g_027"
+      ],
+      [
+        "g_000"
+      ],
+      [
+        "g_001"
+      ],
+      [
+        "g_006"
+      ],
+      [
+        "g_018"
+      ],
+      [
+        "g_024"
+      ],
+      [
+        "g_029"
+      ],
+      [
+        "g_031"
+      ],
+      [
+        "g_032"
+      ],
+      [
+        "g_034"
+      ]
+    ],
+    "control": [
+      "g_002",
+      "g_010",
+      "g_012",
+      "g_017",
+      "g_019",
+      "g_020",
+      "g_021",
+      "g_022",
+      "g_027"
+    ],
+    "datapath": [
+      "g_000",
+      "g_001",
+      "g_006",
+      "g_018",
+      "g_024",
+      "g_029",
+      "g_031",
+      "g_032",
+      "g_034"
+    ]
+  },
+  "registers": {
+    "g_000": {
+      "d_ffs": [
+        "g_021",
+        "g_031"
+      ],
+      "d_inputs": [
+        "PORT_01"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_001": {
+      "d_ffs": [
+        "g_001",
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "d_inputs": [
+        "PORT_09",
+        "PORT_10"
+      ],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_002": {
+      "d_ffs": [
+        "g_002",
+        "g_021"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_006": {
+      "d_ffs": [
+        "g_002",
+        "g_006",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027",
+        "g_034"
+      ],
+      "d_inputs": [
+        "PORT_09"
+      ],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_010": {
+      "d_ffs": [
+        "g_010",
+        "g_012",
+        "g_021",
+        "g_022"
+      ],
+      "d_inputs": [],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [],
+      "ena_net": "n_012",
+      "self_feedback": true
+    },
+    "g_012": {
+      "d_ffs": [
+        "g_002",
+        "g_012",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_017": {
+      "d_ffs": [
+        "g_002",
+        "g_017",
+        "g_021",
+        "g_027"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_018": {
+      "d_ffs": [
+        "g_001",
+        "g_021"
+      ],
+      "d_inputs": [
+        "PORT_00"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_019": {
+      "d_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_020": {
+      "d_ffs": [
+        "g_010",
+        "g_012",
+        "g_020",
+        "g_021",
+        "g_022"
+      ],
+      "d_inputs": [],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [],
+      "ena_net": "n_012",
+      "self_feedback": true
+    },
+    "g_021": {
+      "d_ffs": [
+        "g_010",
+        "g_012",
+        "g_020",
+        "g_021",
+        "g_022"
+      ],
+      "d_inputs": [
+        "PORT_09"
+      ],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_022": {
+      "d_ffs": [
+        "g_012",
+        "g_021",
+        "g_022"
+      ],
+      "d_inputs": [],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [],
+      "ena_net": "n_012",
+      "self_feedback": true
+    },
+    "g_024": {
+      "d_ffs": [
+        "g_021",
+        "g_029"
+      ],
+      "d_inputs": [
+        "PORT_03"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_027": {
+      "d_ffs": [
+        "g_002",
+        "g_021",
+        "g_027"
+      ],
+      "d_inputs": [],
+      "ena_const": "1",
+      "ena_ffs": [],
+      "ena_inputs": [],
+      "ena_net": "'1'",
+      "self_feedback": true
+    },
+    "g_029": {
+      "d_ffs": [
+        "g_000",
+        "g_021"
+      ],
+      "d_inputs": [
+        "PORT_08"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_031": {
+      "d_ffs": [
+        "g_018",
+        "g_021"
+      ],
+      "d_inputs": [
+        "PORT_12"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_032": {
+      "d_ffs": [
+        "g_021",
+        "g_024"
+      ],
+      "d_inputs": [
+        "PORT_04"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    },
+    "g_034": {
+      "d_ffs": [
+        "g_021",
+        "g_032"
+      ],
+      "d_inputs": [
+        "PORT_06"
+      ],
+      "ena_const": null,
+      "ena_ffs": [
+        "g_002",
+        "g_017",
+        "g_019",
+        "g_021",
+        "g_027"
+      ],
+      "ena_inputs": [
+        "PORT_09"
+      ],
+      "ena_net": "n_038",
+      "self_feedback": false
+    }
+  },
+  "stats": {
+    "gate_types": {
+      "HAL_GND": 1,
+      "HAL_VCC": 1,
+      "tennm_ff": 18,
+      "tennm_lcell_comb": 22
+    },
+    "inputs": [
+      "PORT_00",
+      "PORT_01",
+      "PORT_02",
+      "PORT_03",
+      "PORT_04",
+      "PORT_06",
+      "PORT_08",
+      "PORT_09",
+      "PORT_10",
+      "PORT_11",
+      "PORT_12"
+    ],
+    "num_modules": 1,
+    "outputs": [
+      "PORT_05",
+      "PORT_07"
+    ]
+  }
+}
