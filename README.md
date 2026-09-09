@@ -1,5 +1,5 @@
 # Welcome to HAL! 
-[![Ubuntu 22.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml)  [![Ubuntu 24.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml)  [![Ubuntu 26.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml)  [![macOS](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml) [![Deploy Documentation](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml) [![Doc: C++ (upstream)](https://img.shields.io/badge/doc-c%2B%2B_(upstream)-orange)](https://emsec.github.io/hal/doc/) [![Doc: Python (upstream)](https://img.shields.io/badge/doc-python_(upstream)-red)](https://emsec.github.io/hal/pydoc/)
+[![Ubuntu 22.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu22.04.yml)  [![Ubuntu 24.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu24.04.yml)  [![Ubuntu 26.04](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/ubuntu26.04.yml)  [![Ubuntu 24.04 ARM64](https://github.com/fpga-professional-association/hal/actions/workflows/arm64.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/arm64.yml)  [![macOS](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/macOS.yml) [![Deploy Documentation](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml/badge.svg)](https://github.com/fpga-professional-association/hal/actions/workflows/releaseDoc.yml) [![Doc: C++ (upstream)](https://img.shields.io/badge/doc-c%2B%2B_(upstream)-orange)](https://emsec.github.io/hal/doc/) [![Doc: Python (upstream)](https://img.shields.io/badge/doc-python_(upstream)-red)](https://emsec.github.io/hal/pydoc/)
 
 
 HAL \[/hel/\] is a comprehensive netlist reverse engineering and manipulation framework.
@@ -58,7 +58,15 @@ A comprehensive documentation of HAL's features from a user perspective is avail
 <a name="build-instructions"></a>
 # Build Instructions 
 
-For instructions on how to build HAL, please refer to the dedicated page in our [Wiki](https://github.com/emsec/hal/wiki/Building-HAL).
+HAL builds on Linux (x86-64 and ARM64) and macOS. Install the build dependencies with the script in the
+repository root:
+```bash
+./install_dependencies.sh
+```
+It covers Ubuntu/Mint, macOS (Homebrew) and Ubuntu containers (`HAL_DOCKER=1`), fails fast naming the exact
+package that could not be installed, and supports `HAL_DEPENDENCIES_DRY_RUN=1` to verify the package list
+without installing anything. Then configure and build with CMake as described in the dedicated page in the
+[Wiki](https://github.com/emsec/hal/wiki/Building-HAL).
 
 <a name="quickstart"></a>
 # Quickstart Guide 
@@ -88,7 +96,11 @@ In case you want to import your own Verilog or VHDL netlist instead of an existi
 `hal_py.NetlistFactory.load_netlist("<path/to/netlist>", "<path/to/gate_library>")` the same way, or run
 `hal --import-netlist <path/to/netlist> --gate-library <path/to/gate_library> --project-dir <path/to/new/project>`
 from the command line to create a project directory for it non-interactively. Either approach requires a matching
-gate library, e.g. one of the ones in `plugins/gate_libraries/definitions`. For instructions to create your own gate
+gate library, e.g. one of the ones in `plugins/gate_libraries/definitions`. A chip-top netlist whose cells come from
+*several* libraries (standard cells, RAM macros, pads) is imported against all of them at once with
+`--gate-library-search-list stdcells.lib,macros/ram.lib,pads.lib` (earlier entries win a gate type name collision), and
+`--black-box-fallback` optionally degrades cells no library defines to black boxes instead of aborting the import —
+both also available on `hal_py.NetlistFactory.load_netlist`. For instructions to create your own gate
 library and other useful tutorials, take a look at the [wiki](https://github.com/emsec/hal/wiki).
 
 If what you have is a *bitstream* rather than a netlist, [`tools/hal_bitstream`](tools/hal_bitstream/README.md)
