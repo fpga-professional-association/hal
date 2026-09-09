@@ -9,6 +9,9 @@
 !documentation/**/*
 !scripts*
 !scripts/**/*
+!test*
+!test/**/*
 !.gitignore
+!CMakeLists.txt
 !README.md
 !sbox-database.json

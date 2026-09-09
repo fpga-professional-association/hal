@@ -25,4 +25,6 @@ if(PL_HAWKEYE OR BUILD_ALL_PLUGINS)
                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMENT "Update S-box database")
 
+    add_subdirectory(test)
+
 endif()
