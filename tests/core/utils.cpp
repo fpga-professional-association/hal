@@ -631,6 +631,42 @@ namespace hal {
     }
 
     /**
+     * Testing the translation of a number string into a hexadecimal string, which must not be limited to the 64 bit
+     * of std::stoull for binary and octal numbers, as an INIT value is easily wider than that.
+     *
+     * Functions: to_hex_string
+     */
+    TEST_F(UtilsTest, check_to_hex_string) {
+        TEST_START
+            {
+                EXPECT_EQ(to_hex_string("1010", 2).get(), "A");
+                EXPECT_EQ(to_hex_string("0", 2).get(), "0");
+                EXPECT_EQ(to_hex_string("00001111", 2).get(), "F");
+                EXPECT_EQ(to_hex_string("777", 8).get(), "1FF");
+                EXPECT_EQ(to_hex_string("255", 10).get(), "FF");
+                EXPECT_EQ(to_hex_string("00ff", 16).get(), "FF");
+            }
+            {
+                // a binary number of more than 64 bit is translated digit by digit instead of overflowing
+                EXPECT_EQ(to_hex_string(std::string(64, '1'), 2).get(), std::string(16, 'F'));
+                EXPECT_EQ(to_hex_string(std::string(256, '1'), 2).get(), std::string(64, 'F'));
+                EXPECT_EQ(to_hex_string("1" + std::string(64, '0'), 2).get(), "1" + std::string(16, '0'));
+            }
+            // NEGATIVE
+            {
+                EXPECT_TRUE(to_hex_string("", 2).is_error());
+                EXPECT_TRUE(to_hex_string("2", 2).is_error());
+                EXPECT_TRUE(to_hex_string("8", 8).is_error());
+                EXPECT_TRUE(to_hex_string("A", 10).is_error());
+                EXPECT_TRUE(to_hex_string("G", 16).is_error());
+                EXPECT_TRUE(to_hex_string("1", 3).is_error());
+                // a decimal number that does not fit into 64 bit reports an error instead of throwing
+                EXPECT_TRUE(to_hex_string(std::string(64, '9'), 10).is_error());
+            }
+        TEST_END
+    }
+
+    /**
      * Testing the function get_open_source_licenses. Only testing the access, not the content.
      *
      * Functions: get_open_source_licenses

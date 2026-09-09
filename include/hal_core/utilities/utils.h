@@ -814,5 +814,17 @@ namespace hal
          * @returns OK and an integer on success, an ERROR otherwise.
          */
         CORE_API Result<u32> wrapped_stoul(const std::string& s, const u32 base = 10);
+
+        /**
+         * Translate a number given as a string of the specified base into an upper-case hexadecimal string.
+         * In contrast to std::stoull, numbers of base 2 and base 8 are not limited to 64 bit, which matters for INIT strings that are wider than that.
+         * Leading zeros are stripped from the result, which is never empty.
+         *
+         * @param[in] number - The string representation of the number.
+         * @param[in] base - The base of the number, one of 2, 8, 10, and 16.
+         *
+         * @returns OK and the hexadecimal string on success, an ERROR otherwise.
+         */
+        CORE_API Result<std::string> to_hex_string(const std::string& number, const u32 base);
     }    // namespace utils
 }    // namespace hal

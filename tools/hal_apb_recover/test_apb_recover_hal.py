@@ -87,6 +87,7 @@ class HalPathTest(unittest.TestCase):
 
         HAL_PY.plugin_manager.load_all_plugins()
         netlist = load_netlist(HAL_PY, NETLIST, GATE_LIBRARY)
+        cls.hal_netlist = netlist
         cls.hal_circuit = build_circuit(HAL_PY, netlist)
         cls.hal_mapping = load_mapping(MAPPING, cls.hal_circuit)
         cls.hal_document = recover(cls.hal_circuit, cls.hal_mapping)
@@ -172,6 +173,47 @@ class HalPathTest(unittest.TestCase):
         ok, lines = replay.format_results(results)
         self.assertTrue(ok, "\n".join(lines))
 
+    def test_resolved_boolean_function_flag_matches_its_documentation(self):
+        # ``use_net_variables=False`` means input pin names, ``True`` means the
+        # net variables of the fan-in nets -- the implementation used to do the
+        # opposite of what its documentation promises.
+        checked = 0
+        for gate in self.hal_netlist.get_gates():
+            gate_type = gate.get_type()
+            pin_names = {pin.get_name() for pin in gate_type.get_pins()}
+            for pin in gate_type.get_output_pins():
+                by_pin = gate.get_resolved_boolean_function(pin, False)
+                if by_pin is None or by_pin.is_empty():
+                    continue
+                variables = set(by_pin.get_variable_names())
+                if not variables:
+                    continue
+                self.assertTrue(
+                    variables <= pin_names,
+                    "use_net_variables=False returned {} for {}".format(
+                        sorted(variables), gate_type.get_name()
+                    ),
+                )
+
+                by_net = gate.get_resolved_boolean_function(pin, True)
+                self.assertIsNotNone(by_net)
+                net_variables = set(by_net.get_variable_names())
+                self.assertTrue(
+                    all(name.startswith("net_") for name in net_variables),
+                    "use_net_variables=True returned {} for {}".format(
+                        sorted(net_variables), gate_type.get_name()
+                    ),
+                )
+                self.assertFalse(net_variables & pin_names)
+
+                # the default is the documented one
+                self.assertEqual(
+                    set(gate.get_resolved_boolean_function(pin).get_variable_names()),
+                    variables,
+                )
+                checked += 1
+        self.assertGreater(checked, 0, "no gate with a resolved Boolean function")
+
     def test_a_wrong_map_still_fails_on_the_hal_netlist(self):
         import copy
 
@@ -222,6 +264,31 @@ class HalBindingSurfaceTest(unittest.TestCase):
         one = HAL_PY.BooleanFunction.Value.ONE
         self.assertEqual(function.evaluate({"A": zero}), zero)
         self.assertNotEqual(function.evaluate({"A": one}), one)
+
+    def test_from_string_accepts_the_documented_operator_spellings(self):
+        # Liberty files -- and hence gate library definitions -- spell AND as
+        # '*' and OR as '+', which the parser must accept just like '&' and '|'.
+        reference = HAL_PY.BooleanFunction.from_string("(A & B) | C")
+        self.assertFalse(reference.is_empty())
+        for expression in ("(A * B) + C", "A * B + C", "A B + C", "(A & B) + C"):
+            function = HAL_PY.BooleanFunction.from_string(expression)
+            self.assertFalse(
+                function.is_empty(), "hal_py could not parse {!r}".format(expression)
+            )
+            self.assertEqual(
+                str(function),
+                str(reference),
+                "{!r} was parsed as {}".format(expression, function),
+            )
+
+        negated = HAL_PY.BooleanFunction.from_string("!A")
+        self.assertFalse(negated.is_empty())
+        for expression in ("~A", "A'"):
+            function = HAL_PY.BooleanFunction.from_string(expression)
+            self.assertFalse(
+                function.is_empty(), "hal_py could not parse {!r}".format(expression)
+            )
+            self.assertEqual(str(function), str(negated))
 
 
 if __name__ == "__main__":

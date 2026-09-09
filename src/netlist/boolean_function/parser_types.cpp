@@ -191,6 +191,11 @@ namespace hal
                             operator_stack.pop();
                         }
 
+                        if (operator_stack.empty())
+                        {
+                            return ERR("could not translate '" + expression + "' to reverse polish notation: bracket level is invalid");
+                        }
+
                         operator_stack.pop();
 
                         break;

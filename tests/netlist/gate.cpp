@@ -3,6 +3,7 @@
 #include "netlist_test_utils.h"
 
 #include "gtest/gtest.h"
+#include "hal_core/netlist/decorators/boolean_function_net_decorator.h"
 #include "hal_core/netlist/gate.h"
 #include "hal_core/netlist/net.h"
 #include "hal_core/netlist/module.h"
@@ -15,6 +16,10 @@
 #include <iomanip>
 #include <algorithm>
 #include <cassert>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 
 namespace hal
@@ -967,7 +972,8 @@ namespace hal
             
             ASSERT_TRUE(co3 != nullptr);
 
-            const Result<BooleanFunction> res = test_gate->get_resolved_boolean_function(co3);
+            // 'use_net_variables' set to true replaces the input pin names with the variables of the connected nets
+            const Result<BooleanFunction> res = test_gate->get_resolved_boolean_function(co3, true);
 
             EXPECT_TRUE(res.is_ok());
 
@@ -1032,13 +1038,14 @@ namespace hal
             ASSERT_TRUE(pins.size() == 1);
             
             const GatePin* co3 = pins.front();
-            
+
             ASSERT_TRUE(co3 != nullptr);
 
-            const Result<BooleanFunction> res = test_gate->get_resolved_boolean_function(co3);
+            // net variables cannot be built without the fan-in nets they are derived from
+            const Result<BooleanFunction> res = test_gate->get_resolved_boolean_function(co3, true);
 
             EXPECT_TRUE(res.is_error());
-        }   
+        }
         {
             auto nl = test_utils::create_empty_netlist();
             Gate* test_gate = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("CARRY4"), "test_gate");
@@ -1084,6 +1091,81 @@ namespace hal
             const Result<BooleanFunction> res = test_gate->get_resolved_boolean_function(co3);
 
             EXPECT_TRUE(res.is_error());
+        }
+        TEST_END
+    }
+
+    /**
+     * Testing the variable names of a resolved Boolean function, which are either the input pin names or the
+     * variables of the nets connected to these pins, depending on the 'use_net_variables' flag.
+     *
+     * Functions: get_resolved_boolean_function
+     */
+    TEST_F(GateTest, check_resolved_boolean_function_variables)
+    {
+        TEST_START
+        {
+            auto nl = test_utils::create_empty_netlist();
+            Gate* test_gate = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("CARRY4"), "test_carry_gate");
+
+            const std::vector<std::pair<u32, std::string>> net_data = {
+                {7, "CI"}, {8, "CYINIT"}, {9, "DI(0)"}, {10, "DI(1)"}, {11, "DI(2)"}, {12, "DI(3)"}, {13, "S(0)"}, {14, "S(1)"}, {15, "S(2)"}, {16, "S(3)"}};
+
+            for (const auto& [offset, pin_name] : net_data)
+            {
+                Net* net = nl->create_net(MIN_NET_ID + offset, pin_name);
+                net->add_destination(test_gate, pin_name);
+            }
+
+            const std::vector<GatePin*> pins = test_gate->get_type()->get_pins([](const GatePin* gp){ return gp->get_name() == "CO(3)"; });
+            ASSERT_TRUE(pins.size() == 1);
+            const GatePin* co3 = pins.front();
+            ASSERT_TRUE(co3 != nullptr);
+
+            const BooleanFunction pin_function = BooleanFunction::from_string(
+                "((S(3) & ((S(2) & ((S(1) & ((S(0) & (CI | CYINIT)) | ((! S(0)) & DI(0)))) | ((! S(1)) & DI(1)))) | ((! S(2)) & DI(2)))) | ((! S(3)) & DI(3)))").get();
+            const BooleanFunction net_function = BooleanFunction::from_string(
+                "((net_17 & ((net_16 & ((net_15 & ((net_14 & (net_8 | net_9)) | ((! net_14) & net_10))) | ((! net_15) & net_11))) | ((! net_16) & net_12))) | ((! net_17) & net_13))").get();
+
+            // 'use_net_variables' set to false keeps the input pin names, which is what the documentation of the parameter promises
+            const Result<BooleanFunction> pin_res = test_gate->get_resolved_boolean_function(co3, false);
+            ASSERT_TRUE(pin_res.is_ok());
+            EXPECT_EQ(pin_res.get(), pin_function);
+
+            // ... and it is the default
+            const Result<BooleanFunction> default_res = test_gate->get_resolved_boolean_function(co3);
+            ASSERT_TRUE(default_res.is_ok());
+            EXPECT_EQ(default_res.get(), pin_function);
+
+            // 'use_net_variables' set to true substitutes the input pin names with the variables of the connected nets
+            const Result<BooleanFunction> net_res = test_gate->get_resolved_boolean_function(co3, true);
+            ASSERT_TRUE(net_res.is_ok());
+            EXPECT_EQ(net_res.get(), net_function);
+
+            // every variable of the pin function is an input pin of the gate type, none of the net function is
+            const std::set<std::string> input_pin_names = {"CI", "CYINIT", "DI(0)", "DI(1)", "DI(2)", "DI(3)", "S(0)", "S(1)", "S(2)", "S(3)"};
+            for (const auto& var_name : pin_res.get().get_variable_names())
+            {
+                EXPECT_TRUE(input_pin_names.find(var_name) != input_pin_names.end());
+            }
+            for (const auto& var_name : net_res.get().get_variable_names())
+            {
+                EXPECT_TRUE(input_pin_names.find(var_name) == input_pin_names.end());
+                EXPECT_TRUE(BooleanFunctionNetDecorator::get_net_from(nl.get(), var_name).is_ok());
+            }
+        }
+        {
+            // without fan-in nets the pin names can still be resolved, while the net variables cannot
+            auto nl = test_utils::create_empty_netlist();
+            Gate* test_gate = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("CARRY4"), "test_carry_gate");
+
+            const std::vector<GatePin*> pins = test_gate->get_type()->get_pins([](const GatePin* gp){ return gp->get_name() == "CO(3)"; });
+            ASSERT_TRUE(pins.size() == 1);
+            const GatePin* co3 = pins.front();
+            ASSERT_TRUE(co3 != nullptr);
+
+            EXPECT_TRUE(test_gate->get_resolved_boolean_function(co3, false).is_ok());
+            EXPECT_TRUE(test_gate->get_resolved_boolean_function(co3, true).is_error());
         }
         TEST_END
     }
@@ -1227,6 +1309,98 @@ namespace hal
 
             EXPECT_TRUE(gate->get_init_data().is_error());
             EXPECT_TRUE(gate->set_init_data({"FFFF"}).is_error());
+        }
+        TEST_END
+    }
+
+    /**
+     * Testing the validation of INIT data against the INIT length declared by the gate type, and that INIT data
+     * that slipped through nonetheless is rejected instead of throwing out of 'std::stoull'.
+     *
+     * Functions: set_init_data, get_init_data, get_boolean_function
+     */
+    TEST_F(GateTest, check_init_data_validation)
+    {
+        TEST_START
+        {
+            // an INIT string that fits the gate type is accepted, no matter whether it is shorter than the INIT data or zero-padded
+            auto nl = test_utils::create_empty_netlist();
+            GateType* lut_type = nl->get_gate_library()->get_gate_type_by_name("LUT3");
+            Gate* lut_gate = nl->create_gate(lut_type, "lut");
+
+            EXPECT_TRUE(lut_gate->set_init_data({"AB"}).is_ok());
+            EXPECT_EQ(lut_gate->get_init_data().get().front(), "AB");
+
+            // under-long INIT data is filled up with leading zeros
+            EXPECT_TRUE(lut_gate->set_init_data({"F"}).is_ok());
+            EXPECT_EQ(lut_gate->get_boolean_function("O").compute_truth_table(lut_type->get_input_pin_names()).get()[0], get_truth_table_from_hex_string("F", 8, false));
+
+            // an empty INIT string means that the gate has no INIT data yet
+            EXPECT_TRUE(lut_gate->set_init_data({""}).is_ok());
+
+            // leading zeros do not count towards the length of the INIT data
+            EXPECT_TRUE(lut_gate->set_init_data({"0000000000FF"}).is_ok());
+            EXPECT_EQ(lut_gate->get_boolean_function("O").compute_truth_table(lut_type->get_input_pin_names()).get()[0], get_truth_table_from_hex_string("FF", 8, false));
+            EXPECT_TRUE(lut_gate->set_init_data({"0xFF"}).is_ok());
+        }
+        {
+            // NEGATIVE: an INIT string that is longer than the INIT data of the gate type is rejected
+            NO_COUT_TEST_BLOCK;
+            auto nl = test_utils::create_empty_netlist();
+            GateType* lut_type = nl->get_gate_library()->get_gate_type_by_name("LUT3");
+            Gate* lut_gate = nl->create_gate(lut_type, "lut");
+
+            ASSERT_TRUE(lut_gate->set_init_data({"AB"}).is_ok());
+
+            // 12 bits do not fit the 8 bits of INIT data of a LUT3
+            EXPECT_TRUE(lut_gate->set_init_data({"FFF"}).is_error());
+            // 9 bits do not either
+            EXPECT_TRUE(lut_gate->set_init_data({"1FF"}).is_error());
+
+            // the rejected INIT data has not been stored
+            EXPECT_EQ(lut_gate->get_init_data().get().front(), "AB");
+        }
+        {
+            // NEGATIVE: the INIT string of the issue, a 64 character string set on a 64 bit LUT
+            NO_COUT_TEST_BLOCK;
+            auto nl = test_utils::create_empty_netlist();
+            GateType* lut_type = nl->get_gate_library()->get_gate_type_by_name("LUT6");
+            Gate* lut_gate = nl->create_gate(lut_type, "lut");
+
+            ASSERT_TRUE(lut_gate->set_init_data({std::string(16, 'F')}).is_ok());
+            EXPECT_TRUE(lut_gate->set_init_data({std::string(64, '1')}).is_error());
+            EXPECT_EQ(lut_gate->get_init_data().get().front(), std::string(16, 'F'));
+        }
+        {
+            // NEGATIVE: an INIT string that is not a hexadecimal number is rejected
+            NO_COUT_TEST_BLOCK;
+            auto nl = test_utils::create_empty_netlist();
+            GateType* lut_type = nl->get_gate_library()->get_gate_type_by_name("LUT3");
+            Gate* lut_gate = nl->create_gate(lut_type, "lut");
+
+            EXPECT_TRUE(lut_gate->set_init_data({"NOHx"}).is_error());
+            EXPECT_TRUE(lut_gate->set_init_data({"1G"}).is_error());
+            EXPECT_TRUE(lut_gate->set_init_data({"-1"}).is_error());
+            EXPECT_TRUE(lut_gate->set_init_data({"0x"}).is_error());
+        }
+        {
+            // NEGATIVE: INIT data that bypassed the validation, e.g., because it came out of a netlist parser,
+            // must not make the evaluation of the LUT function throw out of 'std::stoull'
+            NO_COUT_TEST_BLOCK;
+            auto nl = test_utils::create_empty_netlist();
+            GateType* lut_type = nl->get_gate_library()->get_gate_type_by_name("LUT6");
+            Gate* lut_gate = nl->create_gate(lut_type, "lut");
+
+            const InitComponent* init_component = lut_type->get_component_as<InitComponent>([](const GateTypeComponent* component){ return component->get_type() == GateTypeComponent::ComponentType::init; });
+            ASSERT_NE(init_component, nullptr);
+
+            lut_gate->set_data(init_component->get_init_category(), init_component->get_init_identifiers().front(), "bit_vector", std::string(64, '1'));
+
+            BooleanFunction bf;
+            ASSERT_NO_THROW(bf = lut_gate->get_boolean_function("O"));
+            EXPECT_TRUE(bf.is_empty());
+
+            ASSERT_NO_THROW(lut_gate->get_boolean_functions());
         }
         TEST_END
     }

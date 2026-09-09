@@ -20,10 +20,11 @@ namespace hal
             // (1) Semantic actions to generate tokens
             ////////////////////////////////////////////////////////////////////////
 
-            const auto AndAction = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::And()); };
-            const auto NotAction = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Not()); };
-            const auto OrAction  = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Or()); };
-            const auto XorAction = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Xor()); };
+            const auto AndAction       = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::And()); };
+            const auto NotAction       = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Not()); };
+            const auto NotSuffixAction = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::NotSuffix()); };
+            const auto OrAction        = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Or()); };
+            const auto XorAction       = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::Xor()); };
 
             const auto BracketOpenAction  = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::BracketOpen()); };
             const auto BracketCloseAction = [&tokens](auto& /* ctx */) { tokens.emplace_back(BooleanFunctionParser::Token::BracketClose()); };
@@ -62,10 +63,17 @@ namespace hal
 
             namespace x3 = boost::spirit::x3;
 
-            const auto AndRule = x3::lit("&")[AndAction];
-            const auto NotRule = x3::char_("!~")[NotAction];
-            const auto OrRule  = x3::lit("|")[OrAction];
-            const auto XorRule = x3::lit("^")[XorAction];
+            // # Developer Note
+            // The alternative operator spellings of the liberty grammar ('*' for
+            // AND, '+' for OR, and the suffix "'" for NOT) are part of the
+            // documented syntax of `BooleanFunction::from_string` and are hence
+            // also accepted here. In contrast to the liberty grammar, whitespace
+            // is skipped instead of denoting an AND operation.
+            const auto AndRule       = x3::char_("&*")[AndAction];
+            const auto NotRule       = x3::char_("!~")[NotAction];
+            const auto NotSuffixRule = x3::lit("'")[NotSuffixAction];
+            const auto OrRule        = x3::char_("|+")[OrAction];
+            const auto XorRule       = x3::lit("^")[XorAction];
 
             const auto BracketOpenRule  = x3::lit("(")[BracketOpenAction];
             const auto BracketCloseRule = x3::lit(")")[BracketCloseAction];
@@ -88,7 +96,8 @@ namespace hal
                 ////////////////////////////////////////////////////////////////////
                 // (3) Parsing Expression Grammar
                 ////////////////////////////////////////////////////////////////////
-                +(AndRule | NotRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantSuffixRule | ConstantPrefixRule | ConstantRule | BracketOpenRule | BracketCloseRule),
+                +(AndRule | NotRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantSuffixRule | ConstantPrefixRule | ConstantRule | BracketOpenRule | BracketCloseRule
+                  | NotSuffixRule),
                 x3::space    // skips any whitespace in between boolean function
             );
 

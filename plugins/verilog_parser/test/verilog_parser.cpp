@@ -1195,6 +1195,93 @@ namespace hal {
     }
 
     /**
+     * Testing number literals that do not fit into the 64 bit of 'std::stoull', which an INIT value of a wide
+     * primitive easily exceeds and which used to throw out of the parser.
+     *
+     * Functions: parse
+     */
+    TEST_F(VerilogParserTest, check_wide_number_literals)
+    {
+        TEST_START
+        {
+            std::string wide_bin;
+            for (u32 i = 0; i < 64; i++)
+            {
+                wide_bin += "10";
+            }
+
+            const std::string wide_oct(24, '7');
+
+            std::string netlist_input("module top ("
+                                    "  global_in,"
+                                    "  global_out"
+                                    " ) ;"
+                                    "  input global_in ;"
+                                    "  output global_out ;"
+                                    "BUF #("
+                                    ".key_wide_bin(128'b" + wide_bin + "),"
+                                    ".key_wide_oct(72'o" + wide_oct + "),"
+                                    ".key_wide_hex(128'h" + std::string(32, 'F') + ")) "
+                                    "gate_0 ("
+                                    "  .I (global_in ),"
+                                    "  .O (global_out )"
+                                    " ) ;"
+                                    "endmodule");
+
+            const GateLibrary* gate_lib = test_utils::get_gate_library();
+            std::filesystem::path verilog_file = test_utils::create_sandbox_file("netlist.v", netlist_input);
+            VerilogParser verilog_parser;
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            ASSERT_EQ(nl->get_gates(test_utils::gate_filter("BUF", "gate_0")).size(), 1);
+            Gate* gate_0 = *nl->get_gates(test_utils::gate_filter("BUF", "gate_0")).begin();
+
+            // the full width of the literal is kept instead of overflowing 64 bit
+            EXPECT_EQ(gate_0->get_data("generic", "key_wide_bin"), std::make_tuple("bit_vector", std::string(32, 'A')));
+            EXPECT_EQ(gate_0->get_data("generic", "key_wide_oct"), std::make_tuple("bit_vector", std::string(18, 'F')));
+            EXPECT_EQ(gate_0->get_data("generic", "key_wide_hex"), std::make_tuple("bit_vector", std::string(32, 'F')));
+        }
+        // NEGATIVE
+        {
+            // a decimal literal that does not fit into 64 bit is reported instead of throwing, and since an
+            // instance parameter that cannot be parsed is only warned about, the gate is created without it
+            NO_COUT_TEST_BLOCK;
+            std::string netlist_input("module top ("
+                                    "  global_in,"
+                                    "  global_out"
+                                    " ) ;"
+                                    "  input global_in ;"
+                                    "  output global_out ;"
+                                    "BUF #("
+                                    ".key_huge_dec(128'd" + std::string(40, '9') + ")) "
+                                    "gate_0 ("
+                                    "  .I (global_in ),"
+                                    "  .O (global_out )"
+                                    " ) ;"
+                                    "endmodule");
+
+            const GateLibrary* gate_lib = test_utils::get_gate_library();
+            std::filesystem::path verilog_file = test_utils::create_sandbox_file("netlist.v", netlist_input);
+            VerilogParser verilog_parser;
+            // the literal used to throw 'std::out_of_range' out of 'std::stoull' here
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            ASSERT_EQ(nl->get_gates(test_utils::gate_filter("BUF", "gate_0")).size(), 1);
+            Gate* gate_0 = *nl->get_gates(test_utils::gate_filter("BUF", "gate_0")).begin();
+
+            // the literal that could not be translated has been dropped rather than stored with a wrapped-around value
+            EXPECT_EQ(gate_0->get_data("generic", "key_huge_dec"), std::make_tuple("", ""));
+        }
+        TEST_END
+    }
+
+    /**
      * Testing the handling of Net-vectors in dimension 1-3
      *
      * Functions: parse

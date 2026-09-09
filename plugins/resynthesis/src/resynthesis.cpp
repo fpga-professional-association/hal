@@ -694,7 +694,7 @@ namespace hal
             std::unordered_map<std::string, BooleanFunction> output_pin_name_to_bf;
             for (const auto pin : g->get_type()->get_output_pins())
             {
-                const auto bf_res = g->get_resolved_boolean_function(pin, true);
+                const auto bf_res = g->get_resolved_boolean_function(pin, false);
                 if (bf_res.is_error())
                 {
                     return ERR_APPEND(bf_res.get_error(),
@@ -728,7 +728,7 @@ namespace hal
             std::vector<std::pair<std::string, BooleanFunction>> output_pin_name_to_bf;
             for (const auto pin : g->get_type()->get_output_pins())
             {
-                const auto bf_res = g->get_resolved_boolean_function(pin, true);
+                const auto bf_res = g->get_resolved_boolean_function(pin, false);
                 if (bf_res.is_error())
                 {
                     return ERR_APPEND(bf_res.get_error(),
@@ -809,7 +809,7 @@ namespace hal
                         std::vector<std::pair<std::string, BooleanFunction>> output_pin_name_to_bf;
                         for (const auto pin : g->get_type()->get_output_pins())
                         {
-                            const auto bf_res = g->get_resolved_boolean_function(pin, true);
+                            const auto bf_res = g->get_resolved_boolean_function(pin, false);
                             if (bf_res.is_error())
                             {
                                 return ERR_APPEND(bf_res.get_error(),

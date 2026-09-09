@@ -242,6 +242,74 @@ namespace hal {
         }
     }
 
+    /**
+     * Every operator spelling that the documentation of 'BooleanFunction::from_string' promises must be accepted:
+     * NOT ('!', '~', and the suffix "'"), AND ('&', '*', and whitespace), OR ('|', '+'), and XOR ('^').
+     */
+    TEST(BooleanFunction, ParserOperatorSpellings) {
+        const auto A = []() { return BooleanFunction::Var("A"); };
+        const auto B = []() { return BooleanFunction::Var("B"); };
+        const auto C = []() { return BooleanFunction::Var("C"); };
+
+        const std::vector<std::tuple<std::string, BooleanFunction>> data = {
+            // NOT
+            {"!A", ~A()},
+            {"~A", ~A()},
+            {"A'", ~A()},
+            {"(A & B)'", ~(A() & B())},
+            {"(A * B)'", ~(A() & B())},
+
+            // AND
+            {"A & B", A() & B()},
+            {"A&B", A() & B()},
+            {"A * B", A() & B()},
+            {"A*B", A() & B()},
+            {"A B", A() & B()},
+
+            // OR
+            {"A | B", A() | B()},
+            {"A|B", A() | B()},
+            {"A + B", A() | B()},
+            {"A+B", A() | B()},
+
+            // XOR
+            {"A ^ B", A() ^ B()},
+            {"A^B", A() ^ B()},
+
+            // the alternative spellings keep the documented precedence, i.e., NOT binds stronger than AND, which
+            // binds stronger than XOR, which binds stronger than OR
+            {"(A * B) + C", (A() & B()) | C()},
+            {"(A & B) | C", (A() & B()) | C()},
+            {"A * B + C", (A() & B()) | C()},
+            {"A + B * C", A() | (B() & C())},
+            {"A B + C", (A() & B()) | C()},
+            {"A + B C", A() | (B() & C())},
+            {"A * B ^ C", (A() & B()) ^ C()},
+            {"A ^ B * C", A() ^ (B() & C())},
+            {"A + B ^ C", A() | (B() ^ C())},
+            {"!A * B", (~A()) & B()},
+            {"A' + B", (~A()) | B()},
+            {"A' * B + C'", ((~A()) & B()) | (~C())},
+
+            // mixed spellings and variable names that only the standard grammar knows
+            {"(A & B) + C", (A() & B()) | C()},
+            {"(A * B) | C", (A() & B()) | C()},
+            {"RDATA[0] * c3 + O[0]", (BooleanFunction::Var("RDATA[0]") & BooleanFunction::Var("c3")) | BooleanFunction::Var("O[0]")},
+            {"A(1) * B(1) + 0b1", (BooleanFunction::Var("A(1)") & BooleanFunction::Var("B(1)")) | BooleanFunction::Const(1, 1)},
+        };
+
+        for (const auto& [s, expected] : data) {
+            const auto function = BooleanFunction::from_string(s);
+            ASSERT_TRUE(function.is_ok()) << "could not parse '" << s << "': " << function.get_error().get();
+            EXPECT_EQ(function.get(), expected) << "unexpected result for '" << s << "'";
+        }
+
+        // NEGATIVE: an expression that is not a Boolean function is still rejected instead of being parsed by one of the grammars
+        for (const auto& s : std::vector<std::string>({"", "A &", "& A", "A & & B", "A * * B", "(A & B", "A & B)", "A +"})) {
+            EXPECT_TRUE(BooleanFunction::from_string(s).is_error()) << "unexpectedly parsed '" << s << "'";
+        }
+    }
+
     TEST(BooleanFunction, Parameters) {
         const auto a = BooleanFunction::Var("A"),
                    b = BooleanFunction::Var("B"),

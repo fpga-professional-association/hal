@@ -8,6 +8,7 @@
 #include "hal_core/utilities/log.h"
 #include "hal_core/utilities/utils.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <queue>
@@ -16,7 +17,28 @@ namespace hal
 {
     namespace
     {
+        // a literal wider than this is a typo rather than a value, and padding a result to that width would exhaust the memory
+        const u32 MAX_LITERAL_WIDTH = 1 << 20;
 
+        /**
+         * Get the declared width of a sized number literal such as `8'hFF`, without ever throwing on a width that does not fit into an integer.
+         */
+        Result<i32> get_literal_width(const std::string& value)
+        {
+            const auto width_res = utils::wrapped_stoul(value.substr(0, value.find('\'')), 10);
+            if (width_res.is_error())
+            {
+                return ERR_APPEND(width_res.get_error(), "could not get width of number literal '" + value + "'");
+            }
+
+            if (width_res.get() > MAX_LITERAL_WIDTH)
+            {
+                return ERR("could not get width of number literal '" + value + "': width " + std::to_string(width_res.get()) + " exceeds the maximum of " + std::to_string(MAX_LITERAL_WIDTH)
+                           + " bits");
+            }
+
+            return OK((i32)width_res.get());
+        }
     }    // namespace
 
     Result<std::monostate> VerilogParser::parse(const std::filesystem::path& file_path)
@@ -2026,7 +2048,13 @@ namespace hal
         {
             if (value.at(0) != '\'')
             {
-                len = std::stoi(value.substr(0, value.find('\'')));
+                const auto len_res = get_literal_width(value);
+                if (len_res.is_error())
+                {
+                    return ERR_APPEND(len_res.get_error(), "could not convert number literal '" + value + "'");
+                }
+
+                len = len_res.get();
             }
             prefix = value.substr(value.find('\'') + 1, 1);
             number = value.substr(value.find('\'') + 2);
@@ -2157,7 +2185,13 @@ namespace hal
         {
             if (value.at(0) != '\'')
             {
-                len = std::stoi(value.substr(0, value.find('\'')));
+                const auto len_res = get_literal_width(value);
+                if (len_res.is_error())
+                {
+                    return ERR_APPEND(len_res.get_error(), "could not convert number literal '" + value + "'");
+                }
+
+                len = len_res.get();
             }
             prefix = value.substr(value.find('\'') + 1, 1);
             number = value.substr(value.find('\'') + 2);
@@ -2219,17 +2253,30 @@ namespace hal
             }
         }
 
-        std::stringstream ss;
+        if (number.empty())
+        {
+            return ERR("could not convert token to hexadecimal string: empty number literal '" + value + "' (line " + std::to_string(line_number) + ")");
+        }
+
+        // a literal that does not fit into 64 bit must not throw, binary and octal literals of arbitrary width are translated digit by digit
+        const auto hex_res = utils::to_hex_string(number, base);
+        if (hex_res.is_error())
+        {
+            return ERR_APPEND(hex_res.get_error(), "could not convert token to hexadecimal string: invalid number literal '" + value + "' (line " + std::to_string(line_number) + ")");
+        }
+        std::string hex_string = hex_res.get();
+
         if (len != -1)
         {
             // fill with '0'
-            ss << std::uppercase << std::setfill('0') << std::setw((len + 3) / 4) << std::hex << stoull(number, 0, base);
+            const u64 width = (u64)((len + 3) / 4);
+            if (hex_string.size() < width)
+            {
+                hex_string.insert(0, width - hex_string.size(), '0');
+            }
         }
-        else
-        {
-            ss << std::uppercase << std::hex << stoull(number, 0, base);
-        }
-        return OK(ss.str());
+
+        return OK(hex_string);
     }
 
     Result<std::pair<std::string, std::string>> VerilogParser::parse_parameter_value(const Token<std::string>& value_token) const

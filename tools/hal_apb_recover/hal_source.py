@@ -93,10 +93,11 @@ def _pin_variable_function(gate, gate_type, pin, pin_names):
 
     ``Gate.get_resolved_boolean_function`` can return the function either over
     pin names or over ``BooleanFunctionNetDecorator`` net variables, selected by
-    its ``use_net_variables`` flag -- and HAL's implementation of that flag has
-    historically been inverted with respect to its documentation.  The circuit
-    model feeds pin names, so instead of trusting the flag we ask for both forms
-    and keep the one that actually speaks pin names; ``get_boolean_function``
+    its ``use_net_variables`` flag -- which HAL used to implement inverted with
+    respect to its documentation (fixed in this fork, ``use_net_variables=False``
+    means pin names).  The circuit model feeds pin names, and this tool also runs
+    against older HAL builds, so instead of trusting the flag we ask for both
+    forms and keep the one that actually speaks pin names; ``get_boolean_function``
     (always pin names, but not resolved through internal pins) is the fallback.
     """
     candidates = []

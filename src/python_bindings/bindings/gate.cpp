@@ -626,6 +626,7 @@ namespace hal
             R"(
             Set the INIT data of the gate, if available.
             An error is returned in case the gate does not hold any INIT data.
+            Each INIT string must be a hexadecimal number that fits the INIT length declared by the gate type, e.g., at most 16 digits for a LUT with six inputs.
 
             :param list[str] init_data: The INIT data as a list.
             :returns: ``True`` on success, ``False`` otherwise.

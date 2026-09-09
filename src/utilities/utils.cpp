@@ -3,6 +3,7 @@
 #include "hal_core/utilities/log.h"
 
 #include <algorithm>
+#include <cctype>
 #include <dirent.h>
 #include <fstream>
 #include <random>
@@ -727,6 +728,86 @@ permanent authorization for you to choose that version for the Library.
             }
 
             return ERR("encountered unknown error");
+        }
+
+        Result<std::string> to_hex_string(const std::string& number, const u32 base)
+        {
+            if (number.empty())
+            {
+                return ERR("could not translate number to hexadecimal string: number is empty");
+            }
+
+            if ((base != 2) && (base != 8) && (base != 10) && (base != 16))
+            {
+                return ERR("could not translate number '" + number + "' to hexadecimal string: unsupported base " + std::to_string(base));
+            }
+
+            const auto strip_leading_zeros = [](const std::string& s) -> std::string {
+                const auto first = s.find_first_not_of('0');
+                return (first == std::string::npos) ? std::string("0") : s.substr(first);
+            };
+
+            if (base == 16)
+            {
+                for (const char c : number)
+                {
+                    if (!std::isxdigit(static_cast<unsigned char>(c)))
+                    {
+                        return ERR("could not translate number '" + number + "' to hexadecimal string: invalid character within hexadecimal number");
+                    }
+                }
+
+                return OK(strip_leading_zeros(to_upper(number)));
+            }
+
+            if (base == 10)
+            {
+                // a decimal number is limited to 64 bit, as translating it requires arbitrary-precision arithmetic
+                const auto value_res = wrapped_stoull(number, 10);
+                if (value_res.is_error())
+                {
+                    return ERR_APPEND(value_res.get_error(), "could not translate number '" + number + "' to hexadecimal string");
+                }
+
+                std::stringstream ss;
+                ss << std::uppercase << std::hex << value_res.get();
+                return OK(ss.str());
+            }
+
+            // binary and octal numbers are translated digit by digit, which keeps numbers of more than 64 bit intact
+            const u32 bits_per_digit = (base == 2) ? 1 : 3;
+            const char max_digit     = (base == 2) ? '1' : '7';
+
+            std::string bits;
+            bits.reserve(number.size() * bits_per_digit);
+            for (const char c : number)
+            {
+                if ((c < '0') || (c > max_digit))
+                {
+                    return ERR("could not translate number '" + number + "' to hexadecimal string: invalid character within number of base " + std::to_string(base));
+                }
+
+                const u32 digit = (u32)(c - '0');
+                for (u32 i = bits_per_digit; i > 0; i--)
+                {
+                    bits += (((digit >> (i - 1)) & 0x1) != 0) ? '1' : '0';
+                }
+            }
+            bits.insert(0, (4 - (bits.size() % 4)) % 4, '0');
+
+            std::string hex_string;
+            hex_string.reserve(bits.size() / 4);
+            for (u64 i = 0; i < (u64)bits.size(); i += 4)
+            {
+                u32 nibble = 0;
+                for (u64 j = 0; j < 4; j++)
+                {
+                    nibble = (nibble << 1) | (u32)(bits.at(i + j) - '0');
+                }
+                hex_string += "0123456789ABCDEF"[nibble];
+            }
+
+            return OK(strip_leading_zeros(hex_string));
         }
 
     }    // namespace utils

@@ -20,6 +20,9 @@ All notable changes to this project will be documented in this file.
 * Core
   * fixed crash when passing a `nullptr` pin to `Net::remove_source` or `Net::remove_destination`, which is also reachable from Python
   * changed `Net` and `Gate` to identify a pin by pointer identity instead of by value when looking up an endpoint
+  * fixed `Gate::get_resolved_boolean_function` inverting its `use_net_variables` flag: `false` substituted the input pin names with the `net_<id>` variables of the fan-in nets and `true` kept the pin names, which is the opposite of what the parameter is documented to do in both `gate.h` and the Python bindings. The implementation now follows the documentation, and every caller in the code base was adjusted, so a caller that relied on the inverted behaviour has to flip its argument
+  * fixed `Gate::set_init_data` accepting INIT data that the gate type cannot hold, such as a 64 character string on a 64 bit LUT, which was only noticed later on when the INIT string was evaluated and `std::stoull` threw an uncaught `std::out_of_range`. INIT data is now rejected right away unless it is a hexadecimal string that fits the INIT length declared by the gate type
+  * hardened the remaining `std::stoull` call sites that read INIT data and number literals, which now report an error instead of throwing: `Gate::get_lut_function` and the number literal conversion of the Verilog and VHDL parsers, where a binary or octal literal of more than 64 bit is now translated digit by digit rather than overflowing, see the new `utils::to_hex_string`
   * progress and layout reporting
     * added `ProgressScope` and `LayoutLocker` to the core, which report progress and suppress layout updates through the user interface plugin looked up at runtime, replacing the copies of `GuiLayoutLocker` in the dataflow analysis and module identification plugins
     * added `UIPluginInterface::set_progress` and `plugin_manager::get_ui_plugin`, so that a plugin no longer needs to provide a `GuiExtensionInterface` and register a callback just to report its progress
@@ -41,6 +44,8 @@ All notable changes to this project will be documented in this file.
   * sped up evaluation with constant inputs by about 3x by folding the values directly instead of building a Boolean function per operation, which dominates the runtime of `compute_truth_table()` and thereby of the HAWKEYE S-box identification
   * fixed `SMT::Solver::has_local_solver_for` testing `SolverCall::Binary` in both of its branches, so the branch for `SolverCall::Library` was unreachable and library availability always reported `false`
   * fixed `SMT::SymbolicState::set` using `emplace`, which leaves an existing binding untouched, so setting a variable a second time did nothing and a loop stepping a symbolic state forward silently kept the value it started with
+  * fixed `BooleanFunction::from_string` rejecting the alternative operator spellings it documents: `A * B` and `A + B` failed with 'no parser available' although `*` and `+` are what liberty files use for AND and OR. Whitespace in the liberty grammar is now only an AND operation where it actually connects two operands, and the standard grammar accepts `*`, `+` and the suffix `'` as well, so that all documented spellings work together with indexed and escaped variable names
+  * fixed `BooleanFunctionParser::reverse_polish_notation` popping an empty operator stack for an expression with a closing bracket that never opened, such as `A & B)`, which is undefined behaviour and now reports an invalid bracket level
   * added simplification rules for the word level operations, which the single-bit simplification through ABC cannot reach: extensions to the width the value already has, nested extensions and slices, slices that fall into one half of a concatenation or into either part of an extension, unsigned comparisons against zero and the maximum, equality of a value with its own negation, and single bit equalities and selections
 * Python bindings
   * fixed the Python bindings handing out gates, nets, modules, endpoints and pins without tying them to the netlist that owns them, so that dropping the netlist left them pointing into freed memory. Reading 500 gates and 500 nets of a dropped netlist returned the wrong name and ID for 184 and 230 of them respectively, silently rather than by crashing
@@ -60,6 +65,7 @@ All notable changes to this project will be documented in this file.
   * fixed the `hal::borrowed()` call policy having no effect on any of the 55 properties it was given to, so those still handed out a borrowed object without keeping its owner alive. `def_property_readonly` builds the getter itself before it forwards the attributes that follow, so a call policy given to a property never reaches the function that performs the call
   * fixed a Python interpreter that loaded the HAL plugins segfaulting on the way out unless it unloaded them again by hand, as the plugin libraries were closed while the parser and writer registries still held a factory function out of each of them
   * added Python bindings for `SMT.SolverCall` and `SMT.Solver.to_smt2`, and the missing `Bitwuzla` value of `SMT.SolverType`. Without `SolverCall`, neither `QueryConfig.with_call` nor `Solver.has_local_solver_for` could be called at all although both were bound
+  * documented the operator spellings that `BooleanFunction.from_string` accepts, and the INIT data that `Gate.set_init_data` rejects
   * fixed three enum values that were bound to a different value of their own enum, which made them indistinguishable from Python: `GateTypeProperty.fifo` was bound to `ram`, `module_identification.CandidateType.addition_offset` to `addition`, and `gui_extension_demo.ParameterType.Module` to `Gate`
 * Plugins
   * HAWKEYE
@@ -77,11 +83,14 @@ All notable changes to this project will be documented in this file.
     * fixed `SBoxDatabase::store` reporting a failure although it had written the database, and made it report one if the file cannot be opened
     * added a limit to the canonical form search behind an S-box lookup, which finishes quickly for a real S-box but does not terminate in reasonable time for a table that is close to linear, such as two 4-bit S-boxes glued into an 8-bit one by the surrounding logic
     * added the HAWKEYE S-box database to the build directory so that it is found at runtime, and clarified that `identify_sbox` returning an empty string means no match rather than an error
+  * re-synthesis and z3 utilities
+    * changed the calls of `Gate::get_resolved_boolean_function` to the corrected `use_net_variables` flag: re-synthesis works on the pin names of a gate type, the subgraph functions of `z3_utils` on net variables
   * graph algorithm
     * added `NetlistGraph::from_gates` that builds a graph from a subset of the gates of a netlist, optionally representing a gate by a primary and a shadow vertex so that feedback through it does not close a cycle
   * dataflow analysis
     * fixed broken initialization of DANA plugin when starting via CLI
   * netlist preprocessing
+    * changed every call of `Gate::get_resolved_boolean_function` to ask for net variables explicitly, as the flag that selects them no longer means the opposite of what it says
     * fixed `remove_redundant_gates` treating two flip-flops as duplicates although they start out at different values, as the fingerprint it groups them by covers the gate type and the fan-in but not the initial value, and flip-flops are merged on that fingerprint alone without the equivalence check that combinational gates get. This affects 11 of the 13 flip-flop types of the Xilinx UNISIM library, all of which carry an `INIT` value
   * bit-order propagation
     * changed the interface to speak in a `BitOrder`, which is the order of one module pin group, and a `BitOrderResult`, which is what a propagation reports, in place of a map from pairs of module and pin group to a map from net to index. A bit order is now an object rather than a container, so Python can be given one without losing track of the netlist it belongs to, and a result iterates by module and pin group ID rather than by the addresses they happen to sit at
@@ -93,6 +102,8 @@ All notable changes to this project will be documented in this file.
     * fixed the documentation of `NetlistSimulatorController::initialize`, which described the behaviour of the legacy `NetlistSimulator`: it claimed that no gates or clocks may be added afterwards and that `simulate` calls it automatically, neither of which holds since its body became empty
   * dot viewer
     * added 'hover over node' feature in dot viewer
+  * Verilog and VHDL parsers
+    * fixed a number literal of more than 64 bit, such as a wide `INIT` value, crashing the parser through an uncaught `std::stoull` exception. Binary and octal literals are now translated digit by digit and keep their full width, a decimal literal that does not fit reports an error and is skipped with a warning like any other unparsable instance parameter, and an implausible literal width no longer throws either
   * python shell
     * fixed a failed `--python-script` run leaving HAL with an exit code of 0, so that automated analysis could not tell a finished run from a broken one. The plugin discarded the status of every `PyRun_SimpleString` call and returned a falsy value after a successful run, while `main.cpp` inverted the result it got and turned a failure into `SUCCESS`. An uncaught exception, a Python environment that could not be set up, and a script path that does not name a readable `.py` file now all end HAL with a nonzero exit code, and a script that returns normally ends it with 0
     * documented the result of `UIPluginInterface::exec` as the success flag of the whole HAL run, since it is what the exit code is made of

@@ -503,9 +503,9 @@ namespace hal
                                 for (const auto* pin : fingerprint.type->get_output_pins())
                                 {
                                     const auto solver_res =
-                                        master_gate->get_resolved_boolean_function(pin)
+                                        master_gate->get_resolved_boolean_function(pin, true)
                                             .map<BooleanFunction>([pin, current_gate](BooleanFunction&& bf_master) {
-                                                return current_gate->get_resolved_boolean_function(pin).map<BooleanFunction>([bf_master = std::move(bf_master)](BooleanFunction&& bf_current) mutable {
+                                                return current_gate->get_resolved_boolean_function(pin, true).map<BooleanFunction>([bf_master = std::move(bf_master)](BooleanFunction&& bf_current) mutable {
                                                     return BooleanFunction::Eq(std::move(bf_master), std::move(bf_current), 1);
                                                 });
                                             })
@@ -1548,7 +1548,7 @@ namespace hal
 
                         for (const auto& g : mux_group)
                         {
-                            auto gate_bf_res = g->get_resolved_boolean_function(output_pins.front(), false);
+                            auto gate_bf_res = g->get_resolved_boolean_function(output_pins.front(), true);
                             if (gate_bf_res.is_error())
                             {
                                 return ERR_APPEND(gate_bf_res.get_error(),
@@ -1672,7 +1672,7 @@ namespace hal
                             has_global_output = true;
                         }
 
-                        auto bf_res = g->get_resolved_boolean_function(ep->get_pin(), false);
+                        auto bf_res = g->get_resolved_boolean_function(ep->get_pin(), true);
                         if (bf_res.is_error())
                         {
                             return ERR_APPEND(bf_res.get_error(),
@@ -1942,7 +1942,12 @@ namespace hal
                 // std::cout << "Org Init: " << g->get_init_data().get().front() << std::endl;
                 // std::cout << "New Init: " << new_init_string << std::endl;
 
-                g->set_init_data({new_init_string}).get();
+                if (const auto set_res = g->set_init_data({new_init_string}); set_res.is_error())
+                {
+                    return ERR_APPEND(set_res.get_error(),
+                                      "unable to simplify lut init string for gate " + g->get_name() + " with ID " + std::to_string(g->get_id()) + ": failed to set the simplified INIT string '"
+                                          + new_init_string + "'");
+                }
                 g->set_data("preprocessing_information", "original_init", "string", original_init);
 
                 // const auto bf_test = g->get_boolean_function(out_ep->get_pin());

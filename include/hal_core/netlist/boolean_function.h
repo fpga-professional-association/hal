@@ -779,7 +779,11 @@ namespace hal
 
         /**
          * Parses a Boolean function from a string expression.
-         * 
+         *
+         * The following operator spellings are accepted, in decreasing order of precedence: NOT ("!", "~", and the
+         * suffix "'"), AND ("&", "*", and whitespace), XOR ("^"), and OR ("|", "+"). Sub-expressions are grouped by
+         * round brackets, constants are given as "0", "1", or "0b0" and "0b1".
+         *
          * @param[in] expression - Boolean function string.
          * @returns Ok() and the Boolean function on success, an error otherwise.
          */

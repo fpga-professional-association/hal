@@ -13,8 +13,10 @@
 #include "hal_core/netlist/netlist_internal_manager.h"
 #include "hal_core/netlist/pins/gate_pin.h"
 #include "hal_core/utilities/log.h"
+#include "hal_core/utilities/utils.h"
 
 #include <assert.h>
+#include <cctype>
 #include <iomanip>
 #include <sstream>
 
@@ -41,6 +43,91 @@ static u64 bitreverse(u64 n)
 
 namespace hal
 {
+    namespace
+    {
+        /**
+         * Strip an optional "0x" prefix from an INIT string.
+         */
+        std::string strip_hex_prefix(const std::string& init_string)
+        {
+            if ((init_string.size() > 2) && (init_string.at(0) == '0') && ((init_string.at(1) == 'x') || (init_string.at(1) == 'X')))
+            {
+                return init_string.substr(2);
+            }
+
+            return init_string;
+        }
+
+        /**
+         * Get the number of significant bits encoded by a hexadecimal INIT string, i.e., the number of bits after stripping leading zeros.
+         */
+        u64 get_init_bit_width(const std::string& hex_string)
+        {
+            const auto first = hex_string.find_first_not_of('0');
+            if (first == std::string::npos)
+            {
+                return 0;
+            }
+
+            const u64 num_digits = (u64)(hex_string.size() - first);
+            u32 leading_bits     = 0;
+            for (u8 value = (u8)std::stoul(std::string(1, hex_string.at(first)), nullptr, 16); value != 0; value >>= 1)
+            {
+                leading_bits++;
+            }
+
+            return ((num_digits - 1) * 4) + leading_bits;
+        }
+
+        /**
+         * Get the number of INIT bits that the given gate type can hold, or 0 if the gate type does not constrain the length of its INIT data.
+         */
+        u64 get_max_init_bit_width(const GateType* gate_type)
+        {
+            LUTComponent* lut_component = gate_type->get_component_as<LUTComponent>([](const GateTypeComponent* component) { return component->get_type() == GateTypeComponent::ComponentType::lut; });
+            if (lut_component == nullptr)
+            {
+                // only LUTs declare an INIT length through the number of their input pins
+                return 0;
+            }
+
+            const u64 num_inputs = (u64)gate_type->get_input_pins().size();
+            if ((num_inputs == 0) || (num_inputs > 16))
+            {
+                return 0;
+            }
+
+            return (u64)1 << num_inputs;
+        }
+
+        /**
+         * Check whether the given INIT string is a valid hexadecimal string that fits the INIT data of the given gate type.
+         */
+        Result<std::monostate> validate_init_string(const std::string& init_string, const GateType* gate_type)
+        {
+            const std::string hex_string = strip_hex_prefix(init_string);
+
+            for (const char c : hex_string)
+            {
+                if (!std::isxdigit(static_cast<unsigned char>(c)))
+                {
+                    return ERR("INIT string '" + init_string + "' is not a valid hexadecimal string");
+                }
+            }
+
+            if (const u64 max_bit_width = get_max_init_bit_width(gate_type); max_bit_width != 0)
+            {
+                if (const u64 bit_width = get_init_bit_width(hex_string); bit_width > max_bit_width)
+                {
+                    return ERR("INIT string '" + init_string + "' encodes " + std::to_string(bit_width) + " bits, but gate type '" + gate_type->get_name() + "' holds at most "
+                               + std::to_string(max_bit_width) + " bits of INIT data");
+                }
+            }
+
+            return OK({});
+        }
+    }    // namespace
+
     Gate::Gate(NetlistInternalManager* mgr, EventHandler* event_handler, const u32 id, GateType* gt, const std::string& name, i32 x, i32 y)
         : m_internal_manager(mgr), m_id(id), m_name(name), m_type(gt), m_x(x), m_y(y), m_event_handler(event_handler)
     {
@@ -316,7 +403,8 @@ namespace hal
                 const PinDirection pin_dir = pin->get_direction();
                 if (pin_dir == PinDirection::input)
                 {
-                    if (!use_net_variables)
+                    // 'true' substitutes the input pin variables with the net variables of the connected fan-in nets, 'false' keeps the input pin names
+                    if (use_net_variables)
                     {
                         const Net* const input_net = this->get_fan_in_net(var);
                         if (input_net == nullptr)
@@ -401,31 +489,19 @@ namespace hal
             return BooleanFunction();
         }
 
-        u64 config = 0;
-        try
-        {
-            config = std::stoull(config_str, nullptr, 16);
-        }
-        catch (std::invalid_argument& ex)
+        // a configuration string that is not a hex value or that does not fit into 64 bit must not throw, see `Gate::set_init_data` for the validation of INIT data
+        const auto config_res = utils::wrapped_stoull(config_str, 16);
+        if (config_res.is_error())
         {
             log_error("gate",
-                      "LUT gate '{}' with ID {} in netlist with ID {} has invalid configuration string of '{}', which is not a hex value.",
+                      "LUT gate '{}' with ID {} in netlist with ID {} has invalid configuration string of '{}', which is not a hex value of at most 64 bit.",
                       m_name,
                       m_id,
                       m_internal_manager->m_netlist->get_id(),
                       config_str);
             return BooleanFunction();
         }
-        catch (std::out_of_range& ex)
-        {
-            log_error("gate",
-                      "LUT gate '{}' with ID {} in netlist with ID {} has invalid configuration string of '{}', which has to many hex digits.",
-                      m_name,
-                      m_id,
-                      m_internal_manager->m_netlist->get_id(),
-                      config_str);
-            return BooleanFunction();
-        }
+        u64 config = config_res.get();
 
         u32 max_config_size = 1 << inputs.size();
 
@@ -1068,6 +1144,16 @@ namespace hal
         {
             return ERR("could not set INIT data for gate '" + m_name + "' with ID '" + std::to_string(m_id) + "': provided INIT data has size " + std::to_string(init_data.size())
                        + " and must be of size " + std::to_string(identifiers.size()));
+        }
+
+        // reject INIT data that cannot be interpreted later on, e.g., an INIT string that is longer than the INIT data of the gate type
+        for (const std::string& init_string : init_data)
+        {
+            if (const auto res = validate_init_string(init_string, m_type); res.is_error())
+            {
+                return ERR_APPEND(res.get_error(),
+                                  "could not set INIT data for gate '" + m_name + "' with ID '" + std::to_string(m_id) + "': provided INIT data is invalid for gate type '" + m_type->get_name() + "'");
+            }
         }
 
         u32 i = 0;

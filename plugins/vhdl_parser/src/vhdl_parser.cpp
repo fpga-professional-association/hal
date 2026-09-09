@@ -2402,9 +2402,15 @@ namespace hal
             }
         }
 
-        std::stringstream ss;
-        ss << std::uppercase << std::hex << stoull(core_strings::to<std::string>(number), 0, base);
-        return OK(ss.str());
+        // a literal that does not fit into 64 bit must not throw, binary and octal literals of arbitrary width are translated digit by digit
+        const auto hex_res = utils::to_hex_string(core_strings::to<std::string>(number), base);
+        if (hex_res.is_error())
+        {
+            return ERR_APPEND(hex_res.get_error(),
+                              "could not convert token to hexadecimal string: invalid number literal '" + core_strings::to<std::string>(value) + "' (line " + std::to_string(line_number) + ")");
+        }
+
+        return OK(hex_res.get());
     }
 
     Result<std::vector<VHDLParser::assignment_t>> VHDLParser::parse_assignment_expression(TokenStream<ci_string>&& stream) const
