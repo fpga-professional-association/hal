@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 02 — recovering a traffic-light FSM from a synthesized netlist</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1c1e21; --muted: #5a6270; --rule: #d8dde5;
+    --code-bg: #f5f7fa; --code-fg: #1c1e21; --accent: #1f5fa9; --accent-soft: #e8f0fa;
+    --warn-bg: #fff6e5; --warn-br: #d18f1c;
+    --good-bg: #eaf6ec; --good-br: #3f8f54;
+    --bad-bg: #fdecec;  --bad-br: #c2504a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --fg: #e6e8ec; --muted: #9aa3b2; --rule: #2c3038;
+      --code-bg: #1b1f26; --code-fg: #e6e8ec; --accent: #74a9e8; --accent-soft: #182534;
+      --warn-bg: #2b2415; --warn-br: #b4832f;
+      --good-bg: #16281c; --good-br: #4a9d5f;
+      --bad-bg: #2c1a1a;  --bad-br: #c2504a;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --fg: #1c1e21; --muted: #5a6270; --rule: #d8dde5;
+    --code-bg: #f5f7fa; --code-fg: #1c1e21; --accent: #1f5fa9; --accent-soft: #e8f0fa;
+    --warn-bg: #fff6e5; --warn-br: #d18f1c;
+    --good-bg: #eaf6ec; --good-br: #3f8f54;
+    --bad-bg: #fdecec;  --bad-br: #c2504a;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --fg: #e6e8ec; --muted: #9aa3b2; --rule: #2c3038;
+    --code-bg: #1b1f26; --code-fg: #e6e8ec; --accent: #74a9e8; --accent-soft: #182534;
+    --warn-bg: #2b2415; --warn-br: #b4832f;
+    --good-bg: #16281c; --good-br: #4a9d5f;
+    --bad-bg: #2c1a1a;  --bad-br: #c2504a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+  header.title { border-bottom: 2px solid var(--rule); padding-bottom: 1.25rem; margin-bottom: 2rem; }
+  header.title p.kicker {
+    margin: 0 0 .35rem; text-transform: uppercase; letter-spacing: .09em;
+    font-size: .74rem; color: var(--muted); font-weight: 600;
+  }
+  h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .6rem; }
+  h2 { font-size: 1.35rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.06rem; margin: 2.2rem 0 .5rem; }
+  h4 { font-size: .9rem; margin: 1.4rem 0 .4rem; color: var(--muted);
+       text-transform: uppercase; letter-spacing: .05em; }
+  p, li { max-width: 47rem; }
+  a { color: var(--accent); }
+  code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+                     Consolas, "Liberation Mono", monospace; }
+  code { background: var(--code-bg); padding: .1em .34em; border-radius: 3px; font-size: .88em; }
+  pre {
+    background: var(--code-bg); color: var(--code-fg); padding: .9rem 1rem;
+    border-radius: 6px; border: 1px solid var(--rule);
+    overflow-x: auto; font-size: .8rem; line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  figure { margin: 1.6rem 0; }
+  figure img {
+    max-width: 100%; height: auto; display: block; background: #fff;
+    border: 1px solid var(--rule); border-radius: 6px; padding: .6rem;
+  }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: .55rem; max-width: 47rem; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; font-size: .87rem; margin: 1rem 0; }
+  th, td { border: 1px solid var(--rule); padding: .38rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  .note, .warn, .good, .bad {
+    border-left: 4px solid var(--accent); background: var(--accent-soft);
+    padding: .85rem 1rem; margin: 1.5rem 0; border-radius: 0 5px 5px 0;
+  }
+  .warn { border-left-color: var(--warn-br); background: var(--warn-bg); }
+  .good { border-left-color: var(--good-br); background: var(--good-bg); }
+  .bad  { border-left-color: var(--bad-br);  background: var(--bad-bg); }
+  .note > :first-child, .warn > :first-child, .good > :first-child, .bad > :first-child { margin-top: 0; }
+  .note > :last-child, .warn > :last-child, .good > :last-child, .bad > :last-child { margin-bottom: 0; }
+  .label { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: .73rem; }
+  .step {
+    display: inline-block; background: var(--accent); color: #fff;
+    border-radius: 999px; padding: .1rem .7rem; font-size: .76rem;
+    font-weight: 700; letter-spacing: .04em; margin-right: .55rem; vertical-align: .1em;
+  }
+  ol.toc { columns: 2; column-gap: 2.5rem; font-size: .93rem; }
+  @media (max-width: 40rem) { ol.toc { columns: 1; } }
+  .cmd::before { content: "$ "; color: var(--muted); }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+           font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <p class="kicker">Agilex 3 reverse-engineering walkthroughs &middot; 02</p>
+  <h1>From a synthesized Agilex 3 netlist back to a traffic-light controller</h1>
+  <p>A complete worked example: real RTL, a real Quartus Prime Pro 26.1 run, a real
+  vendor netlist export, and the HAL analyses that take you from
+  <code>tennm_lcell_comb</code> soup back to a named state diagram. Every number and
+  every picture on this page was produced by the scripts sitting next to it, and
+  the walk is honest about the two places where a tool does not do what you would
+  hope.</p>
+</header>
+
+<h2 id="toc">Contents</h2>
+<ol class="toc">
+  <li><a href="#design">The design</a></li>
+  <li><a href="#synth">Synthesis and export</a></li>
+  <li><a href="#blind">Blinding the netlist</a></li>
+  <li><a href="#contact">First contact</a></li>
+  <li><a href="#walk">The reverse-engineering walk (9 steps)</a></li>
+  <li><a href="#recon">Reconstruction: <code>recovered.v</code></a></li>
+  <li><a href="#lost">Recovered vs. lost</a></li>
+  <li><a href="#further">Going further</a></li>
+</ol>
+
+<!-- =================================================================== -->
+<h2 id="design">1. The design</h2>
+
+<p><code>design.v</code> is a four-phase Moore traffic-light controller. The light cycles
+<span class="mono">RED &rarr; RED+YELLOW &rarr; GREEN &rarr; YELLOW &rarr; RED</span>, each
+phase lasting a fixed number of clock cycles counted by a small dwell counter. A
+<code>hold</code> input freezes it.</p>
+
+<p>Two constraints shaped the RTL, and both matter later:</p>
+<ul>
+  <li><b>One clock, one asynchronous reset, no vendor IP.</b> After synthesis the
+  netlist must contain only primitives that
+  <code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code> models —
+  <code>tennm_lcell_comb</code> and <code>tennm_ff</code>, plus the two constant cells HAL
+  synthesizes for <code>1'b0</code>/<code>1'b1</code>. No RAM, no DSP, no PLL, no IO buffers.</li>
+  <li><b>No synchronous clear or load.</b> <code>hal_agilex</code> models <code>tennm_ff</code>
+  only in the <code>(d, ena, clrn)</code> configuration. The counter is therefore written
+  as an explicit next-value mux, and the project file carries
+  <code>set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF</code> so Quartus cannot
+  fold that mux into the register's <code>sclr</code>/<code>sload</code> ports behind our back.</li>
+</ul>
+
+<h3>The RTL</h3>
+<div class="scroll">
+<pre><code>module traffic_fsm (
+    input  wire clk,     // single clock
+    input  wire rst_n,   // asynchronous, active low; drops the light to RED
+    input  wire hold,    // 1 = freeze the controller in the current phase
+    output wire red,     // lamp outputs -- Moore, decoded from `state` only
+    output wire yellow,
+    output wire green
+);
+
+    localparam [1:0] S_RED        = 2'b00,
+                     S_RED_YELLOW = 2'b01,
+                     S_GREEN      = 2'b10,
+                     S_YELLOW     = 2'b11;
+
+    // Dwell time of each phase, in clock cycles, minus one.
+    localparam [3:0] T_RED        = 4'd9,
+                     T_RED_YELLOW = 4'd2,
+                     T_GREEN      = 4'd12,
+                     T_YELLOW     = 4'd4;
+
+    reg  [1:0] state;
+    reg  [3:0] tick;
+
+    reg  [3:0] limit;
+    always @* begin
+        case (state)
+            S_RED        : limit = T_RED;
+            S_RED_YELLOW : limit = T_RED_YELLOW;
+            S_GREEN      : limit = T_GREEN;
+            default      : limit = T_YELLOW;
+        endcase
+    end
+
+    wire expired = (tick == limit);
+    wire advance = expired &amp; ~hold;
+
+    reg [3:0] tick_next;
+    always @* begin
+        if (hold)         tick_next = tick;
+        else if (expired) tick_next = 4'd0;
+        else              tick_next = tick + 4'd1;
+    end
+
+    reg [1:0] state_next;
+    always @* begin
+        state_next = state;
+        if (advance) begin
+            case (state)
+                S_RED        : state_next = S_RED_YELLOW;
+                S_RED_YELLOW : state_next = S_GREEN;
+                S_GREEN      : state_next = S_YELLOW;
+                default      : state_next = S_RED;
+            endcase
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state &lt;= S_RED;
+            tick  &lt;= 4'd0;
+        end else begin
+            state &lt;= state_next;
+            tick  &lt;= tick_next;
+        end
+    end
+
+    assign red    = (state == S_RED) | (state == S_RED_YELLOW);
+    assign yellow = (state == S_RED_YELLOW) | (state == S_YELLOW);
+    assign green  = (state == S_GREEN);
+
+endmodule</code></pre>
+</div>
+
+<p>The commented file is <a href="design.v"><code>design.v</code></a>; the intended behaviour
+is written out separately in <a href="spec.md"><code>spec.md</code></a>. Numbers to
+remember: <b>2 state bits, 4 counter bits, 6 flip-flops, 4 states</b>, and a light
+cycle of <b>10 + 3 + 13 + 5 = 31 clock cycles</b>.</p>
+
+<!-- =================================================================== -->
+<h2 id="synth">2. Synthesis and export</h2>
+
+<p>The flow is the one <code>tools/hal_agilex</code> documents for its fixtures, reused
+verbatim: post-<em>synthesis</em> (no fitting, so no placement noise), Agilex 3 device
+<code>A3CW135BM16AE6S</code>, Quartus Prime Pro Edition 26.1.0 Build 110.</p>
+
+<h4>The project</h4>
+<div class="scroll">
+<pre><code># quartus/traffic_fsm.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY traffic_fsm
+set_global_assignment -name VERILOG_FILE ../design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF</code></pre>
+</div>
+
+<h4>The run</h4>
+<div class="scroll">
+<pre><code>cd examples/agilex3_walkthroughs/02_traffic_fsm/quartus
+C:/altera_pro/26.1/quartus/bin64/quartus_sh.exe -t build.tcl
+
+# build.tcl is exactly these two module invocations:
+#   quartus_syn traffic_fsm -c traffic_fsm
+#   quartus_eda --simulation --format=verilog --tool=questasim \
+#               --output_directory=simulation traffic_fsm -c traffic_fsm
+
+# afterwards: keep simulation/traffic_fsm.vo, delete db/ incremental_db/
+# output_files/ qdb/ dni/ -- nothing generated is committed except the .vo</code></pre>
+</div>
+
+<p>Quartus said three things worth writing down, all of which come back later:</p>
+<div class="scroll">
+<pre><code>Info (284007): State machine "state" will be implemented as a safe state machine.
+Info (17049): 2 registers lost all their fanouts during netlist optimizations.
+Info (21057): Implemented 20 device resources after synthesis
+    Info (21061): Implemented 14 logic cells</code></pre>
+</div>
+
+<h4>Import into a form HAL can read</h4>
+<p>HAL's Verilog reader is a structural netlist parser and rejects three things the
+Quartus writer emits: <code>tri1</code> nets, inversions written on instance pins, and
+unconnected pins. <code>hal_agilex import</code> rewrites exactly those — absorbing a pin
+inversion into <code>lut_mask</code> as an exact relabelling, and refusing an inversion it
+could not absorb without changing meaning.</p>
+<div class="scroll">
+<pre class="cmd"><code>python tools/hal_agilex inventory examples/agilex3_walkthroughs/02_traffic_fsm/traffic_fsm.vo
+python tools/hal_agilex import    examples/agilex3_walkthroughs/02_traffic_fsm/traffic_fsm.vo \
+       -o examples/agilex3_walkthroughs/02_traffic_fsm/netlist.hal.v</code></pre>
+</div>
+<div class="good">
+<p><span class="label">Result</span> <code>hal_agilex/inventory/fully-covered</code>,
+status <code>proven_under_assumptions</code>: &ldquo;All 22 instances are <code>tennm_ff</code> or
+<code>tennm_lcell_comb</code>, each in a configuration this package models and has
+validated against the vendor export.&rdquo;</p>
+<p>That sentence is the licence for everything downstream. If a single cell had
+used <code>sclr</code>, shared arithmetic or the fracturable 7-input mode, it would have
+been reported as an <code>unsupported</code> finding instead of silently receiving
+semantics that do not apply to it.</p>
+</div>
+
+<!-- =================================================================== -->
+<h2 id="blind">3. Blinding the netlist — and why you should</h2>
+
+<p>Open <code>netlist.hal.v</code> and the exercise is over before it starts:</p>
+<div class="scroll">
+<pre><code>tennm_ff ... \state.S_RED (   .d(\state~6_combout ), .clrn(rst_n), .ena(vcc), ... );
+tennm_ff ... \state.S_GREEN ( .d(\state~9_combout ), .clrn(rst_n), .ena(vcc), ... );
+tennm_ff ... \tick[3] (       .d(\i23~0_combout ),   .clrn(rst_n),
+                              .ena(\hold~_wirecell_combout ), ... );</code></pre>
+</div>
+<p>Quartus keeps RTL identifiers in its EDA export. The state flip-flops are
+literally called <code>state.S_RED</code> and <code>state.S_GREEN</code>; the counter is a bus
+called <code>tick</code>. A netlist recovered from a bitstream has none of that.</p>
+
+<p>So <a href="anonymize.py"><code>anonymize.py</code></a> produces
+<a href="netlist_anon.hal.v"><code>netlist_anon.hal.v</code></a>: the same gate types, the
+same parameters, the same connectivity, with</p>
+<ul>
+  <li>the module and every port renamed (<code>top</code>, <code>i0..i2</code>, <code>o0..o2</code>),</li>
+  <li>every instance renamed <code>g1..g22</code> and every net <code>n1..n22</code>,</li>
+  <li>the <code>tick[3:0]</code> bus split into four unrelated scalars, so even the bus
+  grouping is not a free hint.</li>
+</ul>
+<p>Gate types, pin names, parameters and the constant nets are untouched: those are
+properties of the device, not of the design. <code>check.py</code> asserts that re-running
+the script reproduces the file byte for byte, so the rename is verifiably a pure
+relabelling. <b>Everything from here to step 9 is done on the blinded
+netlist.</b></p>
+
+<!-- =================================================================== -->
+<h2 id="contact">4. First contact</h2>
+
+<div class="scroll">
+<pre class="cmd"><code>HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+python3 examples/agilex3_walkthroughs/02_traffic_fsm/run_analysis.py</code></pre>
+</div>
+<p>One script produces every artifact and image on this page. Its full output is
+<a href="artifacts/transcript.txt"><code>artifacts/transcript.txt</code></a>; the sections
+below quote from it.</p>
+
+<div class="warn">
+<p><span class="label">Gotcha #1 — and it is the one that matters</span>
+You cannot point a stock analysis at an Agilex netlist and believe the answer.
+<code>tennm_lcell_comb</code> deliberately carries <b>no</b> <code>lut_config</code> in the gate
+library: the ALM has ten input pins and three outputs whose meaning depends on
+<code>lut_mask</code> <em>and</em> on the mode, while HAL derives a LUT function from an init
+string only for gate types with at most six inputs and one function per output.
+A tool that loads the netlist and asks for Boolean functions therefore gets
+<em>empty</em> functions — and will cheerfully &ldquo;solve&rdquo; a state machine whose
+transition logic it cannot see.</p>
+<p>The semantics are attached after loading, per gate, by
+<code>hal_agilex.hal_adapter.elaborate()</code>, which refuses any gate outside the
+validated coverage rather than attaching something plausible. So
+<code>run_analysis.py</code> loads and elaborates the netlist itself:</p>
+<div class="scroll">
+<pre><code>from hal_agilex import hal_adapter
+hal_py  = hal_adapter.import_hal([os.environ["HAL_PY_PATH"]])
+netlist = hal_adapter.load_netlist(hal_py, NETLIST, GATE_LIBRARY)
+report  = hal_adapter.elaborate(hal_py, netlist)
+# -> 14 elaborated, 8 flip-flops checked, 0 refused</code></pre>
+</div>
+<p>If you take one thing away: <b>check that your analysis can actually see the
+combinational functions before you believe anything it says about a state
+machine.</b></p>
+</div>
+
+<h3>What is in the file</h3>
+<div class="scroll"><pre><code>design name        : top
+gate library       : AGILEX_TENNM
+gates              : 24
+nets               : 27
+modules            : 1
+top module         : top_module
+
+gate types:
+  HAL_GND              1
+  HAL_VCC              1
+  tennm_ff             8
+  tennm_lcell_comb     14
+
+global input nets  : i0, i1, i2
+global output nets : o0, o1, o2</code></pre></div>
+
+<figure>
+  <img src="images/module_tree.svg" alt="Module hierarchy of the netlist: a single top module.">
+  <figcaption><code>python tools/hal_viz module_tree netlist_anon.hal.v -g AGILEX_TENNM.hgl
+  -o images/module_tree.svg</code> — one module, no hierarchy. Post-synthesis Quartus
+  output is flat, and a flat netlist cannot tell you whether there ever
+  <em>was</em> a hierarchy.</figcaption>
+</figure>
+
+<figure>
+  <img src="images/netlist_graph.svg" alt="Full gate-level graph of the netlist: 22 cells plus two constant gates.">
+  <figcaption><code>python tools/hal_viz netlist_graph netlist_anon.hal.v -g AGILEX_TENNM.hgl
+  --module top --pin-labels -o images/netlist_graph.svg</code> — the whole design:
+  the 22 cells in the file plus the two constant gates HAL adds, so 24 nodes.
+  At this size you can draw everything; at 22 000 you would scope the
+  view with <code>--gate &lt;name&gt; --depth 2</code> and
+  <code>--show-boundary</code> instead.</figcaption>
+</figure>
+
+<h4>What you can see</h4>
+<ul>
+  <li>Every gate and every wire, exactly. Structure is not lost in synthesis: the
+  netlist is a complete description of the circuit.</li>
+  <li>Which flip-flops share a clock, a reset and an enable.</li>
+  <li>Every LUT's truth table, as a 64-bit <code>lut_mask</code>.</li>
+  <li>Which nets reach the package pins.</li>
+</ul>
+<h4>What you cannot see</h4>
+<ul>
+  <li>Any name that means anything (we removed them; a bitstream never had them).</li>
+  <li>Word-level structure. There are no buses, no arithmetic operators, no
+  <code>case</code> statement. A 4-bit counter is four unrelated flip-flops until you
+  prove otherwise.</li>
+  <li>Which input is the clock. You have to find the net that lands on the
+  <code>clk</code> pins.</li>
+  <li>Which output is &ldquo;red&rdquo;. Naming is the <em>last</em> thing you recover, not the
+  first.</li>
+</ul>
+
+<!-- =================================================================== -->
+<h2 id="walk">5. The reverse-engineering walk</h2>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 1</span>Count what you have</h3>
+<p><b>Reasoning.</b> Before any analysis, establish the size of the problem and
+whether any primitive falls outside your semantic model. Twenty-two cells is a
+design you can afford to understand exhaustively. If elaboration had refused even
+one cell you would have to stop and decide what to do about it, because an
+analysis that reads an un-modelled gate is reading a free variable.</p>
+<div class="scroll"><pre><code>STEP 0d  attach the ALM semantics (hal_agilex.hal_adapter.elaborate)
+
+elaborated tennm_lcell_comb gates : 14
+checked tennm_ff gates            : 8
+refused (left without semantics)  : 0</code></pre></div>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 2</span>Find the clock, the reset and the enables</h3>
+<p><b>Reasoning.</b> The flip-flop pin table is the cheapest high-value table in
+netlist RE. It tells you how many clock domains you have, whether the reset is
+synchronous or asynchronous, and — the part people skip — <em>which registers are
+gated and which are not</em>. A clock enable is design intent leaking through
+synthesis: something in the RTL said &ldquo;only update this when&hellip;&rdquo;.</p>
+<div class="scroll"><pre><code>gate   clk    clrn   ena    d      q
+g1     i1     i2     '1'    n14    n12
+g10    i1     i2     n1     n5     n19
+g11    i1     i2     n1     n6     n20
+g2     i1     i2     '1'    n15    n10
+g4     i1     i2     '1'    n16    n13
+g6     i1     i2     '1'    n17    o2
+g7     i1     i2     n1     n3     n21
+g9     i1     i2     n1     n4     n18
+
+distinct clock nets  : ['i1']
+distinct clrn nets   : ['i2']
+distinct enable nets : ["'1'", 'n1']
+
+One clock, one asynchronous clear, two enable nets. The enable split is
+the first real structural signal in the design.</code></pre></div>
+
+<p>Cross-check with the dedicated tool. <code>hal_cdc discover</code> reports what actually
+drives clock and reset pins — this is how you catch a second clock domain you did
+not expect:</p>
+<div class="scroll">
+<pre class="cmd"><code>python tools/hal_cdc discover netlist_anon.hal.v \
+    --gate-library plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o artifacts/clocks.json</code></pre>
+</div>
+<div class="scroll"><pre><code>artifacts/clocks.json
+{
+  "version": 1,
+  "description": "skeleton generated by hal_cdc discover from netlist_anon.hal.v; edit the names, delete what is not a real clock or reset, and add 'inputs' for primary inputs that are already synchronous to a clock",
+  "clocks": [
+    {
+      "name": "i1",
+      "net": "i1",
+      "description": "drives 8 clock pin(s)"
+    }
+  ],
+  "resets": [
+    {
+      "name": "i2",
+      "net": "i2",
+      "description": "drives 8 reset/set pin(s); set 'synchronous_to' if this reset is already synchronous to a clock"
+    }
+  ]
+}</code></pre></div>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 3</span>Split the flip-flops into registers</h3>
+<p><b>Reasoning.</b> Eight flip-flops are not one 8-bit thing. The standard first
+move is the <b>flip-flop dependency graph</b>: draw an edge
+<span class="mono">u &rarr; v</span> when the next value of <code>u</code> reads the current
+value of <code>v</code> through combinational logic only, then look at its strongly
+connected components. A controller's state bits are mutually dependent, so a
+non-trivial SCC is the strongest purely structural signal there is.</p>
+
+<figure>
+  <img src="images/ff_dependency.svg" alt="Flip-flop dependency graph; a single SCC contains all eight flip-flops.">
+  <figcaption>The flip-flop dependency graph of the blinded netlist, built by
+  <code>hal_fsm.extract</code> and drawn with Graphviz. Blue nodes are the four that turn
+  out to be the state register; the dashed box is the one non-trivial
+  SCC.</figcaption>
+</figure>
+
+<div class="bad">
+<p><span class="label">Gotcha #2 — where the textbook move fails</span>
+There is exactly <b>one</b> non-trivial SCC, and it contains <b>all eight</b>
+flip-flops. &ldquo;Take the SCC&rdquo; hands you an 8-bit blob, not a 4-state controller.</p>
+<p>Why: the dwell counter's next value reads the state register (its restart
+condition is phase-dependent) <em>and</em> the state register's next value reads the
+counter (it only advances when the counter expires). Mutual dependence, one SCC.
+This is not a quirk of this design — any counter with a data-dependent clear or
+reload lands in the same SCC as whatever computes that condition.</p>
+<p>The follow-up heuristic does not save you either. &ldquo;Counters are chains, state
+registers are SCCs&rdquo; is true of a free-running counter and false here: a
+<em>synchronous-clear</em> counter is itself an SCC, because every bit's next value
+reads the shared &ldquo;restart now&rdquo; term and that term reads every bit. The transcript
+shows both halves coming back as SCCs of their own.</p>
+</div>
+
+<p>Two independent structural signals do separate them, and they agree:</p>
+<ol>
+  <li><b>The clock enable.</b> Four flip-flops have <code>ena</code> tied to <code>vcc</code>; four
+  share one gated enable net. Registers that are gated together were written
+  together.</li>
+  <li><b>Reachability to the pins.</b> Walk forward from each flip-flop through
+  combinational gates only and ask whether you reach a top-level output. A Moore
+  machine decodes its outputs from the state register <em>and from nothing else</em>,
+  so the flip-flops that reach the pins are the state register.</li>
+</ol>
+<div class="scroll"><pre><code>dependency edges (the next value of A reads the current value of B):
+  g1   &lt;- g1, g10, g11, g2, g4, g6, g7, g9
+  g2   &lt;- g1, g10, g11, g2, g4, g6, g7, g9
+  g4   &lt;- g1, g10, g11, g2, g4, g6, g7, g9
+  g6   &lt;- g1, g10, g11, g2, g4, g6, g7, g9
+  g7   &lt;- g1, g10, g11, g2, g6, g7, g9
+  g9   &lt;- g1, g10, g11, g2, g6, g7, g9
+  g10  &lt;- g1, g10, g11, g2, g6, g7, g9
+  g11  &lt;- g1, g10, g11, g2, g6, g7, g9
+
+strongly connected components:
+  {g1, g2, g4, g6, g7, g9, g10, g11}   &lt;-- non-trivial
+
+[... 4 lines of commentary elided: the transcript restates gotcha #2 above,
+     that one SCC covering every flip-flop is an 8-bit blob, not a
+     4-bit controller ...]
+
+signal 1 -- partition by the net on the ena pin:
+  ena = '1'    -> ['g1', 'g2', 'g4', 'g6']
+  ena = n1     -> ['g7', 'g9', 'g10', 'g11']
+
+shape of each part, judged only on the edges inside it:
+  ena = '1'    inner SCCs [['g1', 'g2', 'g4', 'g6']]
+  ena = n1     inner SCCs [['g7', 'g9', 'g10', 'g11']]
+  Both parts are internally mutually dependent, so 'is it an SCC' does
+  not tell them apart either: a synchronous-clear counter IS an SCC,
+  because every bit's next value reads the shared 'restart now' term
+  and that term reads every bit.
+
+signal 2 -- which flip-flops reach a primary output through logic only?
+  ['g1', 'g2', 'g4', 'g6']
+  A Moore machine decodes its outputs from the state register and from
+  nothing else, so these are the state register.
+
+the two signals agree: True
+  state register : ['g1', 'g2', 'g4', 'g6']
+  the other four : ['g7', 'g9', 'g10', 'g11']  (bit order unknown -- step 4)</code></pre></div>
+
+<h4>What <code>hal_fsm</code>'s own candidate search says</h4>
+<p><code>hal_fsm</code> proposes candidates from three generators (SCCs, self-loop clusters,
+DANA register groups), scores them with a published weighted sum of structural
+features, and reports ambiguity rather than breaking ties by sort order. On this
+design:</p>
+<div class="scroll"><pre><code>for comparison, hal_fsm's own candidate proposal and scoring:
+  score 0.980  from scc                    [g1, g2, g4, g6, g7, g9, g10, g11]
+        agreement                  0.6
+        closure                    1.0
+        control_fanout             1.0
+        input_pressure             1.0
+        mutual_feedback            1.0
+        size_fit                   1.0
+        uniformity                 1.0</code></pre></div>
+
+<h4>And what DANA says</h4>
+<div class="scroll">
+<pre class="cmd"><code>python tools/hal_viz dataflow netlist_anon.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl -o artifacts/dataflow</code></pre>
+</div>
+<div class="scroll"><pre><code>artifacts/dataflow/graph.dot
+artifacts/dataflow/groups.txt
+artifacts/dataflow/graph.svg
+
+DANA groups.txt:
+  State:
+
+  ID:0, Size:4, CLK: {13}, EN: {19}, R: {14}, S: {}
+    Successors:   {0, 1}
+    Predecessors: {0, 1}
+  g7,  type: tennm_ff, id: 7,  RS:
+  g9,  type: tennm_ff, id: 9,  RS:
+  g10, type: tennm_ff, id: 10, RS:
+  g11, type: tennm_ff, id: 11, RS:
+
+  ID:1, Size:4, CLK: {13}, EN: {2}, R: {14}, S: {}
+    Successors:   {0, 1}
+    Predecessors: {0, 1}
+  g1, type: tennm_ff, id: 1, RS:
+  g2, type: tennm_ff, id: 2, RS:
+  g4, type: tennm_ff, id: 4, RS:
+  g6, type: tennm_ff, id: 6, RS:</code></pre></div>
+<figure>
+  <img src="images/dataflow.svg" alt="DANA register grouping for this netlist.">
+  <figcaption>DANA returns exactly two groups of four, each other's successor and
+  predecessor: ID&nbsp;0 = <span class="mono">{g7, g9, g10, g11}</span> (enable
+  <span class="mono">EN: {19}</span>, the dwell counter) and ID&nbsp;1 =
+  <span class="mono">{g1, g2, g4, g6}</span> (enable <span class="mono">EN: {2}</span>,
+  the state register) — the same split step 3 reached twice, now by a third and
+  independent method.</figcaption>
+</figure>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 4</span>Recover the counter's bit order</h3>
+<p><b>Reasoning.</b> There are no buses in the netlist, so &ldquo;bit 0&rdquo; has to be
+earned. Structure will not give it to you here — every bit of a
+synchronous-clear counter reads every other bit — but <em>behaviour</em> will: bit
+<i>i</i> of a counter toggles about half as often as bit <i>i</i>&minus;1. Release
+reset, run it, and count edges.</p>
+<div class="scroll"><pre><code>The netlist has no buses: four flip-flops is four flip-flops. But bit i
+of a counter toggles about half as often as bit i-1, and that survives
+synthesis untouched.
+
+  g9    280 toggles in 310 cycles
+  g10   140 toggles in 310 cycles
+  g11    80 toggles in 310 cycles
+  g7     40 toggles in 310 cycles
+
+  bit order, LSB first: ['g9', 'g10', 'g11', 'g7']</code></pre></div>
+<p>Ratios 280 : 140 : 80 : 40 — not exactly 2:1, because the counter restarts at
+four different values rather than wrapping at 16, but strictly decreasing and
+unambiguous. That ordering is used from here on, and <code>check.py</code> re-derives it
+and then verifies it by decoding: in that order, and only in that order, the
+value increments by exactly one every cycle.</p>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 5</span>Point <code>hal_fsm</code> at it — and read the refusal</h3>
+<p><b>Reasoning.</b> With a nominated state register, the obvious move is to hand
+it to <code>solve_fsm</code> through <code>hal_fsm</code> and let it enumerate the transition
+relation. Do that, and read what comes back before you read the diagram.</p>
+<div class="scroll"><pre><code>--- hal_fsm: the 4 state flip-flops ---
+config: {"config_version": "1.0.0", "limits": {"brute_force_max_states": 4096}, "name": "controller", "solver": "brute_force", "state_registers": ["g1", "g2", "g4", "g6"]}
+  fsm/candidate/001                          heuristic                  Selected by the user in the configuration file; not scored.
+  fsm/machine01/asynchronous-control         unsupported                4 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state fu
+  fsm/machine01/transitions                  error                      solve_fsm returned no result for this candidate. This says nothing about the design: a wrong candidate, a flip-flop type solve_fsm cannot model, an un
+  fsm/coverage/uncovered-sequential-gates    unsupported                1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement n
+  note: 8 sequential gate(s) cannot be part of a state register solve_fsm can handle: g1 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); [... the identical clause for g2, g4, g6 ...]
+  note: the state register was taken from the configuration file; no candidate proposal was run
+  note: solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; [... the same clause repeated, once per nominated flip-flop: 4 copies ...]
+
+--- hal_fsm: all 8 flip-flops ---
+config: {"config_version": "1.0.0", "limits": {"brute_force_max_states": 4096, "max_state_bits": 12}, "name": "product", "solver": "brute_force", "state_registers": ["g1", "g10", "g11", "g2", "g4", "g6", "g7", "g9"]}
+  fsm/candidate/001                          heuristic                  Selected by the user in the configuration file; not scored.
+  fsm/machine01/asynchronous-control         unsupported                8 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state fu
+  fsm/machine01/transitions                  error                      solve_fsm returned no result for this candidate. This says nothing about the design: a wrong candidate, a flip-flop type solve_fsm cannot model, an un
+  fsm/coverage/uncovered-sequential-gates    unsupported                1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement n
+  note: 8 sequential gate(s) cannot be part of a state register solve_fsm can handle: g1 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); [... the identical clause for g2, g4, g6 ...]
+  note: the state register was taken from the configuration file; no candidate proposal was run
+  note: solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; [... the same clause repeated, once per nominated flip-flop: 8 copies ...]
+
+(the finding descriptions are printed cut off at the terminal width -- that is
+ how the transcript records them, ending mid-word at "fu", "un" and "n")</code></pre></div>
+
+<div class="bad">
+<p><span class="label">Gotcha #3 — the tool refuses, correctly</span>
+<code>hal_fsm</code> requires <b>exactly one input pin of type <code>data</code></b> per state
+flip-flop, because that is what <code>solve_fsm</code> builds a next-state function from.
+The Agilex <code>tennm_ff</code> has <b>two</b>: <code>d</code> and <code>asdata</code> (the
+asynchronous-load data port, tied off here but still declared). So every
+flip-flop in the design is marked unusable and no candidate can be solved.</p>
+<p>This is the tool being right rather than convenient. It could have picked
+<code>d</code> because the name looks familiar; instead it refuses and says exactly which
+assumption it could not make. The findings document still contains everything
+that was established <em>before</em> the solver: the candidates and their scores, the
+asynchronous-control gap, the sequential gates nothing covered.</p>
+<p><b>The workaround, and why it is legitimate here.</b> The design is tiny, so you
+do not need a solver at all: 2<sup>4</sup> state assignments &times;
+2<sup>4</sup> counter values &times; 2 values of the input is 512 evaluations of a
+22-gate netlist. <code>run_analysis.py</code> enumerates them with
+<code>hal_agilex</code>'s reference simulator — the same validated ALM and flip-flop
+semantics — and then feeds the resulting relation into <code>hal_fsm</code>'s own
+<code>TransitionTable</code> and <code>diagram</code> modules, which are pure Python and do not care
+where the relation came from. The pictures in steps 6 and 7 are drawn by
+<code>hal_fsm.diagram</code> through <code>hal_viz.dot</code>; only the solving is ours.</p>
+<p><b>The real fix</b> is a one-line change in the gate library or a pin-type-aware
+relaxation in <code>hal_fsm.extract</code>; see <a href="#further">Going further</a>.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 6</span>The state register's transition relation</h3>
+<p><b>Reasoning.</b> Enumerate every (state, counter, input) assignment, record
+where each state goes, and summarise the assignments that share a target into a
+condition. Because the enumeration is exhaustive, the resulting relation is
+complete and deterministic by construction — including for the states that reset
+can never reach, which an SMT solver seeded from the reset state would never
+show you.</p>
+<div class="scroll"><pre><code>2**4 state assignments x 2**4 counter values x 2 hold values = 512
+settles of a 22-gate netlist. At this size you do not need a solver.
+
+recovered relation: 16 states, 20 transitions, 4 reachable from 0000
+reachable states -- bit i is the output of ['g1', 'g2', 'g4', 'g6'][i], printed the way the
+diagram prints them, most significant bit first:
+   0  0000
+   3  0011
+   5  0101
+   9  1001
+
+transitions:
+     0 -> 0    when  otherwise
+     0 -> 3    when  !i0 &amp; counter == 9
+  *  1 -> 0    when  otherwise
+  *  2 -> 0    when  otherwise
+     3 -> 3    when  otherwise
+     3 -> 9    when  !i0 &amp; counter == 2
+  *  4 -> 0    when  otherwise
+     5 -> 0    when  !i0 &amp; counter == 4
+     5 -> 5    when  otherwise
+  *  6 -> 0    when  otherwise
+  *  7 -> 0    when  otherwise
+  *  8 -> 0    when  otherwise
+     9 -> 5    when  !i0 &amp; counter == 12
+     9 -> 9    when  otherwise
+  * 10 -> 0    when  otherwise
+  * 11 -> 0    when  otherwise
+  * 12 -> 0    when  otherwise
+  * 13 -> 0    when  otherwise
+  * 14 -> 0    when  otherwise
+  * 15 -> 0    when  otherwise
+  (* = source state is not reachable from the reset state)</code></pre></div>
+
+<figure>
+  <img src="images/controller_state_diagram.svg" alt="Recovered state diagram of the 4-bit state register.">
+  <figcaption>Drawn by <code>hal_fsm.diagram.write_state_diagram</code>. Solid circles are
+  reachable from reset, dashed grey ones are not; the double circle is the reset
+  state. Labels are bit vectors over the bit order
+  <span class="mono">g1, g2, g4, g6</span>, most significant bit last in that
+  list — the diagram prints them MSB first, and the header comment of the
+  <code>.dot</code> says so, because a state number means nothing without its bit
+  order.</figcaption>
+</figure>
+
+<div class="good">
+<p><span class="label">What this tells you</span></p>
+<ul>
+  <li>Four states are reachable: <span class="mono">0000</span>,
+  <span class="mono">0011</span>, <span class="mono">1001</span>,
+  <span class="mono">0101</span> (0, 3, 9, 5). They form <b>one cycle</b>, in that
+  order.</li>
+  <li>Every transition is conditioned on <code>!i0</code> — the single data input freezes
+  the machine.</li>
+  <li>Each transition fires at a <b>different</b> counter value: 9, 2, 12, 4. The
+  dwell time is per-phase, not global. That single observation is what tells you
+  there is a <code>case</code>-like lookup in the original, not one constant.</li>
+  <li>The twelve unreachable encodings all go to <span class="mono">0000</span> in
+  one step. That is not the designer's doing — see step 9.</li>
+</ul>
+</div>
+
+<div class="warn">
+<p><span class="label">The assumption you must not lose</span>
+Which flip-flops are the state register is a <em>heuristic</em> (step 3), and the
+transition relation is a separate claim that <em>rests</em> on it. <code>hal_fsm</code> keeps
+those apart on purpose: a reader who does not believe the register does not have
+to believe the transitions. And note what is missing from the diagram entirely:
+<b>the asynchronous reset</b>. <code>solve_fsm</code> builds next-state functions from the
+gate type's <code>next_state</code> expression, and <code>clrn</code> is not in it. Our own
+enumeration has the same blind spot, deliberately — we held <code>rst_n</code> high
+throughout — so the reset arrow in the picture is the one edge that comes from
+step 2's pin table, not from the relation.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 7</span>Refuse to decompose: all eight flip-flops at once</h3>
+<p><b>Reasoning.</b> The step 6 diagram has conditions written over counter nets,
+which is honest but not yet an explanation. Because the design is small, you can
+sidestep decomposition entirely: treat all eight flip-flops as one state register
+and enumerate the product machine. 2<sup>8</sup> encodings &times; 2 input values
+= 512 evaluations. The reachable subset <em>is</em> the answer to &ldquo;what does this
+thing do&rdquo;.</p>
+<div class="scroll"><pre><code>state bit order: ['g1', 'g2', 'g4', 'g6', 'g9', 'g10', 'g11', 'g7']
+
+31 of 256 encodings are reachable from the reset state
+
+# the relation itself is artifacts/product_transitions.json: 31 states,
+# 62 transitions, "complete": true, initial_state 0. An encoding is
+# sum(bit_i &lt;&lt; i) over that bit order, so its low nibble is the controller
+# state of step 6 and its high nibble is the counter of step 4.
+
+"states": [0, 3, 5, 9, 16, 19, 21, 25, 32, 35, 37, 41, 48, 53, 57, 64, 69,
+           73, 80, 89, 96, 105, 112, 121, 128, 137, 144, 153, 169, 185, 201]
+
+# every state has exactly two out-edges: "i0" back to itself, and "!i0"
+# to the next node of the single ring --
+#
+#   0 -> 16 -> 32 -> 48 -> 64 -> 80 -> 96 -> 112 -> 128 -> 144 -> 3
+#        controller 0000, counter 0..9      (10 nodes)
+#   3 -> 19 -> 35 -> 9
+#        controller 0011, counter 0..2      (3 nodes)
+#   9 -> 25 -> 41 -> 57 -> 73 -> 89 -> 105 -> 121 -> 137 -> 153 -> 169
+#     -> 185 -> 201 -> 5
+#        controller 1001, counter 0..12     (13 nodes)
+#   5 -> 21 -> 37 -> 53 -> 69 -> 0
+#        controller 0101, counter 0..4      (5 nodes)
+#
+# 10 + 3 + 13 + 5 = 31. No branch anywhere: the only choice in the whole
+# relation is stay (i0) or advance (!i0).</code></pre></div>
+<figure>
+  <img src="images/product_state_diagram.svg" alt="Recovered product state machine: the full 31-state light cycle.">
+  <figcaption>The whole controller as one machine, laid out with
+  <code>dot -Kcirco</code>. Thirty-one of 256 encodings are reachable and they form a
+  single ring: the light cycle, one node per clock. The self-loops are
+  <code>i0</code> — the freeze input.</figcaption>
+</figure>
+<p>A 31-state ring with no branches is a strong statement in itself: <b>this design
+has no data path and no choice</b>. Its only input can stall it, never steer it.</p>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 8</span>Drive it and watch the pins</h3>
+<p><b>Reasoning.</b> Structure tells you what the circuit <em>is</em>; simulation tells
+you what it <em>does</em>, and it is the step that gives you the vocabulary to name
+things. <code>hal_agilex</code>'s reference simulator executes the export with the
+validated ALM and flip-flop semantics — no HAL, no vendor models — so this part
+runs anywhere.</p>
+<div class="scroll"><pre><code>(reset released before cycle 0; i0 held at 0 throughout)
+cycle |  o0  o1  o2  |  g1  g2  g4  g6  | counter
+-------------------------------------------------
+    0 |   1   0   0  |   0   0   0   0  |   0
+    1 |   1   0   0  |   0   0   0   0  |   1
+[... cycles 2-8: same outputs, same state bits, counter 2..8 ...]
+    9 |   1   0   0  |   0   0   0   0  |   9
+   10 |   1   1   0  |   1   1   0   0  |   0
+   11 |   1   1   0  |   1   1   0   0  |   1
+   12 |   1   1   0  |   1   1   0   0  |   2
+   13 |   0   0   1  |   1   0   0   1  |   0
+[... cycles 14-24: same outputs, same state bits, counter 1..11 ...]
+   25 |   0   0   1  |   1   0   0   1  |  12
+   26 |   0   1   0  |   1   0   1   0  |   0
+[... cycles 27-29: same outputs, same state bits, counter 1..3 ...]
+   30 |   0   1   0  |   1   0   1   0  |   4
+   31 |   1   0   0  |   0   0   0   0  |   0
+[... cycles 32-39: the first phase again, counter 1..8 ...]
+
+output phases (o0, o1, o2) and how long each lasts:
+  (1, 0, 0) -> 10 clock cycles
+  (1, 1, 0) ->  3 clock cycles
+  (0, 0, 1) -> 13 clock cycles
+  (0, 1, 0) ->  5 clock cycles
+  full period: 31 clock cycles
+
+counter value against phase (the value it reaches just before it
+restarts is the dwell limit of that phase):
+  outputs (1, 0, 0) -> counter runs 0..9  (10 cycles)
+  outputs (1, 1, 0) -> counter runs 0..2  (3 cycles)
+  outputs (0, 0, 1) -> counter runs 0..12  (13 cycles)
+  outputs (0, 1, 0) -> counter runs 0..4  (5 cycles)
+
+state encoding against phase:
+  0000 -> outputs (1, 0, 0)
+  1100 -> outputs (1, 1, 0)
+  1001 -> outputs (0, 0, 1)
+  1010 -> outputs (0, 1, 0)</code></pre></div>
+
+<div class="good">
+<p><span class="label">Now you can name things</span></p>
+<ul>
+  <li>Three outputs, exactly one or two lit at any time, cycling with period 31.
+  Two pins are never lit together except in one 3-cycle phase. That is a traffic
+  light, and the 3-cycle overlap phase is the tell.</li>
+  <li><code>o2</code> is lit alone for the longest phase — 13 cycles — and never shares
+  with anything — <b>green</b>.</li>
+  <li><code>o0</code> is lit alone for 10 cycles <em>and</em> again during the 3-cycle overlap —
+  <b>red</b>, because red&nbsp;+&nbsp;amber is the standard start-up overlap and
+  green&nbsp;+&nbsp;amber is not.</li>
+  <li><code>o1</code> is the pin that shares with <code>o0</code> and also runs alone for a short
+  phase between green and red — <b>yellow</b>.</li>
+  <li>The state encoding is now readable: <span class="mono">g1 g2 g4 g6</span> =
+  0000 &rarr; red, 1100 &rarr; red+yellow, 1001 &rarr; green, 1010 &rarr; yellow
+  (printed bit 0 first here).</li>
+</ul>
+<p>Note that this is an <em>argument</em>, not a proof. The netlist cannot tell you
+which lamp is on which pin; a domain convention can. Say so in your report.</p>
+</div>
+
+<!-- ---------------------------------------------------------------- -->
+<h3><span class="step">STEP 9</span>The last two facts are in the LUT masks</h3>
+<p><b>Reasoning.</b> Two things are still unexplained: where the numbers 9, 2, 12
+and 4 live, and what the one LUT that <em>every</em> next-state LUT reads is for. Both
+are truth tables. The Quartus export prints its own equation next to each cell,
+and <code>hal_agilex</code>'s mask decoding is validated against exactly those equations,
+so you can read either.</p>
+
+<h4>The dwell limits</h4>
+<p>The comparison is split across two cells. One (<code>g8</code>) compares the counter's
+top bit against a phase-dependent constant; the other (<code>g12</code>) compares the low
+three bits. Written out over the state bits, with
+<span class="mono">r&nbsp;=&nbsp;g1, y&nbsp;=&nbsp;g2, w&nbsp;=&nbsp;g4,
+gr&nbsp;=&nbsp;g6</span>:</p>
+<div class="scroll">
+<pre><code>g8.combout  = !cnt[3] ^ (r &amp; !gr)                 // "top bit does NOT match"
+g12.combout = ( cnt[2] &amp; ( r &amp; !y &amp; !cnt[0] &amp; !cnt[1] ))
+            | (!cnt[2] &amp; ( (!r &amp; cnt[0] &amp; (!y ^ cnt[1]))
+                         | ( r &amp;  y &amp; !cnt[0] &amp; cnt[1]) ))   // "low bits match"
+
+  phase          low 3 bits   top bit   limit
+  0000 (red)        001          1        1001 =  9
+  1100 (red+yel)    010          0        0010 =  2
+  1001 (green)      100          1        1100 = 12
+  1010 (yellow)     100          0        0100 =  4</code></pre>
+</div>
+<p>Which is exactly the table step 8 measured from the outside — two independent
+routes to the same four numbers.</p>
+
+<h4>The shared term</h4>
+<div class="scroll">
+<pre><code>g13.combout = (!r &amp; !y &amp; !w &amp; !gr)
+            | ( r &amp; !y &amp; (!w ^ !gr))
+            | ( r &amp;  y &amp; !w &amp; !gr)</code></pre>
+</div>
+<p>Evaluate it on the sixteen encodings: it is 1 on exactly the four reachable
+states and 0 on the other twelve. It is a <b>legality check</b>, and every one of
+the four next-state LUTs is gated by it — which is why every illegal state goes
+to <span class="mono">0000</span> in one step.</p>
+<div class="note">
+<p><span class="label">This one is not the designer's</span> It is Quartus's
+&ldquo;safe state machine&rdquo; option, announced in the synthesis log
+(<code>Info (284007)</code>) and completely absent from <code>design.v</code>. From inside the
+netlist there is <em>no way to tell</em> that this logic was added by a tool rather
+than written by a person. Recovered RTL that includes it is faithful to the
+netlist and unfaithful to the source, and both statements are true at the same
+time.</p>
+</div>
+
+<!-- =================================================================== -->
+<h2 id="recon">6. Reconstruction</h2>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the design rewritten from the netlist
+alone. Every construct in it carries the step number that produced it. Names are
+invented — the netlist has none.</p>
+
+<div class="scroll">
+<pre><code>module traffic_fsm_recovered (
+    input  wire clk,      // i1 -- drives every tennm_ff.clk
+    input  wire arst_n,   // i2 -- drives every tennm_ff.clrn (active low, async)
+    input  wire freeze,   // i0 -- inverted once, then used as the counter enable
+    output wire o0,       // "red"    -- see the naming argument in step 8
+    output wire o1,       // "yellow"
+    output wire o2        // "green"
+);
+
+    reg r, y, g, w;       // the state register: netlist gates g1, g2, g6, g4
+    reg [3:0] cnt;        // the counter:       netlist gates g9, g10, g11, g7
+
+    // The four reachable encodings, in the netlist's own bit order, bit 0 first:
+    // (g1, g2, g4, g6) = (r, y, w, g)
+    //   phase A   0 0 0 0     decimal  0
+    //   phase B   1 1 0 0              3
+    //   phase C   1 0 0 1              9
+    //   phase D   1 0 1 0              5
+    wire phase_a = ~r;
+    wire phase_b =  r &amp;  y;
+    wire phase_c =  r &amp;  g;
+    wire phase_d =  r &amp;  w;
+
+    // g13: true on exactly those four encodings (step 9)
+    wire legal = (~r &amp; ~y &amp; ~g &amp; ~w)
+               | ( r &amp; ~y &amp; (w ^ g))
+               | ( r &amp;  y &amp; ~w &amp; ~g);
+
+    // g8 + g12 (step 9), confirmed by measurement (step 8)
+    wire [3:0] limit = phase_a ? 4'd9
+                     : phase_b ? 4'd2
+                     : phase_c ? 4'd12
+                     :           4'd4;
+
+    wire expired = (cnt == limit);
+    wire advance = expired &amp; ~freeze;
+
+    always @(posedge clk or negedge arst_n) begin
+        if (!arst_n) begin
+            r &lt;= 1'b0; y &lt;= 1'b0; g &lt;= 1'b0; w &lt;= 1'b0;
+            cnt &lt;= 4'd0;
+        end else begin
+            if (!legal) begin
+                r &lt;= 1'b0; y &lt;= 1'b0; g &lt;= 1'b0; w &lt;= 1'b0;
+            end else if (advance) begin
+                // the rotation, read straight off the four next-state LUTs
+                r &lt;= ~w;      // leave "not A" unless we are in D
+                y &lt;= ~r;      // B follows A
+                g &lt;=  y;      // C follows B
+                w &lt;=  g;      // D follows C
+            end
+            if (!freeze) begin
+                cnt &lt;= expired ? 4'd0 : cnt + 4'd1;
+            end
+        end
+    end
+
+    assign o0 = ~r | y;   // high in phases A and B
+    assign o1 =  y | w;   // high in phases B and D
+    assign o2 =  g;       // high in phase C
+
+endmodule</code></pre>
+</div>
+
+<h3>Is it right? Not &ldquo;does it look right&rdquo;.</h3>
+<p>The reconstruction is restated as a Python model
+(<a href="artifacts/reference_recovered.py"><code>reference_recovered.py</code></a>) and
+compared against the <em>exported netlist</em>, simulated with the validated primitive
+semantics:</p>
+<div class="scroll">
+<pre class="cmd"><code>python tools/hal_agilex behavior examples/agilex3_walkthroughs/02_traffic_fsm/traffic_fsm.vo \
+    --reference examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/reference_recovered.py \
+    --cycles 400</code></pre>
+</div>
+<div class="good">
+<p><code>hal_agilex/behavior/reference-equivalence</code> &mdash; <b>proven_bounded</b>:
+&ldquo;400 pseudo-random cycles, including asynchronous clears, agree with the
+reference model. Nothing is claimed beyond that bound.&rdquo;</p>
+<p>Read the status. <em>Bounded</em>, not proved: 400 cycles of pseudo-random stimulus
+is evidence, not equivalence checking. The tool says so in its own output rather
+than letting you assume otherwise.</p>
+</div>
+<p>Separately, <code>check.py</code> walks the recovered model and a model of the original
+RTL in lockstep over every reachable state and both input values — 31 state
+pairs, exhaustive — and they agree on every output.</p>
+
+<!-- =================================================================== -->
+<h2 id="lost">7. Recovered vs. lost</h2>
+
+<p>Now, and only now, open <a href="artifacts/anonymize_map.json">the map</a>.</p>
+<div class="scroll"><pre><code>anon   name Quartus wrote into the .vo
+g1     state.S_RED
+g2     state.S_RED_YELLOW
+g3     red~0
+g4     state.S_YELLOW
+g5     yellow~0
+g6     state.S_GREEN
+g7     tick$b3
+g8     i14~0
+g9     tick$b0
+g10    tick$b1
+g11    tick$b2
+g12    reduce_nor_1~0
+g13    state.S_RED~0
+g14    state~6
+g15    state~7
+g16    state~8
+g17    state~9
+g18    i23~0
+g19    i23~1
+g20    i23~2
+g21    i23~3
+g22    hold~_wirecell
+
+i0     hold
+i1     clk
+i2     rst_n
+o0     red
+o1     yellow
+o2     green</code></pre></div>
+
+<h3>Recovered exactly</h3>
+<div class="scroll">
+<table>
+<tr><th>What</th><th>How</th></tr>
+<tr><td>The complete behaviour, cycle for cycle</td><td>steps 6–9; checked against the netlist for 400 random cycles and against the original RTL over all 31 reachable states</td></tr>
+<tr><td>8 flip-flops, one clock, one asynchronous active-low reset, one gated enable</td><td>step 2, exactly</td></tr>
+<tr><td>Two registers: a 4-bit controller and a 4-bit dwell counter</td><td>step 3, by enable grouping <em>and</em> output reachability, two independent signals agreeing</td></tr>
+<tr><td>The counter's bit order</td><td>step 4, by toggle rate; verified by decoding</td></tr>
+<tr><td>Four phases in a fixed cycle with dwell times 10 / 3 / 13 / 5 and period 31</td><td>steps 7–9</td></tr>
+<tr><td>That the outputs are Moore (functions of state only)</td><td>step 3: no counter bit reaches an output pin</td></tr>
+<tr><td>That the one data input freezes both registers rather than steering them</td><td>step 2 (it is the enable) and step 7 (every branch is a self-loop)</td></tr>
+</table>
+</div>
+
+<h3>Lost, and not recoverable from this netlist</h3>
+<div class="scroll">
+<table>
+<tr><th>Lost</th><th>Why, and what you get instead</th></tr>
+<tr><td><b>Every identifier</b> — <code>state</code>, <code>tick</code>, <code>limit</code>, <code>advance</code>, <code>S_RED</code>, <code>hold</code>, <code>red</code></td>
+    <td>A netlist stores structure, not intent. You get <code>g1</code>…<code>g22</code> and you invent names from behaviour. (This particular export happened to keep Quartus's mangled derivatives; a bitstream-derived netlist will not, which is why we blinded it.)</td></tr>
+<tr><td><b>The state encoding</b> — the RTL used 2 bits, <code>00/01/10/11</code></td>
+    <td>Quartus re-encoded to 4-bit one-hot with the reset bit inverted: <code>0000 / 1100 / 1001 / 1010</code>. You recover <em>an</em> encoding — the one in the silicon — and it is not the one that was written. Anyone reconstructing &ldquo;the&rdquo; source encoding from a netlist is reconstructing the synthesizer's choice.</td></tr>
+<tr><td><b>The number of state bits</b> — 2 in the RTL, 4 in the netlist</td>
+    <td>Register width is a synthesis output, not a design input.</td></tr>
+<tr><td><b>Hierarchy and module boundaries</b></td>
+    <td>There were none here, and a flat netlist could not have told you either way. Post-synthesis Quartus output is flat; <code>module_tree</code> shows a single node.</td></tr>
+<tr><td><b>How the logic was written</b> — a <code>case</code> over four named constants vs. one Boolean expression</td>
+    <td>Both become the same LUT masks. The RTL's <code>limit</code> multiplexer has no counterpart in the netlist at all: it is fused into the two comparison LUTs <code>g8</code> and <code>g12</code>.</td></tr>
+<tr><td><b>The boundary between design and synthesis artifact</b></td>
+    <td>The legality LUT <code>g13</code> and the twelve illegal states it handles are <em>not in the RTL</em>. They are Quartus's safe-state-machine option. Nothing in the netlist distinguishes them from logic a human wrote.</td></tr>
+<tr><td><b>Two registers that existed in the RTL</b></td>
+    <td><code>Info (17049): 2 registers lost all their fanouts</code> — the synthesis log says so, but the netlist does not. Deleted logic leaves no trace.</td></tr>
+</table>
+</div>
+
+<div class="note">
+<p><span class="label">The honest summary</span> What survives synthesis is
+<em>behaviour</em> and <em>structure</em>. What does not survive is <em>intent</em>: names,
+encodings, widths, hierarchy, and the line between what a person wrote and what a
+tool added. A reverse-engineered RTL file is a description of a circuit, not a
+recovery of a source file. Here the two differ in all six of those ways while
+being cycle-for-cycle identical.</p>
+</div>
+
+<!-- =================================================================== -->
+<h2 id="further">8. Going further</h2>
+
+<h3>Re-run everything</h3>
+<div class="scroll">
+<pre class="cmd"><code># the analyses and every image (needs a built HAL + Graphviz)
+HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+python3 examples/agilex3_walkthroughs/02_traffic_fsm/run_analysis.py
+
+# the claims this page makes (plain Python: no HAL, no Quartus, no Graphviz)
+python examples/agilex3_walkthroughs/02_traffic_fsm/check.py
+
+# regenerate the netlist from the RTL (needs Quartus Prime Pro 26.1)
+cd examples/agilex3_walkthroughs/02_traffic_fsm/quartus &amp;&amp; quartus_sh -t build.tcl</code></pre>
+</div>
+
+<h3>Exercises that change the answer</h3>
+<ul>
+  <li><b>Turn the safe state machine off.</b> Add
+  <code>set_global_assignment -name STATE_MACHINE_PROCESSING "MINIMAL BITS"</code> and
+  re-synthesize. The one-hot encoding, the legality LUT and the twelve illegal
+  states all disappear. Diffing the two netlists is the fastest way to internalise
+  how much of a netlist is the synthesizer talking rather than the designer.</li>
+  <li><b>Make the counter free-running</b> (drop the phase-dependent restart) and
+  watch the single 8-flip-flop SCC of step 3 split into the textbook two-SCC
+  picture that this design deliberately is not.</li>
+  <li><b>Give <code>hold</code> a real job</b> — make it choose a shorter cycle instead of
+  freezing — and the step 7 ring grows branches. The shape of that diagram is the
+  quickest summary of &ldquo;can this input steer the design&rdquo;.</li>
+  <li><b>Add a second clock domain</b> and run <code>hal_cdc audit</code>. A clean screening
+  report on a single-clock design is not evidence that the tool works.</li>
+  <li><b>Compose the findings.</b> Everything here writes <code>hal_findings</code>
+  documents; <code>hal_explain compose</code> turns them into an evidence-linked
+  recovered-block model, and <code>hal_viz report</code> renders any of them into a static
+  page with the status badges and undischarged assumptions intact.</li>
+</ul>
+
+<h3>Where the tooling would have to grow</h3>
+<ul>
+  <li><b><code>hal_fsm</code> cannot solve an Agilex flip-flop</b> (step 5). Two fixes,
+  either of which is small: give <code>asdata</code> a pin type that is not <code>data</code> in
+  <code>AGILEX_TENNM.hgl</code>, or teach <code>hal_fsm.extract</code> to accept several
+  <code>data</code> pins when all but one are tied to a constant. The second is the better
+  one — the pin really does carry data, it is just not connected to any.</li>
+  <li><b><code>hal_fsm analyze</code> should be able to elaborate an Agilex netlist
+  itself</b> (gotcha #1). Today the caller must attach the ALM semantics before
+  calling <code>hal_fsm.run.analyse</code>.</li>
+  <li><b>Candidate proposal has no generator for the two signals that actually
+  cracked this design</b> — &ldquo;registers that share a clock enable&rdquo; and &ldquo;registers
+  that reach a primary output&rdquo;. Both are cheap, structural, and would have ranked
+  the right four flip-flops first.</li>
+</ul>
+
+<h3>Files in this directory</h3>
+<div class="scroll">
+<table>
+<tr><th>File</th><th>What it is</th></tr>
+<tr><td><a href="design.v">design.v</a></td><td>the original RTL</td></tr>
+<tr><td><a href="spec.md">spec.md</a></td><td>the intended behaviour, written before synthesis</td></tr>
+<tr><td><a href="quartus/traffic_fsm.qsf">quartus/</a></td><td>the Quartus project (<code>.qpf</code>, <code>.qsf</code>, <code>build.tcl</code>); no build output is committed</td></tr>
+<tr><td><a href="traffic_fsm.vo">traffic_fsm.vo</a></td><td>the vendor EDA netlist export, verbatim</td></tr>
+<tr><td><a href="netlist.hal.v">netlist.hal.v</a></td><td>the same netlist, rewritten by <code>hal_agilex import</code> so HAL can read it</td></tr>
+<tr><td><a href="netlist_anon.hal.v">netlist_anon.hal.v</a></td><td>the blinded netlist the walk is done on</td></tr>
+<tr><td><a href="anonymize.py">anonymize.py</a></td><td>produces it, plus the rename map</td></tr>
+<tr><td><a href="run_analysis.py">run_analysis.py</a></td><td>every analysis and every image on this page</td></tr>
+<tr><td><a href="check.py">check.py</a></td><td>re-checks every claim here, headlessly, without HAL</td></tr>
+<tr><td><a href="recovered.v">recovered.v</a></td><td>the reconstruction</td></tr>
+<tr><td><a href="artifacts/transcript.txt">artifacts/</a></td><td>transcript, findings documents, DOT sources, reference models</td></tr>
+<tr><td>images/</td><td>the SVGs embedded above</td></tr>
+</table>
+</div>
+
+<footer>
+<p>Device <code>A3CW135BM16AE6S</code> (Agilex 3, MBGA896) &middot; Quartus Prime Pro Edition
+26.1.0 Build 110 03/26/2026 &middot; post-synthesis export &middot; HAL gate library
+<code>AGILEX_TENNM</code>. The Altera copyright header in <code>traffic_fsm.vo</code> is the one
+<code>quartus_eda</code> wrote and is kept verbatim; no vendor simulation models, device
+databases or encrypted libraries are redistributed here.</p>
+<p>Part of the FPGAPA headless HAL fork. See <code>tools/hal_agilex/README.md</code> for
+what &ldquo;HAL supports Agilex&rdquo; is allowed to mean, and <code>tools/hal_fsm/README.md</code>
+for why a recovered state machine is two claims of different strength stacked on
+top of each other.</p>
+</footer>
+
+</div>
+</body>
+</html>

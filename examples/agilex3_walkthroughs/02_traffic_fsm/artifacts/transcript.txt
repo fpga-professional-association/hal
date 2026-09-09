@@ -1,0 +1,657 @@
+
+==============================================================================
+STEP 0  pictures first: module tree and the whole gate graph
+==============================================================================
+$ /usr/bin/python3 /work/tools/hal_viz module_tree /work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v -g /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl -o /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/module_tree.svg
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+  [gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+  [gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+  [netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+  [gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+  [netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+  [netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+  [gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+  [netlist_parser] [info] selected parser: Default Verilog Parser
+  [netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v'...
+  [netlist_parser] [info] finished parsing in 0.00 seconds.
+  [netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' with gate library 'AGILEX_TENNM'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+  [netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 24 gates.
+  [netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' in 0.01 seconds.
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/module_tree.dot
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/module_tree.svg
+$ /usr/bin/python3 /work/tools/hal_viz netlist_graph /work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v -g /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl --module top --pin-labels -o /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/netlist_graph.svg
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+  [gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+  [gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+  [netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+  [gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+  [netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+  [netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+  [gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+  [netlist_parser] [info] selected parser: Default Verilog Parser
+  [netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v'...
+  [netlist_parser] [info] finished parsing in 0.00 seconds.
+  [netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' with gate library 'AGILEX_TENNM'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+  [netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 24 gates.
+  [netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' in 0.01 seconds.
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/netlist_graph.dot
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/images/netlist_graph.svg
+
+==============================================================================
+STEP 0b  DANA dataflow analysis (register grouping)
+==============================================================================
+$ /usr/bin/python3 /work/tools/hal_viz dataflow /work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v -g /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl -o /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+  [gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+  [gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+  [netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+  [gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+  [netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+  [netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+  [gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+  [netlist_parser] [info] selected parser: Default Verilog Parser
+  [netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v'...
+  [netlist_parser] [info] finished parsing in 0.00 seconds.
+  [netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' with gate library 'AGILEX_TENNM'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+  [netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 24 gates.
+  [netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' in 0.01 seconds.
+  [dataflow] [info] pre-processing netlist...
+  [dataflow] [info] identifying target gates
+  [dataflow] [info]   #gates: 24
+  [dataflow] [info]   #target gates: 8
+  [dataflow] [info] identifying control signals
+  [dataflow] [info]   done after 0.00s
+  [dataflow] [info] identifying successors and predecessors of sequential gates...
+  [dataflow] [info] identifying successors and predecessors of sequential gates took 0.00s
+  [dataflow] [info] pre-processing took 0.00s
+  [dataflow] [info] iteration 0
+  [dataflow] [info] starting pipeline with 16 threads
+  [dataflow] [info] start processing layer 0
+  [dataflow] [info]   finished in 0.00s, processed 7 passes, filtering results...
+  [dataflow] [info]   filtered results in 0.00s, got 4 new unique results
+  [dataflow] [info]   total: 4 unique states
+  [dataflow] [info] start processing layer 1
+  [dataflow] [info]   finished in 0.00s, processed 36 passes, filtering results...
+  [dataflow] [info]   filtered results in 0.00s, got 5 new unique results
+  [dataflow] [info]   total: 9 unique states
+  [dataflow] [info] got 13 voting groups
+  [dataflow] [info] majority voting took 0.00s
+  [dataflow] [info] iteration 1
+  [dataflow] [info] starting pipeline with 16 threads
+  [dataflow] [info] start processing layer 0
+  [dataflow] [info]   finished in 0.00s, processed 7 passes, filtering results...
+  [dataflow] [info]   filtered results in 0.00s, got 1 new unique results
+  [dataflow] [info]   total: 1 unique states
+  [dataflow] [info] start processing layer 1
+  [dataflow] [info]   finished in 0.00s, processed 9 passes, filtering results...
+  [dataflow] [info]   filtered results in 0.00s, got 2 new unique results
+  [dataflow] [info]   total: 3 unique states
+  [dataflow] [info] got 8 voting groups
+  [dataflow] [info] majority voting took 0.00s
+  [dataflow] [info] result does not improve anymore
+  [dataflow] [info] voting done
+  [dataflow] [info] got final result
+  [dataflow] [info] dataflow processing finished in 0.01s
+  [dataflow] [info] writing dataflow graph to '/work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/graph.dot' ...
+  [dataflow] [info] successfully written dataflow graph to '/work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/graph.dot'.
+  [dataflow] [info] writing dataflow gate groups to '/work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/groups.txt' ...
+  [dataflow] [info] successfully written dataflow gate groups to '/work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/groups.txt'.
+  [core] [info] unloading plugin 'bitorder_propagation'...
+  [core] [info] unloading plugin 'boolean_influence'...
+  [core] [info] unloading plugin 'clock_tree_extractor'...
+  [core] [info] unloading plugin 'dataflow'...
+  [core] [info] unloading plugin 'example_analysis'...
+  [core] [info] unloading plugin 'genlib_writer'...
+  [gate_library_writer] [info] unregistered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+  [core] [info] unloading plugin 'gexf_writer'...
+  [netlist_writer] [info] unregistered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+  [core] [info] unloading plugin 'graph_algorithm'...
+  [core] [info] unloading plugin 'hawkeye'...
+  [core] [info] unloading plugin 'hgl_parser'...
+  [gate_library_parser] [info] unregistered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+  [core] [info] unloading plugin 'hgl_writer'...
+  [gate_library_writer] [info] unregistered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+  [core] [info] unloading plugin 'liberty_parser'...
+  [gate_library_parser] [info] unregistered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+  [core] [info] unloading plugin 'libtest_plugin'...
+  [core] [info] unloading plugin 'module_identification'...
+  [core] [info] unloading plugin 'netlist_preprocessing'...
+  [core] [info] unloading plugin 'netlist_simulator'...
+  [core] [info] unloading plugin 'netlist_simulator_controller'...
+  [core] [info] unloading plugin 'perf_test'...
+  [core] [info] unloading plugin 'python_shell'...
+  [core] [info] unloading plugin 'resynthesis'...
+  [core] [info] unloading plugin 'sequential_symbolic_execution'...
+  [core] [info] unloading plugin 'solve_fsm'...
+  [core] [info] unloading plugin 'verilator'...
+  [core] [info] unloading plugin 'verilog_parser'...
+  [netlist_parser] [info] unregistered netlist parser 'Default Verilog Parser' which was registered for file type '.v'
+  [core] [info] unloading plugin 'verilog_writer'...
+  [netlist_writer] [info] unregistered netlist writer 'Default Verilog Writer' for file extension '.v'.
+  [core] [info] unloading plugin 'vhdl_parser'...
+  [netlist_parser] [info] unregistered netlist parser 'Default VHDL Parser' which was registered for file type '.vhd'
+  [netlist_parser] [info] unregistered netlist parser 'Default VHDL Parser' which was registered for file type '.vhdl'
+  [core] [info] unloading plugin 'xilinx_toolbox'...
+  [core] [info] unloading plugin 'z3_utils'...
+  [core] [info] unloaded all 28 plugins
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/graph.dot
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/groups.txt
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dataflow/graph.svg
+
+DANA groups.txt:
+  State:
+  
+  ID:0, Size:4, CLK: {13}, EN: {19}, R: {14}, S: {}
+    Successors:   {0, 1}
+    Predecessors: {0, 1}
+  g7,  type: tennm_ff, id: 7,  RS: 
+  g9,  type: tennm_ff, id: 9,  RS: 
+  g10, type: tennm_ff, id: 10, RS: 
+  g11, type: tennm_ff, id: 11, RS: 
+  
+  ID:1, Size:4, CLK: {13}, EN: {2}, R: {14}, S: {}
+    Successors:   {0, 1}
+    Predecessors: {0, 1}
+  g1, type: tennm_ff, id: 1, RS: 
+  g2, type: tennm_ff, id: 2, RS: 
+  g4, type: tennm_ff, id: 4, RS: 
+  g6, type: tennm_ff, id: 6, RS: 
+  
+  -> images/dataflow.svg
+
+==============================================================================
+STEP 0c  hal_cdc: how many clock and reset domains are there?
+==============================================================================
+$ /usr/bin/python3 /work/tools/hal_cdc discover /work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v --gate-library /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl -o /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/clocks.json
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+  [gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+  [gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+  [netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+  [netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+  [gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+  [netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+  [netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+  [core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+  [gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+  [gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+  [netlist_parser] [info] selected parser: Default Verilog Parser
+  [netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v'...
+  [netlist_parser] [info] finished parsing in 0.00 seconds.
+  [netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' with gate library 'AGILEX_TENNM'...
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+  [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+  [netlist] [warning] [/work/src/netlist/netlist.cpp:906] failed to load locations of 24 gates.
+  [netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v' in 0.01 seconds.
+  /work/examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/clocks.json
+
+  {
+    "version": 1,
+    "description": "skeleton generated by hal_cdc discover from netlist_anon.hal.v; edit the names, delete what is not a real clock or reset, and add 'inputs' for primary inputs that are already synchronous to a clock",
+    "clocks": [
+      {
+        "name": "i1",
+        "net": "i1",
+        "description": "drives 8 clock pin(s)"
+      }
+    ],
+    "resets": [
+      {
+        "name": "i2",
+        "net": "i2",
+        "description": "drives 8 reset/set pin(s); set 'synchronous_to' if this reset is already synchronous to a clock"
+      }
+    ]
+  }
+
+==============================================================================
+STEP 0d  attach the ALM semantics (hal_agilex.hal_adapter.elaborate)
+==============================================================================
+elaborated tennm_lcell_comb gates : 14
+checked tennm_ff gates            : 8
+refused (left without semantics)  : 0
+
+==============================================================================
+STEP 1  first contact -- what the netlist is made of
+==============================================================================
+design name        : top
+gate library       : AGILEX_TENNM
+gates              : 24
+nets               : 27
+modules            : 1
+top module         : top_module
+
+gate types:
+  HAL_GND              1
+  HAL_VCC              1
+  tennm_ff             8
+  tennm_lcell_comb     14
+
+global input nets  : i0, i1, i2
+global output nets : o0, o1, o2
+
+==============================================================================
+STEP 2  the sequential skeleton -- flip-flops, clocks, resets, enables
+==============================================================================
+gate   clk    clrn   ena    d      q
+g1     i1     i2     '1'    n14    n12
+g10    i1     i2     n1     n5     n19
+g11    i1     i2     n1     n6     n20
+g2     i1     i2     '1'    n15    n10
+g4     i1     i2     '1'    n16    n13
+g6     i1     i2     '1'    n17    o2
+g7     i1     i2     n1     n3     n21
+g9     i1     i2     n1     n4     n18
+
+distinct clock nets  : ['i1']
+distinct clrn nets   : ['i2']
+distinct enable nets : ["'1'", 'n1']
+
+One clock, one asynchronous clear, two enable nets. The enable split is
+the first real structural signal in the design.
+
+==============================================================================
+STEP 3  flip-flop dependency graph -- and why the SCC is not the answer
+==============================================================================
+dependency edges (the next value of A reads the current value of B):
+  g1   <- g1, g10, g11, g2, g4, g6, g7, g9
+  g2   <- g1, g10, g11, g2, g4, g6, g7, g9
+  g4   <- g1, g10, g11, g2, g4, g6, g7, g9
+  g6   <- g1, g10, g11, g2, g4, g6, g7, g9
+  g7   <- g1, g10, g11, g2, g6, g7, g9
+  g9   <- g1, g10, g11, g2, g6, g7, g9
+  g10  <- g1, g10, g11, g2, g6, g7, g9
+  g11  <- g1, g10, g11, g2, g6, g7, g9
+
+strongly connected components:
+  {g1, g2, g4, g6, g7, g9, g10, g11}   <-- non-trivial
+
+The single non-trivial SCC covers every flip-flop in the design. The
+counter's next value reads the state register (its restart condition is
+phase dependent) and the state register's next value reads the counter,
+so 'take the SCC' gives one 8-bit blob, not a 4-bit controller.
+
+signal 1 -- partition by the net on the ena pin:
+  ena = '1'    -> ['g1', 'g2', 'g4', 'g6']
+  ena = n1     -> ['g7', 'g9', 'g10', 'g11']
+
+shape of each part, judged only on the edges inside it:
+  ena = '1'    inner SCCs [['g1', 'g2', 'g4', 'g6']]
+  ena = n1     inner SCCs [['g7', 'g9', 'g10', 'g11']]
+  Both parts are internally mutually dependent, so 'is it an SCC' does
+  not tell them apart either: a synchronous-clear counter IS an SCC,
+  because every bit's next value reads the shared 'restart now' term
+  and that term reads every bit.
+
+signal 2 -- which flip-flops reach a primary output through logic only?
+  ['g1', 'g2', 'g4', 'g6']
+  A Moore machine decodes its outputs from the state register and from
+  nothing else, so these are the state register.
+
+the two signals agree: True
+  state register : ['g1', 'g2', 'g4', 'g6']
+  the other four : ['g7', 'g9', 'g10', 'g11']  (bit order unknown -- step 4)
+
+for comparison, hal_fsm's own candidate proposal and scoring:
+  score 0.980  from scc                    [g1, g2, g4, g6, g7, g9, g10, g11]
+        agreement                  0.6
+        closure                    1.0
+        control_fanout             1.0
+        input_pressure             1.0
+        mutual_feedback            1.0
+        size_fit                   1.0
+        uniformity                 1.0
+  -> images/ff_dependency.svg
+
+==============================================================================
+STEP 4  the second register's bit order, from toggle rates
+==============================================================================
+The netlist has no buses: four flip-flops is four flip-flops. But bit i
+of a counter toggles about half as often as bit i-1, and that survives
+synthesis untouched.
+
+  g9    280 toggles in 310 cycles
+  g10   140 toggles in 310 cycles
+  g11    80 toggles in 310 cycles
+  g7     40 toggles in 310 cycles
+
+  bit order, LSB first: ['g9', 'g10', 'g11', 'g7']
+
+==============================================================================
+STEP 5  point hal_fsm at it -- and read what it refuses to do
+==============================================================================
+
+--- hal_fsm: the 4 state flip-flops ---
+config: {"config_version": "1.0.0", "limits": {"brute_force_max_states": 4096}, "name": "controller", "solver": "brute_force", "state_registers": ["g1", "g2", "g4", "g6"]}
+  fsm/candidate/001                          heuristic                  Selected by the user in the configuration file; not scored.
+  fsm/machine01/asynchronous-control         unsupported                4 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state fu
+  fsm/machine01/transitions                  error                      solve_fsm returned no result for this candidate. This says nothing about the design: a wrong candidate, a flip-flop type solve_fsm cannot model, an un
+  fsm/coverage/uncovered-sequential-gates    unsupported                1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement n
+  note: 8 sequential gate(s) cannot be part of a state register solve_fsm can handle: g1 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g2 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g4 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g6 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2)
+  note: the state register was taken from the configuration file; no candidate proposal was run
+  note: solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2
+
+--- hal_fsm: all 8 flip-flops ---
+config: {"config_version": "1.0.0", "limits": {"brute_force_max_states": 4096, "max_state_bits": 12}, "name": "product", "solver": "brute_force", "state_registers": ["g1", "g10", "g11", "g2", "g4", "g6", "g7", "g9"]}
+  fsm/candidate/001                          heuristic                  Selected by the user in the configuration file; not scored.
+  fsm/machine01/asynchronous-control         unsupported                8 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state fu
+  fsm/machine01/transitions                  error                      solve_fsm returned no result for this candidate. This says nothing about the design: a wrong candidate, a flip-flop type solve_fsm cannot model, an un
+  fsm/coverage/uncovered-sequential-gates    unsupported                1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement n
+  note: 8 sequential gate(s) cannot be part of a state register solve_fsm can handle: g1 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g2 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g4 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g6 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2)
+  note: the state register was taken from the configuration file; no candidate proposal was run
+  note: solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2
+
+==============================================================================
+STEP 6  solve the state register exhaustively, by hand
+==============================================================================
+2**4 state assignments x 2**4 counter values x 2 hold values = 512
+settles of a 22-gate netlist. At this size you do not need a solver.
+
+recovered relation: 16 states, 20 transitions, 4 reachable from 0000
+reachable states -- bit i is the output of ['g1', 'g2', 'g4', 'g6'][i], printed the way the
+diagram prints them, most significant bit first:
+   0  0000
+   3  0011
+   5  0101
+   9  1001
+
+transitions:
+     0 -> 0    when  otherwise
+     0 -> 3    when  !i0 & counter == 9
+  *  1 -> 0    when  otherwise
+  *  2 -> 0    when  otherwise
+     3 -> 3    when  otherwise
+     3 -> 9    when  !i0 & counter == 2
+  *  4 -> 0    when  otherwise
+     5 -> 0    when  !i0 & counter == 4
+     5 -> 5    when  otherwise
+  *  6 -> 0    when  otherwise
+  *  7 -> 0    when  otherwise
+  *  8 -> 0    when  otherwise
+     9 -> 5    when  !i0 & counter == 12
+     9 -> 9    when  otherwise
+  * 10 -> 0    when  otherwise
+  * 11 -> 0    when  otherwise
+  * 12 -> 0    when  otherwise
+  * 13 -> 0    when  otherwise
+  * 14 -> 0    when  otherwise
+  * 15 -> 0    when  otherwise
+  (* = source state is not reachable from the reset state)
+  -> images/controller_state_diagram.svg
+
+==============================================================================
+STEP 7  refuse to decompose: all eight flip-flops as one machine
+==============================================================================
+state bit order: ['g1', 'g2', 'g4', 'g6', 'g9', 'g10', 'g11', 'g7']
+
+31 of 256 encodings are reachable from the reset state
+the cycle, with hold = 0 (state / counter / output pins):
+
+  -> images/product_state_diagram.svg
+
+==============================================================================
+STEP 8  drive the netlist and watch the output pins
+==============================================================================
+(reset released before cycle 0; i0 held at 0 throughout)
+cycle |  o0  o1  o2  |  g1  g2  g4  g6  | counter
+-------------------------------------------------
+    0 |   1   0   0  |   0   0   0   0  |   0
+    1 |   1   0   0  |   0   0   0   0  |   1
+    2 |   1   0   0  |   0   0   0   0  |   2
+    3 |   1   0   0  |   0   0   0   0  |   3
+    4 |   1   0   0  |   0   0   0   0  |   4
+    5 |   1   0   0  |   0   0   0   0  |   5
+    6 |   1   0   0  |   0   0   0   0  |   6
+    7 |   1   0   0  |   0   0   0   0  |   7
+    8 |   1   0   0  |   0   0   0   0  |   8
+    9 |   1   0   0  |   0   0   0   0  |   9
+   10 |   1   1   0  |   1   1   0   0  |   0
+   11 |   1   1   0  |   1   1   0   0  |   1
+   12 |   1   1   0  |   1   1   0   0  |   2
+   13 |   0   0   1  |   1   0   0   1  |   0
+   14 |   0   0   1  |   1   0   0   1  |   1
+   15 |   0   0   1  |   1   0   0   1  |   2
+   16 |   0   0   1  |   1   0   0   1  |   3
+   17 |   0   0   1  |   1   0   0   1  |   4
+   18 |   0   0   1  |   1   0   0   1  |   5
+   19 |   0   0   1  |   1   0   0   1  |   6
+   20 |   0   0   1  |   1   0   0   1  |   7
+   21 |   0   0   1  |   1   0   0   1  |   8
+   22 |   0   0   1  |   1   0   0   1  |   9
+   23 |   0   0   1  |   1   0   0   1  |  10
+   24 |   0   0   1  |   1   0   0   1  |  11
+   25 |   0   0   1  |   1   0   0   1  |  12
+   26 |   0   1   0  |   1   0   1   0  |   0
+   27 |   0   1   0  |   1   0   1   0  |   1
+   28 |   0   1   0  |   1   0   1   0  |   2
+   29 |   0   1   0  |   1   0   1   0  |   3
+   30 |   0   1   0  |   1   0   1   0  |   4
+   31 |   1   0   0  |   0   0   0   0  |   0
+   32 |   1   0   0  |   0   0   0   0  |   1
+   33 |   1   0   0  |   0   0   0   0  |   2
+   34 |   1   0   0  |   0   0   0   0  |   3
+   35 |   1   0   0  |   0   0   0   0  |   4
+   36 |   1   0   0  |   0   0   0   0  |   5
+   37 |   1   0   0  |   0   0   0   0  |   6
+   38 |   1   0   0  |   0   0   0   0  |   7
+   39 |   1   0   0  |   0   0   0   0  |   8
+
+output phases (o0, o1, o2) and how long each lasts:
+  (1, 0, 0) -> 10 clock cycles
+  (1, 1, 0) ->  3 clock cycles
+  (0, 0, 1) -> 13 clock cycles
+  (0, 1, 0) ->  5 clock cycles
+  full period: 31 clock cycles
+
+counter value against phase (the value it reaches just before it
+restarts is the dwell limit of that phase):
+  outputs (1, 0, 0) -> counter runs 0..9  (10 cycles)
+  outputs (1, 1, 0) -> counter runs 0..2  (3 cycles)
+  outputs (0, 0, 1) -> counter runs 0..12  (13 cycles)
+  outputs (0, 1, 0) -> counter runs 0..4  (5 cycles)
+
+state encoding against phase:
+  0000 -> outputs (1, 0, 0)
+  1100 -> outputs (1, 1, 0)
+  1001 -> outputs (0, 0, 1)
+  1010 -> outputs (0, 1, 0)
+
+==============================================================================
+STEP 9  un-blind: what the vendor export actually called these gates
+==============================================================================
+anon   name Quartus wrote into the .vo
+g1     state.S_RED
+g2     state.S_RED_YELLOW
+g3     red~0
+g4     state.S_YELLOW
+g5     yellow~0
+g6     state.S_GREEN
+g7     tick$b3
+g8     i14~0
+g9     tick$b0
+g10    tick$b1
+g11    tick$b2
+g12    reduce_nor_1~0
+g13    state.S_RED~0
+g14    state~6
+g15    state~7
+g16    state~8
+g17    state~9
+g18    i23~0
+g19    i23~1
+g20    i23~2
+g21    i23~3
+g22    hold~_wirecell
+
+i0     hold
+i1     clk
+i2     rst_n
+o0     red
+o1     yellow
+o2     green

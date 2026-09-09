@@ -1,0 +1,517 @@
+{
+  "analysis": {
+    "configuration": {
+      "ambiguity_margin": 0.05,
+      "config_version": "1.0.0",
+      "diagram_base": 2,
+      "emit_diagram": true,
+      "initial_state_encoding": "auto",
+      "limits": {
+        "brute_force_max_states": 4096,
+        "max_candidates": 8,
+        "max_condition_vars": 16,
+        "max_cycles": 32,
+        "max_diagram_states": 64,
+        "max_solved_candidates": 1,
+        "max_state_bits": 12,
+        "max_states": 1024,
+        "max_transitions": 8192,
+        "smt_timeout_s": 60.0,
+        "wall_time_s": 600.0
+      },
+      "min_confidence": 0.0,
+      "name": "controller",
+      "solve": "best",
+      "solver": "brute_force",
+      "state_registers": [
+        "g1",
+        "g2",
+        "g4",
+        "g6"
+      ]
+    },
+    "duration_s": 0.018453598022460938,
+    "entry_point": "solve_fsm.solve_fsm",
+    "plugin": {
+      "description": "state transition graph reconstruction (solve_fsm)",
+      "name": "solve_fsm",
+      "version": "unknown"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "top",
+      "gate_count": 24,
+      "gate_library": {
+        "name": "AGILEX_TENNM",
+        "path": "/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl",
+        "sha256": "8784717efb2692e5c3ca6cad37012fe3ee1255eebba31cfaa45a428a75c4c833"
+      },
+      "kind": "netlist",
+      "net_count": 27,
+      "netlist_id": 1,
+      "path": "/work/examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v",
+      "sha256": "17bf195adee18f8d235e4d12236bbd901be5ed5952b594dea37c976150030a92",
+      "size_bytes": 6260
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "the state register was named in the configuration file; hal_fsm did not derive or check it",
+          "discharged": false,
+          "id": "hal_fsm.state-register-user-selected",
+          "kind": "user_provided"
+        }
+      ],
+      "data": {
+        "features": {},
+        "gate_ids": [
+          1,
+          2,
+          4,
+          6
+        ],
+        "gate_names": [
+          "g1",
+          "g2",
+          "g4",
+          "g6"
+        ],
+        "origin": "user_override",
+        "reasons": [],
+        "score": 0.0,
+        "sources": [
+          "configuration"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/001",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "tennm_ff"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g1",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g2",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 4,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g4",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 6,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g6",
+            "type": "tennm_ff"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Selected by the user in the configuration file; not scored.",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 4 flip-flop(s) [g1, g2, g4, g6]"
+    },
+    {
+      "data": {
+        "control_inputs": [
+          {
+            "constant": null,
+            "gate_id": 1,
+            "gate_name": "g1",
+            "gate_type": "tennm_ff",
+            "net_id": 14,
+            "net_name": "i2",
+            "pin": "clrn",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 2,
+            "gate_name": "g2",
+            "gate_type": "tennm_ff",
+            "net_id": 14,
+            "net_name": "i2",
+            "pin": "clrn",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 4,
+            "gate_name": "g4",
+            "gate_type": "tennm_ff",
+            "net_id": 14,
+            "net_name": "i2",
+            "pin": "clrn",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 6,
+            "gate_name": "g6",
+            "gate_type": "tennm_ff",
+            "net_id": 14,
+            "net_name": "i2",
+            "pin": "clrn",
+            "pin_type": "reset"
+          }
+        ]
+      },
+      "id": "fsm/machine01/asynchronous-control",
+      "method": {
+        "bounded": false,
+        "description": "the fan-in of every set/reset pin of the state register is resolved and classified as constant (inactive) or driven",
+        "kind": "structural",
+        "name": "control-pin inspection"
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "state flip-flops whose asynchronous control inputs are driven",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g1",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g2",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 4,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g4",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 6,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g6",
+            "type": "tennm_ff"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "name": "i2",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "name": "i2",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "name": "i2",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "name": "i2",
+            "role": "reset"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "4 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state function from the gate library's next_state expression only, so these inputs do not appear in any recovered condition. Every transition below is conditional on them staying inactive.",
+      "tags": [
+        "coverage",
+        "fsm",
+        "reset"
+      ],
+      "title": "Asynchronous set/reset inputs are driven by logic and are not modelled",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 4,
+            "gate_type": "tennm_ff",
+            "reason": "the reset pin(s) of this flip-flop type are not part of the library's next-state function, and solve_fsm models only that function; an asynchronous clear or preset driven by real logic is therefore invisible in the recovered graph"
+          }
+        ],
+        "reason": "asynchronous set/reset behaviour of the state flip-flops is outside the model solve_fsm uses"
+      }
+    },
+    {
+      "data": {
+        "candidate": {
+          "features": {},
+          "gate_ids": [
+            1,
+            2,
+            4,
+            6
+          ],
+          "gate_names": [
+            "g1",
+            "g2",
+            "g4",
+            "g6"
+          ],
+          "origin": "user_override",
+          "reasons": [],
+          "score": 0.0,
+          "sources": [
+            "configuration"
+          ]
+        }
+      },
+      "error": {
+        "kind": "invalid_input",
+        "message": "solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2"
+      },
+      "id": "fsm/machine01/transitions",
+      "method": {
+        "bounded": false,
+        "description": "the SMT-based state transition graph reconstruction of the solve_fsm plugin",
+        "kind": "symbolic",
+        "name": "solve_fsm"
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the candidate state register that was handed to the solver",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g1",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g2",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 4,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g4",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 6,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "g6",
+            "type": "tennm_ff"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "error",
+      "summary": "solve_fsm returned no result for this candidate. This says nothing about the design: a wrong candidate, a flip-flop type solve_fsm cannot model, an unavailable SMT backend and a real solver failure all look like this from the Python side, and the reason is in HAL's own log.",
+      "tags": [
+        "error",
+        "fsm"
+      ],
+      "title": "FSM recovery failed for this candidate"
+    },
+    {
+      "id": "fsm/coverage/uncovered-sequential-gates",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates that no solved machine covers",
+        "gate_types": [
+          "tennm_ff"
+        ]
+      },
+      "severity": "info",
+      "status": "unsupported",
+      "summary": "1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement none.",
+      "tags": [
+        "coverage",
+        "fsm"
+      ],
+      "title": "Sequential gates outside every solved state register",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 4,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 7,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "g7",
+                "type": "tennm_ff"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 9,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "g9",
+                "type": "tennm_ff"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 10,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "g10",
+                "type": "tennm_ff"
+              }
+            ],
+            "gate_type": "tennm_ff",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "sequential gates of this type are present but are not part of any state register that was solved; no statement is made about them"
+          }
+        ],
+        "reason": "hal_fsm only reports the machines it solved; the gates below were either not proposed as a state register, not selected, or not solvable"
+      }
+    }
+  ],
+  "generated_at": "2026-09-09T16:47:19Z",
+  "notes": [
+    "8 sequential gate(s) cannot be part of a state register solve_fsm can handle: g1 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g2 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g4 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); g6 (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2)",
+    "the state register was taken from the configuration file; no candidate proposal was run",
+    "solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2; solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2",
+    "state values are relative to the bit order recorded on each transitions finding; gate references are scoped to artifact 'netlist'"
+  ],
+  "producer": {
+    "name": "hal_fsm",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

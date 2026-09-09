@@ -1,0 +1,156 @@
+{
+  "bit_order": [
+    "g1",
+    "g2",
+    "g4",
+    "g6"
+  ],
+  "complete": true,
+  "initial_state": 0,
+  "notes": [
+    "relation enumerated by evaluating the netlist itself over every state / counter / hold assignment"
+  ],
+  "signals": {},
+  "solver": "brute_force",
+  "states": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "transitions": [
+    {
+      "condition": "otherwise",
+      "source": 0,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "!i0 & counter == 9",
+      "source": 0,
+      "target": 3,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 1,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 2,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 3,
+      "target": 3,
+      "variables": []
+    },
+    {
+      "condition": "!i0 & counter == 2",
+      "source": 3,
+      "target": 9,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 4,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "!i0 & counter == 4",
+      "source": 5,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 5,
+      "target": 5,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 6,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 7,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 8,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "!i0 & counter == 12",
+      "source": 9,
+      "target": 5,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 9,
+      "target": 9,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 10,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 11,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 12,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 13,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 14,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "otherwise",
+      "source": 15,
+      "target": 0,
+      "variables": []
+    }
+  ],
+  "width": 4
+}

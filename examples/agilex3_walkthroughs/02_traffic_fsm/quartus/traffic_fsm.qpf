@@ -1,0 +1,5 @@
+QUARTUS_VERSION = "26.1"
+
+# Revisions
+
+PROJECT_REVISION = "traffic_fsm"

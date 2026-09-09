@@ -1,0 +1,427 @@
+{
+  "bit_order": [
+    "g1",
+    "g2",
+    "g4",
+    "g6",
+    "g9",
+    "g10",
+    "g11",
+    "g7"
+  ],
+  "complete": true,
+  "initial_state": 0,
+  "notes": [
+    "only the 31 states reachable from reset are shown; the other 225 encodings were enumerated too"
+  ],
+  "signals": {},
+  "solver": "brute_force",
+  "states": [
+    0,
+    3,
+    5,
+    9,
+    16,
+    19,
+    21,
+    25,
+    32,
+    35,
+    37,
+    41,
+    48,
+    53,
+    57,
+    64,
+    69,
+    73,
+    80,
+    89,
+    96,
+    105,
+    112,
+    121,
+    128,
+    137,
+    144,
+    153,
+    169,
+    185,
+    201
+  ],
+  "transitions": [
+    {
+      "condition": "i0",
+      "source": 0,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 0,
+      "target": 16,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 3,
+      "target": 3,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 3,
+      "target": 19,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 5,
+      "target": 5,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 5,
+      "target": 21,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 9,
+      "target": 9,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 9,
+      "target": 25,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 16,
+      "target": 16,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 16,
+      "target": 32,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 19,
+      "target": 19,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 19,
+      "target": 35,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 21,
+      "target": 21,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 21,
+      "target": 37,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 25,
+      "target": 25,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 25,
+      "target": 41,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 32,
+      "target": 32,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 32,
+      "target": 48,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 35,
+      "target": 9,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 35,
+      "target": 35,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 37,
+      "target": 37,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 37,
+      "target": 53,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 41,
+      "target": 41,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 41,
+      "target": 57,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 48,
+      "target": 48,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 48,
+      "target": 64,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 53,
+      "target": 53,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 53,
+      "target": 69,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 57,
+      "target": 57,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 57,
+      "target": 73,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 64,
+      "target": 64,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 64,
+      "target": 80,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 69,
+      "target": 0,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 69,
+      "target": 69,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 73,
+      "target": 73,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 73,
+      "target": 89,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 80,
+      "target": 80,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 80,
+      "target": 96,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 89,
+      "target": 89,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 89,
+      "target": 105,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 96,
+      "target": 96,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 96,
+      "target": 112,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 105,
+      "target": 105,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 105,
+      "target": 121,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 112,
+      "target": 112,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 112,
+      "target": 128,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 121,
+      "target": 121,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 121,
+      "target": 137,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 128,
+      "target": 128,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 128,
+      "target": 144,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 137,
+      "target": 137,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 137,
+      "target": 153,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 144,
+      "target": 3,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 144,
+      "target": 144,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 153,
+      "target": 153,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 153,
+      "target": 169,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 169,
+      "target": 169,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 169,
+      "target": 185,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 185,
+      "target": 185,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 185,
+      "target": 201,
+      "variables": []
+    },
+    {
+      "condition": "!i0",
+      "source": 201,
+      "target": 5,
+      "variables": []
+    },
+    {
+      "condition": "i0",
+      "source": 201,
+      "target": 201,
+      "variables": []
+    }
+  ],
+  "width": 8
+}

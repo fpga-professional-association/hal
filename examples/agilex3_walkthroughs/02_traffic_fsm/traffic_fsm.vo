@@ -1,0 +1,549 @@
+// Copyright (C) 2026  Altera Corporation. All rights reserved.
+// Your use of Altera Corporation's design tools, logic functions 
+// and other software and tools, and any partner logic 
+// functions, and any output files from any of the foregoing 
+// (including device programming or simulation files), and any 
+// associated documentation or information are expressly subject 
+// to the terms and conditions of the Altera Program License 
+// Subscription Agreement, the Altera Quartus Prime License Agreement,
+// the Altera IP License Agreement, or other applicable license
+// agreement, including, without limitation, that your use is for
+// the sole purpose of programming logic devices manufactured by
+// Altera and sold by Altera or its authorized distributors.  Please
+// refer to the Altera Software License Subscription Agreements 
+// on the Quartus Prime software download page.
+
+// VENDOR "Altera"
+// PROGRAM "Quartus Prime"
+// VERSION "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+
+// DATE "09/08/2026 18:33:44"
+
+// 
+// Device: Altera A3CW135BM16AE6S Package MBGA896
+// 
+
+// 
+// This Verilog file should be used for QuestaSim (Verilog) only
+// 
+
+`timescale 1 ps/ 1 ps
+
+module traffic_fsm (
+	red,
+	yellow,
+	green,
+	hold,
+	clk,
+	rst_n);
+output 	red;
+output 	yellow;
+output 	green;
+input 	hold;
+input 	clk;
+input 	rst_n;
+
+wire gnd;
+wire vcc;
+wire unknown;
+
+assign gnd = 1'b0;
+assign vcc = 1'b1;
+assign unknown = 1'bx;
+
+tri1 devclrn;
+tri1 devpor;
+tri1 devoe;
+wire \state.S_RED~q ;
+wire \state.S_RED_YELLOW~q ;
+wire \red~0_combout ;
+wire \state.S_YELLOW~q ;
+wire \yellow~0_combout ;
+wire \state.S_GREEN~q ;
+wire \i14~0_combout ;
+wire \reduce_nor_1~0_combout ;
+wire \state.S_RED~0_combout ;
+wire \state~6_combout ;
+wire \state~7_combout ;
+wire \state~8_combout ;
+wire \state~9_combout ;
+wire \i23~0_combout ;
+wire \i23~1_combout ;
+wire \i23~2_combout ;
+wire \i23~3_combout ;
+wire \hold~_wirecell_combout ;
+wire [3:0] tick;
+
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("low"))
+\state.S_RED (
+	.clk(clk),
+	.d(\state~6_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state.S_RED~q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("low"))
+\state.S_RED_YELLOW (
+	.clk(clk),
+	.d(\state~7_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state.S_RED_YELLOW~q ));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'hBBBBBBBBBBBBBBBB),
+  .shared_arith ("off"))
+\red~0 (
+// Equation(s):
+// \red~0_combout  = (!\state.S_RED~q ) | (\state.S_RED_YELLOW~q )
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_RED_YELLOW~q ),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\red~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("low"))
+\state.S_YELLOW (
+	.clk(clk),
+	.d(\state~8_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state.S_YELLOW~q ));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h7777777777777777),
+  .shared_arith ("off"))
+\yellow~0 (
+// Equation(s):
+// \yellow~0_combout  = (\state.S_YELLOW~q ) | (\state.S_RED_YELLOW~q )
+
+	.dataa(~\state.S_RED_YELLOW~q ),
+	.datab(~\state.S_YELLOW~q ),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\yellow~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("low"))
+\state.S_GREEN (
+	.clk(clk),
+	.d(\state~9_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(vcc),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(\state.S_GREEN~q ));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\tick[3] (
+	.clk(clk),
+	.d(\i23~0_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(\hold~_wirecell_combout ),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(tick[3]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'hB4B4B4B4B4B4B4B4),
+  .shared_arith ("off"))
+\i14~0 (
+// Equation(s):
+// \i14~0_combout  = !tick[3] ^ (((\state.S_RED~q  & !\state.S_GREEN~q )))
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_GREEN~q ),
+	.datac(~tick[3]),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i14~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\tick[0] (
+	.clk(clk),
+	.d(\i23~1_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(\hold~_wirecell_combout ),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(tick[0]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\tick[1] (
+	.clk(clk),
+	.d(\i23~2_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(\hold~_wirecell_combout ),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(tick[1]));
+
+tennm_ff #(
+  .is_wysiwyg ("true"),
+  .power_up ("dont_care"))
+\tick[2] (
+	.clk(clk),
+	.d(\i23~3_combout ),
+	.asdata(vcc),
+	.clrn(rst_n),
+	.aload(gnd),
+	.sclr(gnd),
+	.sload(gnd),
+	.ena(\hold~_wirecell_combout ),
+	.sclr1(gnd),
+	.devclrn(devclrn),
+	.devpor(devpor),
+	.q(tick[2]));
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h0812400008124000),
+  .shared_arith ("off"))
+\reduce_nor_1~0 (
+// Equation(s):
+// \reduce_nor_1~0_combout  = ( tick[2] & ( (\state.S_RED~q  & (!\state.S_RED_YELLOW~q  & (!tick[0] & !tick[1]))) ) ) | ( !tick[2] & ( (!\state.S_RED~q  & (tick[0] & ( !\state.S_RED_YELLOW~q  ^ (tick[1])))) | (\state.S_RED~q  & (\state.S_RED_YELLOW~q  & 
+// (!tick[0] & tick[1]))) ) )
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_RED_YELLOW~q ),
+	.datac(~tick[0]),
+	.datad(~tick[1]),
+	.datae(~tick[2]),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\reduce_nor_1~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h9440944094409440),
+  .shared_arith ("off"))
+\state.S_RED~0 (
+// Equation(s):
+// \state.S_RED~0_combout  = (!\state.S_RED~q  & (!\state.S_RED_YELLOW~q  & (!\state.S_YELLOW~q  & !\state.S_GREEN~q ))) | (\state.S_RED~q  & ( (!\state.S_RED_YELLOW~q  & ( !\state.S_YELLOW~q  ^ (!\state.S_GREEN~q ))) | (\state.S_RED_YELLOW~q  & 
+// (!\state.S_YELLOW~q  & !\state.S_GREEN~q ))))
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_RED_YELLOW~q ),
+	.datac(~\state.S_YELLOW~q ),
+	.datad(~\state.S_GREEN~q ),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\state.S_RED~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h000000005555C555),
+  .shared_arith ("off"))
+\state~6 (
+// Equation(s):
+// \state~6_combout  = ( \reduce_nor_1~0_combout  & ( \state.S_RED~0_combout  & ( (!hold & ( (!\i14~0_combout  & ( (!\state.S_YELLOW~q ))) | (\i14~0_combout  & (\state.S_RED~q )))) | (hold & (\state.S_RED~q )) ) ) ) | ( !\reduce_nor_1~0_combout  & ( 
+// \state.S_RED~0_combout  & ( \state.S_RED~q  ) ) )
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_YELLOW~q ),
+	.datac(~hold),
+	.datad(~\i14~0_combout ),
+	.datae(~\reduce_nor_1~0_combout ),
+	.dataf(~\state.S_RED~0_combout ),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\state~6_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h000000003333A333),
+  .shared_arith ("off"))
+\state~7 (
+// Equation(s):
+// \state~7_combout  = ( \reduce_nor_1~0_combout  & ( \state.S_RED~0_combout  & ( (!hold & ( (!\i14~0_combout  & (!\state.S_RED~q )) | (\i14~0_combout  & ( (\state.S_RED_YELLOW~q ))))) | (hold & ( ((\state.S_RED_YELLOW~q )))) ) ) ) | ( 
+// !\reduce_nor_1~0_combout  & ( \state.S_RED~0_combout  & ( \state.S_RED_YELLOW~q  ) ) )
+
+	.dataa(~\state.S_RED~q ),
+	.datab(~\state.S_RED_YELLOW~q ),
+	.datac(~hold),
+	.datad(~\i14~0_combout ),
+	.datae(~\reduce_nor_1~0_combout ),
+	.dataf(~\state.S_RED~0_combout ),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\state~7_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h0000000055553555),
+  .shared_arith ("off"))
+\state~8 (
+// Equation(s):
+// \state~8_combout  = ( \reduce_nor_1~0_combout  & ( \state.S_RED~0_combout  & ( (!hold & ( (!\i14~0_combout  & ( (\state.S_GREEN~q ))) | (\i14~0_combout  & (\state.S_YELLOW~q )))) | (hold & (\state.S_YELLOW~q )) ) ) ) | ( !\reduce_nor_1~0_combout  & ( 
+// \state.S_RED~0_combout  & ( \state.S_YELLOW~q  ) ) )
+
+	.dataa(~\state.S_YELLOW~q ),
+	.datab(~\state.S_GREEN~q ),
+	.datac(~hold),
+	.datad(~\i14~0_combout ),
+	.datae(~\reduce_nor_1~0_combout ),
+	.dataf(~\state.S_RED~0_combout ),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\state~8_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h0000000033335333),
+  .shared_arith ("off"))
+\state~9 (
+// Equation(s):
+// \state~9_combout  = ( \reduce_nor_1~0_combout  & ( \state.S_RED~0_combout  & ( (!hold & ( (!\i14~0_combout  & (\state.S_RED_YELLOW~q )) | (\i14~0_combout  & ( (\state.S_GREEN~q ))))) | (hold & ( ((\state.S_GREEN~q )))) ) ) ) | ( !\reduce_nor_1~0_combout  
+// & ( \state.S_RED~0_combout  & ( \state.S_GREEN~q  ) ) )
+
+	.dataa(~\state.S_RED_YELLOW~q ),
+	.datab(~\state.S_GREEN~q ),
+	.datac(~hold),
+	.datad(~\i14~0_combout ),
+	.datae(~\reduce_nor_1~0_combout ),
+	.dataf(~\state.S_RED~0_combout ),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\state~9_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h01FE01FE000001FE),
+  .shared_arith ("off"))
+\i23~0 (
+// Equation(s):
+// \i23~0_combout  = ( \i14~0_combout  & ( \reduce_nor_1~0_combout  & ( !tick[3] ^ (((!tick[0]) | ((!tick[1]) | (!tick[2])))) ) ) ) | ( \i14~0_combout  & ( !\reduce_nor_1~0_combout  & ( !tick[3] ^ (((!tick[0]) | ((!tick[1]) | (!tick[2])))) ) ) ) | ( 
+// !\i14~0_combout  & ( !\reduce_nor_1~0_combout  & ( !tick[3] ^ (((!tick[0]) | ((!tick[1]) | (!tick[2])))) ) ) )
+
+	.dataa(~tick[0]),
+	.datab(~tick[1]),
+	.datac(~tick[2]),
+	.datad(~tick[3]),
+	.datae(~\i14~0_combout ),
+	.dataf(~\reduce_nor_1~0_combout ),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i23~0_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'hA2A2A2A2A2A2A2A2),
+  .shared_arith ("off"))
+\i23~1 (
+// Equation(s):
+// \i23~1_combout  = (!tick[0] & ( (!\reduce_nor_1~0_combout ) | (\i14~0_combout )))
+
+	.dataa(~tick[0]),
+	.datab(~\i14~0_combout ),
+	.datac(~\reduce_nor_1~0_combout ),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i23~1_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6606660666066606),
+  .shared_arith ("off"))
+\i23~2 (
+// Equation(s):
+// \i23~2_combout  = (!\i14~0_combout  & (!\reduce_nor_1~0_combout  & ( !tick[0] ^ (!tick[1])))) | (\i14~0_combout  & ( !tick[0] ^ ((!tick[1]))))
+
+	.dataa(~tick[0]),
+	.datab(~tick[1]),
+	.datac(~\i14~0_combout ),
+	.datad(~\reduce_nor_1~0_combout ),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i23~2_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h1E1E001E1E1E001E),
+  .shared_arith ("off"))
+\i23~3 (
+// Equation(s):
+// \i23~3_combout  = ( \reduce_nor_1~0_combout  & ( (\i14~0_combout  & ( !tick[2] ^ (((!tick[0]) | (!tick[1]))))) ) ) | ( !\reduce_nor_1~0_combout  & ( !tick[2] ^ (((!tick[0]) | (!tick[1]))) ) )
+
+	.dataa(~tick[0]),
+	.datab(~tick[1]),
+	.datac(~tick[2]),
+	.datad(~\i14~0_combout ),
+	.datae(~\reduce_nor_1~0_combout ),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\i23~3_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'hAAAAAAAAAAAAAAAA),
+  .shared_arith ("off"))
+\hold~_wirecell (
+// Equation(s):
+// \hold~_wirecell_combout  = !hold
+
+	.dataa(~hold),
+	.datab(gnd),
+	.datac(gnd),
+	.datad(gnd),
+	.datae(gnd),
+	.dataf(gnd),
+	.datag(gnd),
+	.datah(gnd),
+	.cin(gnd),
+	.sharein(gnd),
+	.combout(\hold~_wirecell_combout ),
+	.sumout(),
+	.cout(),
+	.shareout());
+
+assign red = \red~0_combout ;
+
+assign green = \state.S_GREEN~q ;
+
+assign yellow = \yellow~0_combout ;
+
+endmodule

@@ -1,0 +1,18 @@
+State:
+
+ID:0, Size:4, CLK: {13}, EN: {19}, R: {14}, S: {}
+  Successors:   {0, 1}
+  Predecessors: {0, 1}
+g7,  type: tennm_ff, id: 7,  RS: 
+g9,  type: tennm_ff, id: 9,  RS: 
+g10, type: tennm_ff, id: 10, RS: 
+g11, type: tennm_ff, id: 11, RS: 
+
+ID:1, Size:4, CLK: {13}, EN: {2}, R: {14}, S: {}
+  Successors:   {0, 1}
+  Predecessors: {0, 1}
+g1, type: tennm_ff, id: 1, RS: 
+g2, type: tennm_ff, id: 2, RS: 
+g4, type: tennm_ff, id: 4, RS: 
+g6, type: tennm_ff, id: 6, RS: 
+
