@@ -1,0 +1,380 @@
+{
+  "functions": {
+    "inputs": [
+      "port_i0",
+      "port_i1",
+      "port_i2",
+      "port_i3"
+    ],
+    "q_nets": [
+      "port_o0(0)",
+      "port_o0(1)",
+      "port_o0(2)",
+      "port_o0(3)",
+      "port_o0(4)",
+      "port_o0(5)",
+      "port_o0(6)",
+      "port_o0(7)"
+    ],
+    "rows": [
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "((port_i0 | port_o0(7)) & ((! port_i0) | (! port_o0(7))))",
+        "gate": "u3",
+        "q": "port_o0(0)",
+        "support": [
+          "port_o0(7)",
+          "port_i0"
+        ],
+        "terms": [
+          "port_o0(7)",
+          "port_i0"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "((port_i0 | ((port_o0(0) | port_o0(7)) & ((! port_o0(0)) | (! port_o0(7))))) & ((! port_i0) | ((port_o0(0) & port_o0(7)) | ((! port_o0(0)) & (! port_o0(7))))))",
+        "gate": "u5",
+        "q": "port_o0(1)",
+        "support": [
+          "port_o0(0)",
+          "port_o0(7)",
+          "port_i0"
+        ],
+        "terms": [
+          "port_o0(0)",
+          "port_o0(7)",
+          "port_i0"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "((port_i0 | ((port_o0(1) | port_o0(7)) & ((! port_o0(1)) | (! port_o0(7))))) & ((! port_i0) | ((port_o0(1) & port_o0(7)) | ((! port_o0(1)) & (! port_o0(7))))))",
+        "gate": "u7",
+        "q": "port_o0(2)",
+        "support": [
+          "port_o0(1)",
+          "port_o0(7)",
+          "port_i0"
+        ],
+        "terms": [
+          "port_o0(1)",
+          "port_o0(7)",
+          "port_i0"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "port_o0(2)",
+        "gate": "u9",
+        "q": "port_o0(3)",
+        "support": [
+          "port_o0(2)"
+        ],
+        "terms": [
+          "port_o0(2)"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "port_o0(3)",
+        "gate": "u11",
+        "q": "port_o0(4)",
+        "support": [
+          "port_o0(3)"
+        ],
+        "terms": [
+          "port_o0(3)"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "port_o0(4)",
+        "gate": "u0",
+        "q": "port_o0(5)",
+        "support": [
+          "port_o0(4)"
+        ],
+        "terms": [
+          "port_o0(4)"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "port_o0(5)",
+        "gate": "u2",
+        "q": "port_o0(6)",
+        "support": [
+          "port_o0(5)"
+        ],
+        "terms": [
+          "port_o0(5)"
+        ]
+      },
+      {
+        "affine": true,
+        "constant": 0,
+        "expression": "port_o0(6)",
+        "gate": "u4",
+        "q": "port_o0(7)",
+        "support": [
+          "port_o0(6)"
+        ],
+        "terms": [
+          "port_o0(6)"
+        ]
+      }
+    ]
+  },
+  "polynomial": {
+    "bit_order": [
+      "port_o0(0)",
+      "port_o0(1)",
+      "port_o0(2)",
+      "port_o0(3)",
+      "port_o0(4)",
+      "port_o0(5)",
+      "port_o0(6)",
+      "port_o0(7)"
+    ],
+    "data_input": "port_i0",
+    "feedback_register": "port_o0(7)",
+    "inversions": [],
+    "ok": true,
+    "outputs": [
+      {
+        "expression": "((((! port_o0(0)) & (! port_o0(1))) & ((! port_o0(2)) & (! port_o0(3)))) & (((! port_o0(4)) & (! port_o0(5))) & ((! port_o0(6)) & (! port_o0(7)))))",
+        "is_nonzero_flag": false,
+        "is_zero_flag": true,
+        "net": "port_o1"
+      }
+    ],
+    "polynomial": 7,
+    "polynomial_hex": "0x07",
+    "polynomial_terms": "x^8 + x^2 + x + 1",
+    "taps": [
+      0,
+      1,
+      2
+    ],
+    "width": 8
+  },
+  "ports": {
+    "inputs": {
+      "port_i0": {
+        "drives": {
+          "tennm_lcell_comb.datab": 1,
+          "tennm_lcell_comb.datac": 2
+        },
+        "role": "data"
+      },
+      "port_i1": {
+        "drives": {
+          "tennm_ff.clk": 8
+        },
+        "role": "clock"
+      },
+      "port_i2": {
+        "drives": {
+          "tennm_ff.clrn": 8
+        },
+        "role": "asynchronous reset, active low"
+      },
+      "port_i3": {
+        "drives": {
+          "tennm_ff.ena": 8
+        },
+        "role": "clock enable"
+      }
+    },
+    "outputs": {
+      "port_o0(0)": [
+        "u3.q"
+      ],
+      "port_o0(1)": [
+        "u5.q"
+      ],
+      "port_o0(2)": [
+        "u7.q"
+      ],
+      "port_o0(3)": [
+        "u9.q"
+      ],
+      "port_o0(4)": [
+        "u11.q"
+      ],
+      "port_o0(5)": [
+        "u0.q"
+      ],
+      "port_o0(6)": [
+        "u2.q"
+      ],
+      "port_o0(7)": [
+        "u4.q"
+      ],
+      "port_o1": [
+        "u8.combout"
+      ]
+    }
+  },
+  "registers": {
+    "banks": [
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "ena": "port_i3",
+        "gates": [
+          "u3",
+          "u5",
+          "u7",
+          "u9",
+          "u11",
+          "u0",
+          "u2",
+          "u4"
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "n9",
+        "d_is_q_of": null,
+        "ena": "port_i3",
+        "gate": "u3",
+        "q": "port_o0(0)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "n3",
+        "d_is_q_of": null,
+        "ena": "port_i3",
+        "gate": "u5",
+        "q": "port_o0(1)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "n10",
+        "d_is_q_of": null,
+        "ena": "port_i3",
+        "gate": "u7",
+        "q": "port_o0(2)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "port_o0(2)",
+        "d_is_q_of": "u7",
+        "ena": "port_i3",
+        "gate": "u9",
+        "q": "port_o0(3)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "port_o0(3)",
+        "d_is_q_of": "u9",
+        "ena": "port_i3",
+        "gate": "u11",
+        "q": "port_o0(4)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "port_o0(4)",
+        "d_is_q_of": "u11",
+        "ena": "port_i3",
+        "gate": "u0",
+        "q": "port_o0(5)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "port_o0(5)",
+        "d_is_q_of": "u0",
+        "ena": "port_i3",
+        "gate": "u2",
+        "q": "port_o0(6)"
+      },
+      {
+        "clk": "port_i1",
+        "clrn": "port_i2",
+        "d": "port_o0(6)",
+        "d_is_q_of": "u2",
+        "ena": "port_i3",
+        "gate": "u4",
+        "q": "port_o0(7)"
+      }
+    ],
+    "sccs": [
+      [
+        "u0",
+        "u1",
+        "u10",
+        "u11",
+        "u12",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u7",
+        "u9"
+      ]
+    ]
+  },
+  "simulate": {
+    "codeword_flag": {
+      "port_o1": 1
+    },
+    "codeword_remainder": 0,
+    "corrupted_flag": {
+      "port_o1": 0
+    },
+    "corrupted_remainder": 220,
+    "crc": 244,
+    "message": "123456789",
+    "reference_crc": 244
+  },
+  "stats": {
+    "checked_ffs": 8,
+    "elaborated_lcells": 5,
+    "gate_types": {
+      "HAL_GND": 1,
+      "HAL_VCC": 1,
+      "tennm_ff": 8,
+      "tennm_lcell_comb": 5
+    },
+    "gates": 15,
+    "global_inputs": [
+      "port_i0",
+      "port_i1",
+      "port_i2",
+      "port_i3"
+    ],
+    "global_outputs": [
+      "port_o0(0)",
+      "port_o0(1)",
+      "port_o0(2)",
+      "port_o0(3)",
+      "port_o0(4)",
+      "port_o0(5)",
+      "port_o0(6)",
+      "port_o0(7)",
+      "port_o1"
+    ],
+    "modules": 1,
+    "nets": 19,
+    "refused": [],
+    "top_module": "top_module"
+  }
+}

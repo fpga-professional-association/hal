@@ -1,0 +1,14 @@
+State:
+
+ID:0, Size:8, CLK: {26}, EN: {28}, R: {27}, S: {}
+  Successors:   {0}
+  Predecessors: {0}
+u3,  type: tennm_ff, id: 1, RS: 
+u5,  type: tennm_ff, id: 2, RS: 
+u7,  type: tennm_ff, id: 3, RS: 
+u9,  type: tennm_ff, id: 4, RS: 
+u11, type: tennm_ff, id: 5, RS: 
+u0,  type: tennm_ff, id: 6, RS: 
+u2,  type: tennm_ff, id: 7, RS: 
+u4,  type: tennm_ff, id: 8, RS: 
+

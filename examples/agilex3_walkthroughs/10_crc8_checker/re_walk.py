@@ -246,7 +246,7 @@ def _driver_ff(design, net):
 def collect_sccs(design):
     """Strongly connected components over the gate graph (graph_algorithm)."""
     try:
-        import graph_algorithm
+        from hal_plugins import graph_algorithm
     except ImportError:
         return None
 

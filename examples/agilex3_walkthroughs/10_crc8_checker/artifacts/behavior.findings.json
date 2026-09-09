@@ -18,8 +18,8 @@
       },
       "kind": "netlist",
       "path": "examples/agilex3_walkthroughs/10_crc8_checker/netlist/crc8_checker.vo",
-      "sha256": "b161c7e2852837e587b22aa84962027ada0e8a0b38b08821c9e7a56ffe3a38fd",
-      "size_bytes": 6406
+      "sha256": "4e3d4bf0db80b3a0b36b59b22e1e7a699347aead91eb939f2fa7e95d2b06011d",
+      "size_bytes": 6072
     }
   ],
   "findings": [
@@ -70,7 +70,7 @@
       "title": "The exported netlist matches the reference model for 200 cycles"
     }
   ],
-  "generated_at": "2026-09-08T23:35:03Z",
+  "generated_at": "2026-09-09T16:33:23Z",
   "producer": {
     "name": "hal_agilex.behavior",
     "version": "1.0.0"

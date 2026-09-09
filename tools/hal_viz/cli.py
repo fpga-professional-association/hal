@@ -297,13 +297,16 @@ def cmd_dataflow(args, reporter):
             reporter.info("wrote {}".format(txt_path))
 
         rendered = None
-        if args.format != "none":
+        # unlike the single-file commands this one never goes through
+        # _resolve_output, so the '--format omitted means svg' default is applied here
+        fmt = args.format or "svg"
+        if fmt != "none":
             try:
                 binary = find_dot_binary(args.dot_binary)
                 rendered = render_dot(
                     dot_path,
-                    os.path.join(out_dir, "graph." + args.format),
-                    args.format,
+                    os.path.join(out_dir, "graph." + fmt),
+                    fmt,
                     dot_binary=binary,
                     engine=args.engine,
                     timeout=args.render_timeout,

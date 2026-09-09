@@ -21,9 +21,12 @@ mkdir -p "$IMG" "$ART"
 cd "$REPO"
 
 echo "== 0. the export is inside the validated Agilex coverage, and matches the RTL"
-python tools/hal_agilex --strict inventory "$HERE/netlist/crc8_checker.vo" \
+# the .vo is passed repo-relative so the findings documents record a stable path
+# and the digest of the repository file, not of a per-machine absolute copy
+REL="${HERE#"$REPO"/}"
+python tools/hal_agilex --strict inventory "$REL/netlist/crc8_checker.vo" \
     -o "$ART/inventory.findings.json" > /dev/null
-python tools/hal_agilex --strict behavior "$HERE/netlist/crc8_checker.vo" \
+python tools/hal_agilex --strict behavior "$REL/netlist/crc8_checker.vo" \
     --reference "$HERE/reference.py" -o "$ART/behavior.findings.json" > /dev/null
 
 echo "== 1. first contact: module tree and gate-level graph"

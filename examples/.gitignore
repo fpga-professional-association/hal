@@ -5,3 +5,7 @@
 !uart.zip
 !simple_alu.zip
 !toy_cipher.zip
+!crypto_trojan.zip
+!agilex3_walkthroughs/
+!agilex3_walkthroughs/**
+agilex3_walkthroughs/**/__pycache__/
