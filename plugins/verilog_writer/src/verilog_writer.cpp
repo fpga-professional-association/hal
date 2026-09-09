@@ -10,6 +10,30 @@
 
 namespace hal
 {
+    namespace
+    {
+        /**
+         * Check whether a pin group is to be written using bus notation, i.e., as `input [1:0] a;` instead of one port per pin.
+         *
+         * Only pin groups that comprise more than one pin and that feature a uniform direction across all of their pins can be
+         * written as a bus.
+         *
+         * @param[in] pin_group - The pin group.
+         * @returns `true` if the pin group is written using bus notation, `false` otherwise.
+         */
+        bool is_bus(const PinGroup<ModulePin>* pin_group)
+        {
+            const std::vector<ModulePin*> pins = pin_group->get_pins();
+            if (pins.size() < 2)
+            {
+                return false;
+            }
+
+            const PinDirection direction = pins.front()->get_direction();
+            return std::all_of(pins.begin(), pins.end(), [direction](const ModulePin* pin) { return pin->get_direction() == direction; });
+        }
+    }    // namespace
+
     const std::set<std::string> VerilogWriter::valid_types = {"string", "integer", "floating_point", "bit_value", "bit_vector", "bit_string"};
 
     Result<std::monostate> VerilogWriter::write(Netlist* netlist, const std::filesystem::path& file_path)
@@ -116,22 +140,66 @@ namespace hal
         std::stringstream tmp_stream;
 
         res_stream << "(";
-        for (const auto* pin : module->get_pins())
+        for (const PinGroup<ModulePin>* pin_group : module->get_pin_groups())
         {
-            Net* net = pin->get_net();
-            if (first_port)
+            const std::vector<ModulePin*> pins = pin_group->get_pins();
+            if (pins.empty())
             {
-                first_port = false;
+                continue;
+            }
+
+            if (is_bus(pin_group))
+            {
+                // preserve the bus notation of pin groups comprising multiple pins
+                if (first_port)
+                {
+                    first_port = false;
+                }
+                else
+                {
+                    res_stream << ",";
+                }
+
+                const std::string group_alias = escape(get_unique_alias(identifier_occurrences, pin_group->get_name()));
+                const i32 left_index          = pin_group->is_ascending() ? pin_group->get_lowest_index() : pin_group->get_highest_index();
+                const i32 right_index         = pin_group->is_ascending() ? pin_group->get_highest_index() : pin_group->get_lowest_index();
+
+                res_stream << group_alias;
+                tmp_stream << "    " << enum_to_string(pins.front()->get_direction()) << " [" << left_index << ":" << right_index << "] " << group_alias << ";" << std::endl;
+
+                for (const ModulePin* pin : pins)
+                {
+                    auto index_res = pin_group->get_index(pin);
+                    if (index_res.is_error())
+                    {
+                        return ERR_APPEND(index_res.get_error(),
+                                          "could not write declaration of module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to get index of pin '"
+                                              + pin->get_name() + "' within pin group '" + pin_group->get_name() + "'");
+                    }
+
+                    aliases[pin->get_net()] = group_alias + "[" + std::to_string(index_res.get()) + "]";
+                }
             }
             else
             {
-                res_stream << ",";
+                for (const ModulePin* pin : pins)
+                {
+                    Net* net = pin->get_net();
+                    if (first_port)
+                    {
+                        first_port = false;
+                    }
+                    else
+                    {
+                        res_stream << ",";
+                    }
+
+                    aliases[net] = escape(get_unique_alias(identifier_occurrences, pin->get_name()));
+
+                    res_stream << aliases.at(net);
+                    tmp_stream << "    " << enum_to_string(pin->get_direction()) << " " << aliases.at(net) << ";" << std::endl;
+                }
             }
-
-            aliases[net] = escape(get_unique_alias(identifier_occurrences, pin->get_name()));
-
-            res_stream << aliases.at(net);
-            tmp_stream << "    " << enum_to_string(pin->get_direction()) << " " << aliases.at(net) << ";" << std::endl;
         }
 
         res_stream << ");" << std::endl;
@@ -297,12 +365,34 @@ namespace hal
         aliases[module] = escape(get_unique_alias(identifier_occurrences, module->get_name()));
         res_stream << " " << aliases.at(module);
 
-        // extract port assignments
+        // extract port assignments (in order, respecting pin groups)
         std::vector<std::pair<std::string, std::vector<const Net*>>> port_assignments;
 
-        for (const ModulePin* pin : module->get_pins())
+        for (const PinGroup<ModulePin>* pin_group : module->get_pin_groups())
         {
-            port_assignments.push_back(std::make_pair(pin->get_name(), std::vector<const Net*>({pin->get_net()})));
+            const std::vector<ModulePin*> pins = pin_group->get_pins();
+            if (pins.empty())
+            {
+                continue;
+            }
+
+            if (is_bus(pin_group))
+            {
+                // the pins of a bus are connected using a concatenation in the order in which they have been declared
+                std::vector<const Net*> nets;
+                for (const ModulePin* pin : pins)
+                {
+                    nets.push_back(pin->get_net());
+                }
+                port_assignments.push_back(std::make_pair(pin_group->get_name(), std::move(nets)));
+            }
+            else
+            {
+                for (const ModulePin* pin : pins)
+                {
+                    port_assignments.push_back(std::make_pair(pin->get_name(), std::vector<const Net*>({pin->get_net()})));
+                }
+            }
         }
 
         if (auto res = write_pin_assignments(res_stream, port_assignments, aliases); res.is_error())
@@ -503,7 +593,13 @@ namespace hal
         }
 
         const char first = s.at(0);
-        if (!(first >= 'a' && first <= 'z') && !(first >= 'A' && first <= 'Z') && first != '_')
+        if (first == '\\' && s.size() > 1 && ((s.at(1) >= '0' && s.at(1) <= '9') || s.at(1) == '\''))
+        {
+            // the name already is an escaped identifier that has to keep its escape to remain distinguishable from a
+            // number literal (e.g., '\'1'' as emitted by fasm2bels), hence it must not be escaped a second time
+            return s + " ";
+        }
+        else if (!(first >= 'a' && first <= 'z') && !(first >= 'A' && first <= 'Z') && first != '_')
         {
             return "\\" + s + " ";
         }

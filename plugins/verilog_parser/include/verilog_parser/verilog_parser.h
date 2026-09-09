@@ -142,6 +142,19 @@ namespace hal
         };
 
         /**
+         * The intermediate representation of a pin of a HAL module, including the pin group (i.e., the bus) that it belongs to.
+         */
+        struct VerilogModulePin
+        {
+            std::string m_name;
+            Net* m_net = nullptr;
+            std::string m_group_name;
+            i32 m_index      = 0;
+            bool m_is_bus    = false;
+            bool m_ascending = false;
+        };
+
+        /**
          * The intermediate representation of a Verilog module, i.e., its ports, signals, assignments, and instances.
          */
         struct VerilogModule
@@ -204,7 +217,7 @@ namespace hal
         std::unordered_map<std::string, GateType*> m_vcc_gate_types;
         std::unordered_map<std::string, GateType*> m_gnd_gate_types;
         std::unordered_map<Net*, std::vector<std::pair<Module*, u32>>> m_module_port_by_net;
-        std::unordered_map<Module*, std::vector<std::tuple<std::string, Net*>>> m_module_ports;
+        std::unordered_map<Module*, std::vector<VerilogModulePin>> m_module_ports;
 
         // unique aliases
         std::unordered_map<std::string, u32> m_module_instantiation_count;

@@ -39,6 +39,43 @@ namespace hal
 
             return OK((i32)width_res.get());
         }
+
+        /**
+         * Strip the leading backslash of an escaped Verilog identifier so that, e.g., `\I ` and `I` refer to the same identifier.
+         *
+         * Identifiers that would become ambiguous with number literals (e.g., `\'1'` from fasm2bels or `\1'b0`) keep their
+         * backslash as otherwise they could no longer be distinguished from a literal or from the internal constant signals
+         * `'0'` and `'1'` of the parser.
+         *
+         * @param[in] identifier - The identifier as returned by the tokenizer.
+         * @returns The identifier without its leading backslash, or the unmodified identifier if the escape must be kept.
+         */
+        std::string unescape(const std::string& identifier)
+        {
+            if (identifier.size() < 2 || identifier.front() != '\\')
+            {
+                return identifier;
+            }
+
+            const unsigned char first = (unsigned char)identifier.at(1);
+            if (std::isdigit(first) || first == '\'')
+            {
+                return identifier;
+            }
+
+            return identifier.substr(1);
+        }
+
+        /**
+         * Check whether a token returned by the tokenizer is an escaped identifier.
+         *
+         * @param[in] token - The token.
+         * @returns `true` if the token is an escaped identifier, `false` otherwise.
+         */
+        bool is_escaped_identifier(const std::string& token)
+        {
+            return token.size() > 1 && token.front() == '\\';
+        }
     }    // namespace
 
     Result<std::monostate> VerilogParser::parse(const std::filesystem::path& file_path)
@@ -415,6 +452,9 @@ namespace hal
                 if (!in_string && c == '\\')
                 {
                     escaped = true;
+                    // keep the backslash within the token so that escaped identifiers that look like number literals
+                    // (e.g., '\'1'' as emitted by fasm2bels) can still be told apart from actual literals
+                    current_token += c;
                     continue;
                 }
                 else if (escaped && std::isspace(c))
@@ -492,6 +532,9 @@ namespace hal
                 parsed_tokens.emplace_back(line_number, current_token);
                 current_token.clear();
             }
+
+            // an escaped identifier is always terminated by white space, hence also by the end of the line
+            escaped = false;
         }
 
         m_token_stream = TokenStream(parsed_tokens, {"(", "["}, {")", "]"});
@@ -533,7 +576,7 @@ namespace hal
 
         m_token_stream.consume("module", true);
         const u32 line_number         = m_token_stream.peek().number;
-        const std::string module_name = m_token_stream.consume();
+        const std::string module_name = unescape(m_token_stream.consume().string);
 
         // verify entity name
         if (const auto it = m_modules_by_name.find(module_name); it != m_modules_by_name.end())
@@ -655,15 +698,15 @@ namespace hal
 
             if (next_token == ".")
             {
-                port->m_identifier = ports_stream.consume().string;
+                port->m_identifier = unescape(ports_stream.consume().string);
                 ports_stream.consume("(", true);
-                port->m_expression = ports_stream.consume().string;
+                port->m_expression = unescape(ports_stream.consume().string);
                 ports_stream.consume(")", true);
             }
             else
             {
-                port->m_identifier = next_token.string;
-                port->m_expression = next_token.string;
+                port->m_identifier = unescape(next_token.string);
+                port->m_expression = port->m_identifier;
             }
 
             verilog_module->m_ports_by_identifier[port->m_identifier] = port.get();
@@ -709,9 +752,9 @@ namespace hal
                 }
                 ports_stream.consume();
 
-                auto port                          = std::make_unique<VerilogPort>();
-                const std::string& port_expression = next_token.string;
-                port->m_identifier                 = port_expression;
+                auto port                         = std::make_unique<VerilogPort>();
+                const std::string port_expression = unescape(next_token.string);
+                port->m_identifier                = port_expression;
                 port->m_expression                 = port_expression;
                 port->m_direction                  = direction;
                 if (!ranges.empty())
@@ -764,7 +807,7 @@ namespace hal
         do
         {
             Token<std::string> port_expression_token = m_token_stream.consume();
-            std::string port_expression              = port_expression_token.string;
+            std::string port_expression              = unescape(port_expression_token.string);
 
             VerilogPort* port;
             if (const auto it = verilog_module->m_ports_by_expression.find(port_expression); it == verilog_module->m_ports_by_expression.end())
@@ -831,6 +874,7 @@ namespace hal
         do
         {
             Token<std::string> signal_name = signal_stream.consume();
+            signal_name.string             = unescape(signal_name.string);
             if (signal_stream.remaining() > 0 && signal_stream.peek() == "=")
             {
                 VerilogAssignment assignment;
@@ -933,13 +977,13 @@ namespace hal
     Result<std::monostate> VerilogParser::parse_defparam(VerilogModule* module)
     {
         m_token_stream.consume("defparam", true);
-        std::string instance_name = m_token_stream.consume().string;
+        std::string instance_name = unescape(m_token_stream.consume().string);
         m_token_stream.consume(".", true);
 
         if (const auto inst_it = module->m_instances_by_name.find(instance_name); inst_it != module->m_instances_by_name.end())
         {
             VerilogDataEntry param;
-            param.m_name = m_token_stream.consume().string;
+            param.m_name = unescape(m_token_stream.consume().string);
             m_token_stream.consume("=", true);
 
             if (const auto res = parse_parameter_value(m_token_stream.consume()); res.is_ok())
@@ -972,7 +1016,7 @@ namespace hal
         do
         {
             VerilogDataEntry attribute;
-            attribute.m_name = m_token_stream.consume().string;
+            attribute.m_name = unescape(m_token_stream.consume().string);
 
             // attribute value specified?
             if (m_token_stream.consume("="))
@@ -997,7 +1041,7 @@ namespace hal
     {
         auto instance    = std::make_unique<VerilogInstance>();
         u32 line_number  = m_token_stream.peek().number;
-        instance->m_type = m_token_stream.consume().string;
+        instance->m_type = unescape(m_token_stream.consume().string);
 
         // parse generics map
         if (m_token_stream.consume("#("))
@@ -1013,7 +1057,7 @@ namespace hal
         }
 
         // parse instance name
-        instance->m_name = m_token_stream.consume().string;
+        instance->m_name = unescape(m_token_stream.consume().string);
 
         // parse port map
         if (auto res = parse_port_assign(instance.get()); res.is_error())
@@ -1043,7 +1087,7 @@ namespace hal
             {
                 m_token_stream.consume(".");
                 VerilogPortAssignment port_assignment;
-                port_assignment.m_port_name = m_token_stream.consume().string;
+                port_assignment.m_port_name = unescape(m_token_stream.consume().string);
                 m_token_stream.consume("(", true);
                 if (auto res = parse_assignment_expression(m_token_stream.extract_until(")")); res.is_error())
                 {
@@ -1104,7 +1148,7 @@ namespace hal
                 if (const auto res = parse_parameter_value(rhs); res.is_ok())
                 {
                     const auto value = res.get();
-                    generics.push_back(VerilogDataEntry({lhs.string, value.first, value.second}));
+                    generics.push_back(VerilogDataEntry({unescape(lhs.string), value.first, value.second}));
                 }
                 else
                 {
@@ -1413,7 +1457,7 @@ namespace hal
             {
                 for (auto [module, index] : it->second)
                 {
-                    std::get<1>(m_module_ports.at(module).at(index)) = master_net;
+                    m_module_ports.at(module).at(index).m_net = master_net;
                 }
                 m_module_port_by_net[master_net].insert(m_module_port_by_net[master_net].end(), it->second.begin(), it->second.end());
                 m_module_port_by_net.erase(it);
@@ -1537,18 +1581,86 @@ namespace hal
             std::unordered_set<Net*> input_nets  = module->get_input_nets();
             std::unordered_set<Net*> output_nets = module->get_output_nets();
 
-            for (const auto& [port_name, port_net] : ports)
+            // the pins of a port are consecutive, hence all pins of a bus are created and grouped in one go to
+            // preserve the order in which the ports have been declared
+            for (u32 i = 0; i < ports.size();)
             {
-                if (!module->is_input_net(port_net) && !module->is_output_net(port_net))
+                const VerilogModulePin& port = ports.at(i);
+
+                if (!port.m_is_bus)
+                {
+                    i++;
+
+                    if (!module->is_input_net(port.m_net) && !module->is_output_net(port.m_net))
+                    {
+                        continue;
+                    }
+
+                    if (auto res = module->create_pin(port.m_name, port.m_net); res.is_error())
+                    {
+                        return ERR_APPEND(res.get_error(),
+                                          "could not construct netlist: failed to create pin '" + port.m_name + "' at net '" + port.m_net->get_name() + "' with ID "
+                                              + std::to_string(port.m_net->get_id()) + " within module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()));
+                    }
+
+                    continue;
+                }
+
+                const std::string group_name = port.m_group_name;
+                const bool ascending         = port.m_ascending;
+
+                std::vector<std::pair<i32, ModulePin*>> indexed_pins;
+                while (i < ports.size() && ports.at(i).m_is_bus && ports.at(i).m_group_name == group_name)
+                {
+                    const VerilogModulePin& bus_port = ports.at(i);
+                    i++;
+
+                    if (!module->is_input_net(bus_port.m_net) && !module->is_output_net(bus_port.m_net))
+                    {
+                        continue;
+                    }
+
+                    auto pin_res = module->create_pin(bus_port.m_name, bus_port.m_net, PinType::none, false);
+                    if (pin_res.is_error())
+                    {
+                        return ERR_APPEND(pin_res.get_error(),
+                                          "could not construct netlist: failed to create pin '" + bus_port.m_name + "' at net '" + bus_port.m_net->get_name() + "' with ID "
+                                              + std::to_string(bus_port.m_net->get_id()) + " within module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()));
+                    }
+
+                    indexed_pins.push_back(std::make_pair(bus_port.m_index, pin_res.get()));
+                }
+
+                if (indexed_pins.empty())
                 {
                     continue;
                 }
 
-                if (auto res = module->create_pin(port_name, port_net); res.is_error())
+                // an ascending pin group starts at its lowest index, a descending one at its highest index. A bit of
+                // the bus that is not connected to the outside of the module does not become a pin, in which case the
+                // remaining pins are indexed consecutively from the start index on, as a pin group cannot hold gaps
+                std::sort(indexed_pins.begin(), indexed_pins.end(), [ascending](const std::pair<i32, ModulePin*>& a, const std::pair<i32, ModulePin*>& b) {
+                    return ascending ? (a.first < b.first) : (a.first > b.first);
+                });
+
+                std::vector<ModulePin*> pins;
+                PinDirection direction = indexed_pins.front().second->get_direction();
+                for (const auto& indexed_pin : indexed_pins)
+                {
+                    if (indexed_pin.second->get_direction() != direction)
+                    {
+                        direction = PinDirection::inout;
+                    }
+                    pins.push_back(indexed_pin.second);
+                }
+
+                const u32 start_index = (u32)indexed_pins.front().first;
+
+                if (auto res = module->create_pin_group(group_name, pins, direction, PinType::none, ascending, start_index); res.is_error())
                 {
                     return ERR_APPEND(res.get_error(),
-                                      "could not construct netlist: failed to create pin '" + port_name + "' at net '" + port_net->get_name() + "' with ID " + std::to_string(port_net->get_id())
-                                          + " within module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()));
+                                      "could not construct netlist: failed to create pin group '" + group_name + "' within module '" + module->get_name() + "' with ID "
+                                          + std::to_string(module->get_id()));
                 }
             }
         }
@@ -1607,12 +1719,38 @@ namespace hal
         // assign module port names
         for (const auto& port : verilog_module->m_ports)
         {
+            // a port that has been declared using a single range is a bus and hence translates into a pin group
+            const bool is_bus = port->m_ranges.size() == 1;
+
+            u32 position = 0;
             for (const auto& expanded_port_identifier : port->m_expanded_identifiers)
             {
+                const u32 current_position = position++;
+
                 if (const auto it = parent_module_assignments.find(expanded_port_identifier); it != parent_module_assignments.end())
                 {
                     Net* port_net = m_net_by_name.at(it->second);
-                    m_module_ports[module].push_back(std::make_tuple(expanded_port_identifier, port_net));
+
+                    VerilogModulePin module_pin;
+                    module_pin.m_name       = expanded_port_identifier;
+                    module_pin.m_net        = port_net;
+                    module_pin.m_group_name = is_bus ? port->m_identifier : expanded_port_identifier;
+                    module_pin.m_is_bus     = is_bus;
+
+                    if (is_bus)
+                    {
+                        const std::vector<u32>& indices = port->m_ranges.front();
+                        if (current_position < indices.size())
+                        {
+                            module_pin.m_index = (i32)indices.at(current_position);
+                        }
+
+                        // the expanded indices of a port declared as '[a:b]' always run from 'b' to 'a', hence a
+                        // descending declaration such as '[1:0]' yields indices in ascending order and vice versa
+                        module_pin.m_ascending = indices.front() > indices.back();
+                    }
+
+                    m_module_ports[module].push_back(std::move(module_pin));
                     m_module_port_by_net[port_net].push_back(std::make_pair(module, m_module_ports[module].size() - 1));
                 }
             }
@@ -2361,10 +2499,11 @@ namespace hal
             TokenStream<std::string>& part_stream = *it;
 
             const Token<std::string> signal_name_token = part_stream.consume();
-            std::string signal_name                    = signal_name_token.string;
+            const bool escaped                         = is_escaped_identifier(signal_name_token.string);
+            std::string signal_name                    = unescape(signal_name_token.string);
 
-            // (3) NUMBER
-            if (isdigit(signal_name[0]) || signal_name[0] == '\'')
+            // (3) NUMBER, an escaped identifier is never a number literal even if it looks like one (e.g., '\'1'')
+            if (!escaped && (isdigit(signal_name[0]) || signal_name[0] == '\''))
             {
                 if (auto res = get_binary_vector(signal_name_token); res.is_error())
                 {

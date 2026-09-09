@@ -6,8 +6,21 @@
 #include "hal_core/plugin_system/plugin_manager.h"
 #include "hal_core/netlist/gate_library/gate_library_manager.h"
 
-namespace hal 
+#include <fstream>
+#include <sstream>
+
+namespace hal
 {
+    namespace
+    {
+        std::string read_file(const std::filesystem::path& path)
+        {
+            std::ifstream ifs(path.string());
+            std::stringstream ss;
+            ss << ifs.rdbuf();
+            return ss.str();
+        }
+    }
     class VerilogWriterTest : public ::testing::Test {
     protected:
         GateLibrary* m_gl;
@@ -417,10 +430,240 @@ namespace hal
                     EXPECT_EQ(parsed_gate->get_fan_in_net(ep->get_pin())->get_name(), ep->get_net()->get_name());
                 }
 
-                for (const Endpoint* ep : fan_out) 
+                for (const Endpoint* ep : fan_out)
                 {
                     EXPECT_EQ(parsed_gate->get_fan_out_net(ep->get_pin())->get_name(), ep->get_net()->get_name());
                 }
+            }
+        TEST_END
+    }
+
+    /**
+     * Test that module pin groups are written using Verilog bus notation (e.g., 'input [1:0] a;') and that the pin
+     * groups are reconstructed with their index order intact when parsing the netlist again.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_bus_notation) {
+        TEST_START
+            {
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_bus.v");
+                std::unique_ptr<Netlist> nl = std::make_unique<Netlist>(m_gl);
+
+                {
+                    Module* top_module = nl->get_top_module();
+
+                    Gate* buf_0 = nl->create_gate(m_gl->get_gate_type_by_name("BUF"), "buf_0");
+                    Gate* buf_1 = nl->create_gate(m_gl->get_gate_type_by_name("BUF"), "buf_1");
+
+                    Net* a_0 = test_utils::connect_global_in(nl.get(), buf_0, "I", "a(0)");
+                    Net* a_1 = test_utils::connect_global_in(nl.get(), buf_1, "I", "a(1)");
+                    Net* b_0 = test_utils::connect_global_out(nl.get(), buf_0, "O", "b(0)");
+                    Net* b_1 = test_utils::connect_global_out(nl.get(), buf_1, "O", "b(1)");
+
+                    std::vector<ModulePin*> pins_a;
+                    std::vector<ModulePin*> pins_b;
+                    for (Net* net : std::vector<Net*>({a_1, a_0}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                        pins_a.push_back(pin);
+                    }
+                    for (Net* net : std::vector<Net*>({b_0, b_1}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                        pins_b.push_back(pin);
+                    }
+
+                    // 'a' is a descending bus (i.e., '[1:0]'), 'b' is an ascending one (i.e., '[0:1]')
+                    ASSERT_TRUE(top_module->create_pin_group("a", pins_a, PinDirection::input, PinType::none, false, 1).is_ok());
+                    ASSERT_TRUE(top_module->create_pin_group("b", pins_b, PinDirection::output, PinType::none, true, 0).is_ok());
+                }
+
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                // ground truth: the buses must be written using bus notation instead of one port per bit
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("input [1:0] a;"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("output [0:1] b;"), std::string::npos) << file_content;
+                // the individual bits of the bus must not be written as separate ports anymore
+                EXPECT_EQ(file_content.find("\\a(0)"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("a[0]"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("b[1]"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                Module* parsed_top = parsed_nl->get_top_module();
+                ASSERT_EQ(parsed_top->get_pins().size(), 4);
+                ASSERT_EQ(parsed_top->get_pin_groups().size(), 2);
+
+                PinGroup<ModulePin>* group_a = parsed_top->get_pin_group_by_name("a");
+                ASSERT_NE(group_a, nullptr);
+                ASSERT_EQ(group_a->size(), 2);
+                EXPECT_TRUE(group_a->is_descending());
+                EXPECT_EQ(group_a->get_start_index(), 1);
+                EXPECT_EQ(group_a->get_direction(), PinDirection::input);
+                ASSERT_TRUE(group_a->get_pin_at_index(0).is_ok());
+                EXPECT_EQ(group_a->get_pin_at_index(0).get()->get_net()->get_name(), "a(0)");
+                ASSERT_TRUE(group_a->get_pin_at_index(1).is_ok());
+                EXPECT_EQ(group_a->get_pin_at_index(1).get()->get_net()->get_name(), "a(1)");
+
+                PinGroup<ModulePin>* group_b = parsed_top->get_pin_group_by_name("b");
+                ASSERT_NE(group_b, nullptr);
+                ASSERT_EQ(group_b->size(), 2);
+                EXPECT_TRUE(group_b->is_ascending());
+                EXPECT_EQ(group_b->get_start_index(), 0);
+                EXPECT_EQ(group_b->get_direction(), PinDirection::output);
+                ASSERT_TRUE(group_b->get_pin_at_index(0).is_ok());
+                EXPECT_EQ(group_b->get_pin_at_index(0).get()->get_net()->get_name(), "b(0)");
+                ASSERT_TRUE(group_b->get_pin_at_index(1).is_ok());
+                EXPECT_EQ(group_b->get_pin_at_index(1).get()->get_net()->get_name(), "b(1)");
+
+                // the connectivity of the gates is preserved as well
+                ASSERT_EQ(parsed_nl->get_gates().size(), 2);
+                for (const Gate* gate : parsed_nl->get_gates())
+                {
+                    ASSERT_NE(gate->get_fan_in_net("I"), nullptr);
+                    ASSERT_NE(gate->get_fan_out_net("O"), nullptr);
+                    const std::string in_name = gate->get_fan_in_net("I")->get_name();
+                    const std::string out_name = gate->get_fan_out_net("O")->get_name();
+                    EXPECT_EQ(in_name.substr(1), out_name.substr(1));
+                }
+            }
+        TEST_END
+    }
+
+    /**
+     * Test that a net whose name is an escaped binary literal (as emitted by fasm2bels, see emsec/hal#545) survives a
+     * write-and-parse round trip.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_escaped_literal_identifier) {
+        TEST_START
+            {
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_escaped.v");
+                std::unique_ptr<Netlist> nl = std::make_unique<Netlist>(m_gl);
+
+                {
+                    Module* top_module = nl->get_top_module();
+
+                    Gate* buf_0 = nl->create_gate(m_gl->get_gate_type_by_name("BUF"), "buf_0");
+                    Net* in_net = test_utils::connect_global_in(nl.get(), buf_0, "I", "\\'1'");
+                    Net* out_net = test_utils::connect_global_out(nl.get(), buf_0, "O", "net_out");
+
+                    for (Net* net : std::vector<Net*>({in_net, out_net}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                    }
+                }
+
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                ASSERT_EQ(parsed_nl->get_gates().size(), 1);
+                const Gate* parsed_gate = parsed_nl->get_gates().front();
+                ASSERT_NE(parsed_gate->get_fan_in_net("I"), nullptr);
+                EXPECT_EQ(parsed_gate->get_fan_in_net("I")->get_name(), "\\'1'");
+                EXPECT_TRUE(parsed_gate->get_fan_in_net("I")->is_global_input_net());
+            }
+        TEST_END
+    }
+
+    /**
+     * Test that the pin groups of sub-modules are written using bus notation and that the sub-module is instantiated
+     * using a concatenation that preserves the index order.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_bus_notation_submodule) {
+        TEST_START
+            {
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_bus_submodule.v");
+                std::unique_ptr<Netlist> nl = std::make_unique<Netlist>(m_gl);
+
+                {
+                    Gate* buf_0 = nl->create_gate(m_gl->get_gate_type_by_name("BUF"), "buf_0");
+                    Gate* buf_1 = nl->create_gate(m_gl->get_gate_type_by_name("BUF"), "buf_1");
+
+                    Net* a_0 = test_utils::connect_global_in(nl.get(), buf_0, "I", "a(0)");
+                    Net* a_1 = test_utils::connect_global_in(nl.get(), buf_1, "I", "a(1)");
+                    Net* b_0 = test_utils::connect_global_out(nl.get(), buf_0, "O", "b(0)");
+                    Net* b_1 = test_utils::connect_global_out(nl.get(), buf_1, "O", "b(1)");
+
+                    // name the ports of the top module after their nets so that the nets keep their names on re-parsing
+                    Module* top_module = nl->get_top_module();
+                    for (Net* net : std::vector<Net*>({a_0, a_1, b_0, b_1}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                    }
+
+                    Module* mod = nl->create_module("mod", nl->get_top_module(), {buf_0, buf_1});
+
+                    std::vector<ModulePin*> pins_in;
+                    for (Net* net : std::vector<Net*>({a_1, a_0}))
+                    {
+                        ModulePin* pin = mod->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(mod->set_pin_name(pin, "IN(" + net->get_name().substr(2, 1) + ")"));
+                        pins_in.push_back(pin);
+                    }
+                    ASSERT_TRUE(mod->create_pin_group("IN", pins_in, PinDirection::input, PinType::none, false, 1).is_ok());
+                }
+
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("input [1:0] IN;"), std::string::npos) << file_content;
+
+                // the bus is connected through a concatenation that lists the most significant bit first
+                const size_t assignment_pos = file_content.find(".IN(");
+                ASSERT_NE(assignment_pos, std::string::npos) << file_content;
+                const size_t msb_pos = file_content.find("\\a(1)", assignment_pos);
+                const size_t lsb_pos = file_content.find("\\a(0)", assignment_pos);
+                ASSERT_NE(msb_pos, std::string::npos) << file_content;
+                ASSERT_NE(lsb_pos, std::string::npos) << file_content;
+                EXPECT_LT(msb_pos, lsb_pos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                std::vector<Module*> modules = parsed_nl->get_modules();
+                auto mod_it = std::find_if(modules.begin(), modules.end(), [](const Module* m){ return !m->is_top_module(); });
+                ASSERT_NE(mod_it, modules.end());
+                Module* parsed_mod = *mod_it;
+
+                PinGroup<ModulePin>* group_in = parsed_mod->get_pin_group_by_name("IN");
+                ASSERT_NE(group_in, nullptr);
+                ASSERT_EQ(group_in->size(), 2);
+                EXPECT_TRUE(group_in->is_descending());
+                EXPECT_EQ(group_in->get_start_index(), 1);
+                ASSERT_TRUE(group_in->get_pin_at_index(0).is_ok());
+                EXPECT_EQ(group_in->get_pin_at_index(0).get()->get_net()->get_name(), "a(0)");
+                ASSERT_TRUE(group_in->get_pin_at_index(1).is_ok());
+                EXPECT_EQ(group_in->get_pin_at_index(1).get()->get_net()->get_name(), "a(1)");
             }
         TEST_END
     }
