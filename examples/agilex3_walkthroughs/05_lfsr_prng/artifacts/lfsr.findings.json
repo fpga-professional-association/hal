@@ -1,0 +1,285 @@
+{
+  "analysis": {
+    "entry_point": "check.py:analyse",
+    "plugin": {
+      "name": "hal_agilex+hal_py",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "lfsr_prng_netlist",
+      "description": "Quartus Prime Pro Agilex 3 export, rewritten by tools/hal_agilex import",
+      "design_name": "lfsr_prng",
+      "gate_count": 35,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v",
+      "sha256": "4b938cb89c537088bdd4c26b9e3a56c89294ec67ea0fd0d19a3c258b06f9517e"
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "tennm_lcell_comb / tennm_ff behave as tools/hal_agilex/primitives.py models them; that model is itself validated against the vendor export it describes.",
+          "id": "agilex-primitive-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "cycle_bound": 128,
+        "description": "simulated cycles",
+        "unbounded": false
+      },
+      "id": "lfsr/gate-level-agreement",
+      "method": {
+        "bounded": true,
+        "description": "The netlist was stepped from its reset state with the enable high and compared against the recovered model.",
+        "kind": "simulation",
+        "name": "gate-level simulation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "lfsr_prng_netlist"
+        ],
+        "description": "the 16 tennm_ff stages and the ALM cells between them"
+      },
+      "status": "proven_bounded",
+      "summary": "128 cycles, no divergence.",
+      "tags": [
+        "lfsr",
+        "simulation"
+      ],
+      "title": "Gate-level simulation agrees with the recovered model"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Each next-state function was recovered as an affine GF(2) form from 17 probes and spot-checked on 32 random states per stage, not proven affine exhaustively.",
+          "discharged": false,
+          "id": "affine-probing",
+          "kind": "tool"
+        },
+        {
+          "description": "tennm_lcell_comb / tennm_ff behave as tools/hal_agilex/primitives.py models them; that model is itself validated against the vendor export it describes.",
+          "id": "agilex-primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The period was enumerated on the recovered model, not on the gate-level netlist; the two were only compared cycle by cycle for a bounded run.",
+          "discharged": false,
+          "id": "model-equals-netlist",
+          "kind": "environment"
+        }
+      ],
+      "bounds": {
+        "description": "all 65535 states of the recovered model",
+        "unbounded": true
+      },
+      "data": {
+        "period": 65535
+      },
+      "id": "lfsr/maximal-length",
+      "method": {
+        "bounded": false,
+        "description": "The recovered 16-bit model was iterated from the recovered seed until it returned to it; all states on the cycle were collected.",
+        "kind": "simulation",
+        "name": "state enumeration of the recovered model"
+      },
+      "scope": {
+        "artifact_ids": [
+          "lfsr_prng_netlist"
+        ],
+        "description": "the 16 tennm_ff stages and the ALM cells between them"
+      },
+      "status": "proven_under_assumptions",
+      "summary": "65535 distinct states before the seed recurs; the all-zero state is not on the cycle.",
+      "tags": [
+        "lfsr",
+        "period"
+      ],
+      "title": "The recovered generator has maximal length (period 65535)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Each next-state function was recovered as an affine GF(2) form from 17 probes and spot-checked on 32 random states per stage, not proven affine exhaustively.",
+          "discharged": false,
+          "id": "affine-probing",
+          "kind": "tool"
+        },
+        {
+          "description": "tennm_lcell_comb / tennm_ff behave as tools/hal_agilex/primitives.py models them; that model is itself validated against the vendor export it describes.",
+          "id": "agilex-primitive-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the netlist's functions",
+        "unbounded": true
+      },
+      "data": {
+        "polynomial": "x^16 + x^15 + x^13 + x^4 + 1",
+        "taps": [
+          15,
+          14,
+          12,
+          3
+        ]
+      },
+      "evidence": [
+        {
+          "description": "recovered_lfsr.svg",
+          "kind": "file",
+          "media_type": "image/svg+xml",
+          "path": "examples/agilex3_walkthroughs/05_lfsr_prng/images/recovered_lfsr.svg"
+        }
+      ],
+      "id": "lfsr/polynomial",
+      "method": {
+        "bounded": false,
+        "description": "The wide next-state function is the XOR of the stages listed as taps.",
+        "kind": "structural",
+        "name": "tap extraction from the feedback function"
+      },
+      "scope": {
+        "artifact_ids": [
+          "lfsr_prng_netlist"
+        ],
+        "description": "the 16 tennm_ff stages and the ALM cells between them"
+      },
+      "status": "proven_under_assumptions",
+      "summary": "Taps [15, 14, 12, 3] (0-based stage indices), i.e. x^16 + x^15 + x^13 + x^4 + 1.",
+      "tags": [
+        "lfsr",
+        "polynomial"
+      ],
+      "title": "The feedback polynomial is x^16 + x^15 + x^13 + x^4 + 1"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "tennm_lcell_comb / tennm_ff behave as tools/hal_agilex/primitives.py models them; that model is itself validated against the vendor export it describes.",
+          "id": "agilex-primitive-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the netlist's structure",
+        "unbounded": true
+      },
+      "data": {
+        "polarity": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "seed": 44257
+      },
+      "id": "lfsr/seed",
+      "method": {
+        "bounded": false,
+        "description": "The flip-flops only have an asynchronous clear, so a stage whose design value resets to 1 is stored inverted; the set of inverted stages is the seed. Recovered twice: from the primary outputs and from the inverting shift edges.",
+        "kind": "structural",
+        "name": "inversion-map recovery"
+      },
+      "scope": {
+        "artifact_ids": [
+          "lfsr_prng_netlist"
+        ],
+        "description": "the 16 tennm_ff stages and the ALM cells between them"
+      },
+      "status": "proven_under_assumptions",
+      "summary": "Both derivations agree on 0xACE1.",
+      "tags": [
+        "lfsr",
+        "reset"
+      ],
+      "title": "The reset seed is 0xACE1"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Each next-state function was recovered as an affine GF(2) form from 17 probes and spot-checked on 32 random states per stage, not proven affine exhaustively.",
+          "discharged": false,
+          "id": "affine-probing",
+          "kind": "tool"
+        },
+        {
+          "description": "tennm_lcell_comb / tennm_ff behave as tools/hal_agilex/primitives.py models them; that model is itself validated against the vendor export it describes.",
+          "id": "agilex-primitive-semantics",
+          "kind": "library"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the netlist's functions",
+        "unbounded": true
+      },
+      "data": {
+        "stage_order_gate_index": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "id": "lfsr/structure/shift-chain",
+      "method": {
+        "bounded": false,
+        "description": "Every flip-flop's D cone was evaluated over the flip-flop outputs; 15 stages depend on exactly one predecessor, one stage depends on four.",
+        "kind": "structural",
+        "name": "next-state function probing"
+      },
+      "scope": {
+        "artifact_ids": [
+          "lfsr_prng_netlist"
+        ],
+        "description": "the 16 tennm_ff stages and the ALM cells between them"
+      },
+      "status": "proven_under_assumptions",
+      "summary": "Stage order [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] (indices into the flip-flop list, sorted by gate id); one injection point, no other sequential structure.",
+      "tags": [
+        "lfsr",
+        "structure"
+      ],
+      "title": "The 16 flip-flops form one shift chain with a single feedback point"
+    }
+  ],
+  "generated_at": "2026-09-09T17:20:19Z",
+  "notes": [
+    "Every claim here was derived from the netlist; design.v was not read."
+  ],
+  "producer": {
+    "name": "examples/agilex3_walkthroughs/05_lfsr_prng/check.py",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

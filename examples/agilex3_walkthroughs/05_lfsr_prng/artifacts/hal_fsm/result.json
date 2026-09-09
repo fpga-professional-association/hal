@@ -1,0 +1,27 @@
+{
+  "analysis": "solve_fsm.discover",
+  "artifacts": [
+    {
+      "description": "findings document written through hal_findings",
+      "path": "findings.json",
+      "role": "findings"
+    }
+  ],
+  "duration_s": 0.069,
+  "finished_at": "2026-09-09T17:20:16Z",
+  "metrics": {
+    "candidates": 1,
+    "failed": 0,
+    "sequential_gates": 16,
+    "solved": 0,
+    "states": 0
+  },
+  "notes": [
+    "16 sequential gate(s) cannot be part of a state register solve_fsm can handle: state[0] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[1] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[2] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[3] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2)",
+    "1 candidate(s) exceed the max_state_bits limit of 12 and will not be handed to the solver: 16 flip-flops",
+    "no candidate was solved: every proposal is either above max_state_bits or below min_confidence"
+  ],
+  "result_version": "1.0.0",
+  "started_at": "2026-09-09T17:20:16Z",
+  "status": "ok"
+}

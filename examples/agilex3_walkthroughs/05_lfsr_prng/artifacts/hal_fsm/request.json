@@ -1,0 +1,41 @@
+{
+  "analysis": "solve_fsm.discover",
+  "artifact_id": "netlist",
+  "command": [
+    "python",
+    "tools/hal_fsm",
+    "analyze",
+    "examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v"
+  ],
+  "config": {
+    "ambiguity_margin": 0.05,
+    "config_version": "1.0.0",
+    "diagram_base": 2,
+    "emit_diagram": true,
+    "initial_state_encoding": "auto",
+    "limits": {
+      "brute_force_max_states": 256,
+      "max_candidates": 8,
+      "max_condition_vars": 16,
+      "max_cycles": 32,
+      "max_diagram_states": 64,
+      "max_solved_candidates": 1,
+      "max_state_bits": 12,
+      "max_states": 1024,
+      "max_transitions": 8192,
+      "smt_timeout_s": 60.0,
+      "wall_time_s": 600.0
+    },
+    "min_confidence": 0.0,
+    "solve": "best",
+    "solver": "auto"
+  },
+  "config_path": null,
+  "findings_file": "findings.json",
+  "gate_library": "/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl",
+  "netlist": "/work/examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v",
+  "output_dir": "/work/examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/hal_fsm",
+  "request_version": "1.0.0",
+  "result_file": "result.json",
+  "tools_path": "/work/tools"
+}

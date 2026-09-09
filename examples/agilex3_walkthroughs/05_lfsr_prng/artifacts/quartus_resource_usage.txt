@@ -1,0 +1,25 @@
+; Synthesis Resource Usage Summary for Partition "root_partition" ;
++---------------------------------------------+-------------------+
+; Resource                                    ; Usage             ;
++---------------------------------------------+-------------------+
+; Estimate of Logic utilization (ALMs needed) ; 10                ;
+;                                             ;                   ;
+; Combinational ALUT usage for logic          ; 17                ;
+;     -- 8 input functions                    ; 0                 ;
+;     -- 7 input functions                    ; 0                 ;
+;     -- 6 input functions                    ; 0                 ;
+;     -- 5 input functions                    ; 0                 ;
+;     -- 4 input functions                    ; 1                 ;
+;     -- <=3 input functions                  ; 16                ;
+;                                             ;                   ;
+; Dedicated logic registers                   ; 16                ;
+;                                             ;                   ;
+; I/O pins                                    ; 20                ;
+;                                             ;                   ;
+; Total DSP Blocks                            ; 0                 ;
+;     -- [A] Total Fixed Point DSP Blocks     ; 0                 ;
+;     -- [B] Total Floating Point DSP Blocks  ; 0                 ;
+;     -- [C] Total DSP_PRIME Blocks           ; 0                 ;
+;                                             ;                   ;
+; Maximum fan-out node                        ; clk               ;
+; Maximum fan-out                             ; 16                ;

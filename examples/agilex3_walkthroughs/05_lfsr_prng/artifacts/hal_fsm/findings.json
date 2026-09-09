@@ -1,0 +1,431 @@
+{
+  "analysis": {
+    "configuration": {
+      "ambiguity_margin": 0.05,
+      "config_version": "1.0.0",
+      "diagram_base": 2,
+      "emit_diagram": true,
+      "initial_state_encoding": "auto",
+      "limits": {
+        "brute_force_max_states": 256,
+        "max_candidates": 8,
+        "max_condition_vars": 16,
+        "max_cycles": 32,
+        "max_diagram_states": 64,
+        "max_solved_candidates": 1,
+        "max_state_bits": 12,
+        "max_states": 1024,
+        "max_transitions": 8192,
+        "smt_timeout_s": 60.0,
+        "wall_time_s": 600.0
+      },
+      "min_confidence": 0.0,
+      "solve": "best",
+      "solver": "auto"
+    },
+    "duration_s": 0.069,
+    "entry_point": "solve_fsm.solve_fsm",
+    "finished_at": "2026-09-09T17:20:16Z",
+    "plugin": {
+      "description": "state transition graph reconstruction (solve_fsm)",
+      "name": "solve_fsm",
+      "version": "0.1"
+    },
+    "started_at": "2026-09-09T17:20:16Z"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "lfsr_prng",
+      "gate_count": 35,
+      "gate_library": {
+        "name": "AGILEX_TENNM",
+        "path": "/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl",
+        "sha256": "8784717efb2692e5c3ca6cad37012fe3ee1255eebba31cfaa45a428a75c4c833"
+      },
+      "kind": "netlist",
+      "net_count": 38,
+      "netlist_id": 1,
+      "path": "/work/examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v",
+      "sha256": "4b938cb89c537088bdd4c26b9e3a56c89294ec67ea0fd0d19a3c258b06f9517e",
+      "size_bytes": 11110
+    }
+  ],
+  "findings": [
+    {
+      "confidence": 0.925,
+      "data": {
+        "features": {
+          "agreement": 1.0,
+          "closure": 1.0,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 0.5,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "gate_names": [
+          "state[0]",
+          "state[1]",
+          "state[2]",
+          "state[3]",
+          "state[4]",
+          "state[5]",
+          "state[6]",
+          "state[7]",
+          "state[8]",
+          "state[9]",
+          "state[10]",
+          "state[11]",
+          "state[12]",
+          "state[13]",
+          "state[14]",
+          "state[15]"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 16 flip-flops form a strongly connected component of the next-state dependency graph",
+          "all of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 1 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "proposed independently by dataflow, scc"
+        ],
+        "score": 0.925,
+        "sources": [
+          "dataflow",
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/001",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 16
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "tennm_ff"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[0]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 2,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[1]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 3,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[2]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 4,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[3]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 5,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[4]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 6,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[5]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 7,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[6]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 8,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[7]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 9,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[8]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 10,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[9]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 11,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[10]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 12,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[11]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 13,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[12]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 14,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[13]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 15,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[14]",
+            "type": "tennm_ff"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 16,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "state[15]",
+            "type": "tennm_ff"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow, scc. the 16 flip-flops form a strongly connected component of the next-state dependency graph all of the set's sequential dependencies stay inside it the next-state cone reads 1 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 16 flip-flop(s) [state[0], state[1], state[2], state[3], state[4], state[5] ...]"
+    },
+    {
+      "id": "fsm/coverage/uncovered-sequential-gates",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates that no solved machine covers",
+        "gate_types": [
+          "tennm_ff"
+        ]
+      },
+      "severity": "info",
+      "status": "unsupported",
+      "summary": "1 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement none.",
+      "tags": [
+        "coverage",
+        "fsm"
+      ],
+      "title": "Sequential gates outside every solved state register",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 16,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 1,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "state[0]",
+                "type": "tennm_ff"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 2,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "state[1]",
+                "type": "tennm_ff"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 3,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "state[2]",
+                "type": "tennm_ff"
+              }
+            ],
+            "gate_type": "tennm_ff",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "sequential gates of this type are present but are not part of any state register that was solved; no statement is made about them"
+          }
+        ],
+        "reason": "hal_fsm only reports the machines it solved; the gates below were either not proposed as a state register, not selected, or not solvable"
+      }
+    }
+  ],
+  "generated_at": "2026-09-09T17:20:16Z",
+  "notes": [
+    "16 sequential gate(s) cannot be part of a state register solve_fsm can handle: state[0] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[1] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[2] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2); state[3] (solve_fsm requires exactly one data pin per state flip-flop; gate type 'tennm_ff' has 2)",
+    "1 candidate(s) exceed the max_state_bits limit of 12 and will not be handed to the solver: 16 flip-flops",
+    "no candidate was solved: every proposal is either above max_state_bits or below min_confidence",
+    "state values are relative to the bit order recorded on each transitions finding; gate references are scoped to artifact 'netlist'"
+  ],
+  "producer": {
+    "command": [
+      "python",
+      "tools/hal_fsm",
+      "analyze",
+      "examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v"
+    ],
+    "name": "hal_fsm",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

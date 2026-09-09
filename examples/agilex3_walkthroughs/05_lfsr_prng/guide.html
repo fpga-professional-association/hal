@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agilex 3 RE walkthrough 05 — the LFSR</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1b1f24;
+  --muted: #5b6570;
+  --rule: #dde3ea;
+  --code-bg: #f5f7fa;
+  --accent: #39598a;
+  --accent-soft: #eef3fb;
+  --warn: #b3762a;
+  --warn-soft: #fff6e8;
+  --good: #3d7a3d;
+  --good-soft: #eef7ee;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 2.5rem 1.25rem 6rem; }
+header.title { border-bottom: 3px solid var(--accent); padding-bottom: 1.25rem; margin-bottom: 2rem; }
+header.title h1 { font-size: 2rem; margin: 0 0 .35rem; letter-spacing: -.01em; }
+header.title p.sub { margin: 0; color: var(--muted); font-size: 1.05rem; }
+h2 {
+  margin: 3rem 0 .75rem; font-size: 1.4rem; letter-spacing: -.01em;
+  border-bottom: 1px solid var(--rule); padding-bottom: .35rem;
+}
+h3 { margin: 2rem 0 .5rem; font-size: 1.1rem; }
+h4 { margin: 1.5rem 0 .4rem; font-size: .98rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p, li { max-width: 58rem; }
+code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+code { background: var(--code-bg); padding: .1rem .3rem; border-radius: 3px; font-size: .9em; }
+pre {
+  background: var(--code-bg); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+  border-radius: 4px; padding: .85rem 1rem; overflow-x: auto; font-size: .85rem; line-height: 1.5;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+pre.out { border-left-color: var(--muted); }
+table { border-collapse: collapse; margin: 1rem 0; font-size: .92rem; width: 100%; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+figure { margin: 1.5rem 0; }
+figure img { max-width: 100%; border: 1px solid var(--rule); border-radius: 4px; background: #fff; }
+figcaption { color: var(--muted); font-size: .88rem; margin-top: .5rem; }
+.note, .warn, .good {
+  border-radius: 4px; padding: .8rem 1rem; margin: 1.25rem 0; font-size: .95rem;
+  border: 1px solid var(--rule); background: var(--accent-soft); border-left: 4px solid var(--accent);
+}
+.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+.good { background: var(--good-soft); border-left-color: var(--good); }
+.note strong, .warn strong, .good strong { display: block; margin-bottom: .2rem; }
+.step { margin-top: 2.5rem; padding-top: .5rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step .num {
+  display: inline-block; min-width: 1.9rem; text-align: center; background: var(--accent); color: #fff;
+  border-radius: 3px; font-size: .85rem; padding: .1rem .4rem; font-weight: 700;
+}
+.toc { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 4px; padding: 1rem 1.25rem; }
+.toc ol { margin: .3rem 0 0; padding-left: 1.2rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .75rem; margin: 1.5rem 0; }
+.meta div { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 4px; padding: .6rem .8rem; }
+.meta dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.meta dd { margin: .15rem 0 0; font-size: .95rem; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media (max-width: 55rem) { .two { grid-template-columns: 1fr; } }
+footer { margin-top: 4rem; border-top: 1px solid var(--rule); padding-top: 1rem; color: var(--muted); font-size: .88rem; }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b; --fg: #e7ebf0; --muted: #9aa5b1; --rule: #2c333c; --code-bg: #1b1f25;
+    --accent: #7aa5e0; --accent-soft: #1b2532; --warn: #d9a45a; --warn-soft: #2a2318;
+    --good: #7fc07f; --good-soft: #1a2620;
+  }
+  figure img { background: #fff; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="title">
+  <h1>Walkthrough 05 — recovering an LFSR from an Agilex 3 netlist</h1>
+  <p class="sub">A 16-bit Fibonacci LFSR is synthesized with Quartus Prime Pro, exported as a
+  gate-level netlist, and then taken apart again with HAL until the feedback polynomial, the seed
+  and the reset behaviour fall out. Every command, every picture and every number on this page
+  came from an actual run.</p>
+</header>
+
+<div class="meta">
+  <div><dt>Device</dt><dd>A3CW135BM16AE6S (Agilex 3, MBGA896)</dd></div>
+  <div><dt>Tool</dt><dd>Quartus Prime Pro 26.1.0 Build 110</dd></div>
+  <div><dt>Export stage</dt><dd>post-synthesis (no fitting)</dd></div>
+  <div><dt>Netlist size</dt><dd>16 <code>tennm_ff</code> + 17 <code>tennm_lcell_comb</code></dd></div>
+  <div><dt>Gate library</dt><dd><code>AGILEX_TENNM.hgl</code></dd></div>
+  <div><dt>Answer</dt><dd>x<sup>16</sup>+x<sup>15</sup>+x<sup>13</sup>+x<sup>4</sup>+1, seed 0xACE1</dd></div>
+</div>
+
+<div class="toc">
+  <strong>On this page</strong>
+  <ol>
+    <li><a href="#design">What this design is</a></li>
+    <li><a href="#synth">Synthesis and export: the exact commands</a></li>
+    <li><a href="#contact">First contact with the netlist</a></li>
+    <li><a href="#walk">The reverse-engineering walk, step by step</a></li>
+    <li><a href="#recon">Reconstruction, and an honest score</a></li>
+    <li><a href="#further">Going further</a></li>
+  </ol>
+</div>
+
+<div class="note">
+  <strong>Who this is for</strong>
+  An engineer who can read Verilog but has never had to read a <em>netlist</em>. No prior HAL
+  knowledge is assumed. Everything runs headless: the commands below are the whole interface.
+</div>
+
+<h2 id="design">1. What this design is</h2>
+
+<p>A linear-feedback shift register is the cheapest pseudo-random generator in digital design: a
+shift register plus one XOR. Every clock, the bits move one place up; the bit that falls off the
+end is thrown away and a new bit — the XOR of a few chosen positions, the <em>taps</em> — is pushed
+in at the bottom. Choose the taps so that the corresponding polynomial over GF(2) is
+<em>primitive</em> and the register walks through all 2<sup>n</sup>−1 non-zero states before it
+repeats.</p>
+
+<p>The design under test uses the classic 16-bit polynomial
+x<sup>16</sup>+x<sup>15</sup>+x<sup>13</sup>+x<sup>4</sup>+1 — taps 16, 15, 13 and 4 in the usual
+1-based notation, i.e. register bits 15, 14, 12 and 3.</p>
+
+<h4><a href="design.v">design.v</a> (the answer key — the walk below never reads it)</h4>
+<pre><code>module lfsr_prng (
+    input  wire        clk,      // single clock domain
+    input  wire        rst_n,    // asynchronous, active low: load the seed
+    input  wire        en,       // advance the generator when high
+    output wire [15:0] rand_out, // the full LFSR state
+    output wire        bit_out   // the serial pseudo-random bit stream
+);
+
+    // The seed only has to be non-zero; 16'hACE1 is the traditional one.
+    localparam [15:0] SEED = 16'hACE1;
+
+    reg [15:0] state;
+
+    // Single XOR of the four taps -- one 4-input function, one ALM after
+    // synthesis.  This is the only combinational logic in the design.
+    wire feedback = state[15] ^ state[14] ^ state[12] ^ state[3];
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            state &lt;= SEED;
+        else if (en)
+            state &lt;= {state[14:0], feedback};
+    end
+
+    assign rand_out = state;
+    assign bit_out  = state[15];
+
+endmodule</code></pre>
+
+<p><a href="spec.md">spec.md</a> states the intent in words: single clock, maximal length 65535, the
+all-zero state is the fixed point the seed exists to avoid, and — stated plainly — an LFSR is not a
+cryptographic PRNG, because its whole state is recoverable from 16 consecutive output bits. That is
+the property this walkthrough is, in a sense, a demonstration of.</p>
+
+<h2 id="synth">2. Synthesis and export: the exact commands</h2>
+
+<p>The flow is the one <code>tools/hal_agilex</code> documents and its fixtures were made with, so
+this walkthrough's export is directly comparable to them: same device, same Quartus version,
+same two commands, synthesis only (no fitting, so no placement noise in the netlist).</p>
+
+<pre><code># examples/agilex3_walkthroughs/05_lfsr_prng/quartus/lfsr_prng.qsf
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY lfsr_prng
+set_global_assignment -name VERILOG_FILE ../design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files</code></pre>
+
+<pre><code>cd examples/agilex3_walkthroughs/05_lfsr_prng/quartus
+
+# 1. synthesize
+C:/altera_pro/26.1/quartus/bin64/quartus_syn.exe lfsr_prng -c lfsr_prng
+
+# 2. write the post-synthesis Verilog netlist
+C:/altera_pro/26.1/quartus/bin64/quartus_eda.exe --simulation --format=verilog \
+    --tool=questasim --output_directory=simulation lfsr_prng -c lfsr_prng
+
+cp simulation/lfsr_prng.vo ../lfsr_prng.vo</code></pre>
+
+<p>What Quartus reports (<code>artifacts/quartus_resource_usage.txt</code>):</p>
+
+<pre class="out"><code>; Estimate of Logic utilization (ALMs needed) ; 10                ;
+; Combinational ALUT usage for logic          ; 17                ;
+;     -- 4 input functions                    ; 1                 ;
+;     -- &lt;=3 input functions                  ; 16                ;
+; Dedicated logic registers                   ; 16                ;
+; I/O pins                                    ; 20                ;
+; Maximum fan-out node                        ; clk               ;</code></pre>
+
+<div class="warn">
+  <strong>Sixteen flip-flops, but seventeen LUTs — for a design with one XOR?</strong>
+  That surprise is the most instructive thing in this walkthrough. Hold on to it; step 6 explains
+  where the other sixteen came from, and they turn out to carry the reset seed.
+</div>
+
+<h4>What the export looks like</h4>
+
+<p>The exported <a href="lfsr_prng.vo">lfsr_prng.vo</a> is 772 lines. The only wide
+cell is this one — and Quartus helpfully writes the equation it implemented next to it:</p>
+
+<pre class="out"><code>tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h6996699669966996),
+  .shared_arith ("off"))
+feedback(
+// Equation(s):
+// \feedback~combout  = !state[3] ^ (!state[12] ^ (!state[14] ^ (!state[15])))
+
+	.dataa(~state[3]),
+	.datab(~state[12]),
+	.datac(~state[14]),
+	.datad(~state[15]),
+	.datae(gnd),  .dataf(gnd),  .datag(gnd),  .datah(gnd),
+	.cin(gnd),    .sharein(gnd),
+	.combout(\feedback~combout ),
+	.sumout(), .cout(), .shareout());</code></pre>
+
+<p>and every register looks like this:</p>
+
+<pre class="out"><code>tennm_ff #(.is_wysiwyg ("true"), .power_up ("dont_care"))
+\state[0] (
+	.clk(clk),      .d(\feedback~combout ),  .asdata(vcc),
+	.clrn(rst_n),   .aload(gnd),  .sclr(gnd),  .sload(gnd),
+	.ena(en),       .sclr1(gnd),
+	.devclrn(devclrn), .devpor(devpor),
+	.q(state[0]));</code></pre>
+
+<h4>Making it readable for HAL</h4>
+
+<p>HAL's Verilog parser is a structural netlist reader and rejects three things the Quartus writer
+emits: <code>tri1</code> nets, inversions written on instance ports
+(<code>.dataa(~state[3])</code>), and unconnected pins. <code>tools/hal_agilex import</code>
+rewrites exactly those three, and refuses anything it cannot rewrite exactly:</p>
+
+<pre><code>python tools/hal_agilex import \
+    examples/agilex3_walkthroughs/05_lfsr_prng/lfsr_prng.vo \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v</code></pre>
+
+<p>The port inversions are <em>absorbed into the LUT mask</em>: inverting input <em>i</em> permutes
+the mask bits <em>j</em> → <em>j</em> XOR (1&lt;&lt;<em>i</em>), which is an exact relabelling, not
+an approximation. For the XOR cell above, all four data inputs are inverted, and a 4-input XOR mask
+is invariant under that permutation, so the mask survives unchanged:</p>
+
+<pre class="out"><code>tennm_lcell_comb #(.extended_lut ("off"), .lut_mask (64'h6996699669966996), .shared_arith ("off"))
+    feedback (.combout (\feedback~combout ), .dataa (state[3]), .datab (state[12]),
+              .datac (state[14]), .datad (state[15]), ...);</code></pre>
+
+<p>The result, <a href="netlist.hal.v">netlist.hal.v</a>, is 95 lines and is what everything below
+loads. Both files are committed; you do not need Quartus to follow the walk.</p>
+
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<p>Two commands, no analysis yet. First: <em>is this thing even interpretable?</em></p>
+
+<pre><code>python tools/hal_agilex inventory examples/agilex3_walkthroughs/05_lfsr_prng/lfsr_prng.vo</code></pre>
+
+<pre class="out"><code>"status": "proven_under_assumptions",
+"summary": "All 33 instances are tennm_ff or tennm_lcell_comb, each in a configuration
+            this package models and has validated against the vendor export.",
+"histogram": { "tennm_ff": 16, "tennm_lcell_comb": 17 }</code></pre>
+
+<div class="note">
+  <strong>Why this is step zero, always</strong>
+  A netlist whose primitives you cannot model is a picture, not a circuit. If this had answered
+  <code>tennm_ram_block: unsupported</code>, the honest next move would be to go get semantics for
+  that block — not to run analyses that quietly treat it as a black box. The <code>AGILEX_TENNM</code>
+  library plus <code>hal_agilex</code> gives every ALM here a real Boolean function; a cell outside
+  the validated coverage gets <em>no</em> function rather than a plausible one.
+</div>
+
+<h4>Load it and count</h4>
+
+<p>Nothing from here to section 5 reads <code>design.v</code>. Every script in this
+walkthrough loads <a href="netlist.hal.v">netlist.hal.v</a> the same way: HAL parses the
+file against <code>AGILEX_TENNM.hgl</code>, and then
+<code>hal_agilex.hal_adapter.elaborate</code> attaches each ALM's Boolean function from its
+<code>lut_mask</code> and mode, refusing any cell it cannot model. Both
+<a href="check.py">check.py</a> and <a href="scc.py">scc.py</a> print what they loaded
+before they do anything else:</p>
+
+<pre><code>HAL_BASE_PATH=/work/build PYTHONPATH=/work/build/lib \
+    python3 examples/agilex3_walkthroughs/05_lfsr_prng/check.py</code></pre>
+
+<pre class="out"><code>netlist:      /work/examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v
+gate library: /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl
+elaborated 17 ALM cells, 16 flip-flops checked, 0 refused
+  [ok] hal_agilex refused no gate -- []
+  [ok] netlist has 16 flip-flops -- found 16
+  [ok] netlist has 17 ALM cells -- found 17
+  [ok] no primitive outside the modelled coverage -- HAL_GND, HAL_VCC, tennm_ff, tennm_lcell_comb
+[... the remaining 19 checks are quoted in full in step 4 ...]</code></pre>
+
+<p>Sixteen flip-flops is a hard upper bound on the state: whatever this design is, it cannot
+hide more than 16 bits. Seventeen combinational cells for sixteen registers is a shallow,
+register-dominated design — a datapath, not an arithmetic unit. And <code>0 refused</code> is
+the line that matters most: every combinational cell in this netlist has a real Boolean
+function attached, so the analyses below are reading logic rather than guessing at it.</p>
+
+<div class="note">
+  <strong>33 instances, 35 gates</strong>
+  The inventory above counted <strong>33</strong> instances in the <code>.vo</code>; HAL's own
+  gate count is <strong>35</strong> — the module tree below is labelled
+  <code>35 gates</code>, and the SCC script in step 2 reports <code>35 vertices</code>. The
+  two extra are <code>HAL_GND</code> and <code>HAL_VCC</code>, which do not exist on the
+  device: HAL's Verilog parser needs a gate to materialise the
+  <code>1'b0</code>/<code>1'b1</code> literals the export uses, so
+  <code>AGILEX_TENNM.hgl</code> declares two with a deliberately un-vendor-like prefix. When
+  you count gates, two of them are bookkeeping.
+</div>
+
+<h4>The module hierarchy: there isn't one</h4>
+
+<pre><code>python tools/hal_viz module_tree examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/images/module_tree.svg</code></pre>
+
+<figure>
+  <img src="images/module_tree.svg" alt="Module tree: a single top module containing every gate">
+  <figcaption>The whole design is one module. Synthesis flattened the hierarchy; on a bigger target
+  this picture is the first thing that tells you whether the vendor kept module boundaries
+  (Quartus can, with partitions) or dissolved them.</figcaption>
+</figure>
+
+<h4>The gate-level graph</h4>
+
+<pre><code>python tools/hal_viz netlist_graph examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl --pin-labels \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/images/netlist_graph.svg</code></pre>
+
+<figure>
+  <img src="images/netlist_graph.svg" alt="Gate-level graph of the whole netlist">
+  <figcaption>All 35 gates HAL loads — the 33 vendor instances plus <code>HAL_GND</code> and
+  <code>HAL_VCC</code>. At this size you can see the shape with your eyes: a long chain of
+  flip-flops, a few one-input cells sprinkled along it, one cell with four inputs, and a set of
+  one-input cells hanging off the side towards the outputs.</figcaption>
+</figure>
+
+<p><strong>What you can see here:</strong> the number of state bits (16), that they are all on one
+clock, that the design is a chain and not a tree, that exactly one combinational cell is wide, and
+that there is no arithmetic (no carry chain — those show up as <code>cin</code>/<code>cout</code>
+edges between neighbouring ALMs, as in the <code>agilex3_counter_adder</code> fixture).</p>
+
+<p><strong>What you cannot see:</strong> that this is a random number generator; which bit is bit 0;
+what the reset value is; that the four inputs of the wide cell are <em>taps</em> of a polynomial;
+whether the sequence is maximal-length or degenerate. Those are the next four sections.</p>
+
+<div class="warn">
+  <strong>About the names</strong>
+  This export kept the RTL names (<code>state[3]</code>, <code>feedback</code>) because Quartus
+  writes them into the netlist. A netlist you get in the field may have been through a name
+  stripper, and then <code>feedback~combout</code> is <code>n1749</code>. So the walk below —
+  and <code>check.py</code>, which reproduces it — deliberately uses <em>no</em> name for any
+  decision. Every conclusion rests on connectivity and Boolean functions only. The names appear in
+  the printouts, and nowhere in the reasoning.
+</div>
+
+<h2 id="walk">4. The reverse-engineering walk, step by step</h2>
+
+<p>Everything below is in
+<a href="run_analysis.sh">run_analysis.sh</a> in the order shown, and the conclusions are
+re-derived and asserted by <a href="check.py">check.py</a>.</p>
+
+<div class="step">
+<h3><span class="num">1</span> Find the state, and the domains it lives in</h3>
+
+<p><strong>Command</strong></p>
+<pre><code>python tools/hal_cdc discover examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    --gate-library plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/cdc.declarations.json
+
+python tools/hal_cdc audit  ... --declarations artifacts/cdc.declarations.json \
+    -o artifacts/cdc.findings.json --dot artifacts/cdc.domains.dot</code></pre>
+
+<p><code>discover</code> assumes nothing: it writes a skeleton of the nets that <em>look</em>
+like clocks and resets and leaves you to confirm them
+(<a href="artifacts/cdc.declarations.json">artifacts/cdc.declarations.json</a>, the
+top-level description string elided):</p>
+
+<pre class="out"><code>{
+  "version": 1,
+  "description": "[... how to edit this skeleton ...]",
+  "clocks": [
+    {
+      "name": "clk",
+      "net": "clk",
+      "description": "drives 16 clock pin(s)"
+    }
+  ],
+  "resets": [
+    {
+      "name": "rst_n",
+      "net": "rst_n",
+      "description": "drives 16 reset/set pin(s); set 'synchronous_to' if this reset is already synchronous to a clock"
+    }
+  ]
+}</code></pre>
+
+<p>and <code>audit</code> screens the netlist against that declaration:</p>
+
+<pre class="out"><code>domains          : clk
+registers        : 16 (0 with an unknown domain)
+crossings        : 0
+unknown inputs   : 16
+reset targets    : 16
+    reset_synchronizer_stage     16
+NOTE: structural screening only -- no timing, no metastability sign-off.
+findings: examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/cdc.findings.json
+domain graph: examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/cdc.domains.dot</code></pre>
+
+<p>One domain, sixteen registers in it, zero crossings. The last two counters are worth
+reading rather than skipping. <code>reset targets: 16</code> with all sixteen classified
+<code>reset_synchronizer_stage</code> is this tool's label for "a flip-flop in the
+<code>clk</code> domain that is asynchronously cleared by <code>rst_n</code>" — which is all
+sixteen of them, and exactly what the <code>.vo</code> showed. <code>unknown inputs: 16</code>
+is the enable: the declaration says nothing about <code>en</code>, so the sixteen
+<code>ena</code> pins are fed by a source whose domain is undeclared, and the audit files that
+as <code>cdc/unknown-source/000</code> with status <code>unknown</code> —
+<em>"neither safe nor unsafe: declare the missing clock or input domain"</em> — rather than
+quietly assuming it is fine.</p>
+
+<p><strong>Reasoning.</strong> Before anything else you want to know how many machines you are
+looking at. Sixteen flip-flops on one clock net, one shared enable and one shared asynchronous
+clear means <em>one</em> synchronous element, not several interacting ones. Had there been two
+clocks, the very first job would have been to split the netlist by domain and to treat everything
+crossing between them as a synchronizer until proven otherwise. Also note what the clear does:
+these flip-flops have <code>clrn</code> driven by a primary input and <code>aload</code>,
+<code>sload</code>, <code>sclr</code> tied to ground — the only reset available to them clears to
+<em>zero</em>. Remember that; it is the lever that gets us the seed in step 6.</p>
+</div>
+
+<div class="step">
+<h3><span class="num">2</span> Is there feedback? Strongly connected components</h3>
+
+<p><strong>Command</strong></p>
+<pre><code>python3 examples/agilex3_walkthroughs/05_lfsr_prng/scc.py</code></pre>
+
+<p><a href="artifacts/scc.txt">artifacts/scc.txt</a>, with the plugin-loading chatter
+stripped:</p>
+
+<pre class="out"><code>netlist graph: 35 vertices, 298 edges
+weakly connected components: [35]
+strongly connected components of size &gt;= 2: [25]
+
+component 0: 25 gates {'tennm_ff': 16, 'tennm_lcell_comb': 9}
+       1  state[0]                     tennm_ff
+       2  state[1]                     tennm_ff
+       3  state[2]                     tennm_ff
+       4  state[3]                     tennm_ff
+       5  state[4]                     tennm_ff
+       6  state[5]                     tennm_ff
+       7  state[6]                     tennm_ff
+       8  state[7]                     tennm_ff
+       9  state[8]                     tennm_ff
+      10  state[9]                     tennm_ff
+      11  state[10]                    tennm_ff
+      12  state[11]                    tennm_ff
+      13  state[12]                    tennm_ff
+      14  state[13]                    tennm_ff
+      15  state[14]                    tennm_ff
+      16  state[15]                    tennm_ff
+      17  feedback                     tennm_lcell_comb
+      18  state[1]~0                   tennm_lcell_comb
+      19  state[5]~1                   tennm_lcell_comb
+      20  state[8]~2                   tennm_lcell_comb
+      21  state[10]~3                  tennm_lcell_comb
+      22  state[12]~4                  tennm_lcell_comb
+      23  state[13]~5                  tennm_lcell_comb
+      24  state[14]~6                  tennm_lcell_comb
+      25  state[15]~7                  tennm_lcell_comb
+
+wrote /work/examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/scc.dot
+gates inside the largest SCC: 25 of 35</code></pre>
+
+<p>One weakly connected component (nothing in this netlist is detached) and exactly one
+non-trivial strongly connected component: 25 of the 35 gates, containing every flip-flop, the
+one wide cell, and eight of the seventeen small ones. The ten gates outside it are the other
+eight small cells plus <code>HAL_GND</code> and <code>HAL_VCC</code>. Keep that split in mind:
+eight small cells inside the loop, eight outside it, and step 6 is about why there are
+sixteen.</p>
+
+<figure>
+  <img src="images/scc.svg" alt="The netlist with the single strongly connected component highlighted">
+  <figcaption>The strongly connected component (filled, thick edges) versus the rest. Everything
+  outside it is output plumbing.</figcaption>
+</figure>
+
+<p><strong>Reasoning.</strong> This is the question that separates the two big families of shift
+structures. A delay line, a pipeline or a synchronizer chain is a <em>path</em>: no cycle. A
+counter, an LFSR, a CRC or an FSM is a <em>loop</em>: the state feeds itself. The
+<code>graph_algorithm</code> plugin (igraph) answers it directly, and the answer here is one
+component containing every flip-flop and the wide cell — one closed loop of state, with a handful of
+cells outside the loop that only observe it.</p>
+
+<p>What it does <em>not</em> tell you is what the loop computes. Counters, LFSRs and FSMs all look
+like this. To separate them you have to read the functions.</p>
+</div>
+
+<div class="step">
+<h3><span class="num">3</span> Ask DANA for the word-level registers</h3>
+
+<p><strong>Command</strong></p>
+<pre><code>python tools/hal_viz dataflow examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/images/dataflow</code></pre>
+
+<p><a href="images/dataflow/groups.txt">images/dataflow/groups.txt</a>:</p>
+
+<pre class="out"><code>State:
+
+ID:0, Size:16, CLK: {40}, EN: {42}, R: {41}, S: {}
+  Successors:   {0}
+  Predecessors: {0}
+state[0],  type: tennm_ff, id: 1,  RS: 
+state[1],  type: tennm_ff, id: 2,  RS: 
+state[2],  type: tennm_ff, id: 3,  RS: 
+state[3],  type: tennm_ff, id: 4,  RS: 
+state[4],  type: tennm_ff, id: 5,  RS: 
+state[5],  type: tennm_ff, id: 6,  RS: 
+state[6],  type: tennm_ff, id: 7,  RS: 
+state[7],  type: tennm_ff, id: 8,  RS: 
+state[8],  type: tennm_ff, id: 9,  RS: 
+state[9],  type: tennm_ff, id: 10, RS: 
+state[10], type: tennm_ff, id: 11, RS: 
+state[11], type: tennm_ff, id: 12, RS: 
+state[12], type: tennm_ff, id: 13, RS: 
+state[13], type: tennm_ff, id: 14, RS: 
+state[14], type: tennm_ff, id: 15, RS: 
+state[15], type: tennm_ff, id: 16, RS: </code></pre>
+
+<figure>
+  <img src="images/dataflow/graph.svg" alt="DANA's register graph: a single 16-bit group with a self-loop">
+  <figcaption>DANA's register graph for this design, in full: one node, one self-edge. The
+  group feeds itself, which is the same fact step 2 established, and it is the only structural
+  statement DANA can make here.</figcaption>
+</figure>
+
+<p>One group, sixteen bits, one shared clock net (id 40), one shared enable (42), one shared
+reset (41), and it is its own successor and predecessor. That is correct, and it is almost
+everything DANA can say: it recovers the <em>width</em> of the register and nothing about the
+order of the bits inside it or what the feedback computes. Compare the counter/PWM
+walkthroughs, where two registers with different enables split cleanly into two groups — that
+is DANA earning its keep. Here the answer is a single word-level register, and the work still
+has to be done bit by bit.</p>
+
+<p><strong>Reasoning.</strong> DANA (<code>plugins/dataflow_analysis</code>) groups flip-flops that
+plausibly belong to the same word-level register, using control signals and the shape of the data
+flow. On a big unknown design that is how you find "there is a 32-bit register here and a 128-bit
+one there" before you understand any of it. Its output is a <em>heuristic</em>, and on this design
+the heuristic has almost nothing to work with: every flip-flop shares the same clock, enable and
+reset, so control-signal grouping cannot subdivide them, and the shift structure means each one has
+a different data neighbourhood.</p>
+</div>
+
+<div class="step">
+<h3><span class="num">4</span> Read the next-state function of every flip-flop</h3>
+
+<p>This is the step that actually solves the design, and it is worth understanding as a technique
+rather than as a command. Cut the netlist at the flip-flops: what is left is a purely combinational
+block whose inputs are the 16 stored bits (plus the primary inputs) and whose outputs are the 16
+<code>d</code> pins. Evaluate that block and you have the state-transition function.</p>
+
+<p>HAL gives you the pieces: each ALM carries a Boolean function (attached by
+<code>hal_agilex.hal_adapter.elaborate</code>, since an ALM's semantics depend on
+<code>lut_mask</code> <em>and</em> mode and so cannot live in the gate library), and
+<code>BooleanFunction.evaluate</code> evaluates it. The loop in <code>check.py</code> is thirty-odd lines:
+set the flip-flop outputs, propagate through the ALMs until nothing changes, read the
+<code>d</code> pins.</p>
+
+<pre><code>values = {}                      # net id -> 0/1, seeded with the flip-flop outputs
+for gate, inputs, outputs in combinational_cells:
+    assignment = {pin: ONE if values[net] else ZERO for pin, net in inputs.items()}
+    for pin, (net, function) in outputs.items():
+        values[net] = function.evaluate(assignment)</code></pre>
+
+<p>Sixteen unknown functions of sixteen variables is 2<sup>16</sup> evaluations each if you brute
+force it. You do not have to: <strong>guess that they are affine over GF(2)</strong> — that is, of
+the form c ⊕ x<sub>i</sub> ⊕ x<sub>j</sub> ⊕ … — and a function of 16 variables then needs only 17
+probes: the all-zero vector for the constant, and one unit vector per variable. Spot-check the guess
+on random vectors afterwards. Linearity is not a lucky guess here: it is the defining property of an
+L-FSR, and if the probing had failed the spot-check you would have learned something equally
+important (that the feedback is non-linear, i.e. an NLFSR or an FSM).</p>
+
+<p><strong>Command</strong></p>
+<pre><code>HAL_BASE_PATH=/work/build PYTHONPATH=/work/build/lib \
+    python3 examples/agilex3_walkthroughs/05_lfsr_prng/check.py --write-artifacts</code></pre>
+
+<pre class="out"><code>netlist:      /work/examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v
+gate library: /work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl
+elaborated 17 ALM cells, 16 flip-flops checked, 0 refused
+  [ok] hal_agilex refused no gate -- []
+  [ok] netlist has 16 flip-flops -- found 16
+  [ok] netlist has 17 ALM cells -- found 17
+  [ok] no primitive outside the modelled coverage -- HAL_GND, HAL_VCC, tennm_ff, tennm_lcell_comb
+  [ok] all flip-flops share one clock net
+  [ok] all flip-flops share one enable net
+  [ok] all flip-flops share one asynchronous clear net
+  [ok] the asynchronous clear is a primary input -- rst_n
+  [ok] every next-state function is affine over GF(2) (32 random probes each)
+  [ok] exactly one flip-flop has a wide next-state function -- wide: [0], shift-like: 15
+  [ok] the shift-like edges form one chain of 16 stages -- chain length 16
+  [ok] the feedback taps are [15, 14, 12, 3] -- recovered [15, 14, 12, 3]
+  [ok] the last stage is one of the taps
+  [ok] every primary output is driven by the combinational layer -- not evaluable: []
+  [ok] every primary output is one stage, optionally inverted
+  [ok] all 16 stages are observable on a primary output -- observable: 16
+  [ok] port-derived and chain-derived polarity agree -- chain 1000011100110101 vs ports 1000011100110101
+  [ok] the recovered reset seed is 0xACE1 -- recovered 0xACE1
+  [ok] in the de-inverted domain the next-state map has no constant term
+  [ok] the recovered LFSR has period 65535 (2^16-1) -- period 65535
+  [ok] all 65535 states of the cycle are distinct -- 65535 distinct states
+  [ok] the all-zero state is not on the cycle
+  [ok] gate-level simulation matches the recovered model for 128 cycles
+
+  recovered: 16-stage Fibonacci LFSR, taps [15, 14, 12, 3] -&gt; x^16 + x^15 + x^13 + x^4 + 1,
+             seed 0xACE1, period 65535, stored-inverted stages [0, 5, 6, 7, 10, 11, 13, 15]
+
+23 checks, 0 failed</code></pre>
+
+<p>Twenty-three assertions, and the four sections that follow are simply the interesting ones
+explained. With <code>--write-artifacts</code> the same run also writes the four text files
+and the two documents quoted below.</p>
+
+<p>The recovered functions (<a href="artifacts/next_state_functions.txt">artifacts/next_state_functions.txt</a>):</p>
+
+<pre class="out"><code># next-state functions, recovered by probing the netlist
+# left: as the netlist computes it (q = what the flip-flop stores)
+# right: after undoing the recovered inversion map (y = design value)
+
+stage  0  (gate state[0])
+    netlist:  d = q(state[3]) ^ q(state[12]) ^ q(state[14]) ^ q(state[15])
+    design :  y[0]' = y[15] ^ y[14] ^ y[12] ^ y[3]
+    stored inverted: yes
+stage  1  (gate state[1])
+    netlist:  d = !q(state[0])
+    design :  y[1]' = y[0]
+    stored inverted: no
+stage  2  (gate state[2])
+    netlist:  d = q(state[1])
+    design :  y[2]' = y[1]
+    stored inverted: no
+
+[... stages 3 to 12 have the same shape: one predecessor each, half of them inverted ...]
+
+stage 13  (gate state[13])
+    netlist:  d = !q(state[12])
+    design :  y[13]' = y[12]
+    stored inverted: yes
+stage 14  (gate state[14])
+    netlist:  d = !q(state[13])
+    design :  y[14]' = y[13]
+    stored inverted: no
+stage 15  (gate state[15])
+    netlist:  d = !q(state[14])
+    design :  y[15]' = y[14]
+    stored inverted: yes
+
+taps (0-based stage indices): [15, 14, 12, 3]
+polynomial: x^16 + x^15 + x^13 + x^4 + 1
+seed (from the inversion map): 0xACE1
+period: 65535</code></pre>
+
+<p><strong>Reasoning.</strong> Fifteen of the sixteen next-state functions depend on exactly one
+other flip-flop. That is a shift chain, and following those single dependencies orders the
+flip-flops into stages: the one flip-flop whose function depends on <em>four</em> others is the
+bottom of the chain, the injection point, stage 0. Nothing here used a name; the order came out of
+the dependency edges. As a matrix over GF(2) the whole machine is a sub-diagonal of ones plus one
+dense row:</p>
+
+<pre class="out"><code># GF(2) transition matrix in the de-inverted (design) domain
+# row k = which stages feed stage k on the next clock
+#      5432109876543210
+y[ 0]  11.1........1...
+y[ 1]  ...............1
+y[ 2]  ..............1.
+y[ 3]  .............1..
+y[ 4]  ............1...
+y[ 5]  ...........1....
+y[ 6]  ..........1.....
+y[ 7]  .........1......
+y[ 8]  ........1.......
+y[ 9]  .......1........
+y[10]  ......1.........
+y[11]  .....1..........
+y[12]  ....1...........
+y[13]  ...1............
+y[14]  ..1.............
+y[15]  .1..............</code></pre>
+
+<p>(<a href="artifacts/transition_matrix.txt">artifacts/transition_matrix.txt</a>; the
+column header is the stage index, so the four marks in row <code>y[ 0]</code> sit under
+columns 15, 14, 12 and 3.)</p>
+</div>
+
+<div class="step">
+<h3><span class="num">5</span> Read the polynomial off the wide row</h3>
+
+<p>The dense row is the feedback function, and its four terms are the taps. Expressed as stage
+indices they are <strong>15, 14, 12 and 3</strong>, and a Fibonacci LFSR with taps at those
+positions is the polynomial</p>
+
+<pre class="out"><code>x^16 + x^15 + x^13 + x^4 + 1        (taps 16, 15, 13, 4 in 1-based notation)</code></pre>
+
+<figure>
+  <img src="images/feedback_cone.svg" alt="Two-hop cone around the feedback cell">
+  <figcaption>The two-hop neighbourhood of the only wide cell
+  (<code>hal_viz netlist_graph --gate feedback --depth 2 --show-boundary</code>). Four flip-flop
+  outputs go in, one flip-flop input comes out: the taps and the injection point in one picture.</figcaption>
+</figure>
+
+<div class="note">
+  <strong>Fibonacci or Galois?</strong>
+  The two standard LFSR forms are distinguishable at a glance in the netlist. <em>Fibonacci</em>:
+  one wide XOR feeding one stage, every other stage a plain shift — what we have here.
+  <em>Galois</em>: no wide cell at all, but a two-input XOR sitting <em>between</em> several
+  neighbouring stages, each fed by the top bit. If you had seen the second shape, the taps would be
+  the positions of the XORs and the polynomial would be the reciprocal of what you read naively —
+  worth checking with the same probing machinery rather than by eye.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="num">6</span> Explain the sixteen extra inverters — and get the seed</h3>
+
+<p>Look again at the recovered functions: eight of the shift rows are not
+<code>y' = y<sub>prev</sub></code> but <code>y' = !y<sub>prev</sub></code>, and eight of the outputs
+are the complement of the flip-flop they come from. Those are the sixteen small cells Quartus added.
+Why would a shift register need inverters?</p>
+
+<p>Because of what step 1 noticed: a <code>tennm_ff</code> has an asynchronous <em>clear</em> and no
+asynchronous set. If the design wants a reset value with ones in it, the synthesizer has two
+options: use the flip-flop's <code>aload</code>/<code>asdata</code> path, or store the complement of
+those bits and invert on the way out. Quartus chose the second. So:</p>
+
+<ul>
+  <li>a stage whose stored value is inverted is exactly a stage whose <em>design</em> value resets
+  to 1;</li>
+  <li>therefore the set of inverted stages <em>is</em> the reset seed, bit for bit;</li>
+  <li>and the inverting shift edges sit exactly where two neighbouring seed bits differ — an
+  inverter on the edge from stage k to stage k+1 means seed[k] ≠ seed[k+1].</li>
+</ul>
+
+<p>That gives two independent derivations of the same 16 bits: one from the output side (which
+outputs are inverted), one from the chain (where the inverting edges are). <code>check.py</code>
+computes both and requires them to agree:</p>
+
+<pre class="out"><code>  [ok] every primary output is driven by the combinational layer -- not evaluable: []
+  [ok] every primary output is one stage, optionally inverted
+  [ok] all 16 stages are observable on a primary output -- observable: 16
+  [ok] port-derived and chain-derived polarity agree -- chain 1000011100110101 vs ports 1000011100110101
+  [ok] the recovered reset seed is 0xACE1 -- recovered 0xACE1
+  [ok] in the de-inverted domain the next-state map has no constant term</code></pre>
+
+<p>The two derivations produce the same sixteen bits, <code>1000011100110101</code>, written
+stage 0 first: a <code>1</code> at position <em>k</em> means stage <em>k</em> is stored
+inverted, i.e. its design value resets to 1. That is the list <code>check.py</code> prints in
+its summary line — <code>stored-inverted stages [0, 5, 6, 7, 10, 11, 13, 15]</code> — and read
+back as a 16-bit word with stage 15 as the most significant bit it is
+<code>1010110011100001</code><sub>2</sub> = <strong>0xACE1</strong>. The same map, as a
+finding (<a href="artifacts/lfsr.findings.json">artifacts/lfsr.findings.json</a>):</p>
+
+<pre class="out"><code>"id": "lfsr/seed",
+"status": "proven_under_assumptions",
+"title": "The reset seed is 0xACE1",
+"summary": "Both derivations agree on 0xACE1.",
+"data": { "seed": 44257,
+          "polarity": [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1] }</code></pre>
+
+<p>The last check is the one that says the transformation was the right one: once the eight
+inversions are undone, every next-state row is a pure XOR with <em>no</em> constant term. A
+wrong polarity map would leave constants scattered through the matrix.</p>
+
+<p><strong>Reasoning.</strong> This is the part of the walk that generalises furthest. Synthesizers
+routinely change the polarity of stored values, duplicate registers, retime them across logic and
+re-encode states. When a netlist looks like it is computing something slightly wrong — an inverted
+counter, an off-by-one shift — the usual cause is a representation change, and the usual fix is to
+find the transformation that makes the system clean (here: no constant terms anywhere) rather than
+to accept a messy answer.</p>
+</div>
+
+<div class="step">
+<h3><span class="num">7</span> Is it maximal length? Simulate</h3>
+
+<p>Taps alone do not prove the sequence is long: a non-primitive polynomial gives you a short cycle
+or several disjoint ones. Because the recovered machine is a 16-bit state, exhausting it is trivial
+— iterate it from the recovered seed and count.</p>
+
+<pre class="out"><code>  [ok] the recovered LFSR has period 65535 (2^16-1) -- period 65535
+  [ok] all 65535 states of the cycle are distinct -- 65535 distinct states
+  [ok] the all-zero state is not on the cycle</code></pre>
+
+<p>Three separate statements, and the third is the one the spec cares about: the fixed point
+the seed exists to avoid is genuinely off the cycle, so this generator cannot fall into it. As
+a finding (<a href="artifacts/lfsr.findings.json">artifacts/lfsr.findings.json</a>):</p>
+
+<pre class="out"><code>"id": "lfsr/maximal-length",
+"status": "proven_under_assumptions",
+"title": "The recovered generator has maximal length (period 65535)",
+"summary": "65535 distinct states before the seed recurs; the all-zero state is not
+            on the cycle.",
+"bounds": { "unbounded": true,
+            "description": "all 65535 states of the recovered model" },
+"data": { "period": 65535 }</code></pre>
+
+<p>Then cross-check the recovered model against the <em>gates</em>, starting from the netlist's own
+reset state (all flip-flops cleared) with the enable high:</p>
+
+<pre class="out"><code># gate-level simulation of netlist.hal.v after reset (en=1)
+# cycle  netlist state   recovered model
+#        (de-inverted)   (16-bit LFSR)
+     0  0xACE1          0xACE1
+     1  0x59C3          0x59C3
+     2  0xB386          0xB386
+     3  0x670C          0x670C
+     4  0xCE18          0xCE18
+     5  0x9C31          0x9C31
+     6  0x3862          0x3862
+     7  0x70C5          0x70C5
+     8  0xE18A          0xE18A
+     9  0xC315          0xC315
+[... cycles 10 to 59 agree in the same way ...]
+    60  0x1DFC          0x1DFC
+    61  0x3BF8          0x3BF8
+    62  0x77F0          0x77F0
+    63  0xEFE0          0xEFE0</code></pre>
+
+<p>Cycle 0 is the whole argument of step 6 in one line. The flip-flops are all cleared to zero
+— that is the only reset a <code>tennm_ff</code> has — and reading them through the recovered
+polarity map gives <code>0xACE1</code>. From there the gates and the sixteen-bit model stay in
+step. <a href="artifacts/state_trace.txt">artifacts/state_trace.txt</a> records the first 64
+cycles; the assertion covers twice that:</p>
+
+<pre class="out"><code>  [ok] gate-level simulation matches the recovered model for 128 cycles</code></pre>
+
+<p>and finally re-simulate the exported <code>.vo</code> against the reconstruction with
+<code>hal_agilex</code>'s own reference simulator, which knows nothing about HAL:</p>
+
+<pre><code>python tools/hal_agilex behavior examples/agilex3_walkthroughs/05_lfsr_prng/lfsr_prng.vo \
+    --reference examples/agilex3_walkthroughs/05_lfsr_prng/recovered_model.py --cycles 400</code></pre>
+
+<pre class="out"><code>"status": "proven_bounded",
+"title": "The exported netlist matches the reference model for 400 cycles",
+"summary": "400 pseudo-random cycles, including asynchronous clears, agree with the
+            reference model. Nothing is claimed beyond that bound."</code></pre>
+
+<div class="good">
+  <strong>Read the status, not the vibe</strong>
+  <code>proven_bounded</code> means "no disagreement in 400 cycles", not "equivalent". The period
+  claim is stronger (the recovered 16-bit model was exhausted: all 65535 states), but it is a claim
+  about the <em>model</em>, and the model was only compared to the gates for a bounded run. Every
+  finding this walkthrough produces carries that distinction in machine-readable form; that is what
+  the <code>tools/hal_findings</code> schema is for.
+</div>
+</div>
+
+<div class="step">
+<h3><span class="num">8</span> Package what you found</h3>
+
+<pre><code>python tools/hal_viz report artifacts/inventory.findings.json artifacts/lfsr.findings.json \
+    artifacts/behavior.findings.json artifacts/cdc.findings.json \
+    --artifact images/recovered_lfsr.svg --artifact images/netlist_graph.svg \
+    -o artifacts/findings_report.html</code></pre>
+
+<p>The result is <a href="artifacts/findings_report.html">artifacts/findings_report.html</a>: every
+claim with its status badge, the assumptions it rests on, the artifacts it is scoped to, and the
+diagrams. And the recovered structure itself, drawn from the recovered data (not by hand):</p>
+
+<figure>
+  <img src="images/recovered_lfsr.svg" alt="The recovered LFSR: 16 stages, four taps into an XOR, seed bits">
+  <figcaption>Written by <code>check.py</code> from the recovered stage order, tap set, polarity map
+  and period — the picture is a rendering of the answer, so it cannot drift away from it.</figcaption>
+</figure>
+</div>
+
+<div class="step">
+<h3><span class="num">9</span> What did not work, and why that is worth knowing</h3>
+
+<p>Two of the steps in <a href="run_analysis.sh">run_analysis.sh</a> produce nothing usable, and
+both are in there on purpose. A walkthrough that only shows the tools that worked teaches you the
+wrong reflex.</p>
+
+<p><strong>Command</strong></p>
+<pre><code>python tools/hal_fsm analyze examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    --gate-library plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/hal_fsm \
+    --timeout 180 --print-summary</code></pre>
+
+<pre class="out"><code>[hal_fsm] running /work/build/bin/hal --python-script /work/tools/hal_fsm/run_in_hal.py
+[hal_fsm] wrote /work/examples/agilex3_walkthroughs/05_lfsr_prng/artifacts/hal_fsm/findings.json (1 heuristic, 1 unsupported)
+fsm/candidate/001           heuristic  Candidate state register: 16 flip-flop(s) [state[0], state[1], state[2], state[3], state[4], state[5] ...]
+fsm/coverage/uncovered-seq unsupported  Sequential gates outside every solved state register
+-- hal_fsm exit: 0</code></pre>
+
+<p>It found the right sixteen flip-flops and solved nothing. Its own run record says why
+(<a href="artifacts/hal_fsm/result.json">artifacts/hal_fsm/result.json</a>, the long note
+strings wrapped and elided):</p>
+
+<pre class="out"><code>"metrics": { "candidates": 1, "failed": 0, "sequential_gates": 16,
+             "solved": 0, "states": 0 },
+"notes": [
+  "16 sequential gate(s) cannot be part of a state register solve_fsm can handle:
+   state[0] (solve_fsm requires exactly one data pin per state flip-flop; gate type
+   'tennm_ff' has 2); [... the same sentence for state[1], state[2], state[3] ...]",
+  "1 candidate(s) exceed the max_state_bits limit of 12 and will not be handed to
+   the solver: 16 flip-flops",
+  "no candidate was solved: every proposal is either above max_state_bits or below
+   min_confidence"
+]</code></pre>
+
+<p><strong>Reasoning.</strong> Two independent refusals, for two different reasons:</p>
+
+<ul>
+  <li><strong>Scale.</strong> <code>solve_fsm</code> recovers a transition <em>graph</em>, and
+  it caps the state at <code>max_state_bits: 12</code>. This register is 16 bits, so the
+  candidate is never handed to the solver at all. That cap is not timidity: an explicit
+  transition graph of a 16-bit state is 2<sup>16</sup> nodes with one outgoing edge each, which
+  is the period result written out the least useful way possible. The right tool for a linear
+  machine is a 16&times;16 matrix, not a graph — which is exactly what step 4 built.</li>
+  <li><strong>Primitive shape.</strong> <code>solve_fsm</code> wants exactly one data pin per
+  state flip-flop, and <code>tennm_ff</code> has two (<code>d</code> and the
+  <code>asdata</code> load path). Even at 8 bits this design would have been refused. That is
+  a plugin written against ASIC-style libraries meeting an FPGA primitive, and it is the
+  normal reason a HAL plugin declines a vendor netlist.</li>
+</ul>
+
+<p>DANA in step 3 is the other one: a correct answer (one 16-bit register) that carries no
+information, because every flip-flop here shares every control signal. Both tools reported
+their failure honestly rather than returning a plausible fiction — <code>solved: 0</code>, and
+an <code>unsupported</code> coverage finding that says in as many words that
+<em>"that they produced no FSM is not evidence that they implement none"</em>. That
+distinction is the whole reason to read statuses rather than conclusions.</p>
+</div>
+
+<h2 id="recon">5. Reconstruction, and an honest score</h2>
+
+<p><a href="recovered.v">recovered.v</a> is the RTL as rebuilt from the netlist. Side by side with
+the original:</p>
+
+<div class="two">
+<div>
+<h4>design.v (original)</h4>
+<pre><code>module lfsr_prng (
+    input  wire        clk,
+    input  wire        rst_n,
+    input  wire        en,
+    output wire [15:0] rand_out,
+    output wire        bit_out
+);
+    localparam [15:0] SEED = 16'hACE1;
+    reg [15:0] state;
+    wire feedback = state[15] ^ state[14]
+                  ^ state[12] ^ state[3];
+
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n)      state &lt;= SEED;
+        else if (en)     state &lt;= {state[14:0], feedback};
+
+    assign rand_out = state;
+    assign bit_out  = state[15];
+endmodule</code></pre>
+</div>
+<div>
+<h4>recovered.v (from the netlist)</h4>
+<pre><code>module lfsr_prng_recovered (
+    input  wire        clk,
+    input  wire        rst_n,
+    input  wire        en,
+    output wire [15:0] rand_out,
+    output wire        bit_out
+);
+    localparam [15:0] SEED = 16'hACE1;
+    reg [15:0] y;
+    wire feedback = y[15] ^ y[14]
+                  ^ y[12] ^ y[3];
+
+    always @(posedge clk or negedge rst_n)
+        if (!rst_n)      y &lt;= SEED;
+        else if (en)     y &lt;= {y[14:0], feedback};
+
+    assign rand_out = y;
+    assign bit_out  = y[15];
+endmodule</code></pre>
+</div>
+</div>
+
+<table>
+  <tr><th>Recovered exactly</th><th>How</th></tr>
+  <tr><td>16 state bits, one clock, one enable, one active-low asynchronous reset</td>
+      <td>flip-flop pins (step 1)</td></tr>
+  <tr><td>shift structure and stage order</td><td>single-dependency next-state rows (step 4)</td></tr>
+  <tr><td>tap set {15, 14, 12, 3} → x<sup>16</sup>+x<sup>15</sup>+x<sup>13</sup>+x<sup>4</sup>+1</td>
+      <td>the one dense next-state row (step 5)</td></tr>
+  <tr><td>reset seed 0xACE1</td><td>the polarity map, twice over (step 6)</td></tr>
+  <tr><td>port widths and which port is the serial bit</td><td>output cones (step 6)</td></tr>
+  <tr><td>maximal length, period 65535</td><td>enumeration of the recovered model (step 7)</td></tr>
+</table>
+
+<table>
+  <tr><th>Lost, and not recoverable from the netlist</th><th>Why</th></tr>
+  <tr><td>the module name, signal names, parameter names, comments</td>
+      <td>this export happens to preserve RTL-derived names, but they are a courtesy of the tool,
+      not information in the circuit; a stripped netlist has none</td></tr>
+  <tr><td>hierarchy</td><td>synthesis flattened it to a single module; nothing in the netlist says
+      the XOR was written as a separate <code>wire</code> declaration</td></tr>
+  <tr><td>the <em>intent</em>: "pseudo-random number generator"</td>
+      <td>the netlist proves the sequence is maximal-length; that it is <em>used</em> as randomness
+      is context you get from the surrounding system, not from these 33 gates</td></tr>
+  <tr><td>the polarity convention (which bits are stored inverted)</td>
+      <td>recovered, but as a property of the <em>implementation</em>: the original RTL never
+      mentions it. A reconstruction that reproduces the netlist exactly must either keep the
+      inversions or trust the synthesizer to re-derive them.</td></tr>
+  <tr><td>that <code>bit_out</code> and <code>rand_out[15]</code> are one signal in the RTL</td>
+      <td>two ports driven by one cell is all the netlist shows; whether the author wrote it as an
+      alias or as a duplicate assignment is unknowable</td></tr>
+</table>
+
+<p>The reconstruction is checked, not asserted: <a href="recovered_model.py">recovered_model.py</a>
+is the same machine in Python, and <code>hal_agilex behavior</code> simulates the exported
+<code>.vo</code> against it for 400 pseudo-random cycles including asynchronous clears.</p>
+
+<h2 id="further">6. Going further</h2>
+
+<h4>Attack the generator you just recovered</h4>
+<p>An LFSR is linear, which is why it is a good exercise and a bad key generator. Sixteen
+consecutive output bits determine the state completely: build the 16×16 GF(2) matrix from the
+recovered taps, invert it, and you predict every future bit. If you find one of these inside a
+"crypto" block, that is the finding — the polynomial is a detail.</p>
+
+<h4>Try the same walk on a design that fights back</h4>
+<ul>
+  <li><strong>Non-linear feedback.</strong> Replace the XOR with an AND-OR mix and the affine
+  probing in step 4 fails its spot-check. The workaround is to keep the per-flip-flop cone but ask
+  a solver instead: <code>plugins/sequential_symbolic_execution</code> and
+  <code>tools/hal_fsm</code> exist for exactly that.</li>
+  <li><strong>Galois form.</strong> No wide cell; several two-input XORs between stages. Same
+  probing, different-looking matrix — and a good exercise in not pattern-matching on pictures.</li>
+  <li><strong>Wider state.</strong> At 128 bits the period check by enumeration is gone; you would
+  compute the characteristic polynomial of the recovered matrix and factor it instead.</li>
+  <li><strong>Real reset trees.</strong> Here the reset is one net. When it is a distributed
+  synchronizer tree, <code>tools/hal_cdc</code>'s reset-domain findings are the thing to read
+  carefully.</li>
+</ul>
+
+<h4>Re-run this walkthrough</h4>
+<pre><code># in a container with a built HAL and Graphviz
+HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+    bash examples/agilex3_walkthroughs/05_lfsr_prng/run_analysis.sh
+
+# just the assertions (CI smoke test)
+HAL_BASE_PATH=/work/build PYTHONPATH=/work/build/lib \
+    python3 examples/agilex3_walkthroughs/05_lfsr_prng/check.py</code></pre>
+
+<footer>
+  Walkthrough 05 of the Agilex 3 series. Netlist, RTL, scripts and every image on this page live in
+  <code>examples/agilex3_walkthroughs/05_lfsr_prng/</code>. The Quartus export is tool output from
+  FPGAPA-authored RTL; no vendor simulation models or device databases are redistributed.
+</footer>
+</div>
+</body>
+</html>

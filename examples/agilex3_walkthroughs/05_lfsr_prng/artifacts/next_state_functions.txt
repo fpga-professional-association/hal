@@ -1,0 +1,73 @@
+# next-state functions, recovered by probing the netlist
+# left: as the netlist computes it (q = what the flip-flop stores)
+# right: after undoing the recovered inversion map (y = design value)
+
+stage  0  (gate state[0])
+    netlist:  d = q(state[3]) ^ q(state[12]) ^ q(state[14]) ^ q(state[15])
+    design :  y[0]' = y[15] ^ y[14] ^ y[12] ^ y[3]
+    stored inverted: yes
+stage  1  (gate state[1])
+    netlist:  d = !q(state[0])
+    design :  y[1]' = y[0]
+    stored inverted: no
+stage  2  (gate state[2])
+    netlist:  d = q(state[1])
+    design :  y[2]' = y[1]
+    stored inverted: no
+stage  3  (gate state[3])
+    netlist:  d = q(state[2])
+    design :  y[3]' = y[2]
+    stored inverted: no
+stage  4  (gate state[4])
+    netlist:  d = q(state[3])
+    design :  y[4]' = y[3]
+    stored inverted: no
+stage  5  (gate state[5])
+    netlist:  d = !q(state[4])
+    design :  y[5]' = y[4]
+    stored inverted: yes
+stage  6  (gate state[6])
+    netlist:  d = q(state[5])
+    design :  y[6]' = y[5]
+    stored inverted: yes
+stage  7  (gate state[7])
+    netlist:  d = q(state[6])
+    design :  y[7]' = y[6]
+    stored inverted: yes
+stage  8  (gate state[8])
+    netlist:  d = !q(state[7])
+    design :  y[8]' = y[7]
+    stored inverted: no
+stage  9  (gate state[9])
+    netlist:  d = q(state[8])
+    design :  y[9]' = y[8]
+    stored inverted: no
+stage 10  (gate state[10])
+    netlist:  d = !q(state[9])
+    design :  y[10]' = y[9]
+    stored inverted: yes
+stage 11  (gate state[11])
+    netlist:  d = q(state[10])
+    design :  y[11]' = y[10]
+    stored inverted: yes
+stage 12  (gate state[12])
+    netlist:  d = !q(state[11])
+    design :  y[12]' = y[11]
+    stored inverted: no
+stage 13  (gate state[13])
+    netlist:  d = !q(state[12])
+    design :  y[13]' = y[12]
+    stored inverted: yes
+stage 14  (gate state[14])
+    netlist:  d = !q(state[13])
+    design :  y[14]' = y[13]
+    stored inverted: no
+stage 15  (gate state[15])
+    netlist:  d = !q(state[14])
+    design :  y[15]' = y[14]
+    stored inverted: yes
+
+taps (0-based stage indices): [15, 14, 12, 3]
+polynomial: x^16 + x^15 + x^13 + x^4 + 1
+seed (from the inversion map): 0xACE1
+period: 65535
