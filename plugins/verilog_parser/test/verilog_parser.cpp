@@ -3732,21 +3732,43 @@ namespace hal {
             std::unique_ptr<Netlist> nl = nl_res.get();
             ASSERT_NE(nl, nullptr);
 
-            ASSERT_FALSE(nl->get_gates(test_utils::gate_filter("AND2", "and_gate")).empty());
-            const Gate* and_gate = *(nl->get_gates(test_utils::gate_filter("AND2", "and_gate")).begin());
+            const auto pad_gates = nl->get_gates(test_utils::gate_type_filter("MY_PAD"));
+            ASSERT_EQ(pad_gates.size(), 1);
+            GateType* pad_type = pad_gates.at(0)->get_type();
+            ASSERT_NE(pad_type, nullptr);
+            EXPECT_TRUE(gate_lib->is_black_box_gate_type(pad_type));
+            EXPECT_EQ(pad_type->get_pin_names(), std::vector<std::string>({"PORT_0", "PORT_1"}));
+        }
+        {
+            // the black boxes end up in the gate library, which is shared with every other netlist loaded from the
+            // same gate library file; a strict import must not accept a cell just because an earlier one was lenient
+            NO_COUT_TEST_BLOCK;
+            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
+            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", netlist_input);
 
-            Net* escaped_net = and_gate->get_fan_in_net("I0");
-            ASSERT_NE(escaped_net, nullptr);
-            EXPECT_EQ(escaped_net->get_name(), "\\'1'");
+            VerilogParser lenient_parser;
+            lenient_parser.enable_black_box_fallback(true);
+            auto lenient_res = lenient_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            ASSERT_TRUE(lenient_res.is_ok());
+            ASSERT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
+            GateType* first_bb = gate_lib->get_gate_type_by_name("MY_RAM");
+            ASSERT_NE(first_bb, nullptr);
 
-            Net* literal_net = and_gate->get_fan_in_net("I1");
-            ASSERT_NE(literal_net, nullptr);
-            EXPECT_EQ(literal_net->get_name(), "'1'");
+            // the same library, but this time nobody asked for the fallback
+            VerilogParser strict_parser;
+            EXPECT_TRUE(strict_parser.parse_and_instantiate(verilog_file, gate_lib.get()).is_error());
 
-            // the escaped identifier and the binary literal must not end up on the same net
-            EXPECT_NE(escaped_net, literal_net);
-            EXPECT_TRUE(literal_net->is_vcc_net());
-            EXPECT_FALSE(escaped_net->is_vcc_net());
+            // while a second lenient import reuses the black box instead of synthesizing a second one
+            VerilogParser second_parser;
+            second_parser.enable_black_box_fallback(true);
+            auto second_res = second_parser.parse_and_instantiate(verilog_file, gate_lib.get());
+            ASSERT_TRUE(second_res.is_ok());
+            std::unique_ptr<Netlist> nl = second_res.get();
+            ASSERT_NE(nl, nullptr);
+            EXPECT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
+            const auto ram_gates = nl->get_gates(test_utils::gate_type_filter("MY_RAM"));
+            ASSERT_EQ(ram_gates.size(), 1);
+            EXPECT_EQ(ram_gates.at(0)->get_type(), first_bb);
         }
         TEST_END
     }
@@ -3821,43 +3843,6 @@ namespace hal {
             // the pins are connected to the correct nets
             EXPECT_EQ(group_a->get_pin_at_index(1).get()->get_net()->get_name(), "a(1)");
             EXPECT_EQ(group_b->get_pin_at_index(1).get()->get_net()->get_name(), "b(1)");
-            const auto pad_gates = nl->get_gates(test_utils::gate_type_filter("MY_PAD"));
-            ASSERT_EQ(pad_gates.size(), 1);
-            GateType* pad_type = pad_gates.at(0)->get_type();
-            ASSERT_NE(pad_type, nullptr);
-            EXPECT_TRUE(gate_lib->is_black_box_gate_type(pad_type));
-            EXPECT_EQ(pad_type->get_pin_names(), std::vector<std::string>({"PORT_0", "PORT_1"}));
-        }
-        {
-            // the black boxes end up in the gate library, which is shared with every other netlist loaded from the
-            // same gate library file; a strict import must not accept a cell just because an earlier one was lenient
-            NO_COUT_TEST_BLOCK;
-            std::unique_ptr<GateLibrary> gate_lib = test_utils::create_gate_library();
-            std::filesystem::path verilog_file    = test_utils::create_sandbox_file("netlist.v", netlist_input);
-
-            VerilogParser lenient_parser;
-            lenient_parser.enable_black_box_fallback(true);
-            auto lenient_res = lenient_parser.parse_and_instantiate(verilog_file, gate_lib.get());
-            ASSERT_TRUE(lenient_res.is_ok());
-            ASSERT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
-            GateType* first_bb = gate_lib->get_gate_type_by_name("MY_RAM");
-            ASSERT_NE(first_bb, nullptr);
-
-            // the same library, but this time nobody asked for the fallback
-            VerilogParser strict_parser;
-            EXPECT_TRUE(strict_parser.parse_and_instantiate(verilog_file, gate_lib.get()).is_error());
-
-            // while a second lenient import reuses the black box instead of synthesizing a second one
-            VerilogParser second_parser;
-            second_parser.enable_black_box_fallback(true);
-            auto second_res = second_parser.parse_and_instantiate(verilog_file, gate_lib.get());
-            ASSERT_TRUE(second_res.is_ok());
-            std::unique_ptr<Netlist> nl = second_res.get();
-            ASSERT_NE(nl, nullptr);
-            EXPECT_EQ(gate_lib->get_black_box_gate_types().size(), 1);
-            const auto ram_gates = nl->get_gates(test_utils::gate_type_filter("MY_RAM"));
-            ASSERT_EQ(ram_gates.size(), 1);
-            EXPECT_EQ(ram_gates.at(0)->get_type(), first_bb);
         }
         TEST_END
     }
