@@ -334,9 +334,19 @@ not be installed. Fix it and re-run -- HAL will not configure with a partial dep
     fi
 
     if ! pip3 install -r "${REPO_ROOT}/requirements.txt"; then
-        die "'pip3 install -r requirements.txt' failed; HAL's documentation build needs those
+        # Homebrew's python is an externally-managed environment (PEP 668) and refuses
+        # system-wide installs. A CI runner is disposable, so there the protection has
+        # nothing to protect; on a real machine the advice below stands.
+        if [[ "${CI:-}" == "true" ]]; then
+            note "retrying with --break-system-packages (CI runner)"
+            pip3 install --break-system-packages -r "${REPO_ROOT}/requirements.txt" \
+                || die "'pip3 install --break-system-packages -r requirements.txt' failed; HAL's
+documentation build needs those packages. Fix the error above and re-run."
+        else
+            die "'pip3 install -r requirements.txt' failed; HAL's documentation build needs those
 packages. Fix the error above (a virtualenv or --break-system-packages is often what is missing)
 and re-run."
+        fi
     fi
 
     local brew_prefix

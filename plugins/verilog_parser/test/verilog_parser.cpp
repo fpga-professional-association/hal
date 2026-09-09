@@ -3609,6 +3609,30 @@ namespace hal {
             auto verilog_file           = test_utils::create_sandbox_file("netlist.v", netlist_input);
             VerilogParser verilog_parser;
             auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            ASSERT_FALSE(nl->get_gates(test_utils::gate_filter("AND2", "and_gate")).empty());
+            const Gate* and_gate = *(nl->get_gates(test_utils::gate_filter("AND2", "and_gate")).begin());
+
+            Net* escaped_net = and_gate->get_fan_in_net("I0");
+            ASSERT_NE(escaped_net, nullptr);
+            EXPECT_EQ(escaped_net->get_name(), "\\'1'");
+
+            Net* literal_net = and_gate->get_fan_in_net("I1");
+            ASSERT_NE(literal_net, nullptr);
+            EXPECT_EQ(literal_net->get_name(), "'1'");
+
+            // the escaped identifier and the binary literal must not end up on the same net
+            EXPECT_NE(escaped_net, literal_net);
+            EXPECT_TRUE(literal_net->is_vcc_net());
+            EXPECT_FALSE(escaped_net->is_vcc_net());
+        }
+        TEST_END
+    }
+
+    /**
      * Testing that a cell which the gate library does not define aborts the import unless the black box fallback
      * has explicitly been enabled, in which case it becomes a black box gate type derived from its instantiation.
      *
