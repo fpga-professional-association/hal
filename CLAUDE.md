@@ -2,7 +2,7 @@
 
 This is FPGAPA's headless fork of [emsec/hal](https://github.com/emsec/hal). The Qt GUI has been removed by design: HAL is driven by the `hal` CLI, the `hal_py` Python bindings, scripts, and AI agents. Do not reintroduce GUI code or Qt dependencies — the codebase is fully Qt-free.
 
-Project skills live in `.claude/skills/` — start with `using-hal` for how to drive the tool, generate visuals (`tools/hal_viz`), and handle interactive waveforms (Saleae Logic 2 MCP).
+Project skills live in `.claude/skills/` — start with `using-hal` for how to drive the tool, generate visuals (`tools/hal_viz`), and handle interactive waveforms (Saleae Logic 2 MCP). The assistant-agnostic, canonical skill set is `ai/skills/` (per-tool SKILL.md files: hal_viz, hal_agilex, capabilities/findings, bitstream, the analysis tools, the container bench, and the RE walkthrough method); when a `.claude` copy and `ai/skills` disagree, `ai/skills` wins.
 
 ## Working rules
 
