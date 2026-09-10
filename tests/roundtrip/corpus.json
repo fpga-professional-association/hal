@@ -1,0 +1,129 @@
+{
+  "_comment": [
+    "Corpus manifest for tests/roundtrip/test_roundtrip.py (issue #49).",
+    "",
+    "Every number below is a PUBLISHED fact of the corresponding walkthrough: it is",
+    "either asserted by that walkthrough's check.py or recorded in an artifact the",
+    "walkthrough ships (artifacts/*.txt, artifacts/*.json, guide.html, MANIFEST.json).",
+    "Nothing here was measured into existence by this test suite -- the 'source' field",
+    "of each entry names where each group of numbers comes from, and entries omit any",
+    "fact their walkthrough does not publish rather than inventing one.",
+    "",
+    "Fields:",
+    "  netlist         path relative to the repository root (the canonical netlist of",
+    "                  the walkthrough; 04/06/10 keep theirs in a netlist/ subdirectory)",
+    "  gates           total gate count as HAL sees it -- note this is the .vo instance",
+    "                  count plus the two synthesized constant drivers HAL_GND/HAL_VCC",
+    "  gate_types      full gate-type histogram",
+    "  ff              number of gates with the 'ff' GateTypeProperty",
+    "  nets            total net count                    (omitted where unpublished)",
+    "  global_inputs   number of global input nets        (omitted where unpublished)",
+    "  global_outputs  number of global output nets       (omitted where unpublished)",
+    "  global_input_names / global_output_names           (only where asserted by name)",
+    "  sccs            sizes of the strongly connected components of the *gate* graph",
+    "                  that have more than one vertex, descending",
+    "                  (omitted where the walkthrough publishes no gate-level SCC)"
+  ],
+
+  "gate_library": "plugins/gate_libraries/definitions/AGILEX_TENNM.hgl",
+
+  "entries": {
+    "01_blinky_counter": {
+      "netlist": "examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v",
+      "gates": 50,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 24, "tennm_lcell_comb": 24},
+      "ff": 24,
+      "nets": 74,
+      "global_inputs": 2,
+      "global_outputs": 1,
+      "global_input_names": ["clk", "rst_n"],
+      "global_output_names": ["led"],
+      "sccs": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      "source": "check.py asserts the histogram (l.55), the port lists (l.60-61) and the 24 size-2 SCCs (l.98/104/114); gates=50 and nets=74 from artifacts/step_stats.json; SCCs corroborated by artifacts/step_scc.json"
+    },
+
+    "02_traffic_fsm": {
+      "netlist": "examples/agilex3_walkthroughs/02_traffic_fsm/netlist.hal.v",
+      "gates": 24,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 8, "tennm_lcell_comb": 14},
+      "ff": 8,
+      "nets": 27,
+      "global_inputs": 3,
+      "global_outputs": 3,
+      "source": "check.py asserts the primitive split 8 ff / 14 lcell (l.57); gates=24, nets=27, the full histogram and the 3/3 port counts from guide.html and artifacts/*/findings.json",
+      "omitted": "sccs -- 02 publishes an SCC of the flip-flop dependency graph (one non-trivial component of 8 flops, check.py l.238), not of the gate graph, so no gate-level SCC invariant is asserted here"
+    },
+
+    "03_uart_tx": {
+      "netlist": "examples/agilex3_walkthroughs/03_uart_tx/netlist.hal.v",
+      "gates": 42,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 18, "tennm_lcell_comb": 22},
+      "ff": 18,
+      "nets": 53,
+      "global_inputs": 11,
+      "global_outputs": 2,
+      "sccs": [19, 2, 2],
+      "source": "check.py asserts 18 ff / 22 lcell (l.55, l.57); gates=42, nets=53, 11 inputs / 2 outputs and the full histogram from artifacts/01_stats.txt; gate SCCs [19,2,2] from artifacts/03_gate_sccs.txt and artifacts/analysis.json ('gate_sccs')"
+    },
+
+    "04_pwm_generator": {
+      "netlist": "examples/agilex3_walkthroughs/04_pwm_generator/netlist/netlist.hal.v",
+      "gates": 36,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 16, "tennm_lcell_comb": 18},
+      "ff": 16,
+      "nets": 56,
+      "global_inputs": 14,
+      "global_outputs": 2,
+      "sccs": [2, 2, 2, 2, 2, 2, 2, 2],
+      "source": "check.py asserts 18 lcell / 16 ff (l.85-86); gates=36, nets=56 and the full histogram from artifacts/07_summary.json and artifacts/01_stats.txt; 14 inputs / 2 outputs from artifacts/01_stats.txt; 8 SCCs of size 2 from artifacts/05_scc.txt"
+    },
+
+    "05_lfsr_prng": {
+      "netlist": "examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v",
+      "gates": 35,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 16, "tennm_lcell_comb": 17},
+      "ff": 16,
+      "sccs": [25],
+      "source": "check.py asserts tennm_ff==16, tennm_lcell_comb==17 and that no other type outside {tennm_ff, tennm_lcell_comb, HAL_GND, HAL_VCC} occurs (l.206-211); artifacts/scc.txt publishes 'netlist graph: 35 vertices' and 'strongly connected components of size >= 2: [25]', which together with the asserted 16/17 pins HAL_GND and HAL_VCC at 1 each",
+      "omitted": "nets, global_inputs, global_outputs -- 05 publishes no net or port counts"
+    },
+
+    "06_accumulator_alu": {
+      "netlist": "examples/agilex3_walkthroughs/06_accumulator_alu/netlist/netlist.hal.v",
+      "gates": 33,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 9, "tennm_lcell_comb": 22},
+      "ff": 9,
+      "nets": 53,
+      "global_inputs": 12,
+      "global_outputs": 10,
+      "sccs": [3, 3, 3, 3, 3, 3, 3, 3],
+      "source": "check.py asserts 22 lcell / 9 ff and that no other primitive type occurs (l.69-72); gates=33, nets=53, 12 inputs / 10 outputs and the full histogram from artifacts/01_stats.txt; the 8 multi-gate SCCs of size 3 from artifacts/06_scc.txt"
+    },
+
+    "08_shift_debouncer": {
+      "netlist": "examples/agilex3_walkthroughs/08_shift_debouncer/netlist.hal.v",
+      "gates": 16,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 8, "tennm_lcell_comb": 6},
+      "ff": 8,
+      "nets": 19,
+      "global_inputs": 3,
+      "global_outputs": 2,
+      "global_input_names": ["btn_raw", "clk", "rst_n"],
+      "global_output_names": ["btn_rise", "btn_state"],
+      "sccs": [8, 2],
+      "source": "check.py asserts the full histogram (l.261-262), the port lists (l.265-266) and the gate-graph SCC sizes [8, 2] (l.284-285); nets=19 from artifacts/01_stats.txt and artifacts/analysis.json"
+    },
+
+    "10_crc8_checker": {
+      "netlist": "examples/agilex3_walkthroughs/10_crc8_checker/netlist/netlist.hal.v",
+      "gates": 15,
+      "gate_types": {"HAL_GND": 1, "HAL_VCC": 1, "tennm_ff": 8, "tennm_lcell_comb": 5},
+      "ff": 8,
+      "nets": 19,
+      "global_inputs": 4,
+      "global_outputs": 9,
+      "sccs": [11],
+      "source": "check.py asserts tennm_ff==8, tennm_lcell_comb==5 (l.51-53) and that exactly one SCC of size >= 8 exists (l.67-69); gates=15, nets=19, 4 inputs / 9 outputs, the full histogram and the exact SCC size 11 from artifacts/re_walk.txt and artifacts/re_walk.json"
+    }
+  }
+}
