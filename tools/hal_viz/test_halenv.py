@@ -12,9 +12,11 @@ These tests pin that down with a stub ``hal_py``: no build, no netlist, no plugi
     python -m unittest discover -s tools/hal_viz -t tools -p "test_*.py"
 """
 
+import io
 import os
 import sys
 import tempfile
+import tokenize
 import unittest
 
 if __package__ in (None, ""):
@@ -167,6 +169,25 @@ class ToolLoadPathAuditTest(unittest.TestCase):
         os.path.join("hal_apb_recover", "hal_source.py"),
     }
 
+    @staticmethod
+    def _code_only(text):
+        """``text`` with comments and string literals removed.
+
+        The audit looks for a *call*, so a module that only names the factory in a comment or a
+        docstring -- explaining, say, why the plugins have to be loaded first -- must not be
+        reported. Anything that cannot be tokenized is returned unchanged: failing closed keeps a
+        syntactically broken module visible to the checks below.
+        """
+        try:
+            tokens = tokenize.generate_tokens(io.StringIO(text).readline)
+            return "\n".join(
+                token.string
+                for token in tokens
+                if token.type not in (tokenize.COMMENT, tokenize.STRING)
+            )
+        except (tokenize.TokenError, IndentationError, SyntaxError):
+            return text
+
     def _sources(self):
         for root, dirs, files in os.walk(self.TOOLS):
             dirs[:] = [d for d in dirs if d not in ("__pycache__", "fixtures")]
@@ -175,7 +196,7 @@ class ToolLoadPathAuditTest(unittest.TestCase):
                     continue
                 path = os.path.join(root, name)
                 with open(path, "r", encoding="utf-8") as handle:
-                    yield os.path.relpath(path, self.TOOLS), handle.read()
+                    yield os.path.relpath(path, self.TOOLS), self._code_only(handle.read())
 
     def test_every_direct_factory_user_loads_plugins(self):
         offenders = []
