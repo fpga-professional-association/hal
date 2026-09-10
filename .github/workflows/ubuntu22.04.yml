@@ -29,6 +29,18 @@ jobs:
           # so the full history including tags is required
           fetch-depth: 0
 
+      # Each examples/agilex3_walkthroughs design ships a check.py that re-asserts every
+      # load-bearing claim its guide.html makes. This tier is the half that needs nothing but a
+      # Python 3 interpreter and tools/hal_agilex (02 and 04 entirely, tier 1 of 03, 06 and 08),
+      # so it runs before install_dependencies.sh and the C++ build: a source change that
+      # invalidates a walkthrough fails here in seconds instead of an hour into the job. The
+      # script clears HAL_BASE_PATH/HAL_PY_PATH/PYTHONPATH for this tier, so it cannot quietly
+      # start depending on a built HAL, and it names the failing design in the log. The tier that
+      # needs build/lib runs in the Ubuntu 24.04 job only.
+      - name: Walkthrough checks (no HAL)
+        shell: bash
+        run: bash "$GITHUB_WORKSPACE/tests/headless_smoke/run_walkthrough_checks.sh" nohal
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
