@@ -12,6 +12,7 @@ pointers; when they disagree, this directory wins and they need a sync.
 | skill | reach for it when |
 | --- | --- |
 | [using-hal-python](using-hal-python/SKILL.md) | loading, traversing or modifying a netlist through `hal_py` or `hal --python-script` |
+| [hal-mcp](hal-mcp/SKILL.md) | asking more than one or two questions about the same netlist — one stateful session instead of a plugin load per call |
 | [container-build-and-test](container-build-and-test/SKILL.md) | anything needing a built HAL — there is no Windows build; the `halbuild` container is the bench |
 | [hal-viz](hal-viz/SKILL.md) | rendering module trees, gate graphs, dataflow groups, clock trees, or findings reports |
 | [hal-agilex](hal-agilex/SKILL.md) | Quartus `.vo` exports: importing, primitive coverage, reference simulation, recognition |

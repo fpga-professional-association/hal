@@ -103,7 +103,8 @@ for net in netlist.get_nets():
 hal_py.NetlistSerializer.serialize_to_file(netlist, "out.hal")
 ```
 
-`hal_py.netlist_utils` has the free traversal functions
+`hal_py.NetlistUtils` (capitalized — `hal_py.netlist_utils` does not exist,
+despite the C++ namespace name) has the free traversal functions
 (`get_next_gates`, `get_shortest_path`, `get_ff_dependency_matrix`, ...).
 `NetlistTraversalDecorator(netlist)` / `NetlistModificationDecorator(netlist)`
 wrap the same operations as an object, plus net-splice/gate-replace helpers.

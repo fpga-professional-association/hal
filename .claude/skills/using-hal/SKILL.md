@@ -193,7 +193,8 @@ gate.fan_out_nets  # == gate.get_fan_out_nets()
 gate.boolean_functions  # dict[str, BooleanFunction], == gate.get_boolean_functions()
 ```
 
-Traversal helpers live in `hal_py.netlist_utils` (module-level free functions,
+Traversal helpers live in `hal_py.NetlistUtils` (the binding capitalizes it —
+`hal_py.netlist_utils` does not exist; module-level free functions,
 not decorators you instantiate) — `get_next_gates`, `get_next_sequential_gates`,
 `get_shortest_path`, `get_path`, `get_ff_dependency_matrix`, etc. There is also
 a `NetlistTraversalDecorator(netlist)` / `NetlistModificationDecorator(netlist)`

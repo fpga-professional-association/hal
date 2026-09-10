@@ -45,6 +45,13 @@ add_test(NAME runTest-install_dependencies_standalone
          COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_install_dependencies.py
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# The MCP server's protocol tier needs no build at all (it drives the server over a pipe and never
+# imports hal_py); the session and tool tiers skip themselves when hal_py is unavailable, so this is
+# safe to run at any point in the build.
+add_test(NAME runTest-hal_mcp_standalone
+         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/hal_mcp/test_hal_mcp.py
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_test(NAME runTest-hal_capabilities_standalone
          COMMAND ${Python3_EXECUTABLE} -m unittest discover
                  -s ${CMAKE_SOURCE_DIR}/tools/hal_capabilities -t ${CMAKE_SOURCE_DIR}/tools

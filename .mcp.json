@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "hal": {
+      "command": "python3",
+      "args": ["tools/hal_mcp"],
+      "env": {
+        "HAL_BASE_PATH": "${HAL_BASE_PATH}",
+        "HAL_PY_PATH": "${HAL_PY_PATH}"
+      }
+    },
     "logic2": {
       "type": "http",
       "url": "http://127.0.0.1:10530"
