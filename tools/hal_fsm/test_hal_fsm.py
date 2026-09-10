@@ -1142,5 +1142,84 @@ class SolveHelpersTest(unittest.TestCase):
         self.assertEqual(solve.cone_holes(table, self.extraction, cone_gate_ids=[]), [])
 
 
+# ---------------------------------------------------------------------------
+# propose()/rank() ergonomics -- issue #56
+# ---------------------------------------------------------------------------
+
+
+class ProposeRankErgonomicsTest(unittest.TestCase):
+    """The API shape issue #56 is about, written down before it changes.
+
+    ``candidates.propose(graph)`` returns ``(candidates, notes)`` while
+    ``candidates.rank(candidates)`` takes the bare list.  02_traffic_fsm's
+    author passed the tuple straight through and got an ``AttributeError``
+    from inside a sort key -- an error that names neither the mistake nor the
+    fix.  #56 asks for either a small result object or a ``TypeError`` that
+    says what to do, plus module-docstring examples using the real attribute
+    names (``sources``/``gate_ids``, not ``origins``/``members``).
+
+    The passing tests below pin today's contract so that whichever of those
+    two shapes lands, the change is visible here rather than in a walkthrough
+    six months later.  The expected failure is the error message #56 wants.
+    """
+
+    def setUp(self):
+        _, _, extraction = fixture_extraction()
+        self.graph = extraction.graph
+        self.limits = config.Limits()
+        self.result = candidates.propose(self.graph, limits=self.limits)
+
+    def test_propose_returns_a_tuple_of_two_lists(self):
+        self.assertIsInstance(self.result, tuple)
+        self.assertEqual(len(self.result), 2)
+        proposed, notes = self.result
+        self.assertIsInstance(proposed, list)
+        self.assertIsInstance(notes, list)
+        for candidate in proposed:
+            self.assertIsInstance(candidate, candidates.Candidate)
+        for note in notes:
+            self.assertIsInstance(note, str)
+
+    def test_rank_takes_the_bare_list_and_sorts_by_score(self):
+        proposed, _ = self.result
+        self.assertGreater(len(proposed), 1, "the fixture must offer a choice")
+        shuffled = sorted(proposed, key=lambda candidate: candidate.score)
+        ranked = candidates.rank(shuffled)
+        scores = [candidate.score for candidate in ranked]
+        self.assertEqual(scores, sorted(scores, reverse=True))
+        # propose() already returns its list ranked; rank() is idempotent on it.
+        self.assertEqual(
+            [candidate.gate_ids for candidate in ranked],
+            [candidate.gate_ids for candidate in proposed],
+        )
+
+    def test_candidate_attribute_names(self):
+        proposed, _ = self.result
+        candidate = proposed[0]
+        # What the examples #56 asks for have to say:
+        self.assertTrue(hasattr(candidate, "sources"))
+        self.assertTrue(hasattr(candidate, "gate_ids"))
+        # ...and the plausible-looking names that do not exist.  ``origin``
+        # (singular, "heuristic" or "user_override") is a different thing from
+        # ``sources`` and is easy to reach for by mistake.
+        self.assertFalse(hasattr(candidate, "origins"))
+        self.assertFalse(hasattr(candidate, "members"))
+        self.assertEqual(candidate.origin, "heuristic")
+
+    @unittest.expectedFailure
+    def test_rank_rejects_the_propose_tuple_with_an_actionable_error(self):
+        # #56: today this raises ``AttributeError: 'list' object has no
+        # attribute 'score'`` from the sort key inside rank(), which says
+        # nothing about propose() returning two values.
+        with self.assertRaises(TypeError) as raised:
+            candidates.rank(self.result)
+        message = str(raised.exception)
+        self.assertIn("propose", message)
+        self.assertTrue(
+            any(hint in message for hint in ("notes", "unpack", "[0]")),
+            "the error has to name the fix, not just the type: {!r}".format(message),
+        )
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
