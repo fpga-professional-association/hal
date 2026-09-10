@@ -18,4 +18,6 @@ if(USE_VENDORED_IGRAPH)
     add_dependencies(graph_algorithm igraph_1_0)
 endif()
 
+    add_subdirectory(test)
+
 endif()

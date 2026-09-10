@@ -13,6 +13,15 @@ add_test(NAME runTest-python_binding_smoke
 set_tests_properties(runTest-python_binding_smoke PROPERTIES
                      ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/lib;HAL_BASE_PATH=${CMAKE_BINARY_DIR}")
 
+# The smoke test only calls bindings that take no arguments, which leaves out every plugin entry
+# point that needs a netlist. This one calls those, on the walkthrough netlists under
+# examples/agilex3_walkthroughs, so it needs the built modules, the gate libraries and the checkout.
+add_test(NAME runTest-python_plugin_surfaces
+         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_plugin_surfaces.py
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+set_tests_properties(runTest-python_plugin_surfaces PROPERTIES
+                     ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}/lib;HAL_BASE_PATH=${CMAKE_BINARY_DIR}")
+
 # Loading the plugins and letting the interpreter exit without unloading them used to segfault, so
 # this checks that a process which does exactly that comes back with a zero exit code. It runs its
 # cases in subprocesses, as what is under test is how a process ends.
