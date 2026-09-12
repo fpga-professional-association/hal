@@ -29,7 +29,8 @@ Usage
 
     # re-enable the generator features that only reproduce the already-known
     # bugs listed in KNOWN_BUGS below (off by default so the sweep keeps
-    # hunting for *new* bugs instead of rediscovering these):
+    # hunting for *new* bugs instead of rediscovering these); only KB-4 is
+    # still gated this way, the rest have been fixed and now run by default:
     FUZZ_ENABLE_KNOWN_BUG_TRIGGERS=1 python3 tests/fuzz/fuzz_verilog_roundtrip.py
 
     FUZZ_GATE_LIBRARY=/path/to/lib.hgl                             # override library
@@ -136,18 +137,24 @@ KEEP_TEMP = os.environ.get("FUZZ_KEEP", "") not in ("", "0")
 # from rediscovering the same three defects; see KNOWN_BUGS for the minimized
 # repros, which run on every invocation regardless of this switch.
 FEATURES = {
-    # KB-1: writer emits undeclared HAL_UNUSED_SIGNAL_* for the unconnected
-    # members of a partially connected gate pin group -> re-parse fails.
-    "partial_pin_groups": ENABLE_KNOWN_BUG_TRIGGERS,
-    # KB-2: HAL's internal constant nets '0' / '1' are re-escaped to \'0' / \'1'
-    # on write, which both renames them and collides with genuinely escaped
-    # identifiers of that shape.
-    "constant_literal_pins": ENABLE_KNOWN_BUG_TRIGGERS,
-    # KB-3: a bus port with unconnected bits is re-indexed contiguously, so the
-    # bit positions shift on write.
-    "sparse_bus_ports": ENABLE_KNOWN_BUG_TRIGGERS,
-    # KB-4 (cosmetic): nets and gate instances share one Verilog namespace, so a
-    # gate whose name equals a net name is renamed to ``name__[2]__``.
+    # was KB-1 (issue #59, fixed): the writer emitted undeclared
+    # HAL_UNUSED_SIGNAL_* identifiers for the unconnected members of a partially
+    # connected gate pin group, so its own output did not re-parse. The slot now
+    # carries the high-impedance literal, which the parser skips.
+    "partial_pin_groups": True,
+    # was KB-2 (issue #60, fixed): HAL's internal constant nets '0' / '1' were
+    # escaped to \'0' / \'1' on write, which renamed them and collided with
+    # genuinely escaped identifiers of that shape. They are written as number
+    # literals now.
+    "constant_literal_pins": True,
+    # was KB-3/KB-5 (issue #61 and issue #60, fixed): a bus port with
+    # unconnected bits was re-indexed contiguously and a one-bit bus lost its
+    # bus notation, so bit positions shifted on write.
+    "sparse_bus_ports": True,
+    # KB-4: nets and gate instances share one Verilog namespace, so a gate whose
+    # name equals a net name is renamed to ``name__[2]__``. Intended behaviour
+    # (see issue #60), kept behind the switch because it makes the round trip
+    # non-name-preserving and would otherwise swamp the sweep.
     "name_collisions": ENABLE_KNOWN_BUG_TRIGGERS,
 }
 
@@ -316,8 +323,9 @@ class Design(object):
         """Drop wires and ports no gate references any more.
 
         ``compact_buses`` additionally keeps every surviving bus port dense and
-        at least two bits wide, because sparse and one-bit bus ports reproduce
-        KB-3 and KB-5 respectively -- they would otherwise swamp the sweep.
+        at least two bits wide. Sparse and one-bit bus ports used to reproduce
+        KB-3 and KB-5; both are fixed, so the sweep now leaves them alone and
+        this stays only for the ``sparse_bus_ports`` switch to turn back on.
         """
         used = self.used_refs()
         self.wires = [w for w in self.wires if tok(w) in used]
@@ -748,84 +756,24 @@ def minimize(design, workdir, budget=200):
 # known bugs (minimized repros, kept as expected failures)
 # --------------------------------------------------------------------------- #
 
+# KB-1 (issue #59), KB-2, KB-5 (issue #60) and KB-3 (issue #61) were fixed and
+# their repros are now permanent regression tests in the C++ suites:
+#   KB-1, KB-2, KB-5 -> plugins/verilog_writer/test/verilog_writer.cpp
+#   KB-3             -> plugins/verilog_writer/test/verilog_writer.cpp and
+#                       plugins/verilog_parser/test/verilog_parser.cpp
+# The generator features that used to reproduce them are enabled by default in
+# FEATURES above, so the sweep keeps covering those shapes.
 KNOWN_BUGS = [
-    {
-        "id": "KB-1",
-        "summary": (
-            "verilog_writer emits undeclared HAL_UNUSED_SIGNAL_<n> placeholders for the "
-            "unconnected members of a partially connected gate pin group; the resulting "
-            "file cannot be re-parsed ('failed to assign HAL_UNUSED_SIGNAL_2 to pin DI(1) "
-            "... as the assignment is invalid'). Declaring them as wires makes it parse, "
-            "so VerilogWriter::write_pin_assignments should emit the wire declarations "
-            "(or leave the slot empty). The counter is also a function-local static, so "
-            "the names differ between writes in the same process."
-        ),
-        "expect": "parse#2",
-        "source": (
-            "module m (a) ;\n"
-            "  input a ;\n"
-            "CARRY4 k0 (\n"
-            "    .DI({a})\n"
-            ") ;\n"
-            "endmodule\n"
-        ),
-    },
-    {
-        "id": "KB-2",
-        "summary": (
-            "VerilogWriter::escape() escapes HAL's internal constant net names '0' / '1' "
-            "into \\'0' / \\'1', while a net that genuinely is named \\'0' / \\'1' is passed "
-            "through unchanged. Both therefore render as the same identifier: a design that "
-            "ties a pin to 1'b1 and also carries an escaped \\'1' net emits 'wire \\'1' ;' "
-            "twice and the two distinct nets silently merge on re-parse. This is the writer-"
-            "side counterpart of the parser fix for emsec/hal#545."
-        ),
-        "expect": "structure",
-        "source": (
-            "module m (c, d) ;\n"
-            "  output c ; output d ; wire \\'1' ;\n"
-            "VCC v (\n"
-            "    .O(\\'1' )\n"
-            ") ;\n"
-            "BUF b0 (\n"
-            "    .I(\\'1' ),\n"
-            "    .O(c)\n"
-            ") ;\n"
-            "BUF b1 (\n"
-            "    .I(1'b1),\n"
-            "    .O(d)\n"
-            ") ;\n"
-            "endmodule\n"
-        ),
-    },
-    {
-        "id": "KB-3",
-        "summary": (
-            "A bus port with unconnected bits is re-indexed contiguously when the top "
-            "module's pin group is built: for 'input [3:0] a' with only a[0] and a[3] used, "
-            "the pin named 'a(0)' ends up at group index 2. VerilogWriter trusts the index, "
-            "writes 'input [3:2] a' and '.I0(a[2])', so the bit position of every net above "
-            "the first gap shifts on write."
-        ),
-        "expect": "structure",
-        "source": (
-            "module m (a, c) ;\n"
-            "  input [3:0] a ; output c ;\n"
-            "AND2 l (\n"
-            "    .I0(a[0] ),\n"
-            "    .I1(a[3] ),\n"
-            "    .O(c)\n"
-            ") ;\n"
-            "endmodule\n"
-        ),
-    },
     {
         "id": "KB-4",
         "summary": (
             "Nets and gate instances share one Verilog namespace in the writer's "
             "identifier_occurrences map, so a gate whose name equals a net name is renamed "
-            "to 'name__[2]__'. Arguably correct Verilog, but it makes the round-trip "
-            "non-name-preserving."
+            "to 'name__[2]__'. INTENDED BEHAVIOUR, documented on issue #60: Verilog puts "
+            "nets and instances in one namespace, so the two cannot both keep the name and "
+            "renaming the instance is the correct resolution -- the net, which carries the "
+            "connectivity, is the one worth preserving. The round trip is therefore "
+            "structure-preserving but not name-preserving for such a gate."
         ),
         "expect": "structure",
         "source": (
@@ -837,25 +785,6 @@ KNOWN_BUGS = [
             ") ;\n"
             "BUF b0 (\n"
             "    .I(x),\n"
-            "    .O(c)\n"
-            ") ;\n"
-            "endmodule\n"
-        ),
-    },
-    {
-        "id": "KB-5",
-        "summary": (
-            "A one-bit bus port ('input [0:0] a') loses its bus notation on write: "
-            "VerilogWriter::is_bus() is false for a single-pin group, so the port is "
-            "written as the scalar '\\a(0) ' -- the HAL pin name, escaped. Re-parsing "
-            "yields a scalar port literally called 'a(0)' instead of a one-bit bus 'a'."
-        ),
-        "expect": "structure",
-        "source": (
-            "module m (a, c) ;\n"
-            "  input [0:0] a ; output c ;\n"
-            "BUF b (\n"
-            "    .I(a[0] ),\n"
             "    .O(c)\n"
             ") ;\n"
             "endmodule\n"
