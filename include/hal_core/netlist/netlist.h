@@ -219,6 +219,24 @@ namespace hal
         Gate* get_gate_by_id(const u32 gate_id) const;
 
         /**
+         * Get the gate specified by the given name.<br>
+         * The name is matched exactly, no wildcards and no partial matches.
+         *
+         * @param[in] name - The name of the gate.
+         * @returns The gate if exactly one gate carries that name, `nullptr` otherwise (no match, or an ambiguous name shared by multiple gates).
+         */
+        Gate* get_gate_by_name(const std::string& name) const;
+
+        /**
+         * Get all gates carrying the given name.<br>
+         * The name is matched exactly, no wildcards and no partial matches.
+         *
+         * @param[in] name - The name of the gates.
+         * @returns A vector of gates, empty if no gate carries that name.
+         */
+        std::vector<Gate*> get_gates_by_name(const std::string& name) const;
+
+        /**
          * Get all gates contained within the netlist.
          *
          * @return A vector of gates.
@@ -351,6 +369,24 @@ namespace hal
          * @returns The net on success, `nullptr` otherwise.
          */
         Net* get_net_by_id(u32 net_id) const;
+
+        /**
+         * Get the net specified by the given name.<br>
+         * The name is matched exactly, no wildcards and no partial matches.
+         *
+         * @param[in] name - The name of the net.
+         * @returns The net if exactly one net carries that name, `nullptr` otherwise (no match, or an ambiguous name shared by multiple nets).
+         */
+        Net* get_net_by_name(const std::string& name) const;
+
+        /**
+         * Get all nets carrying the given name.<br>
+         * The name is matched exactly, no wildcards and no partial matches.
+         *
+         * @param[in] name - The name of the nets.
+         * @returns A vector of nets, empty if no net carries that name.
+         */
+        std::vector<Net*> get_nets_by_name(const std::string& name) const;
 
         /**
          * Get all nets contained within the netlist.

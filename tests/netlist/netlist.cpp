@@ -487,6 +487,46 @@ namespace hal {
     }
 
     /**
+     * Testing the functions get_gate_by_name and get_gates_by_name
+     *
+     * Functions: get_gate_by_name, get_gates_by_name
+     */
+    TEST_F(NetlistTest, check_get_gate_by_name) {
+        TEST_START
+            {// Get an existing gate by its exact name
+                auto nl = test_utils::create_empty_netlist();
+                auto g_0 = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("BUF"), "gate_0");
+                nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("BUF"), "gate_1");
+
+                EXPECT_EQ(nl->get_gate_by_name("gate_0"), g_0);
+                EXPECT_EQ(nl->get_gates_by_name("gate_0"), std::vector<Gate*>({g_0}));
+            }
+            {
+                // A miss is a nullptr, and the match is exact: no prefix, no substring
+                NO_COUT_TEST_BLOCK;
+                auto nl = test_utils::create_empty_netlist();
+                nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("BUF"), "gate_0");
+
+                EXPECT_EQ(nl->get_gate_by_name("no_such_gate"), nullptr);
+                EXPECT_EQ(nl->get_gate_by_name("gate_"), nullptr);
+                EXPECT_EQ(nl->get_gate_by_name("gate_00"), nullptr);
+                EXPECT_EQ(nl->get_gate_by_name(""), nullptr);
+                EXPECT_EQ(nl->get_gates_by_name("no_such_gate"), std::vector<Gate*>());
+            }
+            {
+                // An ambiguous name is a nullptr for the singular lookup, both gates for the plural one
+                NO_COUT_TEST_BLOCK;
+                auto nl = test_utils::create_empty_netlist();
+                auto g_0 = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("BUF"), "twin");
+                auto g_1 = nl->create_gate(nl->get_gate_library()->get_gate_type_by_name("BUF"), "twin");
+
+                EXPECT_EQ(nl->get_gate_by_name("twin"), nullptr);
+                EXPECT_EQ(nl->get_gates_by_name("twin"), std::vector<Gate*>({g_0, g_1}));
+            }
+        TEST_END
+    }
+
+    /**
      * Test the function get_gates.
      *
      * Functions: get_gates
@@ -881,6 +921,46 @@ namespace hal {
                 NO_COUT_TEST_BLOCK;
                 auto nl = test_utils::create_empty_netlist();
                 EXPECT_EQ(nl->get_net_by_id(123), nullptr);
+            }
+        TEST_END
+    }
+
+    /**
+     * Testing the functions get_net_by_name and get_nets_by_name
+     *
+     * Functions: get_net_by_name, get_nets_by_name
+     */
+    TEST_F(NetlistTest, check_get_net_by_name) {
+        TEST_START
+            {// Get an existing net by its exact name
+                auto nl = test_utils::create_empty_netlist();
+                Net* net_0 = nl->create_net("net_0");
+                nl->create_net("net_1");
+
+                EXPECT_EQ(nl->get_net_by_name("net_0"), net_0);
+                EXPECT_EQ(nl->get_nets_by_name("net_0"), std::vector<Net*>({net_0}));
+            }
+            {
+                // A miss is a nullptr, and the match is exact: no prefix, no substring
+                NO_COUT_TEST_BLOCK;
+                auto nl = test_utils::create_empty_netlist();
+                nl->create_net("net_0");
+
+                EXPECT_EQ(nl->get_net_by_name("no_such_net"), nullptr);
+                EXPECT_EQ(nl->get_net_by_name("net_"), nullptr);
+                EXPECT_EQ(nl->get_net_by_name("net_00"), nullptr);
+                EXPECT_EQ(nl->get_net_by_name(""), nullptr);
+                EXPECT_EQ(nl->get_nets_by_name("no_such_net"), std::vector<Net*>());
+            }
+            {
+                // An ambiguous name is a nullptr for the singular lookup, both nets for the plural one
+                NO_COUT_TEST_BLOCK;
+                auto nl = test_utils::create_empty_netlist();
+                Net* net_0 = nl->create_net("twin");
+                Net* net_1 = nl->create_net("twin");
+
+                EXPECT_EQ(nl->get_net_by_name("twin"), nullptr);
+                EXPECT_EQ(nl->get_nets_by_name("twin"), std::vector<Net*>({net_0, net_1}));
             }
         TEST_END
     }
