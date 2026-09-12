@@ -31,6 +31,53 @@ Three independent generators propose candidates:
 Identical proposals from different generators are merged, and agreement raises
 the score slightly.  Nothing here proves anything; every candidate becomes a
 ``heuristic`` finding.
+
+Using it
+--------
+
+:func:`propose` returns **two** values -- the ranked candidates and a list of
+plain-language notes about what it deliberately left out.  The notes are not
+optional decoration: "these 12 flip-flops have no feedback path and were not
+proposed" is usually the most informative line of a run::
+
+    from hal_fsm import candidates, extract
+
+    extraction = extract.extract(netlist)               # builds a SequentialGraph
+    proposed, notes = candidates.propose(extraction.graph)
+    for note in notes:
+        print("note:", note)
+
+Each entry of ``proposed`` is a :class:`Candidate`.  Its attributes are
+``gate_ids`` (a sorted tuple of HAL gate IDs), ``sources`` (which generators
+proposed it: ``"scc"``, ``"self_loop_cluster"``, ``"dataflow"``), ``score``,
+``features``, ``reasons`` and ``size``; ``names(graph)`` turns the IDs into
+gate names.  They are *not* called ``members`` or ``origins`` -- ``origin``
+does exist but is a different thing, ``"heuristic"`` or ``"user_override"``::
+
+    best = proposed[0]
+    print(best.score, best.size, best.sources)         # 0.83 4 ('scc',)
+    print(best.gate_ids)                               # (12, 13, 14, 15)
+    print(best.names(extraction.graph))                # ['g1', 'g2', 'g4', 'g6']
+    for reason in best.reasons:
+        print(" -", reason)
+
+:func:`propose` already returns its list ranked, so :func:`rank` is only needed
+when candidates are filtered, merged or hand-built.  It takes the **list**, not
+the pair -- passing the pair raises a :class:`TypeError` that says so::
+
+    shortlist = [c for c in proposed if c.size <= 8]
+    for candidate in candidates.rank(shortlist):
+        ...
+
+    candidates.rank(candidates.propose(graph))         # TypeError: unpack it first
+    candidates.rank(candidates.propose(graph)[0])      # fine
+
+:func:`ambiguous_group` answers the question a score alone cannot -- whether
+the top candidate is actually distinguishable from the runner-up::
+
+    tied = candidates.ambiguous_group(proposed, margin=0.05)
+    if tied:
+        print("{} candidates within 0.05 of the best score".format(len(tied)))
 """
 
 __all__ = [
@@ -545,7 +592,24 @@ def propose(graph, dataflow_groups=None, limits=None):
 
 
 def rank(candidates):
-    """Sort by score, then deterministically by size and gate IDs."""
+    """Sort by score, then deterministically by size and gate IDs.
+
+    Takes the *list* of :class:`Candidate` objects, not the ``(candidates,
+    notes)`` pair :func:`propose` returns.  Handing it that pair used to raise
+    ``AttributeError: 'list' object has no attribute 'score'`` from inside the
+    sort key, which names neither the mistake nor the fix, so the pair is
+    rejected up front with a message that names both.
+    """
+    if isinstance(candidates, tuple):
+        raise TypeError(
+            "rank() takes the list of Candidate objects, but it was given the "
+            "2-tuple that propose() returns. propose() gives back "
+            "(candidates, notes): unpack it first --\n"
+            "    proposed, notes = propose(graph)\n"
+            "    ranked = rank(proposed)\n"
+            "or rank(propose(graph)[0]). Note that propose() already returns "
+            "its list ranked, so a second rank() call is usually redundant."
+        )
     return sorted(candidates, key=lambda c: (-c.score, c.size, c.gate_ids))
 
 
