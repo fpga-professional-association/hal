@@ -770,10 +770,11 @@ namespace hal
                 VerilogWriter verilog_writer;
                 ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
 
-                // the constant net is written as the literal it stands for, the escaped identifier as itself
+                // the escaped identifier keeps its name, the constant net is the one that gets a unique suffix, and it
+                // carries the literal it stands for as its assignment
                 const std::string file_content = read_file(path_netlist);
-                EXPECT_NE(file_content.find("1'b1"), std::string::npos) << file_content;
-                EXPECT_NE(file_content.find("\\'1' "), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("wire \\'1' ;"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find(" = 1'b1;"), std::string::npos) << file_content;
 
                 VerilogParser verilog_parser;
                 auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
@@ -822,8 +823,10 @@ namespace hal
                 ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
 
                 const std::string file_content = read_file(path_netlist);
-                EXPECT_NE(file_content.find("wire HAL_CONSTANT_ZERO = 1'b0;"), std::string::npos) << file_content;
-                // the output pin of the GND gate is connected to that wire, never to the literal
+                // the constant net is a wire carrying the literal as its assignment ...
+                EXPECT_NE(file_content.find(" = 1'b0;"), std::string::npos) << file_content;
+                // ... and the output pin of the GND gate is connected to that wire, never to the literal, which would be
+                // an electrical short that every Verilog tool but HAL rejects
                 EXPECT_EQ(file_content.find(".O(1'b0)"), std::string::npos) << file_content;
 
                 VerilogParser verilog_parser;

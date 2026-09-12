@@ -6,7 +6,10 @@
 #include "hal_core/netlist/netlist.h"
 #include "hal_core/utilities/log.h"
 
+#include <algorithm>
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace hal
 {
@@ -323,6 +326,10 @@ namespace hal
         port_nets.reserve(output_nets_tmp.size());
         port_nets.insert(output_nets_tmp.begin(), output_nets_tmp.end());
 
+        // HAL models the constant signals as the two nets named "'0'" and "'1'", which are held back for a second pass; see
+        // below for why they cannot be named on a first-come basis like every other net
+        std::vector<Net*> constant_nets;
+
         for (Net* net : module->get_nets())
         {
             if (port_nets.find(net) != port_nets.end())
@@ -332,48 +339,34 @@ namespace hal
 
             if (aliases.find(net) == aliases.end())
             {
-                // HAL models the constant signals as the two nets named "'0'" and "'1'". Escaping those names turns them into
-                // the escaped identifiers \'0' and \'1' -- which is exactly how a net that genuinely carries such a name (as
-                // emitted by fasm2bels, see emsec/hal#545) is written as well. The file would then declare the same wire twice
-                // and the two distinct nets would silently merge on re-parse. No identifier spelling maps back to "'0'", as
-                // the parser deliberately keeps the backslash of \'0' to tell the two apart, so the constants are written as
-                // the number literals they stand for, which is what the parser does turn back into these very nets.
-                if (const std::string& constant_name = net->get_name(); constant_name == "'0'" || constant_name == "'1'")
+                if (const std::string& net_name = net->get_name(); net_name == "'0'" || net_name == "'1'")
                 {
-                    const std::string literal = (constant_name == "'0'") ? "1'b0" : "1'b1";
-
-                    if (net->get_num_of_sources() == 0)
-                    {
-                        // nothing drives it, so every reference to it can be the literal itself
-                        aliases[net] = literal;
-                        continue;
-                    }
-
-                    // a GND or VCC gate drives it, and the output pin of an instance cannot be connected to a literal. It
-                    // becomes a wire carrying the literal as its continuous assignment instead, which the parser merges
-                    // back into this very net, name included
-                    const std::string constant_alias = escape(get_unique_alias(identifier_occurrences, (constant_name == "'0'") ? "HAL_CONSTANT_ZERO" : "HAL_CONSTANT_ONE"));
-                    aliases[net]                     = constant_alias;
-                    res_stream << "    wire " << constant_alias << " = " << literal << ";" << std::endl;
+                    constant_nets.push_back(net);
                     continue;
                 }
 
                 auto net_alias = escape(get_unique_alias(identifier_occurrences, net->get_name()));
                 aliases[net]   = net_alias;
 
-                res_stream << "    wire " << net_alias;
-
-                if (net->is_vcc_net() && net->get_num_of_sources() == 0)
-                {
-                    res_stream << " = 1'b1";
-                }
-                else if (net->is_gnd_net() && net->get_num_of_sources() == 0)
-                {
-                    res_stream << " = 1'b0";
-                }
-
-                res_stream << ";" << std::endl;
+                res_stream << "    wire " << net_alias << ";" << std::endl;
             }
+        }
+
+        // Escaping "'0'" yields the escaped identifier \'0' -- which is exactly how a net that genuinely carries that name
+        // (as emitted by fasm2bels, see emsec/hal#545) is written as well. A netlist holding both used to declare the same
+        // wire twice and the two distinct nets silently merged on re-parse. The constant nets are therefore named last and
+        // under the identifier the escaped net would occupy, so the escaped net keeps its name and the constant is the one
+        // that gets a unique suffix. Their wires carry the number literal they stand for as a continuous assignment, which
+        // is what the parser merges back into these very nets, name included -- an identifier alone cannot name them, as
+        // the parser deliberately keeps the backslash of \'0' to tell the two apart.
+        std::sort(constant_nets.begin(), constant_nets.end(), [](const Net* a, const Net* b) { return a->get_name() < b->get_name(); });
+        for (Net* net : constant_nets)
+        {
+            const std::string net_name = net->get_name();
+            const std::string alias    = escape(get_unique_alias(identifier_occurrences, "\\" + net_name));
+            aliases[net]               = alias;
+
+            res_stream << "    wire " << alias << " = " << ((net_name == "'0'") ? "1'b0" : "1'b1") << ";" << std::endl;
         }
 
         // write gate instances
