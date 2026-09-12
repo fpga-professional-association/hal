@@ -121,7 +121,7 @@ of offending types.
 ## Command line
 
 ```bash
-python tools/hal_agilex inventory  export.vo [-o findings.json] [--strict]
+python tools/hal_agilex [--strict] inventory  export.vo [-o findings.json]
 python tools/hal_agilex import     export.vo -o export.hal.v
 python tools/hal_agilex behavior   export.vo --reference reference.py
 python tools/hal_agilex recognize  export.vo

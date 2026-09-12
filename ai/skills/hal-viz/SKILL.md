@@ -48,9 +48,9 @@ python tools/hal_viz module_tree ./fsm -o out/fsm_modules.svg 2>&1 \
 
 | command | draws | notes |
 | --- | --- | --- |
-| `netlist_graph` | gates as nodes, nets as edges | scope with `--module NAME[/ID]` (+`--cluster-modules`/`--recursive`) or `--gate NAME` +`--depth N` `--direction {in,out,both}`; `--max-gates` (400) refuses an unreadable render |
+| `netlist_graph` | gates as nodes, nets as edges | scope with `--module NAME[/ID]` (+`--cluster-modules`/`--recursive`) or `--gate NAME` +`--depth N` `--direction {both,successors,predecessors}`; `--max-gates` (400) refuses an unreadable render |
 | `module_tree` | module hierarchy, per-module gate counts | `--depth N`, `--no-gate-counts` |
-| `dataflow` | DANA register groups | writes a **directory**: `graph.dot`/`groups.txt` (from DANA) plus `graph.svg`/`index.html`; tuning via `--min-group-size`, `--expected-size` (repeatable), `--stage-identification`, `--enforce-type-consistency` |
+| `dataflow` | DANA register groups | writes a **directory**: `graph.dot`/`groups.txt` (from DANA) plus `graph.svg`/`index.html`; tuning via `--min-group-size`, `--expected-size` (repeatable), `--stage-identification`, `--type-consistency` |
 | `clock_tree` | clock tree from `clock_tree_extractor` | same shared options as above |
 | `report` | static HTML over `hal_findings` documents + artifacts | no netlist, no `--hal-lib`; see options below |
 
