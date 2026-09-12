@@ -19,4 +19,4 @@ Rationale: repeated failed CI cycles are expensive (~30–60 min per Linux build
 Fable plans, writes issues, and reviews; implementation work is delegated to Opus agents (complex/core changes) and Sonnet agents (mechanical/docs changes), per FPGAPA convention.
 
 ## Building and testing
-HAL builds on Linux/macOS only (see README / `install_dependencies.sh`). There is no local Windows build — verification runs through GitHub Actions on this fork (ubuntu workflows support `workflow_dispatch`). CI is the compile-and-test authority; source-level consistency checks are the local substitute.
+HAL builds on Linux/macOS only (see README / `install_dependencies.sh`). There is no local Windows build — verification runs through GitHub Actions on this fork (`ubuntu22.04`, `ubuntu24.04` and `arm64` support `workflow_dispatch`; `ubuntu26.04`, `macOS` and `releaseDoc` run on push/PR only). CI is the compile-and-test authority; source-level consistency checks are the local substitute.

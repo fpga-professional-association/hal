@@ -66,10 +66,10 @@ python tools/hal_viz module_tree ./fsm -o out/fsm_modules.svg 2>&1 \
 
 | command | draws | notes |
 | --- | --- | --- |
-| `netlist_graph` | gates as nodes, nets as edges | scope with `--module NAME[/ID]` (+`--cluster-modules`/`--recursive`) or `--gate NAME` +`--depth N` `--direction {in,out,both}`; `--max-gates` (400) refuses an unreadable render |
+| `netlist_graph` | gates as nodes, nets as edges | scope with `--module NAME[/ID]` (+`--cluster-modules`/`--recursive`) or `--gate NAME` +`--depth N` `--direction {both,successors,predecessors}`; `--max-gates` (400) refuses an unreadable render |
 | `dag` | the same graph levelled: feedback cut at every FF/latch, Kahn levels as `rank=same` columns, level 0 (primary inputs, tie-offs, register outputs) on the far left | same scoping and shared options as `netlist_graph`; `--net-labels`, `--pin-labels`, `--no-level-labels`; a real combinational loop is highlighted and warned about, never dropped; `--html` writes a standalone `<base>.html` with the SVG inlined |
 | `module_tree` | module hierarchy, per-module gate counts | `--depth N`, `--no-gate-counts` |
-| `dataflow` | DANA register groups | writes a **directory**: `graph.dot`/`groups.txt` (from DANA) plus `graph.svg`/`index.html`; tuning via `--min-group-size`, `--expected-size` (repeatable), `--stage-identification`, `--enforce-type-consistency` |
+| `dataflow` | DANA register groups | writes a **directory**: `graph.dot`/`groups.txt` (from DANA) plus `graph.svg`/`index.html`; tuning via `--min-group-size`, `--expected-size` (repeatable), `--stage-identification`, `--type-consistency` |
 | `clock_tree` | clock tree from `clock_tree_extractor` | same shared options as above |
 | `clock_step` | one standalone HTML page that steps a `dag` drawing a clock at a time, colouring every net by its value | takes the `dag` **SVG** plus (by default) its `.dot` sibling and `--trace` from `hal_agilex trace`; `--name-map` for a drawing of an anonymised netlist; no netlist, no HAL, no Graphviz |
 | `report` | static HTML over `hal_findings` documents + artifacts | no netlist, no `--hal-lib`; see options below |

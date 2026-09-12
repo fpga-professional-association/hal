@@ -114,6 +114,10 @@ moc_*.cpp_parameters
 qrc_*.cpp
 ui_*.h
 *build-*
+# ...but not the skill directory of the same shape: this is documentation, not a
+# QtCreator shadow-build directory. Without this negation the skill exists only on
+# disk and ai/skills/README.md links to a file the repository does not contain.
+!ai/skills/container-build-and-test/
 
 # QtCreator
 
