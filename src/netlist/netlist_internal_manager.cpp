@@ -253,14 +253,16 @@ namespace hal
                     }
                 }
 
-                if (const auto res = c_module->create_pin_group(
-                        pin_group->get_id(), pin_group->get_name(), c_pins, pin_group->get_direction(), pin_group->get_type(), pin_group->is_ascending(), pin_group->get_start_index());
-                    res.is_error())
+                const auto res = c_module->create_pin_group(
+                    pin_group->get_id(), pin_group->get_name(), c_pins, pin_group->get_direction(), pin_group->get_type(), pin_group->is_ascending(), pin_group->get_start_index());
+                if (res.is_error())
                 {
                     return ERR_APPEND(res.get_error(),
                                       "could not copy netlist with ID " + std::to_string(nl->get_id()) + ": failed to create copied module pin group '" + pin_group->get_name() + "' of module '"
                                           + c_module->m_name + "' with ID " + std::to_string(c_module->m_id));
                 }
+                // whether the group was declared as a bus is part of the module's interface, not something the copy may drop
+                res.get()->set_ordered(pin_group->is_ordered());
             }
 
             c_module->m_next_input_index  = module->m_next_input_index;
