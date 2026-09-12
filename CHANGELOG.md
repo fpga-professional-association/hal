@@ -120,7 +120,7 @@ All notable changes to this project will be documented in this file.
     * fixed `SimulationThread` reporting a run as successfully finished when the engine failed while processing the very last input event, as `finalize()` unconditionally sets the state to done
     * changed the `duration` argument of `NetlistSimulatorController::add_clock_period` to mean "for the whole simulation" when it is left at its default. It used to fall back to a 2000 ps clock waveform, and since that waveform is what the simulation thread replays, the run simply ended there: every later sample repeated the last value rather than the simulation failing. The clock waveforms are now regenerated in `run_simulation`, where the length of the simulation is known, and an explicitly requested duration is still honoured
     * changed `add_clock_period` to reject a period of 1 ps as well as 0, since the half period it derives is what the waveform generator steps by and a step of zero does not terminate
-    * added tests for the built-in engine covering the three failure modes above
+    * added tests for the built-in engine: an output pin without a function that drives a net, one that drives nothing, and a run ten times longer than the clock default it used to fall back to
     * added feature, selecting a waveform in viewer selects net in graph view as well
     * fixed bug in waveform viewer, make sure that deleting a controller causes closing the tab
     * fixed the documentation of `NetlistSimulatorController::initialize`, which described the behaviour of the legacy `NetlistSimulator`: it claimed that no gates or clocks may be added afterwards and that `simulate` calls it automatically, neither of which holds since its body became empty
