@@ -4,7 +4,10 @@
 #include "hal_core/netlist/decorators/boolean_function_decorator.h"
 #include "hal_core/netlist/decorators/boolean_function_net_decorator.h"
 #include "hal_core/netlist/decorators/subgraph_netlist_decorator.h"
+#include "hal_core/netlist/endpoint.h"
 #include "hal_core/netlist/gate.h"
+#include "hal_core/netlist/gate_library/enums/pin_direction.h"
+#include "hal_core/netlist/gate_library/enums/pin_type.h"
 #include "hal_core/netlist/gate_library/gate_type.h"
 #include "hal_core/netlist/gate_library/gate_type_component/ff_component.h"
 #include "hal_core/netlist/gate_library/gate_type_component/state_component.h"
@@ -20,25 +23,114 @@ namespace hal
     {
         namespace
         {
+            /**
+             * A net that carries a constant, i.e., one that is driven by the GND or VCC gate of the netlist or
+             * that is one of the `'0'` / `'1'` nets the parsers create for a literal.
+             */
+            bool is_constant_net(const Net* net)
+            {
+                if (net == nullptr)
+                {
+                    return false;
+                }
+
+                if (net->get_name() == "'0'" || net->get_name() == "'1'")
+                {
+                    return true;
+                }
+
+                const std::vector<Endpoint*>& sources = net->get_sources();
+                if (sources.empty())
+                {
+                    return false;
+                }
+
+                for (const Endpoint* source : sources)
+                {
+                    const Gate* gate = source->get_gate();
+                    if (gate == nullptr || !(gate->is_gnd_gate() || gate->is_vcc_gate()))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            /**
+             * Determine the data input pin of a flip-flop.
+             *
+             * A gate type may declare more than one pin of type `data` without the design using more than one
+             * of them: the Agilex `tennm_ff` has `d` and a secondary `asdata` that every netlist seen so far
+             * ties to a constant. Refusing such a type outright, which is what this used to do, rejects every
+             * netlist built from that library. The pin is therefore picked by what drives it, and only a
+             * genuine ambiguity -- two data pins that both carry logic -- is an error.
+             */
+            Result<const GatePin*> get_data_pin(const Gate* ff)
+            {
+                const std::vector<GatePin*> data_pins =
+                    ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_direction() == PinDirection::input && pin->get_type() == PinType::data; });
+
+                if (data_pins.size() == 1)
+                {
+                    return OK((const GatePin*)data_pins.front());
+                }
+
+                if (data_pins.empty())
+                {
+                    return ERR("gate type " + ff->get_type()->get_name() + " declares no input pin of type data.");
+                }
+
+                std::vector<const GatePin*> candidates;
+                std::string tied_off;
+                for (const GatePin* pin : data_pins)
+                {
+                    const Net* net = ff->get_fan_in_net(pin);
+                    if (net == nullptr || is_constant_net(net))
+                    {
+                        tied_off += (tied_off.empty() ? "" : ", ") + pin->get_name();
+                        continue;
+                    }
+                    candidates.push_back(pin);
+                }
+
+                if (candidates.size() == 1)
+                {
+                    return OK(candidates.front());
+                }
+
+                std::string names;
+                for (const GatePin* pin : candidates)
+                {
+                    names += (names.empty() ? "" : ", ") + pin->get_name();
+                }
+
+                return ERR("gate type " + ff->get_type()->get_name() + " declares " + std::to_string(data_pins.size()) + " input pins of type data and " + std::to_string(candidates.size())
+                           + " of them are driven by logic at gate " + ff->get_name() + " with ID " + std::to_string(ff->get_id())
+                           + ", so the data input cannot be identified: driven {" + names + "}, tied off or unconnected {" + tied_off + "}.");
+            }
+
             // generates a list of state flip flop output nets and the corresponding boolean function at their data input
             Result<std::vector<std::pair<Net*, BooleanFunction>>>
                 generate_state_bfs(Netlist* nl, const std::vector<Gate*>& state_reg, const std::vector<Gate*>& transition_logic, const bool consider_control_inputs)
             {
                 std::map<Net*, Net*> output_net_to_input_net;
+                std::map<const Gate*, const GatePin*> data_pin_of_ff;
 
                 for (const auto& ff : state_reg)
                 {
-                    const std::vector<GatePin*> d_pins = ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_type() == PinType::data; });
-                    if (d_pins.size() != 1)
+                    auto pin_res = get_data_pin(ff);
+                    if (pin_res.is_error())
                     {
-                        return ERR("failed to create input - output mapping: currently not supporting flip-flops with multiple or no data inputs, but found " + std::to_string(d_pins.size())
-                                   + " for gate type " + ff->get_type()->get_name() + ".");
+                        return ERR_APPEND(pin_res.get_error(), "failed to create input - output mapping: could not determine the data input of gate " + std::to_string(ff->get_id()) + ".");
                     }
+                    const GatePin* d_pin = pin_res.get();
+                    data_pin_of_ff[ff]   = d_pin;
 
                     hal::Net* input_net;
-                    if (auto res = ff->get_fan_in_net(d_pins.front()); res == nullptr)
+                    if (auto res = ff->get_fan_in_net(d_pin); res == nullptr)
                     {
-                        return ERR("failed to create input - output mapping: could not get fan-in net at pin " + d_pins.front()->get_name() + " of gate " + std::to_string(ff->get_id()) + ".");
+                        return ERR("failed to create input - output mapping: could not get fan-in net at pin " + d_pin->get_name() + " of gate " + std::to_string(ff->get_id()) + ".");
                     }
                     else
                     {
@@ -58,8 +150,8 @@ namespace hal
 
                 for (const auto& ff : state_reg)
                 {
-                    const std::vector<GatePin*> d_pins = ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_type() == PinType::data; });
-                    const GatePin* d_pin               = d_pins.front();
+                    // the same pin the loop above picked, not just the first one the gate type declares
+                    const GatePin* d_pin = data_pin_of_ff.at(ff);
 
                     const std::vector<GatePin*> state_pins     = ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_type() == PinType::state; });
                     const std::vector<GatePin*> neg_state_pins = ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_type() == PinType::neg_state; });
