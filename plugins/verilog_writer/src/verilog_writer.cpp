@@ -335,11 +335,26 @@ namespace hal
                 // HAL models the constant signals as the two nets named "'0'" and "'1'". Escaping those names turns them into
                 // the escaped identifiers \'0' and \'1' -- which is exactly how a net that genuinely carries such a name (as
                 // emitted by fasm2bels, see emsec/hal#545) is written as well. The file would then declare the same wire twice
-                // and the two distinct nets would silently merge on re-parse. Writing the constants as the number literals
-                // they stand for keeps them apart, and the literals are what the parser turns back into these very nets.
+                // and the two distinct nets would silently merge on re-parse. No identifier spelling maps back to "'0'", as
+                // the parser deliberately keeps the backslash of \'0' to tell the two apart, so the constants are written as
+                // the number literals they stand for, which is what the parser does turn back into these very nets.
                 if (const std::string& constant_name = net->get_name(); constant_name == "'0'" || constant_name == "'1'")
                 {
-                    aliases[net] = (constant_name == "'0'") ? "1'b0" : "1'b1";
+                    const std::string literal = (constant_name == "'0'") ? "1'b0" : "1'b1";
+
+                    if (net->get_num_of_sources() == 0)
+                    {
+                        // nothing drives it, so every reference to it can be the literal itself
+                        aliases[net] = literal;
+                        continue;
+                    }
+
+                    // a GND or VCC gate drives it, and the output pin of an instance cannot be connected to a literal. It
+                    // becomes a wire carrying the literal as its continuous assignment instead, which the parser merges
+                    // back into this very net, name included
+                    const std::string constant_alias = escape(get_unique_alias(identifier_occurrences, (constant_name == "'0'") ? "HAL_CONSTANT_ZERO" : "HAL_CONSTANT_ONE"));
+                    aliases[net]                     = constant_alias;
+                    res_stream << "    wire " << constant_alias << " = " << literal << ";" << std::endl;
                     continue;
                 }
 

@@ -793,6 +793,55 @@ namespace hal
                 EXPECT_EQ(b1_gates.front()->get_fan_in_net("I")->get_name(), "'1'");
                 EXPECT_NE(b0_gates.front()->get_fan_in_net("I"), b1_gates.front()->get_fan_in_net("I"));
             }
+            {
+                // a constant net that a GND gate drives cannot be written as a literal, an instance output pin may not be
+                // connected to one. It becomes a wire carrying the literal as its assignment, which the parser merges back
+                // into the constant net it came from
+                const std::string source("module m (\n"
+                                         "  c\n"
+                                         " ) ;\n"
+                                         "  output c ;\n"
+                                         "BUF b (\n"
+                                         "  .I (1'b0 ),\n"
+                                         "  .O (c )\n"
+                                         " ) ;\n"
+                                         "endmodule");
+
+                VerilogParser source_parser;
+                auto source_res = source_parser.parse_and_instantiate(test_utils::create_sandbox_file("driven_constant.v", source), m_gl);
+                ASSERT_TRUE(source_res.is_ok());
+                std::unique_ptr<Netlist> nl = source_res.get();
+                ASSERT_NE(nl, nullptr);
+
+                // the parser added a GND gate for the constant, so the constant net is driven
+                ASSERT_EQ(nl->get_gates().size(), 2);
+                ASSERT_EQ(nl->get_gnd_gates().size(), 1);
+
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_driven_constant.v");
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("wire HAL_CONSTANT_ZERO = 1'b0;"), std::string::npos) << file_content;
+                // the output pin of the GND gate is connected to that wire, never to the literal
+                EXPECT_EQ(file_content.find(".O(1'b0)"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                // the wire was merged back into the constant net, which kept both its name and its GND gate
+                EXPECT_EQ(parsed_nl->get_gates().size(), 2);
+                EXPECT_EQ(parsed_nl->get_gnd_gates().size(), 1);
+                const std::vector<Gate*> buf_gates = parsed_nl->get_gates(test_utils::gate_filter("BUF", "b"));
+                ASSERT_EQ(buf_gates.size(), 1);
+                Net* constant_net = buf_gates.front()->get_fan_in_net("I");
+                ASSERT_NE(constant_net, nullptr);
+                EXPECT_EQ(constant_net->get_name(), "'0'");
+                EXPECT_TRUE(constant_net->is_gnd_net());
+            }
         TEST_END
     }
 
