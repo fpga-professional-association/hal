@@ -20,8 +20,8 @@ description: Check whether a plugin can run on a given netlist before trusting i
 ```bash
 # capabilities: four questions, not one
 python tools/hal_capabilities list                          # declared, source tree only
-python tools/hal_capabilities list --probe --build-dir /work/build
-python tools/hal_capabilities list --probe --build-dir /work/build --netlist ./fsm --json
+python tools/hal_capabilities --build-dir /work/build list --probe
+python tools/hal_capabilities --build-dir /work/build --json list --probe --netlist ./fsm
 python tools/hal_capabilities show example_analysis
 python tools/hal_capabilities check example_analysis --netlist ./fsm
 python tools/hal_capabilities validate                      # every plugins/*/capabilities.json
