@@ -621,27 +621,42 @@ namespace hal
             }
         }
 
-        // generate clock events if required
-        if (mSimulationEngine->clock_events_required())
+        // (Re)generate the clock waveforms now that the length of the simulation is known. Every engine
+        // needs this, not just the ones that want the clock as regular input events: the waveform is
+        // what the simulation thread replays, so a clock that stops early stops the whole run there.
+        // A duration that was passed to add_clock_period() explicitly still wins.
+        for (const Net* n : mSimulationInput->get_input_nets())
         {
-            for (const Net* n : mSimulationInput->get_input_nets())
+            if (!mSimulationInput->is_clock(n))
             {
-                if (!mSimulationInput->is_clock(n))
-                {
-                    continue;
-                }
-                SimulationInput::Clock clk;
-                for (const SimulationInput::Clock& testClk : mSimulationInput->get_clocks())
-                {
-                    if (testClk.clock_net == n)
-                    {
-                        clk = testClk;
-                        break;
-                    }
-                }
-                WaveDataClock* wdc = new WaveDataClock(n, clk, mWaveDataList->timeFrame().sceneMaxTime());
-                mWaveDataList->addOrReplace(wdc);
+                continue;
             }
+
+            const SimulationInput::Clock* clk = nullptr;
+            for (const SimulationInput::Clock& testClk : mSimulationInput->get_clocks())
+            {
+                if (testClk.clock_net == n)
+                {
+                    clk = &testClk;
+                    break;
+                }
+            }
+            if (!clk)
+            {
+                // is_clock() and get_clocks() disagree; generating a clock from a default-constructed
+                // Clock would divide the period by zero and never terminate.
+                log_warning(get_name(), "No clock settings found for clock net[{}] '{}', clock waveform not generated.", n->get_id(), n->get_name());
+                continue;
+            }
+
+            u64 tmax = mWaveDataList->timeFrame().sceneMaxTime();
+            if (auto it = mClockDurations.find(n->get_id()); it != mClockDurations.end() && it->second)
+            {
+                tmax = it->second;
+            }
+
+            WaveDataClock* wdc = new WaveDataClock(n, *clk, tmax);
+            mWaveDataList->addOrReplace(wdc);
         }
 
         persist();
@@ -1063,9 +1078,9 @@ namespace hal
             return;
         }
 
-        if (!period)
+        if (period < 2)
         {
-            log_warning(get_name(), "Generating clock failed, period must not be zero!");
+            log_warning(get_name(), "Generating clock failed, period must be at least 2 ps so that the half period is not zero, but is {}.", period);
             return;
         }
 
@@ -1074,7 +1089,14 @@ namespace hal
         clk.switch_time   = period / 2;
         clk.start_at_zero = start_at_zero;
         mSimulationInput->add_clock(clk);
-        WaveData* wd = new WaveDataClock(clock_net, clk, duration ? duration : 2000);
+
+        // A duration of zero means "for the whole simulation": how long that is only becomes known once
+        // the caller is done issuing simulate() calls, so the waveform generated here is extended in
+        // run_simulation(). It used to fall back to 2000 ps, which is not a default so much as a silent
+        // truncation -- the clock simply stopped toggling and every later sample repeated the last value.
+        mClockDurations[clock_net->get_id()] = duration;
+
+        WaveData* wd = new WaveDataClock(clock_net, clk, duration);
         mWaveDataList->addOrReplace(wd);
         checkReadyState();
     }
@@ -1303,6 +1325,7 @@ namespace hal
     {
         mSimulationInput->clear();
         mWaveDataList->clearAll();
+        mClockDurations.clear();
         mState = NoGatesSelected;
     }
 

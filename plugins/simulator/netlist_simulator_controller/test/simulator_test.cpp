@@ -1,5 +1,7 @@
 #include "hal_core/netlist/gate.h"
+#include "hal_core/netlist/gate_library/gate_library.h"
 #include "hal_core/netlist/gate_library/gate_library_manager.h"
+#include "hal_core/netlist/gate_library/gate_type.h"
 #include "hal_core/netlist/net.h"
 #include "hal_core/netlist/netlist.h"
 #include "hal_core/netlist/netlist_factory.h"
@@ -12,6 +14,7 @@
 #include "netlist_simulator_controller/simulation_engine.h"
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/wave_data.h"
+#include "test_utils/include/netlist_test_utils.h"
 #include "test_utils/include/test_def.h"
 
 #include <chrono>
@@ -1371,6 +1374,223 @@ namespace hal
         //Test if maps are equal
         bool equal = cmp_sim_data(sim_ctrl_reference.get(), sim_ctrl_verilator.get());
         EXPECT_TRUE(equal);
+        TEST_END
+    }
+
+    /**
+     * Regression tests for the built-in `hal_simulator` engine, which runs in-process and needs no
+     * external tool. They are about failure modes rather than about simulated values: an engine that
+     * terminates the process or reads a null pointer cannot be caught by a caller, and a clock that
+     * silently stops halfway through a run produces a plausible-looking wrong answer.
+     */
+    class HalSimulatorRobustnessTest : public ::testing::Test
+    {
+    protected:
+        virtual void SetUp()
+        {
+            NO_COUT_BLOCK;
+            plugin_manager::load_all_plugins();
+        }
+
+        virtual void TearDown()
+        {
+            NO_COUT_BLOCK;
+            plugin_manager::unload_all_plugins();
+        }
+
+        /**
+         * A gate library with one combinational type that declares two output pins and defines a Boolean
+         * function for only one of them. That is the shape of a vendor ALM: `tennm_lcell_comb` declares
+         * four output pins and any one configuration of it uses at most two.
+         */
+        std::unique_ptr<GateLibrary> partial_function_library()
+        {
+            auto library    = std::make_unique<GateLibrary>("hal_simulator_robustness.hgl", "HalSimulatorRobustnessLibrary");
+            GateType* comb  = library->create_gate_type("COMB_PARTIAL", {GateTypeProperty::combinational});
+            if (comb == nullptr || comb->create_pin("I", PinDirection::input).is_error() || comb->create_pin("O", PinDirection::output).is_error()
+                || comb->create_pin("O_UNDEFINED", PinDirection::output).is_error())
+            {
+                return nullptr;
+            }
+            comb->add_boolean_function("O", BooleanFunction::from_string("I").get());
+            return library;
+        }
+
+        /** Poll the engine until it leaves Running/Preparing, or fail the test. */
+        SimulationEngine::State wait_for(SimulationEngine* engine, int timeout_s = 60)
+        {
+            for (int i = 0; i < timeout_s * 100; i++)
+            {
+                SimulationEngine::State state = engine->state();
+                if (state == SimulationEngine::Done || state == SimulationEngine::Failed)
+                {
+                    // The thread reports back to the controller only after setting the state.
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    return state;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            ADD_FAILURE() << "engine still running after " << timeout_s << "s";
+            return SimulationEngine::Running;
+        }
+    };
+
+    /**
+     * An output pin that drives a net but has no Boolean function is a clean engine failure naming the
+     * gate and the pin. It used to be `functions.at(pin)` throwing `std::out_of_range` on the engine
+     * thread, which terminates the process: no exception reaches the caller and there is nothing to
+     * assert on afterwards. The failure must also not turn into a hang -- the thread stops feeding the
+     * engine and reports the run as finished.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_output_pin_without_function_fails_cleanly)
+    {
+        TEST_START
+        {
+            std::unique_ptr<GateLibrary> library = partial_function_library();
+            ASSERT_NE(library, nullptr);
+
+            std::unique_ptr<Netlist> nl = netlist_factory::create_netlist(library.get());
+            ASSERT_NE(nl, nullptr);
+
+            Gate* gate = nl->create_gate(library->get_gate_type_by_name("COMB_PARTIAL"), "partial");
+            Net* in    = nl->create_net("in");
+            in->mark_global_input_net();
+            in->add_destination(gate, "I");
+            Net* out = nl->create_net("out");
+            out->add_source(gate, "O");
+            out->mark_global_output_net();
+            // The undefined pin drives a net, so its value has to be computed and cannot be skipped.
+            Net* undefined = nl->create_net("undefined");
+            undefined->add_source(gate, "O_UNDEFINED");
+            undefined->mark_global_output_net();
+
+            auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
+            ASSERT_NE(plugin, nullptr);
+            auto ctrl = plugin->create_simulator_controller("hal_simulator_missing_function");
+            ASSERT_NE(ctrl, nullptr);
+
+            ctrl->add_gates(nl->get_gates());
+            ctrl->set_no_clock_used();
+            SimulationEngine* engine = ctrl->create_simulation_engine("hal_simulator");
+            ASSERT_NE(engine, nullptr);
+
+            ctrl->set_input(in, BooleanFunction::Value::ZERO);
+            ctrl->simulate(1000);
+            ctrl->set_input(in, BooleanFunction::Value::ONE);
+            ctrl->simulate(1000);
+
+            ASSERT_TRUE(ctrl->run_simulation());
+            EXPECT_EQ(wait_for(engine), SimulationEngine::Failed);
+        }
+        TEST_END
+    }
+
+    /**
+     * The same gate type with the undefined output pin left unconnected is simulated without complaint:
+     * a pin that drives nothing cannot influence anything, and it has no net to record a value for --
+     * keeping it in the result map is what used to put a null key in there and segfault the read-back.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_unconnected_output_pin_without_function_is_skipped)
+    {
+        TEST_START
+        {
+            std::unique_ptr<GateLibrary> library = partial_function_library();
+            ASSERT_NE(library, nullptr);
+
+            std::unique_ptr<Netlist> nl = netlist_factory::create_netlist(library.get());
+            ASSERT_NE(nl, nullptr);
+
+            Gate* gate = nl->create_gate(library->get_gate_type_by_name("COMB_PARTIAL"), "partial");
+            Net* in    = nl->create_net("in");
+            in->mark_global_input_net();
+            in->add_destination(gate, "I");
+            Net* out = nl->create_net("out");
+            out->add_source(gate, "O");
+            out->mark_global_output_net();
+
+            auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
+            ASSERT_NE(plugin, nullptr);
+            auto ctrl = plugin->create_simulator_controller("hal_simulator_unconnected_pin");
+            ASSERT_NE(ctrl, nullptr);
+
+            ctrl->add_gates(nl->get_gates());
+            ctrl->set_no_clock_used();
+            SimulationEngine* engine = ctrl->create_simulation_engine("hal_simulator");
+            ASSERT_NE(engine, nullptr);
+
+            ctrl->set_input(in, BooleanFunction::Value::ZERO);
+            ctrl->simulate(1000);
+            ctrl->set_input(in, BooleanFunction::Value::ONE);
+            ctrl->simulate(1000);
+            ctrl->set_input(in, BooleanFunction::Value::ZERO);
+            ctrl->simulate(1000);
+
+            ASSERT_TRUE(ctrl->run_simulation());
+            ASSERT_EQ(wait_for(engine), SimulationEngine::Done);
+            ASSERT_TRUE(ctrl->get_results());
+
+            WaveData* wave = ctrl->get_waveform_by_net(out);
+            ASSERT_NE(wave, nullptr);
+            // O = I, and the thread simulates up to the last input event it replays, i.e. t = 2000.
+            EXPECT_EQ(wave->get_value_at(500), 0);
+            EXPECT_EQ(wave->get_value_at(1500), 1);
+        }
+        TEST_END
+    }
+
+    /**
+     * `add_clock_period` without a duration generates a clock for the whole simulation. It used to fall
+     * back to 2000 ps, and since the clock waveform is what the simulation thread replays, the run ended
+     * there: every later sample repeated the last value instead of the simulation failing or saying so.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_default_clock_duration_covers_the_whole_simulation)
+    {
+        TEST_START
+        {
+            const u64 period = 1000;
+            const u64 total  = 20 * period;
+
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            const GateLibrary* gl = nl->get_gate_library();
+
+            // The inverter follows the clock directly, so its output is defined at every point in time
+            // the clock reaches -- and frozen from the point on where the clock stops.
+            Gate* inv = nl->create_gate(gl->get_gate_type_by_name("INV"), "clock_inverter");
+            Net* clk  = nl->create_net("clk");
+            clk->mark_global_input_net();
+            clk->add_destination(inv, "I");
+            Net* out = test_utils::connect_global_out(nl.get(), inv, "O", "out");
+            ASSERT_NE(out, nullptr);
+
+            auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
+            ASSERT_NE(plugin, nullptr);
+            auto ctrl = plugin->create_simulator_controller("hal_simulator_default_clock");
+            ASSERT_NE(ctrl, nullptr);
+
+            ctrl->add_gates(nl->get_gates());
+            SimulationEngine* engine = ctrl->create_simulation_engine("hal_simulator");
+            ASSERT_NE(engine, nullptr);
+
+            // no duration: the clock has to last as long as the simulation does
+            ctrl->add_clock_period(clk, period);
+            ctrl->simulate(total);
+
+            ASSERT_TRUE(ctrl->run_simulation());
+            ASSERT_EQ(wait_for(engine), SimulationEngine::Done);
+            ASSERT_TRUE(ctrl->get_results());
+
+            WaveData* wave = ctrl->get_waveform_by_net(out);
+            ASSERT_NE(wave, nullptr);
+
+            // The clock starts low and toggles every period/2, so it is high in every second half
+            // period and the inverted output is the complement of that.
+            for (u64 t = 250; t < total; t += period / 2)
+            {
+                const int expected = ((t / (period / 2)) % 2) ? 0 : 1;
+                EXPECT_EQ(wave->get_value_at(t), expected) << "inverted clock at t=" << t;
+            }
+        }
         TEST_END
     }
 }    // namespace hal
