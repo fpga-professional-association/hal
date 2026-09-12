@@ -13,6 +13,10 @@
 Exit codes follow the convention the rest of this repository uses: ``0`` when
 the command did what it says, ``1`` when it failed, and ``2`` with ``--strict``
 when the findings contain a counterexample, an error or an unsupported result.
+
+``--strict`` is a top-level flag and must be placed **before** the subcommand
+(``python tools/hal_agilex --strict inventory export.vo``); argparse rejects it
+after one.
 """
 
 import argparse

@@ -16,7 +16,7 @@ four questions instead of one.
 ## Four states, not one
 
 ```bash
-python tools/hal_capabilities list --build-dir <build> --probe --netlist <netlist>
+python tools/hal_capabilities --build-dir <build> list --probe --netlist <netlist>
 ```
 
 ```
@@ -41,7 +41,7 @@ missing something it needs, so its result will have named holes.
 
 ```bash
 python tools/hal_capabilities list                      # source tree only
-python tools/hal_capabilities list --probe --build-dir <build>
+python tools/hal_capabilities --build-dir <build> list --probe
 python tools/hal_capabilities show  example_analysis
 python tools/hal_capabilities check example_analysis --netlist <netlist>
 python tools/hal_capabilities validate                  # every plugins/*/capabilities.json
