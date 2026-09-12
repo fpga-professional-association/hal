@@ -338,12 +338,22 @@ class NetlistSimulatorTest(unittest.TestCase):
     CYCLES = 32
 
     def test_counter_bits_toggle_at_half_the_rate_of_their_predecessor(self):
+        """The netlist is simulated as ``tools/hal_agilex`` leaves it, with no padding.
+
+        Every ``tennm_lcell_comb`` declares four output pins (``combout``, ``sumout``, ``cout``,
+        ``shareout``) and any one ALM configures at most two, so the unused ones have neither a
+        Boolean function nor a net. ``SimulationGateCombinational`` used to look the function of
+        *every* declared output pin up with ``at()``, which threw ``std::out_of_range`` out of the
+        engine thread and terminated the process; giving the pins a constant function instead then
+        segfaulted the read-back, because the result map is keyed on the (null) fan-out net. An
+        output pin that drives nothing is now skipped and a pin that drives a net without having a
+        function is a clean error, so this test needs no preparation beyond the elaboration.
+        """
         require(BLINKY, GATE_LIBRARY)
         from hal_plugins import netlist_simulator_controller  # noqa: F401  (registers the types)
 
         netlist = load(BLINKY)
         elaborate(netlist)
-        self._give_every_output_pin_a_function(netlist)
 
         plugin = hal_py.plugin_manager.get_plugin_instance("netlist_simulator_controller")
         self.assertIsNotNone(plugin)
@@ -359,11 +369,12 @@ class NetlistSimulatorTest(unittest.TestCase):
         self.assertIsNotNone(engine)
 
         period = self.PERIOD_PS
-        total = (self.CYCLES + 2) * period
-        # The fourth argument is not optional in practice: add_clock_period falls back to a 2000 ps
-        # clock waveform ("duration ? duration : 2000"), so without it the clock simply stops after
-        # two periods and every later sample repeats the last value instead of failing.
-        controller.add_clock_period(net_named(netlist, "clk"), period, True, total)
+        # No duration is passed: the default means "for the whole simulation", i.e. the clock
+        # waveform is generated up to the time the simulate() calls below reach. It used to fall
+        # back to a 2000 ps waveform, after which the clock simply stopped and every later sample
+        # repeated the last value instead of failing, so a run of more than two periods needed the
+        # fourth argument to produce anything at all.
+        controller.add_clock_period(net_named(netlist, "clk"), period)
 
         value = hal_py.BooleanFunction.Value
         reset = net_named(netlist, "rst_n")
@@ -407,37 +418,6 @@ class NetlistSimulatorTest(unittest.TestCase):
             if time.time() > deadline:
                 self.fail("engine still in state {} after {:.0f}s".format(state, timeout_s))
             time.sleep(0.02)
-
-    def _give_every_output_pin_a_function(self, netlist):
-        """Work around an abort, not a wrong answer.
-
-        ``SimulationGateCombinational``'s constructor does ``functions.at(pin->get_name())`` for
-        *every* output pin of the gate type. ``tennm_lcell_comb`` has four (``combout``, ``sumout``,
-        ``cout``, ``shareout``) and any one ALM uses at most two, so the lookup throws
-        ``std::out_of_range`` out of the engine thread and terminates the process -- there is no
-        exception for a test to catch and no way to skip afterwards.
-
-        The unused pins are given a constant and a net of their own. A net is needed as well as a
-        function because the same constructor stores ``gate->get_fan_out_net(pin)`` as the key of the
-        result map, and a null key is dereferenced when the results are read back, which segfaults.
-        Neither addition can change the answer: the stub nets have no destinations.
-        """
-        constant = hal_py.BooleanFunction.Const(0, 1)
-        for gate in netlist.get_gates():
-            if not gate.get_type().has_property(hal_py.GateTypeProperty.combinational):
-                continue
-            defined = set(gate.get_boolean_functions())
-            for pin in gate.get_type().get_output_pins():
-                name = pin.get_name()
-                if name in defined:
-                    continue
-                self.assertIsNone(
-                    gate.get_fan_out_net(pin),
-                    "{}.{} drives a net but has no Boolean function".format(gate.get_name(), name),
-                )
-                stub = netlist.create_net("__unused_{}_{}".format(gate.get_id(), name))
-                stub.add_source(gate, name)
-                gate.add_boolean_function(name, constant)
 
 
 class SequentialSymbolicExecutionTest(unittest.TestCase):

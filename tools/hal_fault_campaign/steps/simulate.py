@@ -14,10 +14,13 @@ the exact sequence is spelled out here once:
    ``verilator`` is the other registered engine and shells out to the verilator
    binary, which is why the shipped C++ simulator tests need it and this tool
    does not default to it.
-4. ``add_clock_period(clk, period)`` -- the clock starts low at t=0 and toggles
-   every ``period/2`` (``WaveDataClock::dataFactory``), so the rising edge of
-   cycle k is at ``k*P + P/2``; :mod:`hal_fault_campaign.workload` owns that
-   arithmetic.
+4. ``add_clock_period(clk, period, True, duration)`` -- the clock starts low at
+   t=0 and toggles every ``period/2`` (``WaveDataClock::dataFactory``), so the
+   rising edge of cycle k is at ``k*P + P/2``;
+   :mod:`hal_fault_campaign.workload` owns that arithmetic.  ``duration`` is the
+   length of the run: the clock waveform is what the simulation thread replays,
+   so a clock that stops early stops the run there and every later sample
+   silently repeats the last value.
 5. ``set_input(net, value)`` then ``simulate(duration_ps)``, repeatedly, to build
    the input waveform.
 6. ``run_simulation()`` -- **asynchronous**.  ``SimulationEngineEventDriven::run``
@@ -152,7 +155,10 @@ def run_trace(hal_py, controller_plugin, netlist, grid, cycles, schedule, clock_
         )
 
     clock = _net_by_name(netlist, clock_net, cache)
-    controller.add_clock_period(clock, grid.period_ps)
+    # The duration is passed explicitly rather than left to the controller's "for the whole
+    # simulation" default, because the length of this run is known here and saying it out loud is
+    # what makes a truncated clock a visible wrong argument instead of a frozen trace.
+    controller.add_clock_period(clock, grid.period_ps, True, grid.total_time(cycles))
 
     for _time, assignments, duration in schedule:
         for name in sorted(assignments):

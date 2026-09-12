@@ -118,9 +118,10 @@ public:
      * This function can only be called before the simulation has been initialized.
      *
      * @param[in] clock_net - The net that carries the clock signal.
-     * @param[in] period - The clock period from rising edge to rising edge in picoseconds.
+     * @param[in] period - The clock period from rising edge to rising edge in picoseconds. Must be at least 2.
      * @param[in] start_at_zero - Initial clock state is 0 if `true`, 1 otherwise.
-     * @param[in] duration - Optional max time limit when showing clock in VCD viewer or editor
+     * @param[in] duration - Time limit up to which the clock waveform is generated. Defaults to 0, which means
+     *                       for the whole simulation, i.e., up to the time reached by the `simulate` calls.
      */
     void add_clock_period(const Net* clock_net, u64 period, bool start_at_zero = true, u64 duration=0);
 
@@ -556,6 +557,10 @@ private:
     std::set<u32> mSimulateOnlyProbes;
 
     std::unordered_map<u32,int> mBadAssignInputWarnings;
+
+    //! Clock net ID -> the duration explicitly requested in add_clock_period(), 0 for "the whole simulation".
+    std::unordered_map<u32,u64> mClockDurations;
+
     SimulationLogReceiver* mLogReceiver;
 };
 
