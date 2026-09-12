@@ -226,6 +226,13 @@ namespace hal
                 {
                     vertices.insert( (void *) clk );
                     ptrs_to_type[(void *) clk] = PtrType::NET;
+
+                    // The clock arrives straight from a port, so the net is the root of this domain and
+                    // the flip-flop hangs directly off it. Without this edge the tree holds every vertex
+                    // and no structure at all: get_childs/get_parents report nothing and get_subtree has
+                    // no path to walk. The traversal below adds the same net -> gate edge when it reaches
+                    // a global input through a chain of buffers.
+                    edges.insert( { (void *) clk, (void *) ff } );
                     continue;
                 }
                 else if( clk->get_num_of_sources() == 0 )
@@ -647,17 +654,22 @@ namespace hal
             std::unordered_map<const void *, PtrType> ptrs_to_types;
             std::unordered_map<igraph_integer_t, const void *> vertices_to_ptrs;
 
+            // Since igraph 1.0 the forward map of igraph_induced_subgraph_map() holds the new vertex ID of
+            // every vertex that is part of the subgraph and -1 for every vertex that is not; it no longer
+            // offsets the IDs by one and no longer uses 0 as the "not contained" marker. Reading it the old
+            // way skipped the vertex that became the root of the subgraph and kept exactly the vertices that
+            // were excluded from it.
             for( igraph_integer_t idx = 0; idx < igraph_vector_int_size( &map ); idx++ )
             {
                 const igraph_integer_t vertex = VECTOR( map )[idx];
-                if( vertex == 0 )
+                if( vertex < 0 )
                 {
                     continue;
                 }
 
                 const void *ptr = m_vertices_to_ptrs.at( idx );
 
-                vertices_to_ptrs[vertex - 1] = ptr;
+                vertices_to_ptrs[vertex] = ptr;
                 ptrs_to_types[ptr] = m_ptrs_to_types.at( ptr );
             }
 

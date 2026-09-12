@@ -130,16 +130,15 @@ class ClockTreeExtractorTest(unittest.TestCase):
         self.assertEqual(len(tree.get_all()), 25, "24 flip-flops plus the clock net")
         self.assertIs(tree.get_netlist(), netlist)
 
-    def test_direct_clock_input_produces_a_tree_without_edges(self):
-        """Pin down the shape the traversal accessors see, because it is not the obvious one.
+    def test_direct_clock_input_reaches_every_flip_flop_through_edges(self):
+        """The traversal accessors see the same domain the accessors above report.
 
-        ``ClockTree::from_netlist`` inserts the clock net as a vertex and ``continue``s when the net
-        is a global input driven by nothing (``clock_tree.cpp``, the ``is_global_input_net`` branch),
-        so no net -> flip-flop edge is ever added for a clock that arrives straight from a port. The
-        vertices are all there, none of them is connected, and ``get_childs``/``get_parents``
-        therefore report nothing. ``get_subtree`` is worse: it returns 24 gates for a root that has
-        no edges at all, because it treats igraph's vertex map as 1-based. Neither is used above; if
-        either is fixed, this test fails and says so.
+        ``clk`` arrives straight from a port, which is the case ``ClockTree::from_netlist`` used to
+        insert as a vertex and then ``continue`` past without adding a single net -> flip-flop edge:
+        every vertex was there, none of them was connected, and ``get_childs``/``get_parents``
+        reported nothing for anything. ``get_subtree`` compounded it by reading igraph's forward
+        vertex map as if 0 meant "not in the subgraph", which since igraph 1.0 marks absent vertices
+        with -1, so it dropped the root and returned exactly the *excluded* vertices.
         """
         require(BLINKY, GATE_LIBRARY)
         from hal_plugins import clock_tree_extractor
@@ -147,18 +146,33 @@ class ClockTreeExtractorTest(unittest.TestCase):
         netlist = load(BLINKY)
         tree = clock_tree_extractor.ClockTree.from_netlist(netlist)
         clock = tree.get_nets()[0]
+        flip_flop_ids = sorted(gate.get_id() for gate in tree.get_gates())
 
-        # The pointer round trip works, so an empty neighbour list is a real answer and not a
-        # rejected argument.
+        # The pointer round trip works, so the neighbour lists below are real answers and not
+        # rejected arguments.
         vertex = tree.get_vertex_from_ptr(clock)
         self.assertIsNotNone(vertex)
         self.assertEqual(tree.get_ptr_from_vertex(vertex).get_id(), clock.get_id())
 
-        self.assertEqual(tree.get_childs(clock), [], "clock net unexpectedly has children now")
+        # The clock net is the root of the domain and every flip-flop hangs directly off it.
+        self.assertEqual(sorted(gate.get_id() for gate in tree.get_childs(clock)), flip_flop_ids)
         self.assertEqual(tree.get_parents(clock), [])
         for gate in tree.get_gates():
             self.assertEqual(tree.get_childs(gate), [])
-            self.assertEqual(tree.get_parents(gate), [])
+            self.assertEqual([net.get_id() for net in tree.get_parents(gate)], [clock.get_id()])
+
+        # And the subtree rooted at the clock is the whole domain: the root plus its 24 children.
+        subtree = tree.get_subtree(clock)
+        self.assertIsNotNone(subtree, "get_subtree returned None")
+        self.assertEqual([net.get_id() for net in subtree.get_nets()], [clock.get_id()])
+        self.assertEqual(sorted(gate.get_id() for gate in subtree.get_gates()), flip_flop_ids)
+
+        # A leaf reaches nothing, so its subtree is itself alone.
+        leaf = tree.get_gates()[0]
+        leaf_subtree = tree.get_subtree(leaf)
+        self.assertIsNotNone(leaf_subtree)
+        self.assertEqual([gate.get_id() for gate in leaf_subtree.get_gates()], [leaf.get_id()])
+        self.assertEqual(leaf_subtree.get_nets(), [])
 
 
 class BooleanInfluenceTest(unittest.TestCase):
