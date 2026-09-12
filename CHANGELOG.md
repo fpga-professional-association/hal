@@ -107,6 +107,11 @@ All notable changes to this project will be documented in this file.
     * changed the interface to speak in a `BitOrder`, which is the order of one module pin group, and a `BitOrderResult`, which is what a propagation reports, in place of a map from pairs of module and pin group to a map from net to index. A bit order is now an object rather than a container, so Python can be given one without losing track of the netlist it belongs to, and a result iterates by module and pin group ID rather than by the addresses they happen to sit at
     * added tests for the plugin, which had none
     * fixed bug in the bitorder propagation algorithm that would assign a wrong propagation order if pingroups with direction none were given as parameters
+  * clock tree extractor
+    * fixed a clock that arrives straight from a port producing a tree with every vertex and no edge at all: `ClockTree::from_netlist` inserted the clock net and `continue`d without adding the net -> flip-flop edges, so `get_childs`, `get_parents` and `get_subtree` reported nothing for a design whose clock is not buffered
+    * fixed `ClockTree::get_subtree` returning the vertices it had *excluded*. It read the forward map of `igraph_induced_subgraph_map` as if a vertex ID of 0 meant "not part of the subgraph", which is how igraph reported it before 1.0; since then an absent vertex is marked with -1 and the IDs are no longer offset by one, so the old reading dropped the root and kept everything else
+    * removed the `-march=native` compile option of the plugin, which `hal_add_plugin` puts into the `INTERFACE` section of `target_compile_options`: it was never applied to the plugin's own sources, only handed to whoever links against it, where it breaks the macOS build
+    * added tests for the plugin, which had none
   * simulation
     * added feature, selecting a waveform in viewer selects net in graph view as well
     * fixed bug in waveform viewer, make sure that deleting a controller causes closing the tab
