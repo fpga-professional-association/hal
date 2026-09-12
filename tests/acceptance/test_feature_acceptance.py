@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Acceptance tests for the open feature issues #52, #55 and #57.
+"""Acceptance tests for the feature issues #52, #55 and #57.
 
 Each test below says what "done" means for one issue, in the form the reviewer
-of that issue will check.  None of them can pass today, so each is marked
+of that issue will check.  A test for an issue that is still open is marked
 ``unittest.expectedFailure``: the suite stays green while the feature is open,
 and turns red -- loudly, as an *unexpected success* -- on the day the feature
 lands and the marker has to come off.  A marker that has to be deleted is the
 point: it forces someone to look at the assertion and confirm it is the right
 one before the issue is closed.
+
+#52 (``get_gate_by_name`` / ``get_net_by_name``) and #57 (the location
+warning) have landed and their markers are gone; the assertions stayed exactly
+as they were written while the issues were open.  #55 is still open.
 
 Everything that is not inside an expected failure is a fact the walkthroughs
 already publish (``examples/agilex3_walkthroughs/*/check.py`` re-checks the
@@ -158,15 +162,16 @@ def captured_log_output():
 
 
 class NameLookupAcceptanceTest(unittest.TestCase):
-    """#52: ``Netlist`` has no lookup by name.
+    """#52: ``Netlist`` had no lookup by name.
 
-    Every walkthrough script re-invents a linear scan over ``get_gates()``;
+    Every walkthrough script re-invented a linear scan over ``get_gates()``;
     02_traffic_fsm's runner called ``netlist.get_gate_by_name(...)`` outright
-    and crashed, because it does not exist.  #52 asks for exact-match
+    and crashed, because it did not exist.  #52 asked for exact-match
     ``get_gate_by_name`` / ``get_net_by_name`` returning ``None`` on a miss
     (and a plural ``get_gates_by_name`` for the duplicate-name case, which is
     not pinned here -- the two singular lookups are what the walkthroughs
-    actually reach for).
+    actually reach for; the duplicate-name contract is pinned by the C++ unit
+    tests in ``tests/netlist/netlist.cpp``).
     """
 
     @classmethod
@@ -200,10 +205,9 @@ class NameLookupAcceptanceTest(unittest.TestCase):
             BLINKY_GATE_NAME, [net.get_name() for net in self.netlist.get_nets()]
         )
 
-    @unittest.expectedFailure
     def test_get_gate_by_name(self):
-        # #52: not implemented -- hasattr(netlist, "get_gate_by_name") is False
-        # today, so this raises AttributeError.
+        # #52, implemented: Netlist::get_gate_by_name, an exact match over
+        # get_gates() returning None on a miss and on an ambiguous name.
         gate = self.netlist.get_gate_by_name(BLINKY_GATE_NAME)
         self.assertIsNotNone(gate, "exact-match lookup missed " + BLINKY_GATE_NAME)
         self.assertEqual(gate.get_name(), BLINKY_GATE_NAME)
@@ -213,9 +217,8 @@ class NameLookupAcceptanceTest(unittest.TestCase):
             "a miss must be None, not an exception and not a partial match",
         )
 
-    @unittest.expectedFailure
     def test_get_net_by_name(self):
-        # #52: same, for nets.
+        # #52, implemented: same, for nets.
         net = self.netlist.get_net_by_name(BLINKY_NET_NAME)
         self.assertIsNotNone(net, "exact-match lookup missed " + BLINKY_NET_NAME)
         self.assertEqual(net.get_name(), BLINKY_NET_NAME)
@@ -346,14 +349,14 @@ class ModuleIdentificationAgilexAcceptanceTest(unittest.TestCase):
 
 
 class LocationWarningAcceptanceTest(unittest.TestCase):
-    """#57: every walkthrough load warns about locations that never existed.
+    """#57: every walkthrough load warned about locations that never existed.
 
-    ``Netlist::load_gate_locations_from_data`` (netlist.cpp:906) is called by
-    the Verilog parser on every import and warns once per load with the full
-    gate count, because Quartus ``.vo`` exports carry no placement at all.  A
-    warning that fires for the normal case teaches readers to ignore warnings.
-    #57 asks for it to be demoted when *no* gate has location data, and kept
-    when some do and others unexpectedly do not.
+    ``Netlist::load_gate_locations_from_data`` is called by the Verilog parser
+    on every import and warned once per load with the full gate count, because
+    Quartus ``.vo`` exports carry no placement at all.  A warning that fires
+    for the normal case teaches readers to ignore warnings.  #57 asked for it
+    to be demoted when *no* gate has location data, and kept when some do and
+    others unexpectedly do not -- which is what it does now.
     """
 
     WARNING = "failed to load locations"
@@ -382,10 +385,9 @@ class LocationWarningAcceptanceTest(unittest.TestCase):
         self.assertIn("marker-written-to-fd-1", text)
         self.assertIn("[netlist_parser] [info]", text)
 
-    @unittest.expectedFailure
     def test_no_location_warning_for_a_netlist_without_locations(self):
-        # #57: today this load prints
-        #   [netlist] [warning] failed to load locations of 50 gates.
+        # #57, implemented: the all-missing case is logged at debug level now;
+        # only a *partial* miss still warns.
         hal()
         with captured_log_output() as log:
             load_netlist(BLINKY_NETLIST)

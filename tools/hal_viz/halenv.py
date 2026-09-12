@@ -5,6 +5,7 @@ to run against a *built* HAL, and the most common failure by far is simply not
 having HAL's library directory on ``sys.path``.
 """
 
+import contextlib
 import os
 import sys
 
@@ -12,6 +13,7 @@ __all__ = [
     "HalUnavailable",
     "NetlistLoadError",
     "LIBRARY_PATH_ENV",
+    "stdout_reserved_for_document",
     "import_hal_py",
     "import_plugin",
     "load_all_plugins",
@@ -44,6 +46,43 @@ class HalUnavailable(RuntimeError):
 
 class NetlistLoadError(RuntimeError):
     """Raised when a netlist or gate library cannot be loaded."""
+
+
+@contextlib.contextmanager
+def stdout_reserved_for_document():
+    """Keep everything except the caller's document off the real stdout.
+
+    HAL's logger is spdlog writing straight to file descriptor 1, so
+    ``contextlib.redirect_stdout`` does not see it and a ``--json`` document
+    ends up interleaved with ``[core] [info] ...`` lines.  The only thing that
+    works is moving the descriptor: fd 1 is pointed at fd 2 for the duration of
+    the block, so HAL's output -- and any stray ``print()`` -- lands on stderr,
+    while the stream this yields still writes to the process' original stdout.
+
+    ``tools/hal_capabilities`` has carried this guard inline in its ``main()``
+    since it was the only ``--json`` tool that loaded a netlist; this is the
+    same three lines, restoring the descriptor on the way out so it is safe
+    inside a library and inside a test::
+
+        with halenv.stdout_reserved_for_document() as document:
+            netlist = halenv.load_netlist(hal_py, path)     # logs -> stderr
+            json.dump(summarize(netlist), document)         # -> real stdout
+    """
+    sys.stdout.flush()
+    sys.stderr.flush()
+    saved = os.dup(1)
+    document = os.fdopen(os.dup(saved), "w")
+    try:
+        os.dup2(2, 1)
+        yield document
+    finally:
+        try:
+            document.flush()
+        finally:
+            document.close()
+        sys.stdout.flush()
+        os.dup2(saved, 1)
+        os.close(saved)
 
 
 def _candidate_paths(extra_paths):

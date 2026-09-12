@@ -41,6 +41,15 @@ add_test(NAME runTest-hal_bitstream_standalone
 # needs neither root nor a network: it covers the fail-fast behaviour and the completeness of the
 # per-distribution package lists. What it cannot cover -- that the names exist in a real archive --
 # is what 'HAL_DEPENDENCIES_DRY_RUN=1 bash install_dependencies.sh' in a fresh container is for.
+# tools/changelog_converter.py is the packaging helper cmake/UploadPPA.cmake shells out to. Issue
+# #67: it used to exit 0 with "Skipping write out. No output produced!" when handed a path that does
+# not exist, so a typo in a build script looked like a successful conversion. The suite drives the
+# converter as a subprocess and asserts on the exit status and the message, which needs nothing but
+# a Python interpreter; the conversion tests skip themselves when python-dateutil is unavailable.
+add_test(NAME runTest-changelog_converter_standalone
+         COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_changelog_converter.py
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_test(NAME runTest-install_dependencies_standalone
          COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test_install_dependencies.py
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

@@ -125,6 +125,10 @@ EXEMPT = {
     "test_pydecorator.py": (
         "unittest suite for tools/pydecorator.py. A test, not a tool CLI."
     ),
+    "test_changelog_converter.py": (
+        "unittest suite for tools/changelog_converter.py (issue #67). It drives the converter as a "
+        "subprocess and never parses arguments of its own; a test, not a tool CLI."
+    ),
 }
 
 #: A cheap, real ``--json`` invocation per CLI that supports ``--json``.  Cheap is the point: the
@@ -134,7 +138,32 @@ JSON_INVOCATIONS = {
     "hal_capabilities": ["--json", "list", "--declared-only"],
     "hal_analysis_api": ["tools", "--json"],
     "hal_bitstream": ["families", "--json"],
+    # The one --json invocation here that loads a netlist through hal_py, which is what makes it
+    # the interesting case: HAL logs while the document is being written, so it only stays pure
+    # while the tool keeps the fd guard (issue #66, fixed).
+    "hal_secprop": [
+        "cones",
+        str(TOOLS / "hal_secprop" / "fixtures" / "secreg_ok.policy.json"),
+        "--source",
+        "hal",
+        "--netlist",
+        str(TOOLS / "hal_secprop" / "fixtures" / "secreg_ok.v"),
+        "--gate-library",
+        str(
+            REPO_ROOT
+            / "plugins"
+            / "gate_libraries"
+            / "definitions"
+            / "NangateOpenCellLibrary.hgl"
+        ),
+        "--json",
+    ],
 }
+
+#: The :data:`JSON_INVOCATIONS` entries that need a built HAL (and its fixtures) to run at all.
+#: They skip themselves on a bare checkout instead of failing; everything else in that dict runs
+#: anywhere a Python interpreter does.
+JSON_INVOCATIONS_NEEDING_BUILD = frozenset(["hal_secprop"])
 
 #: CLIs whose ``--json`` mode has no cheap invocation, and why.  Listing them keeps the ``--json``
 #: audit honest: :meth:`JsonPurityContract.test_every_json_cli_is_covered_or_skipped` fails when a
@@ -153,33 +182,11 @@ SKIPPED_JSON = {
 #: the reason.  They run as expected failures rather than being hidden in :data:`SKIPPED_JSON`: a
 #: known violation that nobody can see is the state issue #50 was opened about.  When the tool is
 #: fixed, unittest reports an unexpected success and the entry moves to :data:`JSON_INVOCATIONS`.
-KNOWN_JSON_FAILURES = {
-    "hal_secprop": (
-        [
-            "cones",
-            str(TOOLS / "hal_secprop" / "fixtures" / "secreg_ok.policy.json"),
-            "--source",
-            "hal",
-            "--netlist",
-            str(TOOLS / "hal_secprop" / "fixtures" / "secreg_ok.v"),
-            "--gate-library",
-            str(
-                REPO_ROOT
-                / "plugins"
-                / "gate_libraries"
-                / "definitions"
-                / "NangateOpenCellLibrary.hgl"
-            ),
-            "--json",
-        ],
-        "Two violations in one run. 'hal_secprop cones --json' is documented as 'also print the "
-        "raw cone data', so it writes its human report to stdout and appends the JSON -- stdout "
-        "is a mixed stream by design, not a document. On top of that the run loads a netlist "
-        "without the fd guard tools/hal_capabilities carries, so HAL's own [core] [info] lines "
-        "land on stdout too (issue #53). Needs a decision on the CLI: make --json exclusive (and "
-        "route the prose to stderr), which is what every other --json mode in tools/ does.",
-    ),
-}
+#:
+#: Empty today, and that is the point: ``hal_secprop cones --json`` was the last entry, and issue
+#: #66 moved it into :data:`JSON_INVOCATIONS` as an ordinary passing invocation.  A new entry here
+#: is a deliberate "this is broken and we are leaving it broken for now", not a parking space.
+KNOWN_JSON_FAILURES = {}
 
 #: A HAL native log line: ``[core] [info] ...``, ``[stdout] [warning] ...``.
 HAL_LOG_LINE = re.compile(
@@ -573,6 +580,18 @@ class JsonPurityContract(ContractCase):
             "JSON_INVOCATIONS/SKIPPED_JSON/KNOWN_JSON_FAILURES name tools that do not exist.",
         )
 
+    def test_build_gated_invocations_are_real_invocations(self):
+        """A name in JSON_INVOCATIONS_NEEDING_BUILD that is not an invocation skips nothing."""
+        stale = sorted(
+            key for key in JSON_INVOCATIONS_NEEDING_BUILD if key not in JSON_INVOCATIONS
+        )
+        self.assertEqual(
+            [],
+            stale,
+            "JSON_INVOCATIONS_NEEDING_BUILD names tools that have no entry in "
+            "JSON_INVOCATIONS; the gate would silently do nothing.",
+        )
+
     def test_json_dicts_do_not_overlap(self):
         keys = [set(JSON_INVOCATIONS), set(SKIPPED_JSON), set(KNOWN_JSON_FAILURES)]
         overlap = sorted(
@@ -740,7 +759,9 @@ def _attach_per_cli_tests():
             setattr(
                 JsonPurityContract,
                 "test_json_purity_{}".format(cli.key),
-                _make_json_test(cli, args),
+                _make_json_test(
+                    cli, args, needs_build=cli.key in JSON_INVOCATIONS_NEEDING_BUILD
+                ),
             )
         known = KNOWN_JSON_FAILURES.get(cli.key)
         if known:

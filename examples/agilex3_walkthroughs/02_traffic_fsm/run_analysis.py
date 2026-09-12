@@ -503,8 +503,45 @@ def step6_controller_machine(parsed, clock_net, reset_net, hold_net, all_ffs,
     return table, reachable
 
 
+def hold_zero_cycle(nxt, start=0):
+    """The states the machine loops through with ``hold = 0``, in order.
+
+    ``nxt`` is deterministic and finite, so walking it from ``start`` always
+    runs into a state it has already visited; everything from that state on is
+    the cycle.  The prefix that leads into it (the reset ramp) is dropped --
+    it is not part of the light cycle.  Returns ``[]`` only when the walk
+    leaves the enumerated set, which means the caller built ``nxt`` wrong.
+    """
+    order_seen = []
+    position = {}
+    state = start
+    while state not in position:
+        if (state, 0) not in nxt:
+            return []
+        position[state] = len(order_seen)
+        order_seen.append(state)
+        state = nxt[(state, 0)]
+    return order_seen[position[state]:]
+
+
+def outputs_in_state(parsed, clock_net, reset_net, hold_net, all_ffs, order,
+                     state, outputs):
+    """The combinational output pins the netlist drives while in ``state``."""
+    from hal_agilex import simulate
+
+    sim = simulate.build(parsed)
+    sim.set_input(clock_net, 0)
+    sim.set_input(hold_net, 0)
+    assignment = {name: 0 for name in all_ffs}
+    for index, name in enumerate(order):
+        assignment[name] = (state >> index) & 1
+    sim.state = assignment
+    sim.set_input(reset_net, 1)  # forces a re-settle over the new state
+    return [sim.get_output(name) for name in outputs]
+
+
 def step7_product_machine(parsed, clock_net, reset_net, hold_net, all_ffs,
-                          state_group, counter_order):
+                          state_group, counter_order, outputs):
     """All eight flip-flops as one machine: the light cycle, in full."""
     banner("STEP 7  refuse to decompose: all eight flip-flops as one machine")
     from hal_fsm import diagram
@@ -547,6 +584,41 @@ def step7_product_machine(parsed, clock_net, reset_net, hold_net, all_ffs,
         len(reachable_set), 1 << len(order)))
     say("the cycle, with hold = 0 (state / counter / output pins):")
     say("")
+
+    # Issue #56: this header used to be printed with nothing under it. The ring
+    # was recovered correctly -- it is in artifacts/product_transitions.json --
+    # but the walk that turns it into a table was never written, and a header
+    # over zero rows reads as "the analysis found nothing".
+    cycle = hold_zero_cycle(nxt)
+    if not cycle:
+        say("  no cycle: with hold = 0 the walk leaves the enumerated state set,")
+        say("  which means the transition map above is incomplete")
+    else:
+        state_bits = len(state_group)
+        header = ("  {:>5} | ".format("enc")
+                  + " ".join("{:>3}".format(name) for name in state_group)
+                  + "  | counter | "
+                  + " ".join("{:>3}".format(name) for name in outputs))
+        say(header)
+        say("  " + "-" * (len(header) - 2))
+        for state in cycle:
+            counter = sum(
+                ((state >> (state_bits + index)) & 1) << index
+                for index in range(len(counter_order))
+            )
+            pins = outputs_in_state(parsed, clock_net, reset_net, hold_net,
+                                    all_ffs, order, state, outputs)
+            say("  {:>5} | ".format(state)
+                + " ".join("{:>3}".format((state >> index) & 1)
+                           for index in range(state_bits))
+                + "  | {:>7} | ".format(counter)
+                + " ".join("{:>3}".format(value) for value in pins))
+        say("")
+        say("  {} states in the cycle; the {} reachable encodings are those plus"
+            .format(len(cycle), len(reachable_set)))
+        say("  the {} state(s) of the reset ramp that lead into it"
+            .format(len(reachable_set) - len(cycle)))
+        say("")
 
     dot_path = ARTIFACTS / "product_state_diagram.dot"
     diagram.write_state_diagram(
@@ -695,7 +767,7 @@ def main() -> int:
     step6_controller_machine(parsed, clock_net, reset_net, hold_net, all_ffs,
                              state_group, counter_order)
     step7_product_machine(parsed, clock_net, reset_net, hold_net, all_ffs,
-                          state_group, counter_order)
+                          state_group, counter_order, outputs)
     step8_simulate(parsed, clock_net, reset_net, data_inputs, outputs,
                    state_group, counter_order)
 

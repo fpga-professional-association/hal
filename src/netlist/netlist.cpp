@@ -203,6 +203,47 @@ namespace hal
         return nullptr;
     }
 
+    Gate* Netlist::get_gate_by_name(const std::string& name) const
+    {
+        Gate* res = nullptr;
+        for (Gate* gate : m_gates)
+        {
+            if (gate->get_name() != name)
+            {
+                continue;
+            }
+
+            if (res != nullptr)
+            {
+                log_debug("netlist", "there is more than one gate named '{}' in the netlist with ID {}, use get_gates_by_name instead.", name, m_netlist_id);
+                return nullptr;
+            }
+
+            res = gate;
+        }
+
+        if (res == nullptr)
+        {
+            log_debug("netlist", "there is no gate named '{}' in the netlist with ID {}.", name, m_netlist_id);
+        }
+
+        return res;
+    }
+
+    std::vector<Gate*> Netlist::get_gates_by_name(const std::string& name) const
+    {
+        std::vector<Gate*> res;
+        for (Gate* gate : m_gates)
+        {
+            if (gate->get_name() == name)
+            {
+                res.push_back(gate);
+            }
+        }
+
+        return res;
+    }
+
     const std::vector<Gate*>& Netlist::get_gates() const
     {
         return m_gates;
@@ -361,6 +402,47 @@ namespace hal
 
         log_debug("netlist", "there is no net with ID {} in the netlist with ID {}.", net_id, m_netlist_id);
         return nullptr;
+    }
+
+    Net* Netlist::get_net_by_name(const std::string& name) const
+    {
+        Net* res = nullptr;
+        for (Net* net : m_nets)
+        {
+            if (net->get_name() != name)
+            {
+                continue;
+            }
+
+            if (res != nullptr)
+            {
+                log_debug("netlist", "there is more than one net named '{}' in the netlist with ID {}, use get_nets_by_name instead.", name, m_netlist_id);
+                return nullptr;
+            }
+
+            res = net;
+        }
+
+        if (res == nullptr)
+        {
+            log_debug("netlist", "there is no net named '{}' in the netlist with ID {}.", name, m_netlist_id);
+        }
+
+        return res;
+    }
+
+    std::vector<Net*> Netlist::get_nets_by_name(const std::string& name) const
+    {
+        std::vector<Net*> res;
+        for (Net* net : m_nets)
+        {
+            if (net->get_name() == name)
+            {
+                res.push_back(net);
+            }
+        }
+
+        return res;
     }
 
     const std::vector<Net*>& Netlist::get_nets() const
@@ -903,7 +985,17 @@ namespace hal
 
         if (failed > 0)
         {
-            log_warning("netlist", "failed to load locations of {} gates.", failed);
+            if (failed == m_gates.size())
+            {
+                // No gate in the netlist carries placement data at all. That is a normal property of the input
+                // format -- a Quartus '.vo' export, for one, never carries placement -- and not something the user
+                // can act on, so it must not look like a problem. Only a *partial* miss is unexpected.
+                log_debug("netlist", "no gate carries location data in category '{}'; the netlist has no placement information.", category);
+            }
+            else
+            {
+                log_warning("netlist", "failed to load locations of {} out of {} gates.", failed, m_gates.size());
+            }
         }
 
         return true;
