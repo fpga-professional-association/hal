@@ -76,7 +76,7 @@ plugins, but only *after* the project arguments have been dealt with.
 Example: convert a Verilog netlist into a HAL project directory non-interactively:
 
 ```bash
-hal --import-netlist design.v --gate-library plugins/gate_libraries/definitions/xilinx_unisim.hgl --project-dir ./out_project
+hal --import-netlist design.v --gate-library plugins/gate_libraries/definitions/XILINX_UNISIM.hgl --project-dir ./out_project
 ```
 
 ### `--python-script` with a project: `netlist` is already loaded
@@ -91,7 +91,7 @@ interactive `hal --python`.
 ```bash
 # import, then analyze in one process -- the script does not load anything itself
 hal --import-netlist design.v \
-    --gate-library plugins/gate_libraries/definitions/xilinx_unisim.hgl \
+    --gate-library plugins/gate_libraries/definitions/XILINX_UNISIM.hgl \
     --project-dir ./out_project \
     --python-script analyze.py
 
