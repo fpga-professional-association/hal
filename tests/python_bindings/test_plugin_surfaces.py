@@ -23,10 +23,13 @@ function of an ALM lives in its per-instance ``lut_mask`` generic. ``tools/hal_a
 that generic into a Boolean function, exactly as the walkthroughs do, so the tests that need gate
 semantics call it before touching a plugin.
 
-Three findings from writing this are encoded in the tests rather than worked around silently; see
-the comments at each site: the clock tree carries no edge for a directly driven clock input, the
-simulator aborts the process on an output pin without a Boolean function, and ``solve_fsm`` refuses
-any flip-flop whose gate type has more than one pin of type ``data``.
+Writing this turned up three defects, reported as issues #63, #64 and #65 and fixed since: the clock
+tree carried no edge for a directly driven clock input (and ``get_subtree`` returned the vertices it
+had excluded), the simulator aborted the process on an output pin without a Boolean function and
+segfaulted on the null fan-out net of an unused one, and ``solve_fsm``/``boolean_influence`` refused
+any flip-flop whose gate type has more than one pin of type ``data``. The tests that used to pin the
+broken behaviour down now assert the fixed one, and the workarounds they needed are gone; the
+comments at each site say what the failure looked like so a regression is recognisable.
 """
 
 import os
@@ -244,18 +247,13 @@ class SolveFsmTest(unittest.TestCase):
         self.assertEqual(len(logic), 14, "walkthrough 02 publishes 14 tennm_lcell_comb")
         return state, logic
 
-    def test_refuses_a_flip_flop_type_with_two_data_pins(self):
-        """The vendor flip-flop cannot be solved as shipped, and that is worth pinning down.
+    def test_accepts_a_flip_flop_type_with_a_tied_off_second_data_pin(self):
+        """``tennm_ff`` is solved as the library ships it, with no retyped copy in between.
 
-        ``generate_state_bfs`` (``solve_fsm.cpp``) selects the data pin by asking the *gate type* for
-        pins of type ``data`` and refuses unless there is exactly one. ``tennm_ff`` has two, ``d`` and
-        the never-used ``asdata``, so every Agilex netlist is rejected with
-
-            failed to create input - output mapping: currently not supporting flip-flops with
-            multiple or no data inputs, but found 2 for gate type tennm_ff.
-
-        The binding turns that into ``None`` after logging it. If the plugin learns to pick the pin
-        by more than its type, this test fails and the next one stops needing its workaround.
+        ``generate_state_bfs`` (``solve_fsm.cpp``) used to select the data pin by asking the *gate
+        type* for pins of type ``data`` and refuse unless there was exactly one. ``tennm_ff`` has two,
+        ``d`` and ``asdata``, and every walkthrough netlist ties ``asdata`` to ``'1'``, so every
+        Agilex netlist was rejected outright. The pin is now picked by what drives it.
         """
         require(TRAFFIC_FSM, GATE_LIBRARY)
         from hal_plugins import solve_fsm
@@ -264,16 +262,25 @@ class SolveFsmTest(unittest.TestCase):
         elaborate(netlist)
         state, logic = self._state_and_logic(netlist)
 
-        self.assertIsNone(
+        # The second data pin is there and is tied off; that is the whole reason this used to fail.
+        data_pins = [
+            pin.get_name()
+            for pin in state[0].get_type().get_input_pins()
+            if pin.get_type() == hal_py.PinType.data
+        ]
+        self.assertEqual(sorted(data_pins), ["asdata", "d"])
+        self.assertEqual(state[0].get_fan_in_net("asdata").get_name(), "'1'")
+
+        self.assertIsNotNone(
             solve_fsm.solve_fsm_brute_force(netlist, state, logic),
-            "solve_fsm now accepts tennm_ff; drop the retyped library from the next test",
+            "solve_fsm refused tennm_ff",
         )
 
     def test_brute_force_returns_a_transition_graph(self):
         require(TRAFFIC_FSM, GATE_LIBRARY)
         from hal_plugins import solve_fsm
 
-        netlist = load(TRAFFIC_FSM, self._library_with_asdata_as_control())
+        netlist = load(TRAFFIC_FSM)
         elaborate(netlist)
         state, logic = self._state_and_logic(netlist)
 
@@ -294,40 +301,6 @@ class SolveFsmTest(unittest.TestCase):
         dot = solve_fsm.generate_dot_graph(state, transitions)
         self.assertIsNotNone(dot)
         self.assertIn("digraph", dot)
-
-    def _library_with_asdata_as_control(self):
-        """A copy of AGILEX_TENNM whose ``asdata`` pin is typed ``control`` instead of ``data``.
-
-        The only thing standing between ``solve_fsm`` and this netlist is the pin *type* of a pin the
-        design ties to a constant and never uses, so retyping it is enough to let the plugin run
-        while leaving every function, every pin name and every connection alone. It is written to a
-        temporary file under a different library name so that it cannot collide with the AGILEX
-        library the other tests load.
-        """
-        import json
-
-        document = json.loads(GATE_LIBRARY.read_text(encoding="utf-8"))
-        retyped = 0
-        for cell in document["cells"]:
-            if cell["name"] != "tennm_ff":
-                continue
-            for group in cell["pin_groups"]:
-                if group["name"] != "asdata":
-                    continue
-                group["type"] = "control"
-                for pin in group["pins"]:
-                    pin["type"] = "control"
-                retyped += 1
-        self.assertEqual(retyped, 1, "tennm_ff has no asdata pin group any more")
-
-        name = "AGILEX_TENNM_ASDATA_AS_CONTROL"
-        document["library"] = name
-        # Not deleted afterwards: the netlist keeps a pointer into the gate library for as long as
-        # it lives, and the temporary directory goes away with the process anyway.
-        directory = tempfile.mkdtemp(prefix="hal_solve_fsm_")
-        path = Path(directory) / (name + ".hgl")
-        path.write_text(json.dumps(document), encoding="utf-8")
-        return path
 
 
 class NetlistSimulatorTest(unittest.TestCase):
