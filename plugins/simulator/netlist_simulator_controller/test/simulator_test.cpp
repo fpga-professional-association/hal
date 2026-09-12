@@ -1416,22 +1416,30 @@ namespace hal
             return library;
         }
 
-        /** Poll the engine until it leaves Running/Preparing, or fail the test. */
-        SimulationEngine::State wait_for(SimulationEngine* engine, int timeout_s = 60)
+        /**
+         * Poll the engine until it leaves Running/Preparing, or fail the test.
+         *
+         * Returns the state as an `int`: `hal::operator<<` claims every enum in namespace `hal` and
+         * resolves it through `EnumStrings<T>::data`, which `SimulationEngine::State` does not
+         * specialize, so letting a gtest assertion print one is an undefined symbol at link time.
+         */
+        int wait_for(SimulationEngine* engine, int timeout_s = 60)
         {
             for (int i = 0; i < timeout_s * 100; i++)
             {
-                SimulationEngine::State state = engine->state();
-                if (state == SimulationEngine::Done || state == SimulationEngine::Failed)
+                const int state = engine->get_state();
+                if (state == (int)SimulationEngine::Done || state == (int)SimulationEngine::Failed)
                 {
-                    // The thread reports back to the controller only after setting the state.
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    // The thread sets the state and only then reports back to the controller, so
+                    // reading the results -- or destroying the controller -- immediately races that
+                    // hand-off.
+                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
                     return state;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
             ADD_FAILURE() << "engine still running after " << timeout_s << "s";
-            return SimulationEngine::Running;
+            return (int)SimulationEngine::Running;
         }
     };
 
@@ -1480,7 +1488,7 @@ namespace hal
             ctrl->simulate(1000);
 
             ASSERT_TRUE(ctrl->run_simulation());
-            EXPECT_EQ(wait_for(engine), SimulationEngine::Failed);
+            EXPECT_EQ(wait_for(engine), (int)SimulationEngine::Failed);
         }
         TEST_END
     }
@@ -1526,7 +1534,7 @@ namespace hal
             ctrl->simulate(1000);
 
             ASSERT_TRUE(ctrl->run_simulation());
-            ASSERT_EQ(wait_for(engine), SimulationEngine::Done);
+            ASSERT_EQ(wait_for(engine), (int)SimulationEngine::Done);
             ASSERT_TRUE(ctrl->get_results());
 
             WaveData* wave = ctrl->get_waveform_by_net(out);
@@ -1583,7 +1591,7 @@ namespace hal
             ctrl->simulate(total);
 
             ASSERT_TRUE(ctrl->run_simulation());
-            ASSERT_EQ(wait_for(engine), SimulationEngine::Done);
+            ASSERT_EQ(wait_for(engine), (int)SimulationEngine::Done);
             ASSERT_TRUE(ctrl->get_results());
             EXPECT_NE(ctrl->get_waveform_by_net(out), nullptr);
         }
