@@ -185,11 +185,28 @@ namespace hal
         }
     }
 
+    void NetlistSimulator::abort_initialization()
+    {
+        m_successors.clear();
+        m_sim_gates.clear();
+        m_sim_gates_raw.clear();
+        m_event_queue.clear();
+        m_is_initialized         = false;
+        m_initialization_failed  = true;
+    }
+
     void NetlistSimulator::simulate(u64 picoseconds)
     {
         if (!m_is_initialized)
         {
             initialize();
+        }
+
+        if (!m_is_initialized)
+        {
+            // Initialization gave up on a gate and said so. There is nothing to simulate, and the
+            // caller learns about it through inputEvent() returning false.
+            return;
         }
 
         prepare_clock_events(picoseconds);
@@ -204,7 +221,8 @@ namespace hal
         m_id_counter   = 0;
         m_simulation   = Simulation();
         m_event_queue.clear();
-        m_is_initialized = false;
+        m_is_initialized        = false;
+        m_initialization_failed = false;
     }
 
     void NetlistSimulator::set_simulation_state(const Simulation& state)
@@ -234,6 +252,19 @@ namespace hal
 
     bool NetlistSimulator::inputEvent(const SimulationInputNetEvent& netEv)
     {
+        if (!m_is_initialized)
+        {
+            initialize();
+        }
+
+        if (m_initialization_failed)
+        {
+            // Reporting the failure here is what turns a gate the engine cannot handle into a failed
+            // run: the simulation thread marks the engine as failed and stops feeding it events,
+            // rather than the run finishing with a silently empty simulation set.
+            return false;
+        }
+
         for (auto it = netEv.begin(); it != netEv.end(); ++it)
         {
             set_input(it->first, it->second);
@@ -248,6 +279,13 @@ namespace hal
     void NetlistSimulator::initialize()
     {
         measure_block_time("NetlistSimulator::initialize()");
+
+        if (m_initialization_failed)
+        {
+            // Already reported. Retrying would log the same error once per input event.
+            return;
+        }
+
         m_successors.clear();
         m_sim_gates.clear();
         m_sim_gates_raw.clear();
@@ -294,15 +332,20 @@ namespace hal
             else if (gate->get_type()->has_property(GateTypeProperty::combinational))
             {
                 std::unique_ptr<SimulationGateCombinational> sim_gate_owner = std::make_unique<SimulationGateCombinational>(gate);
-                SimulationGateCombinational* sim_gate                       = sim_gate_owner.get();
-                sim_gate_base                                               = sim_gate;
+                if (auto res = sim_gate_owner->initialize_functions(); res.is_error())
+                {
+                    log_error("hal_simulator", "{}", res.get_error().get());
+                    abort_initialization();
+                    return;
+                }
+                SimulationGateCombinational* sim_gate = sim_gate_owner.get();
+                sim_gate_base                         = sim_gate;
                 m_sim_gates.push_back(std::move(sim_gate_owner));
             }
             else
             {
                 log_error("hal_simulator", "no support for gate type {} of gate {}.", gate->get_type()->get_name(), gate->get_name());
-                m_successors.clear();
-                m_sim_gates.clear();
+                abort_initialization();
                 return;
             }
 

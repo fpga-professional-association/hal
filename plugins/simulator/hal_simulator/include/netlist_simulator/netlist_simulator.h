@@ -29,11 +29,13 @@
 #include "hal_core/netlist/gate_library/enums/async_set_reset_behavior.h"
 #include "hal_core/netlist/gate_library/gate_type.h"
 #include "hal_core/netlist/net.h"
+#include "hal_core/utilities/result.h"
 #include "netlist_simulator/simulation.h"
 #include "netlist_simulator_controller/simulation_engine.h"
 
 #include <map>
 #include <unordered_set>
+#include <variant>
 
 namespace hal
 {
@@ -206,6 +208,17 @@ namespace hal
 
             SimulationGateCombinational(const Gate* gate);
 
+            /**
+             * Collect the output pins that drive a net, together with the Boolean function of each.
+             *
+             * Separate from the constructor because it can fail: a gate type may declare output pins that the
+             * gate does not define a Boolean function for, which used to throw `std::out_of_range` out of the
+             * engine thread and terminate the process.
+             *
+             * @returns OK() on success, an error naming the gate and the pin otherwise.
+             */
+            Result<std::monostate> initialize_functions();
+
             bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
         };
 
@@ -278,6 +291,9 @@ namespace hal
         };
 
         bool m_is_initialized = false;
+        //! Set when initialize() gave up on a gate. Keeps the engine from retrying (and re-logging) on
+        //! every following input event and makes inputEvent() report the failure to the caller.
+        bool m_initialization_failed = false;
         std::vector<std::tuple<bool, BooleanFunction::Value, const std::function<bool(const Gate*)>>> m_init_seq_gates;
 
         u64 m_current_time = 0;
@@ -291,6 +307,8 @@ namespace hal
         std::vector<SimulationGate*> m_sim_gates_raw;
 
         NetlistSimulator(const std::string& nam);
+        /** Drop everything initialize() built and remember that it failed. */
+        void abort_initialization();
         void compute_input_nets();
         void compute_output_nets();
         void prepare_clock_events(u64 nanoseconds);
