@@ -260,8 +260,20 @@ def command_exclusions(args):
     return EXIT_OK
 
 
-def command_cones(args):
-    policy = policy_module.load(args.policy)
+def _stdout_guard():
+    """The shared fd guard that keeps HAL's native logging off stdout.
+
+    It lives in ``hal_viz.halenv`` so every ``--json`` mode in ``tools/`` can
+    use the same one; ``tools/hal_viz`` is always importable from ``tools/``,
+    which is where every CLI here is run from.
+    """
+    from hal_viz import halenv
+
+    return halenv.stdout_reserved_for_document()
+
+
+def _cones_report(args, policy, prose, document):
+    """Write the cone report: prose to ``prose``, JSON to ``document`` if given."""
     system, _ = load_system(policy, args)
     report = cones_module.analyse(system, policy)
     controls = sorted(
@@ -271,7 +283,8 @@ def command_cones(args):
         "structural fan-in cones for policy {!r} on design {!r}\n"
         "these are CANDIDATE paths: reachability is not a verdict\n".format(
             policy.name, system.name
-        )
+        ),
+        file=prose,
     )
     for target in sorted(report.cones):
         data = report.cones[target].to_dict(
@@ -279,24 +292,25 @@ def command_cones(args):
         )
         print("  {}: {} input(s), {} register stage(s) in the cone".format(
             target, data["input_count"], data["state_count"]
-        ))
+        ), file=prose)
         print("    external controls in cone: {}".format(
             ", ".join(data["external_controls_in_cone"]) or "none"
-        ))
-        print("    lock in cone: {}".format(data["lock_in_cone"]))
+        ), file=prose)
+        print("    lock in cone: {}".format(data["lock_in_cone"]), file=prose)
         for name in data["external_controls_in_cone"]:
             print("      {} at depth {} via {}".format(
                 name,
                 data["external_control_depths"][name],
                 " -> ".join(reversed(data["example_paths"].get(name, [name]))),
-            ))
-        print("")
+            ), file=prose)
+        print("", file=prose)
     summary = report.summary()
     print("  {} of {} register bit(s) are in the fan-in of a policy target".format(
         summary["states_in_selected_cones"], summary["design_states"]
-    ))
-    if args.json:
-        print(json.dumps(
+    ), file=prose)
+
+    if document is not None:
+        json.dump(
             {
                 "summary": summary,
                 "cones": {
@@ -306,10 +320,31 @@ def command_cones(args):
                     for target in sorted(report.cones)
                 },
             },
+            document,
             indent=2,
             sort_keys=True,
-        ))
+        )
+        document.write("\n")
     return EXIT_OK
+
+
+def command_cones(args):
+    policy = policy_module.load(args.policy)
+    if not args.json:
+        return _cones_report(args, policy, sys.stdout, None)
+
+    # --json is exclusive (issue #66). stdout carries the document and nothing
+    # else: the human report goes to stderr, and the netlist load runs inside
+    # the fd guard so HAL's own '[core] [info] ...' lines -- which spdlog writes
+    # straight to file descriptor 1, past sys.stdout -- land on stderr too.
+    # A consumer can then do json.loads(check_output(...)) and be right.
+    if sys.stdout is not sys.__stdout__:
+        # stdout has been replaced in-process (a test, an embedding caller). The
+        # fd guard would write past the replacement to the real descriptor, so
+        # honour the replacement instead; --json stays exclusive either way.
+        return _cones_report(args, policy, sys.stderr, sys.stdout)
+    with _stdout_guard() as document:
+        return _cones_report(args, policy, sys.stderr, document)
 
 
 def _print_report(report):
@@ -689,7 +724,12 @@ def build_parser():
         "cones", help="print the structural cone report (candidate reachability only)"
     )
     cones.add_argument("policy")
-    cones.add_argument("--json", action="store_true", help="also print the raw cone data")
+    cones.add_argument(
+        "--json",
+        action="store_true",
+        help="write the raw cone data to stdout as a single JSON document, and nothing "
+        "else: the human report and HAL's own log lines go to stderr",
+    )
     _add_design_arguments(cones)
     cones.set_defaults(handler=command_cones)
 
