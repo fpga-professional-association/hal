@@ -596,6 +596,43 @@ class FixtureTest(unittest.TestCase):
                 self.assertIn(instance.type, ("tennm_lcell_comb", "tennm_ff"), name)
 
 
+class HalAdapterTest(unittest.TestCase):
+    """The hal_py-facing module, on the paths that do not need hal_py."""
+
+    class _StubNetlist(object):
+        def get_design_name(self):
+            return "stub"
+
+        def get_gates(self):
+            return [1, 2, 3]
+
+    def test_importing_the_adapter_does_not_need_hal_py(self):
+        from hal_crypto import hal_adapter
+
+        self.assertEqual("hal_crypto.hal_adapter", hal_adapter.PRODUCER["name"])
+
+    def test_the_sibling_export_is_found_next_to_an_imported_netlist(self):
+        from hal_crypto import hal_adapter
+
+        imported = os.path.join(WALKTHROUGHS, "05_lfsr_prng", "netlist.hal.v")
+        self.assertEqual(LFSR_EXPORT, hal_adapter.source_export(imported))
+
+    def test_a_missing_export_is_an_unsupported_finding_not_a_guess(self):
+        import tempfile
+
+        from hal_crypto import hal_adapter
+
+        directory = tempfile.mkdtemp()
+        path = os.path.join(directory, "netlist.hal.v")
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("// no .vo next to this one\n")
+        document = hal_adapter.build_document(None, self._StubNetlist(), path)
+        validate.validate_document(document)
+        self.assertEqual(1, len(document["findings"]))
+        self.assertEqual("unsupported", document["findings"][0]["status"])
+        self.assertEqual("format", document["findings"][0]["unsupported"]["kind"])
+
+
 class CliTest(unittest.TestCase):
     def _run(self, argv):
         import io
