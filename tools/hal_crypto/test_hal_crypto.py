@@ -660,6 +660,32 @@ class CliTest(unittest.TestCase):
         status, _ = self._run(["fixtures", "--check"])
         self.assertEqual(0, status)
 
+    def test_the_elaborate_argv_the_plugin_load_audit_uses_still_parses(self):
+        """tests/headless_smoke/tool_cli_plugin_load_smoke.py runs exactly this shape.
+
+        That script needs a real build, so it cannot run here -- but the argument
+        names it depends on can, and renaming one of them without noticing is
+        how a repo-wide audit turns into a mystery failure an hour into CI.
+        """
+        from hal_crypto.cli import build_parser
+
+        args = build_parser().parse_args(
+            [
+                "elaborate",
+                "netlist.hal.v",
+                "--gate-library",
+                "AGILEX_TENNM.hgl",
+                "-o",
+                "crypto_findings.json",
+            ]
+        )
+        self.assertEqual("netlist.hal.v", args.netlist)
+        self.assertEqual("AGILEX_TENNM.hgl", args.gate_library)
+        self.assertEqual("crypto_findings.json", args.output)
+        self.assertEqual([], args.hal_lib)
+        self.assertFalse(args.strict)
+        self.assertEqual("command_elaborate", args.func.__name__)
+
     def test_unreadable_input_fails_cleanly(self):
         status, _ = self._run(["identify", os.path.join(HERE, "no_such_file.vo")])
         self.assertEqual(1, status)

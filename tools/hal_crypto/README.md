@@ -117,11 +117,18 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-64 tests, no HAL, ~4 s. Registered with ctest as
+65 tests, no HAL, ~4 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 two end-to-end cases are the acceptance criteria of the issue this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
 specification states, and `01_blinky_counter` must classify `none-detected`.
+
+`elaborate` is the one subcommand that loads a netlist in HAL's own process, so
+it also has a case in `tests/headless_smoke/tool_cli_plugin_load_smoke.py`,
+which runs it against a real build in a fresh interpreter. `hal_crypto` reaches
+`hal_py.NetlistFactory` through `hal_agilex.hal_adapter` rather than calling it
+itself, and that indirection is only correct as long as the module it delegates
+to keeps loading HAL's plugins — which is precisely what that audit checks.
 
 ## Where things live
 
