@@ -95,6 +95,10 @@ if [[ "${TIER}" == "nohal" ]]; then
     run 03_uart_tx -o "${SCRATCH}/03_uart_tx"
     run 06_accumulator_alu
     run 08_shift_debouncer -o "${SCRATCH}/08_shift_debouncer"
+    # 12 is the largest of these (377 instances, three netlists, a 600-cycle
+    # behaviour run) and still needs nothing but tools/hal_agilex and
+    # tools/hal_crypto; ~3 s.
+    run 12_present_sbox
 else
     for var in HAL_BASE_PATH HAL_PY_PATH PYTHONPATH; do
         if [[ -z "${!var:-}" ]]; then

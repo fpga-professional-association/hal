@@ -1,0 +1,926 @@
+{
+  "census": {
+    "gate_types": {
+      "tennm_ff": 151,
+      "tennm_lcell_comb": 226
+    },
+    "gates": 377,
+    "inputs": [
+      "start",
+      "plaintext",
+      "key_in",
+      "clk",
+      "rst_n"
+    ],
+    "outputs": [
+      "ciphertext",
+      "busy",
+      "done"
+    ]
+  },
+  "key_schedule": {
+    "bank": "kreg",
+    "counter_banks": [
+      "round"
+    ],
+    "counter_injected_bits": [
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "rotate_left_by": 61,
+    "rotation_amounts": [
+      61
+    ],
+    "rotation_links": 71,
+    "substituted_bits": [
+      76,
+      77,
+      78,
+      79
+    ],
+    "unclassified_bits": [],
+    "width": 80
+  },
+  "netlist": "present_sbox.vo",
+  "permutation": {
+    "bank": "state",
+    "complete": true,
+    "matches_published_player": true,
+    "notes": [],
+    "permutation": [
+      0,
+      16,
+      32,
+      48,
+      1,
+      17,
+      33,
+      49,
+      2,
+      18,
+      34,
+      50,
+      3,
+      19,
+      35,
+      51,
+      4,
+      20,
+      36,
+      52,
+      5,
+      21,
+      37,
+      53,
+      6,
+      22,
+      38,
+      54,
+      7,
+      23,
+      39,
+      55,
+      8,
+      24,
+      40,
+      56,
+      9,
+      25,
+      41,
+      57,
+      10,
+      26,
+      42,
+      58,
+      11,
+      27,
+      43,
+      59,
+      12,
+      28,
+      44,
+      60,
+      13,
+      29,
+      45,
+      61,
+      14,
+      30,
+      46,
+      62,
+      15,
+      31,
+      47,
+      63
+    ],
+    "width": 64
+  },
+  "register_banks": [
+    {
+      "clear": "rst_n",
+      "clock": "clk",
+      "enable": "i586~1_combout",
+      "size": 148
+    },
+    {
+      "clear": "rst_n",
+      "clock": "clk",
+      "enable": "const1",
+      "size": 3
+    }
+  ],
+  "rounds": {
+    "counter_first": 1,
+    "counter_last": 31,
+    "counter_monotone": true,
+    "cycles_busy": 31,
+    "done_after": 1
+  },
+  "substitutions": [
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "ksub[0]",
+        "ksub[1]",
+        "ksub[2]",
+        "ksub[3]"
+      ],
+      "reads": [
+        "kreg"
+      ],
+      "sources": [
+        "kreg[15]",
+        "kreg[16]",
+        "kreg[17]",
+        "kreg[18]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[0]",
+        "subs[1]",
+        "subs[2]",
+        "subs[3]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[0]",
+        "state[1]",
+        "state[2]",
+        "state[3]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "bit_permutation"
+        }
+      ],
+      "outputs": [
+        "subs[10]",
+        "subs[11]",
+        "subs[8]",
+        "subs[9]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[10]",
+        "state[11]",
+        "state[8]",
+        "state[9]"
+      ],
+      "table": [
+        3,
+        6,
+        12,
+        1,
+        5,
+        0,
+        11,
+        13,
+        9,
+        10,
+        15,
+        4,
+        14,
+        7,
+        2,
+        8
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[12]",
+        "subs[13]",
+        "subs[14]",
+        "subs[15]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[12]",
+        "state[13]",
+        "state[14]",
+        "state[15]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[16]",
+        "subs[17]",
+        "subs[18]",
+        "subs[19]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[16]",
+        "state[17]",
+        "state[18]",
+        "state[19]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[20]",
+        "subs[21]",
+        "subs[22]",
+        "subs[23]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[20]",
+        "state[21]",
+        "state[22]",
+        "state[23]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[24]",
+        "subs[25]",
+        "subs[26]",
+        "subs[27]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[24]",
+        "state[25]",
+        "state[26]",
+        "state[27]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[28]",
+        "subs[29]",
+        "subs[30]",
+        "subs[31]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[28]",
+        "state[29]",
+        "state[30]",
+        "state[31]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[32]",
+        "subs[33]",
+        "subs[34]",
+        "subs[35]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[32]",
+        "state[33]",
+        "state[34]",
+        "state[35]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[36]",
+        "subs[37]",
+        "subs[38]",
+        "subs[39]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[36]",
+        "state[37]",
+        "state[38]",
+        "state[39]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[40]",
+        "subs[41]",
+        "subs[42]",
+        "subs[43]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[40]",
+        "state[41]",
+        "state[42]",
+        "state[43]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[44]",
+        "subs[45]",
+        "subs[46]",
+        "subs[47]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[44]",
+        "state[45]",
+        "state[46]",
+        "state[47]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[48]",
+        "subs[49]",
+        "subs[50]",
+        "subs[51]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[48]",
+        "state[49]",
+        "state[50]",
+        "state[51]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[4]",
+        "subs[5]",
+        "subs[6]",
+        "subs[7]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[4]",
+        "state[5]",
+        "state[6]",
+        "state[7]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[52]",
+        "subs[53]",
+        "subs[54]",
+        "subs[55]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[52]",
+        "state[53]",
+        "state[54]",
+        "state[55]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[56]",
+        "subs[57]",
+        "subs[58]",
+        "subs[59]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[56]",
+        "state[57]",
+        "state[58]",
+        "state[59]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    },
+    {
+      "algebraic_degree": 3,
+      "bits": 4,
+      "differential_uniformity": 4,
+      "matches": [
+        {
+          "name": "present",
+          "tier": "exact"
+        }
+      ],
+      "outputs": [
+        "subs[60]",
+        "subs[61]",
+        "subs[62]",
+        "subs[63]"
+      ],
+      "reads": [
+        "state"
+      ],
+      "sources": [
+        "state[60]",
+        "state[61]",
+        "state[62]",
+        "state[63]"
+      ],
+      "table": [
+        12,
+        5,
+        6,
+        11,
+        9,
+        0,
+        10,
+        13,
+        3,
+        14,
+        15,
+        8,
+        4,
+        7,
+        1,
+        2
+      ]
+    }
+  ],
+  "test_vectors": [
+    {
+      "agrees": true,
+      "expected": "5579C1387B228445",
+      "key": "00000000000000000000",
+      "netlist": "5579C1387B228445",
+      "plaintext": "0000000000000000",
+      "round_cycles": 31
+    },
+    {
+      "agrees": true,
+      "expected": "E72C46C0F5945049",
+      "key": "FFFFFFFFFFFFFFFFFFFF",
+      "netlist": "E72C46C0F5945049",
+      "plaintext": "0000000000000000",
+      "round_cycles": 31
+    },
+    {
+      "agrees": true,
+      "expected": "A112FFC72F68417B",
+      "key": "00000000000000000000",
+      "netlist": "A112FFC72F68417B",
+      "plaintext": "FFFFFFFFFFFFFFFF",
+      "round_cycles": 31
+    },
+    {
+      "agrees": true,
+      "expected": "3333DCD3213210D2",
+      "key": "FFFFFFFFFFFFFFFFFFFF",
+      "netlist": "3333DCD3213210D2",
+      "plaintext": "FFFFFFFFFFFFFFFF",
+      "round_cycles": 31
+    }
+  ]
+}

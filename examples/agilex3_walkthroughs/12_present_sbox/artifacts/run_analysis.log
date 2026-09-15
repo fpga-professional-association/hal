@@ -1,0 +1,296 @@
+== 1. coverage inventory -- is the export inside the modelled primitives?
+-- inventory exit: 0
+== 1b. the same export, rewritten so HAL can read it
+Files /tmp/netlist.hal.v and examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v differ
+== 2. module hierarchy
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.03 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 379 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' in 0.02 seconds.
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/module_tree.dot
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/module_tree.svg
+== 2b. the gate-level graph around one datapath flip-flop
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 379 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' in 0.02 seconds.
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/netlist_graph.dot
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/netlist_graph.svg
+== 2c. the whole graph levelled, feedback cut at the flops
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 379 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' in 0.02 seconds.
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/dag.dot
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/dag.svg
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/dag.html
+== 2d. ... and the same graph with values, one clock at a time
+examples/agilex3_walkthroughs/12_present_sbox/artifacts/dag_trace.json
+[hal_viz] warning: no trace values for drawn gate 'global_gnd'
+[hal_viz] warning: no trace values for drawn gate 'global_vcc'
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/dag_interactive.html
+== 3. one S-box cone, close up
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 379 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/12_present_sbox/netlist.hal.v' in 0.01 seconds.
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/sbox_cone.dot
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/images/sbox_cone.svg
+== 4. the crypto identification, all six passes
+== 5. the same question of the two counterfactual exports in variants/
+== 6. the reverse-engineering result itself
+netlist: present_sbox.vo
+  377 instances: tennm_ff x151, tennm_lcell_comb x226
+  inputs ['start', 'plaintext', 'key_in', 'clk', 'rst_n'] / outputs ['ciphertext', 'busy', 'done']
+register banks (clock, clear, enable):
+  148 flip-flops  clk=clk clrn=rst_n ena=i586~1_combout
+    3 flip-flops  clk=clk clrn=rst_n ena=const1
+substitution layer: 17 groups
+   1 group(s) matched at tier bit_permutation
+  16 group(s) matched at tier exact
+  table: C56B90AD3EF84712 (degree 3, differential uniformity 4)
+permutation layer over register bank 'state' (64 bits): complete
+  equals the published PRESENT pLayer: True
+key schedule over register bank 'kreg' (80 bits):
+  71 bits are a plain rotation, left by 61
+  substituted bits [76, 77, 78, 79], counter injected into bits [15, 16, 17, 18, 19]
+rounds: busy for 31 cycles, counter 1..31, monotone True
+published PRESENT-80 test vectors:
+  0000000000000000 / 00000000000000000000 -> 5579C1387B228445  agrees
+  0000000000000000 / FFFFFFFFFFFFFFFFFFFF -> E72C46C0F5945049  agrees
+  FFFFFFFFFFFFFFFF / 00000000000000000000 -> A112FFC72F68417B  agrees
+  FFFFFFFFFFFFFFFF / FFFFFFFFFFFFFFFFFFFF -> 3333DCD3213210D2  agrees
+== 7. does the reconstruction behave like the netlist? (600 cycles)
+== 8. two negative controls, so that step 7 passing means something
+== 9. one HTML page over every finding
+[hal_viz] wrote /home/src/examples/agilex3_walkthroughs/12_present_sbox/artifacts/findings_report.html (27 finding(s) from 5 document(s), 2 diagram(s) embedded, 0 missing artifact(s))
+/home/src/examples/agilex3_walkthroughs/12_present_sbox/artifacts/findings_report.html
+== 10. the smoke check
+levelled DAG
+  ok   images/dag.dot exists
+  ok   the levelled DAG is 3 levels deep
+  ok   guide.html quotes the same level count
+clock-step page
+  ok   artifacts/dag_trace.json exists
+  ok   images/dag_interactive.html exists
+  ok   the committed trace reproduces from the committed .vo
+  ok   the traced window ends on the first published ciphertext, done high
+  ok   the window contains all 31 rounds
+  ok   the page embeds every recorded cycle
+  ok   the page is self-contained: no external request
+  ok   guide.html links the interactive page
+primitive coverage
+  ok   inventory reports no unsupported primitive or configuration
+  ok   the export is 377 instances
+structural recovery (analysis.py)
+  ok   226 tennm_lcell_comb
+  ok   151 tennm_ff
+  ok   two flip-flop control-pin banks, [148, 3]
+  ok   17 four-bit bijective non-affine cone groups
+  ok   16 match the library exactly
+  ok   1 matches only up to a bit permutation
+  ok   every group matches the same published S-box
+  ok   the exactly-matched table is C56B90AD3EF84712
+  ok   algebraic degree 3, differential uniformity 4
+  ok   all 64 permutation entries recovered
+  ok   the recovered permutation is the published pLayer
+  ok   the key register is 80 bits
+  ok   71 of them are a plain rotation, all by 61
+  ok   the substituted nibble is bits [76, 77, 78, 79]
+  ok   the counter is injected into bits [15, 16, 17, 18, 19]
+  ok   every key bit is accounted for
+  ok   the design is busy for 31 cycles
+  ok   the counter runs 1..31, monotonically
+  ok   published vector 0000000000000000 / 00000000000000000000 -> 5579C1387B228445
+  ok   published vector 0000000000000000 / FFFFFFFFFFFFFFFFFFFF -> E72C46C0F5945049
+  ok   published vector FFFFFFFFFFFFFFFF / 00000000000000000000 -> A112FFC72F68417B
+  ok   published vector FFFFFFFFFFFFFFFF / FFFFFFFFFFFFFFFFFFFF -> 3333DCD3213210D2
+hal_crypto identify
+  ok   family is spn
+  ok   style is classical-style
+  ok   the S-box pass reports 17 substitutions
+  ok   the permutation pass finds no permutation layer (it cannot see one)
+  ok   the shift-register pass finds no chain
+the two counterfactual exports in variants/
+  ok   without `keep`: 373 instances
+  ok   textbook register placement: 441 instances
+  ok   without `keep`: 13 substitutions are still extracted
+  ok   without `keep`: not one of them matches the library
+  ok   without `keep`: the family is still spn
+  ok   textbook register placement: the family is none-detected
+  ok   textbook register placement: no datapath substitution survives
+netlist versus the reconstruction, and the negative controls
+  ok   600 cycles of stimulus contain 16 complete encryptions
+  ok   600 pseudo-random cycles agree with recovered_reference.py
+  ok   negative control (one S-box entry) is caught, and early
+  ok   negative control (30 rounds instead of 31) is caught
+the committed findings documents say the same thing
+  ok   artifacts/identify.findings.json exists
+  ok   identify.findings.json carries hal_crypto/identify/family
+  ok   identify.findings.json says family spn
+  ok   artifacts/behavior.findings.json exists
+  ok   behavior.findings.json carries hal_agilex/behavior/reference-equivalence
+  ok   artifacts/behavior_negative_control_sbox.findings.json exists
+  ok   behavior_negative_control_sbox.findings.json is a counterexample
+  ok   artifacts/behavior_negative_control_rounds.findings.json exists
+  ok   behavior_negative_control_rounds.findings.json is a counterexample
+guide.html quotes the numbers this script re-derived
+  ok   guide.html contains 'C56B90AD3EF84712'
+  ok   guide.html contains '<code>377</code> instances'
+  ok   guide.html contains '31 rounds'
+  ok   guide.html contains '16 complete 31-round encryptions'
+  ok   guide.html contains 'rotation by 61'
+  ok   guide.html contains 'none-detected'
+  ok   guide.html contains 'cycle 6'
+  ok   guide.html contains 'cycle 35'
+
+all 68 checks passed
+done
