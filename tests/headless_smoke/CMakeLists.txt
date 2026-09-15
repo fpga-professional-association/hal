@@ -52,6 +52,19 @@ add_test(NAME runTest-hal_mcp_standalone
          COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/hal_mcp/test_hal_mcp.py
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# hal_crypto reads Quartus .vo exports with the stdlib reader from tools/hal_agilex and never
+# touches hal_py outside hal_adapter.py, so the whole recognizer suite -- S-box extraction and
+# library matching, LFSR/NLFSR feedback polynomials, ARX rounds, permutation layers, NTT
+# butterflies and the family classifier -- runs with no build at all. It covers both directions:
+# every pass has fixtures it must fire on and fixtures it must not, and the two end-to-end cases
+# are the real walkthrough exports (05_lfsr_prng must come back lfsr-stream with the polynomial
+# its spec.md states, 01_blinky_counter must come back none-detected).
+add_test(NAME runTest-hal_crypto_standalone
+         COMMAND ${Python3_EXECUTABLE} -m unittest discover
+                 -s ${CMAKE_SOURCE_DIR}/tools/hal_crypto -t ${CMAKE_SOURCE_DIR}/tools
+                 -p "test_*.py"
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_test(NAME runTest-hal_capabilities_standalone
          COMMAND ${Python3_EXECUTABLE} -m unittest discover
                  -s ${CMAKE_SOURCE_DIR}/tools/hal_capabilities -t ${CMAKE_SOURCE_DIR}/tools
