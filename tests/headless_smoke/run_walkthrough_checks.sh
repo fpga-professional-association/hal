@@ -95,6 +95,10 @@ if [[ "${TIER}" == "nohal" ]]; then
     run 03_uart_tx -o "${SCRATCH}/03_uart_tx"
     run 06_accumulator_alu
     run 08_shift_debouncer -o "${SCRATCH}/08_shift_debouncer"
+    # 11's structural analysis is tools/hal_agilex + tools/hal_crypto, both
+    # HAL-free, so most of its guide is asserted here; --with-hal below adds
+    # the hal_py load and the SCC decomposition on top.
+    run 11_speck_toy
     # 12 is the largest of these (377 instances, three netlists, a 600-cycle
     # behaviour run) and still needs nothing but tools/hal_agilex and
     # tools/hal_crypto; ~3 s.
@@ -120,6 +124,7 @@ else
     run 03_uart_tx --with-hal -o "${SCRATCH}/03_uart_tx"
     run 06_accumulator_alu --require-hal
     run 08_shift_debouncer --with-hal -o "${SCRATCH}/08_shift_debouncer"
+    run 11_speck_toy --with-hal
 fi
 
 # Canary: the checks are supposed to read the committed artifacts, not

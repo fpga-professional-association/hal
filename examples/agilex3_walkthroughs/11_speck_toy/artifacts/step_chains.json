@@ -1,0 +1,161 @@
+{
+  "adders": [
+    {
+      "carry_in": 0,
+      "cells": [
+        "add_0~1",
+        "add_0~6",
+        "add_0~11",
+        "add_0~16",
+        "add_0~21",
+        "add_0~26",
+        "add_0~31",
+        "add_0~36",
+        "add_0~41",
+        "add_0~46",
+        "add_0~51",
+        "add_0~56",
+        "add_0~61",
+        "add_0~66",
+        "add_0~71",
+        "add_0~76"
+      ],
+      "checked_vectors": 256,
+      "exhaustive": false,
+      "operands": {
+        "first": {
+          "declared_width": 16,
+          "rotation": {
+            "bits_observed": 15,
+            "kind": "rotation",
+            "rotate_left_by": 9,
+            "rotation": 7,
+            "source": "x",
+            "width": 16
+          },
+          "sources": [
+            "x[7]",
+            "x[8]",
+            "x[9]",
+            "x[10]",
+            "x[11]",
+            "x[12]",
+            "x[13]",
+            "x[14]",
+            "x[15]",
+            "x[0]",
+            "x[1]",
+            "x[2]",
+            "x[3]",
+            "x[4]",
+            "x[5]"
+          ],
+          "vector": "x"
+        },
+        "second": {
+          "declared_width": 16,
+          "rotation": null,
+          "sources": [
+            "y[0]",
+            "y[1]",
+            "y[2]",
+            "y[3]",
+            "y[4]",
+            "y[5]",
+            "y[6]",
+            "y[7]",
+            "y[8]",
+            "y[9]",
+            "y[10]",
+            "y[11]",
+            "y[12]",
+            "y[13]",
+            "y[14]"
+          ],
+          "vector": "y"
+        }
+      },
+      "operation": "add",
+      "verified_bits": 15
+    },
+    {
+      "carry_in": 0,
+      "cells": [
+        "add_1~1",
+        "add_1~6",
+        "add_1~11",
+        "add_1~16",
+        "add_1~21",
+        "add_1~26",
+        "add_1~31",
+        "add_1~36",
+        "add_1~41",
+        "add_1~46",
+        "add_1~51",
+        "add_1~56",
+        "add_1~61",
+        "add_1~66",
+        "add_1~71",
+        "add_1~76"
+      ],
+      "checked_vectors": 256,
+      "exhaustive": false,
+      "operands": {
+        "first": {
+          "declared_width": 16,
+          "rotation": null,
+          "sources": [
+            "k[0]",
+            "k[1]",
+            "k[2]",
+            "k[3]",
+            "k[4]",
+            "k[5]",
+            "k[6]",
+            "k[7]",
+            "k[8]",
+            "k[9]",
+            "k[10]",
+            "k[11]",
+            "k[12]",
+            "k[13]",
+            "k[14]"
+          ],
+          "vector": "k"
+        },
+        "second": {
+          "declared_width": 16,
+          "rotation": {
+            "bits_observed": 15,
+            "kind": "rotation",
+            "rotate_left_by": 9,
+            "rotation": 7,
+            "source": "l0",
+            "width": 16
+          },
+          "sources": [
+            "l0[7]",
+            "l0[8]",
+            "l0[9]",
+            "l0[10]",
+            "l0[11]",
+            "l0[12]",
+            "l0[13]",
+            "l0[14]",
+            "l0[15]",
+            "l0[0]",
+            "l0[1]",
+            "l0[2]",
+            "l0[3]",
+            "l0[4]",
+            "l0[5]"
+          ],
+          "vector": "l0"
+        }
+      },
+      "operation": "add",
+      "verified_bits": 15
+    }
+  ],
+  "chains": 2
+}

@@ -1,0 +1,92 @@
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 243 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v' in 0.01 seconds.
+[ok  ] the export is fully covered
+[ok  ] coverage finding is proven_under_assumptions -- proven_under_assumptions
+[ok  ] 104 flip-flops and 137 ALMs, nothing else -- {'tennm_ff': 104, 'tennm_lcell_comb': 137}
+[ok  ] the committed findings hash the committed export -- byte-for-byte
+[ok  ] 241 instances: 104 tennm_ff + 137 tennm_lcell_comb -- {'tennm_ff': 104, 'tennm_lcell_comb': 137}
+[ok  ] the boundary is clk/rst_n/start/pt/key -> ct/busy/done -- [{'name': 'pt', 'width': 32}, {'name': 'start', 'width': 1}, {'name': 'clk', 'width': 1}, {'name': 'rst_n', 'width': 1}, {'name': 'key', 'width': 64}, {'name': 'ct', 'width': 32}, {'name': 'busy', 'width': 1}, {'name': 'done', 'width': 1}]
+[ok  ] one clock, one async clear, three enable groups (96 / 5 / 3) -- [(96, 'i264~1_combout'), (5, 'run~q'), (3, '1')]
+[ok  ] six 16-bit word banks and a 5-bit counter -- {'k': 16, 'l0': 16, 'l1': 16, 'l2': 16, 'rnd': 5, 'x': 16, 'y': 16}
+[ok  ] exactly two carry chains, both verified as addition -- [('add_0~1', 'add'), ('add_1~1', 'add')]
+[ok  ] one operand of each chain is a rotation by 7 of a 16-bit bank -- {'x': 7, 'l0': 7}
+[ok  ] the other operand of each chain is straight wiring
+[ok  ] the y and k banks each read themselves rotated left by 2 -- {'k': 2, 'y': 2}
+[ok  ] both are 16 bits wide, read off all 16 next-state cells
+[ok  ] 54 XOR cells, and not one of them is standalone -- xor=54 standalone=0
+[ok  ] the load select is what has to be held to see them -- {'run~q=1': 53, 'pen~q=0': 1}
+[ok  ] the recovered round is ROR 7 / ROL 2 on 16-bit words -- x <- (ROR(x, 7) + y) mod 2^16  XOR  k ; y <- ROL(y, 2) XOR x
+[ok  ] the guide states the same round function
+[ok  ] the netlist encrypts the published Speck32/64 vector -- 0xa86842f2
+[ok  ] it takes 23 cycles and 22 rounds -- 23 cycles, counter [0, 21]
+[ok  ] the guide quotes the ciphertext
+[ok  ] the netlist matches the design.v model for 2000 cycles -- behavior_design.findings.json
+[ok  ] the netlist matches the recovered.v model for 2000 cycles -- behavior_recovered.findings.json
+[ok  ] the committed ALPHA negative control is a counterexample -- behavior_negative_control_alpha8.findings.json
+[ok  ] the committed BETA negative control is a counterexample -- behavior_negative_control_beta3.findings.json
+[ok  ] a reference with ALPHA = 8 is still caught -- diverged at cycle 3
+[ok  ] a reference with BETA = 3 is still caught -- diverged at cycle 3
+[ok  ] the committed verdict is family arx, classical-style -- arx / classical-style
+[ok  ] re-running the classifier still says arx / classical-style -- arx / classical-style
+[ok  ] the confidence tier is high, on four rotations and two adders -- high / 4 rotations / 2 adders
+[ok  ] the rotation amounts match the published speck_32 set and nothing else -- ['speck_32']
+[ok  ] the guide quotes the verdict and the caveat
+[ok  ] reference.py reproduces the published vector in 23 cycles -- ct=0xa86842f2 after 23 cycles
+[ok  ] recovered_reference.py reproduces the published vector in 23 cycles -- ct=0xa86842f2 after 23 cycles
+[ok  ] images/dag.dot exists
+[ok  ] the levelled DAG is 18 levels deep -- levels=18
+[ok  ] guide.html quotes the same level count
+[ok  ] artifacts/dag_trace.json exists
+[ok  ] images/dag_interactive.html exists
+[ok  ] the committed trace reproduces from the committed .vo
+[ok  ] the traced window is one whole encryption ending in the published vector -- 25 frames, 22 busy, last ct=0xa86842f2
+[ok  ] the page embeds every recorded cycle -- 25 of 25
+[ok  ] the page is self-contained: no external request
+[ok  ] guide.html links the interactive page
+[ok  ] netlist.hal.v loads with AGILEX_TENNM -- AGILEX_TENNM
+[ok  ] HAL sees the same 241 instances plus its two constant gates -- 243 gates {'HAL_GND': 1, 'HAL_VCC': 1, 'tennm_ff': 104, 'tennm_lcell_comb': 137}
+[ok  ] every ALM got semantics, none refused -- elaborated=137 refused=0
+[ok  ] the netlist is flat: one module -- modules=1
+[ok  ] four strongly connected components, sized 144 / 80 / 14 / 2 -- [144, 80, 14, 2]
+[ok  ] and they are the key schedule, the data path, the control and a flag -- [['k', 'l0', 'l1', 'l2'], ['x', 'y'], ['pen', 'rnd', 'run'], ['fin']]
+
+all checks passed

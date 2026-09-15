@@ -1,0 +1,498 @@
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/hal/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/home/src/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.01 seconds.
+[netlist_parser] [info] instantiating '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/hal/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist] [warning] [/hal/src/netlist/netlist.cpp:906] failed to load locations of 243 gates.
+[netlist_parser] [info] instantiated '/home/src/examples/agilex3_walkthroughs/11_speck_toy/netlist.hal.v' in 0.01 seconds.
+== stats
+{
+  "declared_vectors": {
+    "ct": 32,
+    "k": 16,
+    "key": 64,
+    "l0": 16,
+    "l1": 16,
+    "l2": 16,
+    "pt": 32,
+    "rnd": 5,
+    "x": 16,
+    "y": 16
+  },
+  "design_name": "speck_toy",
+  "gate_types": {
+    "tennm_ff": 104,
+    "tennm_lcell_comb": 137
+  },
+  "inputs": [
+    {
+      "name": "pt",
+      "width": 32
+    },
+    {
+      "name": "start",
+      "width": 1
+    },
+    {
+      "name": "clk",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "width": 1
+    },
+    {
+      "name": "key",
+      "width": 64
+    }
+  ],
+  "instances": 241,
+  "outputs": [
+    {
+      "name": "ct",
+      "width": 32
+    },
+    {
+      "name": "busy",
+      "width": 1
+    },
+    {
+      "name": "done",
+      "width": 1
+    }
+  ]
+}
+
+== registers
+{
+  "enable_groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "i264~1_combout",
+      "size": 96
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "run~q",
+      "size": 5
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "1",
+      "size": 3
+    }
+  ],
+  "flip_flops": 104,
+  "q_vectors": {
+    "k": 16,
+    "l0": 16,
+    "l1": 16,
+    "l2": 16,
+    "rnd": 5,
+    "x": 16,
+    "y": 16
+  }
+}
+
+== chains
+{
+  "adders": [
+    {
+      "carry_in": 0,
+      "cells": [
+        "add_0~1",
+        "add_0~6",
+        "add_0~11",
+        "add_0~16",
+        "add_0~21",
+        "add_0~26",
+        "add_0~31",
+        "add_0~36",
+        "add_0~41",
+        "add_0~46",
+        "add_0~51",
+        "add_0~56",
+        "add_0~61",
+        "add_0~66",
+        "add_0~71",
+        "add_0~76"
+      ],
+      "checked_vectors": 256,
+      "exhaustive": false,
+      "operands": {
+        "first": {
+          "declared_width": 16,
+          "rotation": {
+            "bits_observed": 15,
+            "kind": "rotation",
+            "rotate_left_by": 9,
+            "rotation": 7,
+            "source": "x",
+            "width": 16
+          },
+          "sources": [
+            "x[7]",
+            "x[8]",
+            "x[9]",
+            "x[10]",
+            "x[11]",
+            "x[12]",
+            "x[13]",
+            "x[14]",
+            "x[15]",
+            "x[0]",
+            "x[1]",
+            "x[2]",
+            "x[3]",
+            "x[4]",
+            "x[5]"
+          ],
+          "vector": "x"
+        },
+        "second": {
+          "declared_width": 16,
+          "rotation": null,
+          "sources": [
+            "y[0]",
+            "y[1]",
+            "y[2]",
+            "y[3]",
+            "y[4]",
+            "y[5]",
+            "y[6]",
+            "y[7]",
+            "y[8]",
+            "y[9]",
+            "y[10]",
+            "y[11]",
+            "y[12]",
+            "y[13]",
+            "y[14]"
+          ],
+          "vector": "y"
+        }
+      },
+      "operation": "add",
+      "verified_bits": 15
+    },
+    {
+      "carry_in": 0,
+      "cells": [
+        "add_1~1",
+        "add_1~6",
+        "add_1~11",
+        "add_1~16",
+        "add_1~21",
+        "add_1~26",
+        "add_1~31",
+        "add_1~36",
+        "add_1~41",
+        "add_1~46",
+        "add_1~51",
+        "add_1~56",
+        "add_1~61",
+        "add_1~66",
+        "add_1~71",
+        "add_1~76"
+      ],
+      "checked_vectors": 256,
+      "exhaustive": false,
+      "operands": {
+        "first": {
+          "declared_width": 16,
+          "rotation": null,
+          "sources": [
+            "k[0]",
+            "k[1]",
+            "k[2]",
+            "k[3]",
+            "k[4]",
+            "k[5]",
+            "k[6]",
+            "k[7]",
+            "k[8]",
+            "k[9]",
+            "k[10]",
+            "k[11]",
+            "k[12]",
+            "k[13]",
+            "k[14]"
+          ],
+          "vector": "k"
+        },
+        "second": {
+          "declared_width": 16,
+          "rotation": {
+            "bits_observed": 15,
+            "kind": "rotation",
+            "rotate_left_by": 9,
+            "rotation": 7,
+            "source": "l0",
+            "width": 16
+          },
+          "sources": [
+            "l0[7]",
+            "l0[8]",
+            "l0[9]",
+            "l0[10]",
+            "l0[11]",
+            "l0[12]",
+            "l0[13]",
+            "l0[14]",
+            "l0[15]",
+            "l0[0]",
+            "l0[1]",
+            "l0[2]",
+            "l0[3]",
+            "l0[4]",
+            "l0[5]"
+          ],
+          "vector": "l0"
+        }
+      },
+      "operation": "add",
+      "verified_bits": 15
+    }
+  ],
+  "chains": 2
+}
+
+== banks
+{
+  "rotations": [
+    {
+      "all_inverted": false,
+      "bits_observed": 16,
+      "destination": "register bank k next-state fan-in",
+      "kind": "rotation",
+      "read_from": "register-bank next-state cells",
+      "rotate_left_by": 2,
+      "rotation": 14,
+      "source": "k",
+      "width": 16
+    },
+    {
+      "all_inverted": false,
+      "bits_observed": 16,
+      "destination": "register bank y next-state fan-in",
+      "kind": "rotation",
+      "read_from": "register-bank next-state cells",
+      "rotate_left_by": 2,
+      "rotation": 14,
+      "source": "y",
+      "width": 16
+    }
+  ]
+}
+
+== xor
+{
+  "arities": {
+    "2": 33,
+    "3": 21
+  },
+  "cofactors": {
+    "pen~q=0": 1,
+    "run~q=1": 53
+  },
+  "conditional": 54,
+  "examples": [
+    {
+      "cell": "i264~0",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[14]",
+        "k[0]",
+        "add_0~1_sumout"
+      ]
+    },
+    {
+      "cell": "i264~2",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[15]",
+        "k[1]",
+        "add_0~6_sumout"
+      ]
+    },
+    {
+      "cell": "i264~3",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[0]",
+        "k[2]",
+        "add_0~11_sumout"
+      ]
+    },
+    {
+      "cell": "i264~4",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[1]",
+        "k[3]",
+        "add_0~16_sumout"
+      ]
+    }
+  ],
+  "standalone": 0,
+  "xor_cells": 54
+}
+
+== encrypt
+{
+  "busy_cycles": 22,
+  "ciphertext": "0xa86842f2",
+  "cycles_from_accepted_start_to_done": 23,
+  "key": "0x1918111009080100",
+  "matches_published_vector": true,
+  "plaintext": "0x6574694c",
+  "published_ciphertext": "0xa86842f2",
+  "round_counter_range": [
+    0,
+    21
+  ],
+  "rounds": 22
+}
+
+== round
+{
+  "adders": 2,
+  "alpha_right_rotation": 7,
+  "beta_left_rotation": 2,
+  "key_schedule": "l <- (k + ROR(l0, 7)) mod 2^16  XOR  i ; k <- ROL(k, 2) XOR l",
+  "matches_published_vector": true,
+  "round_function": "x <- (ROR(x, 7) + y) mod 2^16  XOR  k ; y <- ROL(y, 2) XOR x",
+  "rounds": 22,
+  "standalone_xor_cells": 0,
+  "word_bits": 16,
+  "xor_cells": 54
+}
+
+== hal
+{
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 64,
+        "tennm_lcell_comb": 80
+      },
+      "registers": {
+        "k": 16,
+        "l0": 16,
+        "l1": 16,
+        "l2": 16
+      },
+      "size": 144
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 32,
+        "tennm_lcell_comb": 48
+      },
+      "registers": {
+        "x": 16,
+        "y": 16
+      },
+      "size": 80
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 7,
+        "tennm_lcell_comb": 7
+      },
+      "registers": {
+        "pen": 1,
+        "rnd": 5,
+        "run": 1
+      },
+      "size": 14
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "registers": {
+        "fin": 1
+      },
+      "size": 2
+    }
+  ],
+  "edges": 2111,
+  "elaborated": 137,
+  "gate_library": "AGILEX_TENNM",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 104,
+    "tennm_lcell_comb": 137
+  },
+  "gates": 243,
+  "largest_component": {
+    "gate_types": {
+      "tennm_ff": 64,
+      "tennm_lcell_comb": 80
+    },
+    "registers": {
+      "k": 16,
+      "l0": 16,
+      "l1": 16,
+      "l2": 16
+    },
+    "size": 144
+  },
+  "modules": 1,
+  "nets": 372,
+  "refused": [],
+  "vertices": 243
+}
+

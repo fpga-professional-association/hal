@@ -1,0 +1,26 @@
+{
+  "rotations": [
+    {
+      "all_inverted": false,
+      "bits_observed": 16,
+      "destination": "register bank k next-state fan-in",
+      "kind": "rotation",
+      "read_from": "register-bank next-state cells",
+      "rotate_left_by": 2,
+      "rotation": 14,
+      "source": "k",
+      "width": 16
+    },
+    {
+      "all_inverted": false,
+      "bits_observed": 16,
+      "destination": "register bank y next-state fan-in",
+      "kind": "rotation",
+      "read_from": "register-bank next-state cells",
+      "rotate_left_by": 2,
+      "rotation": 14,
+      "source": "y",
+      "width": 16
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "busy_cycles": 22,
+  "ciphertext": "0xa86842f2",
+  "cycles_from_accepted_start_to_done": 23,
+  "key": "0x1918111009080100",
+  "matches_published_vector": true,
+  "plaintext": "0x6574694c",
+  "published_ciphertext": "0xa86842f2",
+  "round_counter_range": [
+    0,
+    21
+  ],
+  "rounds": 22
+}
