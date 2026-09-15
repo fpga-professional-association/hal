@@ -77,7 +77,7 @@ class TruthTable(object):
     i.e. the first name in ``inputs`` is the least significant address bit.
     """
 
-    __slots__ = ("inputs", "values")
+    __slots__ = ("inputs", "values", "_anf")
 
     def __init__(self, inputs, values):
         inputs = tuple(inputs)
@@ -90,6 +90,7 @@ class TruthTable(object):
             )
         self.inputs = inputs
         self.values = values
+        self._anf = None
 
     # -- basics -----------------------------------------------------------
 
@@ -166,8 +167,11 @@ class TruthTable(object):
 
         Each monomial is a tuple of input names; the empty tuple is the
         constant term.  Computed with the Moebius transform, so the result is
-        exact, not a fit.
+        exact, not a fit -- and cached, because the affinity test, the degree
+        and the printed form all want it and a wide table costs real time.
         """
+        if self._anf is not None:
+            return self._anf
         coefficients = list(self.values)
         step = 1
         while step < len(coefficients):
@@ -187,6 +191,7 @@ class TruthTable(object):
                 )
             )
         terms.sort(key=lambda term: (len(term), term))
+        self._anf = terms
         return terms
 
     def algebraic_degree(self):

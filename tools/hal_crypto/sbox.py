@@ -44,6 +44,15 @@ __all__ = [
 MIN_SBOX_BITS = 3
 MAX_SBOX_BITS = boolfunc.MAX_SBOX_BITS
 
+#: A cone is only evaluated when it reads at most this many nets.  An S-box
+#: output bit reads at most eight, so the four bits of slack cover a cone that
+#: fans in wider than it functionally depends on; beyond that the enumeration
+#: is paid for on every adder sum bit in the design and buys nothing.  Cones
+#: that exceed it are *counted and reported*, not silently dropped -- their
+#: functional support could still be small, and pretending otherwise would turn
+#: a coverage limit into a clean negative.
+MAX_EXTRACTION_SOURCES = 12
+
 #: How many *n*-subsets of an oversized output group the pass will try before
 #: giving up on it.  A group with far more outputs than inputs is a fan-out
 #: cluster, not an S-box, and enumerating it is not worth the time.
@@ -51,16 +60,25 @@ MAX_GROUP_COMBINATIONS = 200
 
 
 def _combinational_nets(model):
-    """Net key -> ``(support, table)`` for every net a LUT cell drives."""
+    """``(nets, skipped)``: the usable cones, and how many were too wide."""
     results = {}
+    skipped = 0
     for instance in model.lcells:
         for pin in ("combout", "sumout", "cout"):
             bits = instance.connections.get(pin)
             if not bits:
                 continue
-            bit = bits[0]
-            key = getattr(bit, "key", None)
+            key = getattr(bits[0], "key", None)
             if key is None or key in results:
+                continue
+            try:
+                support = model.support(key)
+            except UnsupportedCell:
+                continue
+            if len(support) < MIN_SBOX_BITS:
+                continue
+            if len(support) > MAX_EXTRACTION_SOURCES:
+                skipped += 1
                 continue
             try:
                 table = model.cone(key).restricted()
@@ -69,7 +87,7 @@ def _combinational_nets(model):
             if table.arity < MIN_SBOX_BITS or table.arity > MAX_SBOX_BITS:
                 continue
             results[key] = table
-    return results
+    return results, skipped
 
 
 def candidate_groups(model):
@@ -81,7 +99,7 @@ def candidate_groups(model):
     the number of combinational nets, and an S-box pass that takes minutes on a
     real netlist is a pass nobody runs.
     """
-    nets = _combinational_nets(model)
+    nets, skipped = _combinational_nets(model)
     by_source = {}
     for key, table in nets.items():
         for name in table.inputs:
@@ -113,7 +131,7 @@ def candidate_groups(model):
                 union.update(nets[key].inputs)
             if union == set(support):
                 groups.append((sorted(support), list(combination)))
-    return groups, nets
+    return groups, nets, skipped
 
 
 def extract_sboxes(model):
@@ -123,10 +141,24 @@ def extract_sboxes(model):
     :class:`~hal_crypto.boolfunc.Sbox`, and the reason a rejected group was
     rejected (rejections are returned too, under ``rejected``).
     """
-    groups, nets = candidate_groups(model)
+    groups, nets, skipped = candidate_groups(model)
     accepted = []
     rejected = []
     seen = set()
+    if skipped:
+        rejected.append(
+            {
+                "sources": [],
+                "outputs": [],
+                "reason": (
+                    "{} combinational net(s) read more than {} sources, so their "
+                    "cones were not enumerated; an S-box hidden behind that much "
+                    "fan-in would not have been found".format(
+                        skipped, MAX_EXTRACTION_SOURCES
+                    )
+                ),
+            }
+        )
     for sources, outputs in groups:
         signature = (tuple(sources), tuple(outputs))
         if signature in seen:

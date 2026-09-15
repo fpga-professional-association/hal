@@ -58,10 +58,11 @@ MAX_PERIOD_CHECK_BITS = 24
 class StageUpdate(object):
     """One register's next-state function, reduced to its real dependencies."""
 
-    __slots__ = ("ff", "table", "register_deps", "other_deps", "problem")
+    __slots__ = ("ff", "table", "register_deps", "other_deps", "problem", "_affine")
 
     def __init__(self, ff, table=None, register_deps=(), other_deps=(), problem=None):
         self.ff = ff
+        self._affine = False  # not None: None is a valid answer ("not affine")
         #: :class:`~hal_crypto.boolfunc.TruthTable` over the dependency net keys.
         self.table = table
         #: net keys of the ``q`` outputs this update reads.
@@ -86,9 +87,13 @@ class StageUpdate(object):
         a CRC stage is ``crc[i-1] ^ crc[7] ^ din`` and refusing to look at it
         because ``din`` is not a register would lose the whole structure.
         """
+        if self._affine is not False:
+            return self._affine
         if self.problem is not None or self.table is None:
-            return None
-        return self.table.linear_terms()
+            self._affine = None
+        else:
+            self._affine = self.table.linear_terms()
+        return self._affine
 
     def single_register_link(self):
         """``(source key, inverted)`` when the update is ``q_src`` or ``!q_src``."""

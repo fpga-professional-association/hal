@@ -223,15 +223,20 @@ class NetlistModel(object):
         if driver is None or driver[1] != "combout":
             return key, inverted
         try:
-            table = self.cone(key).restricted()
-        except (UnsupportedCell, ConeTooWide):
+            keys, table, _, _, _ = self._lut_inputs(driver[0])
+        except UnsupportedCell:
             return key, inverted
-        if table.arity != 1:
+        # The test is on the cell itself, not on its cone: a buffer is a cell
+        # with one live input and a two-entry table, and looking any further
+        # than that would mean evaluating the whole cone behind every operand
+        # of every adder just to discover it is not a buffer.
+        if len(keys) != 1:
             return key, inverted
-        affine = table.linear_terms()
-        if affine is None or len(affine[1]) != 1:
-            return key, inverted
-        return self.peel(table.inputs[0], inverted ^ bool(affine[0]), depth + 1)
+        if table == [0, 1]:
+            return self.peel(keys[0], inverted, depth + 1)
+        if table == [1, 0]:
+            return self.peel(keys[0], not inverted, depth + 1)
+        return key, inverted
 
     def peel_bit(self, bit):
         """:meth:`peel` starting from a possibly inverted connection."""
