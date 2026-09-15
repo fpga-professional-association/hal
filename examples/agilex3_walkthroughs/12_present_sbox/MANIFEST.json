@@ -1,0 +1,64 @@
+{
+  "description": "PRESENT-80 encryption datapath, iterative (one round per clock, 31 rounds), key schedule included, encrypt only. 16 parallel 4-bit S-boxes as LUT logic, the pLayer as pure wiring, an 80-bit key register.",
+  "device": "A3CW135BM16AE6S",
+  "export_flow": [
+    "quartus_syn present_sbox -c present_sbox",
+    "quartus_eda --simulation --format=verilog --tool=questasim --output_directory=simulation present_sbox -c present_sbox"
+  ],
+  "export_stage": "post-synthesis (synthesized snapshot; no fitting was run)",
+  "family": "Agilex 3",
+  "files": {
+    "design.v": {
+      "role": "source",
+      "sha256": "dc1bac1efa9e18ff039e119a06193ade7d99be260d9875271a5f854658de10c7",
+      "size_bytes": 7214
+    },
+    "netlist.hal.v": {
+      "role": "imported",
+      "sha256": "5d65b2a431f361d892482e4b4cf54d34f85596ea33e847aac0972611a153ba99",
+      "size_bytes": 116622
+    },
+    "present_sbox.vo": {
+      "role": "export",
+      "sha256": "71e45618ba8cf627aecd2807de00e3228a56f8b018a4ac2dfe9a0d94b1f5f4d6",
+      "size_bytes": 181742
+    },
+    "variants/design_textbook.v": {
+      "role": "source (counterfactual: register before the key addition)",
+      "sha256": "4b33ac6d01b9bc2ebaf74c8c7c9967d492a3e2e04718a438bc69f1885f811bde",
+      "size_bytes": 3021
+    },
+    "variants/present_nokeep.vo": {
+      "role": "export (counterfactual: design.v without the keep pragmas)",
+      "sha256": "e8685e23aaea68039f90233d5cb9c022462af12562f024451c7c80126dd1e91e",
+      "size_bytes": 186250
+    },
+    "variants/present_textbook.vo": {
+      "role": "export (counterfactual)",
+      "sha256": "26074314ca84e87f87243a1b8764fdc659784ca8fcdd0ffba0b83292bfa1f23c",
+      "size_bytes": 235068
+    }
+  },
+  "package": "MBGA896",
+  "primitive_histogram": {
+    "tennm_ff": 151,
+    "tennm_lcell_comb": 226
+  },
+  "qsf_assignments": [
+    "set_global_assignment -name FAMILY \"Agilex 3\"",
+    "set_global_assignment -name DEVICE A3CW135BM16AE6S",
+    "set_global_assignment -name TOP_LEVEL_ENTITY present_sbox",
+    "set_global_assignment -name VERILOG_FILE design.v",
+    "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files"
+  ],
+  "quartus_install": "C:/altera_pro/26.1 (Windows)",
+  "quartus_version": "Version 26.1.0 Build 110 03/26/2026 SC Pro Edition",
+  "redistribution": "The exported netlists are tool output generated from FPGAPA-authored RTL. The Altera copyright header that quartus_eda writes is kept verbatim. No vendor simulation models, device databases or encrypted libraries are redistributed here.",
+  "regenerate": [
+    "copy design.v next to quartus/build.tcl in a scratch directory, then run the export_flow commands",
+    "variants/README.md documents the one-line difference behind each counterfactual export"
+  ],
+  "top_level_entity": "present_sbox",
+  "vendor_tool": "Quartus Prime Pro Edition",
+  "walkthrough": "examples/agilex3_walkthroughs/12_present_sbox"
+}

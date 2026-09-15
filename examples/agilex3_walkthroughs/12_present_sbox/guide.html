@@ -1,0 +1,834 @@
+<title>Agilex 3 RE walkthrough 12 — PRESENT-80 encryption datapath</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 12 — a PRESENT-80 encryption datapath: reading a
+published S-box, a bit permutation and a key schedule straight out of the
+silicon.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+<code>377</code> instances, 151 flip-flops, 226 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has worked through one or two of the
+earlier walkthroughs — a counter, an FSM, an LFSR — and wants to see what changes
+when the thing in the netlist is a <em>cipher</em>. Two things change. First, the
+answer is a published algorithm, so for once there is an external ground truth to
+match against instead of only an internal one. Second, matching it is a trap:
+&ldquo;this table equals the PRESENT S-box&rdquo; is a fact about sixteen numbers,
+and turning it into &ldquo;this chip runs PRESENT&rdquo; takes several more steps,
+each of which can fail.
+<p style="margin-bottom:0"><strong>The rule this page follows:</strong> every
+number, every quoted output and every picture below was produced by the command
+printed above it, and
+<a href="check.py"><code>check.py</code></a> re-derives all of them from the
+committed netlists and fails if any has drifted. Where a tool found nothing, that
+is shown too, with the reason — one whole layer of this cipher is invisible to the
+pass that was built to find it.</p>
+</div>
+
+<div class="note"><span class="tag">The short version</span>
+<p style="margin-bottom:0">Sixteen four-input LUT cones over the datapath register
+enumerate to the same 16-entry bijection, <code>C56B90AD3EF84712</code>, which is
+the PRESENT S-box; a seventeenth sits on the key register. The wiring from those
+cones to the flip-flops is the PRESENT bit permutation, all 64 positions. The key
+register is a rotation by 61 with a substituted top nibble and a counter XORed
+into bits 19:15. A 5-bit counter runs 1..31. Driven with the four published
+PRESENT-80 test vectors, the netlist returns the four published ciphertexts.</p>
+</div>
+
+<h2>Contents</h2>
+<div class="toc">
+<a href="#export">1. Where the netlist came from</a><br>
+<a href="#contact">2. First contact: census, ports, registers</a><br>
+<a href="#dag">3. The netlist as a graph</a><br>
+<a href="#sboxes">4. The substitution layer</a><br>
+<a href="#player">5. The permutation layer, which no pass can see</a><br>
+<a href="#keysched">6. The key schedule</a><br>
+<a href="#rounds">7. How many rounds</a><br>
+<a href="#verdict">8. The verdict, and what it is allowed to mean</a><br>
+<a href="#proof">9. Proving it: test vectors, a reconstruction, two negative controls</a><br>
+<a href="#variants">10. What the RTL decides: two counterfactual exports</a><br>
+<a href="#limits">11. What this does and does not establish</a><br>
+<a href="#repro">12. Reproducing all of it</a>
+</div>
+
+<h2 id="export">1. Where the netlist came from</h2>
+
+<p>The same flow as every other walkthrough in this series. Quartus Prime Pro 26.1,
+Agilex 3, synthesis only — no fitting, so what you get is the synthesized snapshot
+the EDA netlist writer emits for simulation:</p>
+
+<pre><code>$ cd quartus &amp;&amp; quartus_sh -t build.tcl
+$ quartus_syn present_sbox -c present_sbox
+$ quartus_eda --simulation --format=verilog --tool=questasim \
+      --output_directory=simulation present_sbox -c present_sbox</code></pre>
+
+<p>That writes <a href="present_sbox.vo"><code>present_sbox.vo</code></a>. Before
+anything is read out of it, ask whether it is even readable — whether every
+primitive in it is one whose behaviour this fork has validated against the vendor:</p>
+
+<pre><code>$ python3 tools/hal_agilex --strict inventory present_sbox.vo \
+      -o artifacts/inventory.findings.json
+$ echo $?
+0</code></pre>
+
+<p>Exit 0 with <code>--strict</code> means no instance is out of coverage: the
+export is <code>377</code> instances, 226 <code>tennm_lcell_comb</code> and 151
+<code>tennm_ff</code>, and every one of them is in a pin configuration
+<code>tools/hal_agilex</code> models. No RAM, no DSP, no PLL, no IO buffers. The
+same file rewritten for HAL's Verilog parser is
+<a href="netlist.hal.v"><code>netlist.hal.v</code></a>:</p>
+
+<pre><code>$ python3 tools/hal_agilex import present_sbox.vo -o netlist.hal.v</code></pre>
+
+<div class="honest"><span class="tag">What the names give away</span>
+<p style="margin-bottom:0">This export keeps the RTL's names: <code>state</code>,
+<code>kreg</code>, <code>subs</code>, <code>plaintext</code>. A real target does
+not, and none of the recovery below uses them — <code>analysis.py</code> finds the
+substitution layer by enumerating cones, and identifies which register bank is the
+datapath by <em>which bank the substitution cones read</em>, not by what it is
+called. The names are convenient for reading this page. Walkthrough 16 takes them
+away.</p>
+</div>
+
+<h2 id="contact">2. First contact: census, ports, registers</h2>
+
+<p>Three questions, in the order the
+<a href="../../../ai/skills/re-walkthrough-method/SKILL.md">method</a> asks them:
+how much is there, what crosses the boundary, and where is the state.</p>
+
+<pre><code>$ python3 analysis.py
+netlist: present_sbox.vo
+  377 instances: tennm_ff x151, tennm_lcell_comb x226
+  inputs ['start', 'plaintext', 'key_in', 'clk', 'rst_n'] / outputs ['ciphertext', 'busy', 'done']
+register banks (clock, clear, enable):
+  148 flip-flops  clk=clk clrn=rst_n ena=i586~1_combout
+    3 flip-flops  clk=clk clrn=rst_n ena=const1</code></pre>
+
+<p>There is no hierarchy to speak of — <code>hal_viz module_tree</code>
+(<a href="images/module_tree.svg">images/module_tree.svg</a>) draws one module
+holding all 379 gates, which is what a flat post-synthesis export always looks
+like. Whatever structure this design has is in the wiring, not in the modules.</p>
+
+<p>151 flip-flops is a hard upper bound on the state, and it is a <em>lot</em> for
+this series — three times walkthrough 01's counter. 144 bits of payload plus a
+handful of control is the shape of a block cipher with a key register, and the
+input widths (64 and 80) say the same thing before any logic is read. Nothing here
+proves that; it is where to point the next tool.</p>
+
+<p>The control-pin signature splits the flops two ways and no further: one clock,
+one asynchronous active-low clear, and exactly two enable groups —
+<strong>148</strong> flops that move together under one enable net, and
+<strong>3</strong> that are always enabled. Whatever this design does, it does it
+to 148 bits at once, every cycle it is running. The three always-on flops are the
+part that decides <em>whether</em> it is running.</p>
+
+<div class="why"><span class="tag">Why this is already useful</span>
+<p style="margin-bottom:0">One enable over 148 flops rules out a pipeline: a
+pipelined cipher has one enable per stage, or none at all. An iterative
+round-per-cycle datapath is exactly one wide enable plus a small always-on
+sequencer. This is the first evidence for &ldquo;one round per clock&rdquo;, and it
+came from four pin connections per flop.</p>
+</div>
+
+<h2 id="dag">3. The netlist as a graph</h2>
+
+<p><strong>Nodes are gates, edges are nets</strong> — one edge per driver&nbsp;→&nbsp;sink
+pair, from the output pin that drives a net to each input pin that reads it. That
+is all a netlist is. It is not acyclic: the datapath register feeds itself. But in
+a synchronous design every cycle passes through a register, so if you <em>cut</em>
+every edge that lands on a flip-flop pin, the cycles vanish and what is left is a
+directed acyclic graph — the combinational core. Level 0 is everything with no
+remaining predecessor; level <em>n</em> is everything whose deepest predecessor is
+at level <em>n</em>&minus;1. <code>hal_viz dag</code> runs Kahn's algorithm and
+draws each level as a column.</p>
+
+<pre><code>$ python tools/hal_viz dag netlist.hal.v --gate-library "$GL" \
+      --const-hub -o images/dag.svg --html</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/dag.svg" alt="Levelled DAG of the netlist: 151 flip-flops in the level-0 column, 153 combinational cells at level 1, 73 at level 2.">
+  </div>
+  <figcaption>379 gates, 1495 edges, <code>3</code> topological levels, 601 edges
+  cut at a register. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>. 379 rather than 377 because HAL adds
+  a <code>HAL_GND</code> and a <code>HAL_VCC</code> gate on load. Unlike the other
+  walkthroughs in this series this drawing uses <code>--const-hub</code>: the same
+  command without it emits one stub per consuming pin — 2292 extra nodes and a
+  2.5&times; larger SVG, measured, though that drawing is not committed — which at
+  this size buys nothing.</figcaption>
+</figure>
+
+<p>Read the column widths, not the picture:</p>
+
+<ul class="tight">
+<li><strong>Level 0: 151 flip-flops</strong>, plus the two constant gates HAL adds.
+After the cut a register has no combinational predecessor, so it is a source by
+construction.</li>
+<li><strong>Level 1: 153 combinational cells.</strong> One rank, 153 cells wide,
+every one of them reading register outputs directly.</li>
+<li><strong>Level 2: 73 combinational cells</strong>, and that is the end.</li>
+</ul>
+
+<p>Three levels over 226 combinational cells is the whole point. Compare the rest
+of the series: walkthrough 01's 24-bit counter is <strong>24</strong> levels over
+23 cells — a ripple, one cell per level, each waiting for the one before it.
+Walkthrough 06's ALU is 12 levels over a ten-cell carry chain. Those are
+<em>deep and narrow</em>: arithmetic, where bit <em>i</em> cannot start until bit
+<em>i</em>&minus;1 finishes.</p>
+
+<p>This one is <em>shallow and wide</em>: 226 cells in two ranks, 153 of them
+independent of each other. That is the substitution-permutation shape. An SPN round
+is by construction sixteen small functions that do not talk to each other, followed
+by wiring; there is no carry to propagate, so there is nothing to make it deep. If
+you only ever look at one picture of an unknown cipher core, look at this one: a
+wide, two-rank combinational core between two register banks says
+&ldquo;parallel S-boxes&rdquo; before a single truth table has been enumerated.</p>
+
+<h4>The same graph, one clock at a time</h4>
+
+<p>Structure is half of it. The other half is what the values do, and the two
+committed artifacts above — the SVG and its DOT source — are already enough to
+join a simulation to the drawing:</p>
+
+<pre><code>$ python3 tools/hal_agilex trace present_sbox.vo \
+      --reference recovered_reference.py --cycles 34 \
+      --hold start=1 --hold plaintext=0 --hold key_in=0 \
+      -o artifacts/dag_trace.json
+$ python3 tools/hal_viz clock_step images/dag.svg \
+      --trace artifacts/dag_trace.json -o images/dag_interactive.html
+
+[hal_viz] bound 377/379 gate(s) and 967/1495 edge(s); 0 tie-off(s), 0 ambiguous edge(s)</code></pre>
+
+<p><a href="images/dag_interactive.html"><strong>images/dag_interactive.html</strong></a>
+is that page: prev/next, a scrubber, play/pause, and every net coloured by its
+value. The window is deliberate — <code>start</code> held high with plaintext and
+key held at zero is <em>the first published test vector</em>, so the 34 cycles are
+the clear, the load, all 31 rounds and the stop, ending with
+<code>5579C1387B228445</code> in the register and <code>done</code> high. Step
+through it and the round structure is visible as motion: one rank of cells
+changing, then the next, then the whole register at once.</p>
+
+<p>The two gates it cannot colour are <code>HAL_GND</code> and
+<code>HAL_VCC</code>, which exist only inside HAL and have no net in the export;
+the 528 uncoloured edges are their fan-out, drawn as a hub here rather than as
+per-pin stubs. The page counts both rather than guessing a value for them.</p>
+
+<div class="honest"><span class="tag">What the picture cannot do</span>
+<p style="margin-bottom:0">It cannot tell you what any cell computes.
+<code>lut_mask</code> is a node attribute, not a shape. The drawing says
+&ldquo;sixteen-ish independent 4-input cones&rdquo;; it does not say
+<code>C56B90AD3EF84712</code>. As in walkthrough 10: <em>the picture localises, the
+algebra decides.</em></p>
+</div>
+
+<h2 id="sboxes">4. The substitution layer</h2>
+
+<p>An S-box in a netlist is not a component; it is a coincidence between cones.
+<em>n</em> combinational nets that read the same <em>n</em> sources, and that taken
+together permute them, is what a substitution box looks like after synthesis, and
+<code>hal_crypto</code>'s S-box pass is that sentence turned into a search: group
+the combinational nets by the set of registers and primary inputs their cone
+depends on, keep the groups where the number of outputs equals the number of
+sources, enumerate the map, and keep it if it is <strong>bijective</strong> (a
+colliding map is not a substitution) and <strong>not affine over GF(2)</strong> (a
+linear map is a permutation network or a key XOR, and both have their own pass).</p>
+
+<pre><code>$ python3 -m hal_crypto sbox present_sbox.vo -o artifacts/sbox.findings.json</code></pre>
+
+<p>Every <code>hal_crypto</code> command writes a
+<a href="../../../tools/hal_findings/README.md">findings document</a> and prints
+only the path; the blocks below are the <code>title</code> and
+<code>summary</code> fields out of that JSON, which is also what
+<code>hal_viz report</code> renders into
+<a href="artifacts/findings_report.html">artifacts/findings_report.html</a>.</p>
+
+<p>Seventeen groups survive. Sixteen of them read four bits each of the same
+64-flop bank; the seventeenth reads four bits of the 80-flop bank. Every one of
+them enumerates to the same table:</p>
+
+<pre><code>  x     0 1 2 3 4 5 6 7 8 9 A B C D E F
+  S(x)  C 5 6 B 9 0 A D 3 E F 8 4 7 1 2      algebraic degree 3, differential uniformity 4</code></pre>
+
+<p>and every one of them matches the same library entry:</p>
+
+<pre><code>A 4-bit substitution equal to present (exact match)
+  The 4 output cones over state[0], state[1], state[2], state[3] were enumerated
+  over all 16 input assignments; the resulting bijection equals present under the
+  'exact' equivalence. Table equality is a fact about the extracted function -- it
+  does not by itself make the design that cipher.</code></pre>
+
+<p>Sixteen of the seventeen match at the <strong>exact</strong> tier and one at the
+<strong>bit_permutation</strong> tier. The odd one out is worth a paragraph,
+because the reason is not cryptographic at all:</p>
+
+<pre><code>A 4-bit substitution equal to present (bit_permutation match)
+  The 4 output cones over state[10], state[11], state[8], state[9] ...</code></pre>
+
+<div class="note"><span class="tag">Why one nibble matches at a weaker tier</span>
+<p>Four output signals have no intrinsic bit order — the pass has to pick one, and
+it sorts by net name. For fifteen nibbles the name order and the numeric order
+agree. For the nibble on <code>state[8..11]</code> they do not:
+<em>&ldquo;state[10]&rdquo;, &ldquo;state[11]&rdquo;, &ldquo;state[8]&rdquo;,
+&ldquo;state[9]&rdquo;</em> is the string order, which rotates the nibble by two
+positions on both the input and the output side. The extracted table is therefore a
+bit-permuted PRESENT S-box, and <code>hal_crypto</code> says
+<code>bit_permutation</code> rather than <code>exact</code>, which is the honest
+report: the table it built really is not equal to the published one.</p>
+<p style="margin-bottom:0">Two lessons. The tier is a statement about <em>the
+extraction's own conventions</em> as much as about the circuit, so a
+bit-permutation match on a 4-bit box is normally as good as an exact one. And the
+tier is never inflated — nothing in this pipeline reports a permuted match as
+exact, which is exactly what makes the sixteen <code>exact</code> matches worth
+something.</p>
+</div>
+
+<p>Here is one of the sixteen, as a picture and as a cell. The picture is one
+substitution output and everything within one hop of it:</p>
+
+<pre><code>$ python tools/hal_viz netlist_graph netlist.hal.v --gate-library "$GL" \
+      --gate 'subs[0]' --depth 1 --show-boundary --pin-labels -o images/sbox_cone.svg</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/sbox_cone.svg" alt="One substitution output cell reading four flip-flops and driving one downstream cell.">
+  </div>
+  <figcaption>7 gates: four flip-flops of the datapath register feed one ALM, whose
+  output feeds exactly one downstream cell. Four registers in, one bit out — one
+  quarter of one S-box. The DOT source is
+  <a href="images/sbox_cone.dot">images/sbox_cone.dot</a>.</figcaption>
+</figure>
+
+<p>And the cell itself, straight out of the <code>.vo</code>:</p>
+
+<pre><code>tennm_lcell_comb #(
+  .extended_lut ("off"),
+  .lut_mask (64'h59A659A659A659A6),
+  .shared_arith ("off"))
+\subs[0] (
+// Equation(s):
+// subs[0] = LCELL(!state[0] ^ (!state[3] ^ (((!state[1] &amp; state[2])))) )
+        .dataa(~state[0]), .datab(~state[1]), .datac(~state[2]), .datad(~state[3]),
+        ...
+        .combout(subs[0]));</code></pre>
+
+<p>The mask repeats every 16 bits because only four of the ALM's six data inputs
+are live; the pass folds the constant pins away before it enumerates. Nothing about
+&ldquo;S-box&rdquo; is written anywhere in the cell — the algebra is the only thing
+that says it.</p>
+
+<p>Turn it around and the other direction is the picture of the whole nibble: one
+datapath flip-flop and everything one hop from <em>it</em>.</p>
+
+<pre><code>$ python tools/hal_viz netlist_graph netlist.hal.v --gate-library "$GL" \
+      --gate 'state[0]' --depth 1 --show-boundary --pin-labels -o images/netlist_graph.svg</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/netlist_graph.svg" alt="One datapath flip-flop driving the four cells of its S-box, and its own D driver.">
+  </div>
+  <figcaption>9 gates: <code>state[0]</code> drives exactly four combinational
+  cells — <code>subs[0..3]</code>, the four output bits of its own nibble — and is
+  driven by one cell (its D) plus the enable. A datapath bit that fans out to
+  exactly the other three bits of its own group and nowhere else <em>is</em> the
+  S-box boundary, visible before any function is read.</figcaption>
+</figure>
+
+<div class="honest"><span class="tag">Why the whole-graph picture is missing</span>
+<p style="margin-bottom:0">Both drawings above are scoped with
+<code>--gate ... --depth 1</code>. There is no whole-netlist
+<code>netlist_graph</code> in this walkthrough: Graphviz's <code>dot</code> did not
+finish the unscoped 379-gate drawing in 600 seconds, and
+<code>--depth 2</code> around any datapath flop already pulls in all 379 gates, so
+that is not a close-up either. <code>--engine sfdp --const-hub</code> does render
+it, in about four minutes, and the result is an unreadable ball of wool. The
+levelled DAG in section 3 is the whole-design picture that survives this size; that
+is what it is for.</p>
+</div>
+
+<h2 id="player">5. The permutation layer, which no pass can see</h2>
+
+<p>PRESENT's other layer is a bit permutation, and <code>hal_crypto</code> has a
+pass for exactly that. Run it:</p>
+
+<pre><code>$ python3 -m hal_crypto permutation present_sbox.vo -o artifacts/permutation.findings.json
+
+No non-identity bit permutation layer
+  Every pure-wire map between two equally wide vectors is the identity, so there is
+  no permutation layer to compare against the published pLayers.</code></pre>
+
+<p>Nothing. The pass is not broken and the permutation is not absent — the two
+statements are compatible, and understanding why is worth more than the result
+would have been.</p>
+
+<div class="note"><span class="tag">Why the pass finds nothing here</span>
+<p>A permutation layer costs no logic. That is what makes it cheap in silicon and
+what makes it hard to see: after synthesis it is not a signal, it is
+<em>which cell output is soldered to which flip-flop input</em>. The pass looks for
+the one shape where a permutation does leave a trace — a declared vector, or a
+register bank's D pins, whose bits each peel back through nothing but buffers and
+inverters to distinct bits of one other vector. In this netlist the D pins of the
+datapath register are driven by ALMs (the round key XOR sits between the
+substitution and the register), so the peel stops immediately and the pass
+correctly reports that it has nothing to compare.</p>
+<p style="margin-bottom:0">This is a real coverage gap in the tool, and it is
+reported as such rather than worked around: <code>hal_crypto permutation</code>
+finds rotations between register banks (walkthrough 11's ARX shifts) but will
+<em>not</em> find a pLayer that lands behind any logic. Anyone identifying an SPN
+should expect to do this step by hand.</p>
+</div>
+
+<h4>Doing it by hand</h4>
+
+<p>By hand does not mean by eye. The question is: for each of the 64 datapath
+flip-flops, which substitution output drives it? Answer it functionally, in two
+steps, both in <a href="analysis.py"><code>analysis.py</code></a>:</p>
+
+<ol>
+<li><strong>Which cone drives which flop.</strong> Take a flip-flop's D net,
+enumerate its cone, and hold every source at zero except the four datapath bits it
+reads. What is left is a 16-entry function of those four bits. Compare it against
+the four output cones of the substitution group that reads the same four bits —
+<em>up to complement</em>, because the round key XOR that sits in between may invert
+it (with the key bits held at zero, it contributes a constant). Each of the four
+outputs matches exactly one flip-flop; that is the wiring, read without ever
+looking at a net name.</li>
+<li><strong>Which bit of the nibble each cone is.</strong> Four output signals have
+no intrinsic order, so the permutation cannot be written down until they are
+labelled. There is exactly one relabelling of each group's four outputs that makes
+its table the PRESENT S-box; take it.</li>
+</ol>
+
+<pre><code>permutation layer over register bank 'state' (64 bits): complete
+  equals the published PRESENT pLayer: True</code></pre>
+
+<p>All 64 entries, and the map is <code>P(i) = 16i mod 63</code> for
+<em>i</em> &lt; 63 with <code>P(63) = 63</code> — the PRESENT pLayer, in the
+convention where bit <em>i</em> of the substitution output drives state bit
+<code>P(i)</code>. The 64 positions are in
+<a href="artifacts/analysis.json"><code>artifacts/analysis.json</code></a>.</p>
+
+<div class="honest"><span class="tag">What step 2 costs</span>
+<p style="margin-bottom:0">Step 1 is unconditional: it is a statement about
+functions, and it would hold if the S-box were something nobody has ever published.
+Step 2 is <em>conditional on the S-box match</em> — it uses the published table as
+the labelling that gives the four outputs a bit order. Without a match in hand the
+honest result would be &ldquo;the permutation, up to a relabelling inside each
+nibble&rdquo;, which is still enough to see the shape (each nibble's four outputs
+land on four positions 16 apart, one in each quarter of the state) but not enough to
+compare to a published table position by position. That dependency is why this
+section comes after section 4 and not before it.</p>
+</div>
+
+<h2 id="keysched">6. The key schedule</h2>
+
+<p>The seventeenth substitution group reads <code>kreg[15..18]</code> — four bits of
+the 80-flop bank, not the 64-flop one. A key schedule with an S-box in it is a
+strong hint on its own; the rest of the schedule falls out of the same kind of
+question asked of every flop in that bank: <em>which registers does my D cone
+read?</em></p>
+
+<ul class="tight">
+<li>reads exactly one bit of its own bank, and nothing else &rarr; a rotation link,
+and the difference of the two indices is the rotation amount;</li>
+<li>reads four bits of its own bank &rarr; the substituted nibble;</li>
+<li>reads one bit of its own bank plus bits of another (small) register bank &rarr;
+that is where a counter is being injected.</li>
+</ul>
+
+<pre><code>key schedule over register bank 'kreg' (80 bits):
+  71 bits are a plain rotation, left by 61
+  substituted bits [76, 77, 78, 79], counter injected into bits [15, 16, 17, 18, 19]</code></pre>
+
+<p>71 + 4 + 5 = 80, with nothing unclassified. That is the PRESENT-80 key schedule
+exactly: rotate the register left by 61, put the top nibble through the S-box, XOR
+the round counter into bits 19:15, and use the top 64 bits as the round key.</p>
+
+<div class="why"><span class="tag">Why the rotation is not in the shift-register pass either</span>
+<p style="margin-bottom:0">A rotation by 61 across 80 flops <em>is</em> a shift
+structure, and <code>hal_crypto lfsr</code> reports nothing here: it walks
+register-to-register links through buffers and inverters only, and in this netlist
+every key flop's D goes through the load multiplexer that selects between
+<code>key_in</code> and the rotated value. One 3-input cell per bit is enough to
+hide an 80-bit rotation from a pass that requires pure wiring. Reading the
+<em>cone sources</em> instead of the wire, as above, sees straight through it — the
+mux does not change which register the bit comes from.</p>
+</div>
+
+<h2 id="rounds">7. How many rounds</h2>
+
+<p>The three always-enabled flops and the four counter flops in the wide bank are
+the sequencer. Rather than reason about them, drive the netlist: load a block, then
+clock until it stops, watching the counter and the <code>busy</code> output.</p>
+
+<pre><code>rounds: busy for 31 cycles, counter 1..31, monotone True</code></pre>
+
+<p>One load edge, then 31 enabled clocks, the counter stepping 1, 2, 3, … 31 and the
+design stopping the cycle after it reaches 31. <strong>31 rounds</strong>, measured
+on the netlist, not inferred from the counter's width — 5 bits would allow 32, and
+the design uses 31 of them. That is one of the small, checkable numbers that
+separate PRESENT from a design that merely looks like it.</p>
+
+<h2 id="verdict">8. The verdict, and what it is allowed to mean</h2>
+
+<pre><code>$ python3 -m hal_crypto identify present_sbox.vo -o artifacts/identify.findings.json
+
+Structural family: spn                       (confidence: high)
+  The six passes agree on 'spn'. Families with evidence: spn.
+  17 bijective non-affine substitution(s) extracted from LUT cones,
+  17 of them matching the built-in library.
+
+Classical / PQC style: classical-style       (confidence: high)
+  The structures found (spn) are the ones classical symmetric primitives are built
+  from, and no lattice/ring arithmetic was found. This does NOT rule out
+  post-quantum cryptography: a hash-based or code-based scheme contains neither
+  NTTs nor S-boxes and would come back none-detected here.</code></pre>
+
+<p>Read the words carefully, because each one is narrower than it looks:</p>
+
+<table>
+<tr><th>the tool says</th><th>which means</th><th>and does not mean</th></tr>
+<tr><td><code>family: spn</code></td>
+    <td>substitution boxes were extracted from LUT cones, more than one of them</td>
+    <td>that the design is a block cipher; a substitution layer is a component, not an algorithm</td></tr>
+<tr><td><code>equal to present (exact)</code></td>
+    <td>the sixteen numbers this cone group computes are the sixteen numbers in the paper</td>
+    <td>that this is PRESENT; PRESENT's S-box also appears in other designs, and so do S-boxes bit-permutation-equivalent to it</td></tr>
+<tr><td><code>classical-style</code></td>
+    <td>the structures found are the ones classical symmetric primitives use</td>
+    <td>that the design is not post-quantum; hash- and code-based schemes have no S-boxes and land in <code>none-detected</code></td></tr>
+<tr><td><code>confidence: high</code></td>
+    <td>no pass hit a coverage limit — no cone was too wide to enumerate</td>
+    <td>a probability; it is a statement about the search, not about the world</td></tr>
+</table>
+
+<p>What lifts this from &ldquo;an SPN with PRESENT's S-box&rdquo; to
+&ldquo;PRESENT-80&rdquo; is the accumulation: the S-box <em>and</em> the pLayer
+<em>and</em> the 80-bit key register <em>and</em> rotation-61-with-a-substituted-nibble
+<em>and</em> a counter into bits 19:15 <em>and</em> 31 rounds. Any one of them could
+be coincidence. Together they are a specification. And the next section makes even
+that unnecessary.</p>
+
+<h2 id="proof">9. Proving it: test vectors, a reconstruction, two negative controls</h2>
+
+<h4>The netlist answers the paper's own questions</h4>
+
+<p>PRESENT ships four test vectors. Feed them to the <em>netlist</em> — load
+plaintext and key, drop the input ports back to zero so nothing can leak through
+them, clock 31 times, read the register:</p>
+
+<pre><code>published PRESENT-80 test vectors:
+  0000000000000000 / 00000000000000000000 -> 5579C1387B228445  agrees
+  0000000000000000 / FFFFFFFFFFFFFFFFFFFF -> E72C46C0F5945049  agrees
+  FFFFFFFFFFFFFFFF / 00000000000000000000 -> A112FFC72F68417B  agrees
+  FFFFFFFFFFFFFFFF / FFFFFFFFFFFFFFFFFFFF -> 3333DCD3213210D2  agrees</code></pre>
+
+<p>This is the strongest single piece of evidence on the page and it is worth being
+clear about why: it does not depend on the S-box match, the permutation recovery or
+the key-schedule classification. It is four 64-bit words out of a simulator of the
+primitives, against four 64-bit words out of a 2007 paper. If every structural step
+above had been wrong, this would still be right.</p>
+
+<h4>The reconstruction</h4>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the RTL written back from
+those findings, and <a href="recovered_reference.py"><code>recovered_reference.py</code></a>
+is the same reconstruction as a Python model.
+<code>hal_agilex behavior</code> simulates the export against it, cycle by cycle,
+with pseudo-random inputs and two asynchronous clears:</p>
+
+<pre><code>$ python3 tools/hal_agilex behavior present_sbox.vo \
+      --reference recovered_reference.py --cycles 600 \
+      -o artifacts/behavior.findings.json
+
+600 pseudo-random cycles, including asynchronous clears, agree with the reference
+model. Nothing is claimed beyond that bound.</code></pre>
+
+<div class="why"><span class="tag">Why 600</span>
+<p style="margin-bottom:0">A cycle count is not a justification; what the window
+contains is. Replaying the same stimulus against the model
+(<code>check.py</code> does this and asserts the number) gives
+<strong>16 complete 31-round encryptions</strong> with random key and plaintext, 558
+of the 600 cycles busy, and two asynchronous clears fired mid-encryption at cycles
+200 and 400. The bound covers the whole state machine — load, all 31 rounds, the
+stop, and being reset in the middle of a round — sixteen times over, with a
+different key each time.</p>
+</div>
+
+<h4>Two negative controls</h4>
+
+<p>A passing bounded check proves nothing until you know what a failing one takes.
+Both controls below are one-line edits of the reconstruction, produced by
+<code>sed</code> in <a href="run_analysis.sh"><code>run_analysis.sh</code></a>:</p>
+
+<table>
+<tr><th>control</th><th>the edit</th><th>result</th></tr>
+<tr><td>one substitution entry</td>
+    <td><code>S[0xA]</code>: <code>F</code> &rarr; <code>E</code></td>
+    <td>caught at <strong>cycle 6</strong> — five rounds into the first encryption, the first time any of the sixteen nibbles takes the value <code>A</code></td></tr>
+<tr><td>one round short</td>
+    <td><code>ROUNDS = 31</code> &rarr; <code>30</code></td>
+    <td>caught at <strong>cycle 35</strong>, and on <code>busy</code>/<code>done</code>, not on the data: the model has finished while the netlist still has a round to run</td></tr>
+</table>
+
+<p>Note what the second one shows. At the moment of the mismatch the two
+<code>ciphertext</code> words are still <em>equal</em>; only the control outputs
+differ. A reference model that exposed only the data bus would have caught this one
+cycle later, and a model with no <code>busy</code> output at all might not have
+caught it inside the window. Which outputs a reference declares is part of how
+strong its bound is.</p>
+
+<h2 id="variants">10. What the RTL decides: two counterfactual exports</h2>
+
+<p>Everything above rests on the substitution layer being visible — on those
+sixteen cones existing as cones. That is not a property of PRESENT. It is a
+property of two lines of the RTL, and <a href="variants/">variants/</a> holds the
+proof: the same cipher, the same device, the same flow, synthesized twice more.</p>
+
+<table>
+<tr><th>export</th><th>what changed</th><th>gates</th><th><code>identify</code></th></tr>
+<tr><td><a href="present_sbox.vo"><code>present_sbox.vo</code></a></td>
+    <td>—</td><td>377</td>
+    <td><code>spn</code>, 17 substitutions, <strong>17 library matches</strong></td></tr>
+<tr><td><a href="variants/present_nokeep.vo"><code>variants/present_nokeep.vo</code></a></td>
+    <td>the two <code>/* synthesis keep */</code> pragmas deleted, nothing else</td>
+    <td>373</td>
+    <td><code>spn</code>, 13 substitutions, <strong>0 library matches</strong></td></tr>
+<tr><td><a href="variants/present_textbook.vo"><code>variants/present_textbook.vo</code></a></td>
+    <td>the register holds the state <em>before</em> the round key is added (<a href="variants/design_textbook.v">design_textbook.v</a>)</td>
+    <td>441</td>
+    <td><strong><code>none-detected</code></strong></td></tr>
+</table>
+
+<h4>Without <code>keep</code>: the boxes are there and unrecognisable</h4>
+
+<p>A 4-input S-box output plus one round-key bit is five inputs, and an ALM has
+six, so the synthesiser folds the XOR into the same cell — for free. What is left
+is still thirteen bijective non-affine 4-bit cone groups, degree 3, differential
+uniformity 4, the same fingerprint as before. Not one of them matches anything:</p>
+
+<pre><code>A 4-bit bijective non-affine substitution with no library match
+  4 cones over state[16], state[17], state[18], state[19] form a bijection of degree 3
+  that matches no entry of the built-in library at any tier.
+  table: 0 9 5 E A 3 6 8 F 4 C 2 1 D B 7</code></pre>
+
+<p>That table is the PRESENT S-box with a piece of its neighbourhood composed into
+it, and it is not equal to PRESENT at the <code>exact</code>,
+<code>xor_constant</code> or <code>bit_permutation</code> tier — the pass says so
+rather than declaring a near-miss. This is the tool refusing to force a fit, and it
+is the behaviour you want: on a real target the difference between &ldquo;the
+PRESENT S-box&rdquo; and &ldquo;a degree-3 4-bit bijection that is not in the
+library&rdquo; is the difference between an identification and a lead.</p>
+
+<h4>The textbook placement: nothing at all</h4>
+
+<p>Move the register to the other side of the key addition — the placement every
+description of PRESENT uses, <code>state &lt;= pLayer(sBoxLayer(state ^ K))</code>
+— and each substitution cone reaches back through the XOR to <em>eight</em>
+sources, four state bits and four key bits. Four output cones over eight sources is
+not an <em>n</em>-to-<em>n</em> shape; the grouping step never forms a candidate,
+and the S-box pass has nothing to enumerate. The whole datapath disappears from the
+verdict:</p>
+
+<pre><code>Structural family: none-detected
+  The six passes agree on 'none-detected'. Families with evidence: none.</code></pre>
+
+<p>Only one 4-bit bijection is left anywhere in that export — on the key register,
+where the schedule's S-box happens to read four registers directly — and it does not
+match the library either, for the same folding reason. The design is bit-for-bit the
+same cipher; its ciphertexts are the same; and a structural identifier sees nothing.</p>
+
+<div class="honest"><span class="tag">The lesson, stated plainly</span>
+<p>Structural crypto identification is a search for shapes that <em>survived</em>
+synthesis. Whether the shape survives is decided by the RTL and the synthesiser, not
+by the algorithm. A negative result from <code>identify</code> is a statement about
+the netlist in front of you, never about the design that produced it.</p>
+<p style="margin-bottom:0">So this walkthrough's target is a cipher core written to
+be readable, and it says so. The two exports above are what the same cipher looks
+like when it is not. If you are identifying a real target and the S-box pass comes
+back empty, the next move is not another recognizer — it is the general method:
+cut at the register boundary, enumerate cones over the sources they actually have,
+and look for an <em>n</em>-to-<em>n</em> bijection modulo a key XOR you will have to
+factor out yourself.</p>
+</div>
+
+<h2 id="limits">11. What this does and does not establish</h2>
+
+<div class="cols">
+<div>
+<h4>Established</h4>
+<ul class="tight">
+<li>Every instance of the export is inside the validated primitive coverage
+(<code>inventory --strict</code>, exit 0).</li>
+<li>17 groups of four cones each are bijective, non-affine and equal to the
+published PRESENT S-box — 16 at the <code>exact</code> tier, 1 up to a bit
+permutation.</li>
+<li>The wiring from the substitution outputs to the datapath flip-flops is the
+PRESENT pLayer in all 64 positions (conditional on the labelling described in
+section 5).</li>
+<li>The 80-bit key register is a rotation by 61 with a substituted top nibble and a
+5-bit counter XORed into bits 19:15; 80 of 80 bits classified.</li>
+<li>The design runs 31 rounds, measured.</li>
+<li>The netlist reproduces all four published PRESENT-80 test vectors.</li>
+<li>The reconstruction agrees with the export for 600 cycles / 16 complete
+encryptions, and two deliberately wrong reconstructions are caught at cycles 6 and
+35.</li>
+</ul>
+</div>
+<div>
+<h4>Not established</h4>
+<ul class="tight">
+<li><strong>That this is PRESENT and not something that agrees with it on
+everything tested.</strong> Four test vectors and 16 random encryptions are a
+bounded check; equivalence is not proven, only unrefuted.</li>
+<li><strong>Anything about decryption.</strong> There is no inverse S-box and no
+inverse permutation in this netlist, and none was looked for.</li>
+<li><strong>That an unrecognised S-box means no cipher.</strong> Section 10 is the
+counterexample.</li>
+<li><strong>That <code>classical-style</code> excludes post-quantum.</strong> It
+excludes lattice/ring arithmetic being <em>found</em>, nothing more.</li>
+<li><strong>Anything about the fitted design.</strong> This is a post-synthesis
+snapshot; placement and routing were never run.</li>
+<li><strong>Any security property.</strong> A recovered cipher is not an evaluated
+one. This core has no side-channel countermeasures whatsoever.</li>
+</ul>
+</div>
+</div>
+
+<h2 id="repro">12. Reproducing all of it</h2>
+
+<p>Every command on this page, in order, is
+<a href="run_analysis.sh"><code>run_analysis.sh</code></a>. In a container with a
+built HAL and Graphviz:</p>
+
+<pre><code>HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+    bash examples/agilex3_walkthroughs/12_present_sbox/run_analysis.sh</code></pre>
+
+<p>Only the two pictures need HAL. The recovery, the identification, the test
+vectors, the behaviour bound and the negative controls are pure standard library —
+<code>tools/hal_agilex</code> and <code>tools/hal_crypto</code> — so the assertions
+run anywhere:</p>
+
+<pre><code>$ python3 examples/agilex3_walkthroughs/12_present_sbox/check.py
+...
+all 68 checks passed</code></pre>
+
+<p>Re-synthesizing needs Quartus Prime Pro 26.1 and an Agilex 3 licence; the
+project is in <a href="quartus/"><code>quartus/</code></a> and the exact commands
+are in section 1. The two counterfactual exports are regenerated the same way from
+<a href="variants/"><code>variants/</code></a>, which documents the one-line
+difference in each.</p>
+
+<hr>
+
+<p class="kbd">Walkthrough 12 of the Agilex 3 series ·
+<a href="../README.md">series index</a></p>

@@ -1,0 +1,61 @@
+{
+  "analysis": {
+    "entry_point": "hal_crypto.permutation.find_permutations",
+    "plugin": {
+      "name": "hal_crypto",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "present_sbox",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "present_sbox",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 377,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/12_present_sbox/present_sbox.vo",
+      "sha256": "75e3179cc10a56f3bb243da93ab513f829207c658047f85492417f2524981efe",
+      "size_bytes": 189937
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "maps_examined": 1
+      },
+      "id": "hal_crypto/permutation/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "present_sbox"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "No non-identity bit permutation layer"
+    }
+  ],
+  "generated_at": "2026-09-15T04:33:52Z",
+  "producer": {
+    "name": "hal_crypto.permutation.find_permutations",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

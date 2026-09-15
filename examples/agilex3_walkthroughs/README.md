@@ -1,6 +1,6 @@
 # Agilex 3 reverse-engineering walkthroughs
 
-Eight self-contained exercises, each recovering the RTL of a small design from
+Self-contained exercises, each recovering the RTL of a small design from
 a real Quartus Prime Pro post-synthesis export for Agilex 3, using only this
 fork's headless HAL toolchain. Every walkthrough ships the original design (the
 answer key), the exported netlist, the analysis scripts that produced every
@@ -19,6 +19,7 @@ Recommended order — each introduces one or two techniques the later ones lean 
 | [06_accumulator_alu](06_accumulator_alu/) | 8-bit accumulator ALU | opcode sweeps; an enable decoded from control bits; an honest null result from word-level recognition |
 | [08_shift_debouncer](08_shift_debouncer/) | button debouncer | designs with no chain, no comparator cells and no enables; bit order from the state orbit when structure is symmetric; negative controls that expose coverage holes |
 | [10_crc8_checker](10_crc8_checker/) | serial CRC-8 checker | LFSR-with-input recovery; the polynomial from GF(2) linearity; proving the recovered CRC against a corrupted codeword |
+| [12_present_sbox](12_present_sbox/) | PRESENT-80 encryption datapath | the S-box read out of LUT cones and matched to a published table (and what a match tier means); a bit permutation no pass can see, recovered by hand; a key schedule classified bit by bit; published test vectors out of the netlist; two counterfactual exports showing that the RTL, not the algorithm, decides what survives synthesis |
 
 07 and 09 do not exist; the numbering is the series' history, not a promise.
 
@@ -41,12 +42,15 @@ the circuit rather than of its size:
 | 06_accumulator_alu | 31 | 255 | 12 | a ten-cell carry chain with an output rank behind it |
 | 08_shift_debouncer | 14 | 131 | 2 | no chain at all: one LUT per counter bit |
 | 10_crc8_checker | 13 | 111 | 3 | a shift ring with feedback into three positions |
+| 12_present_sbox | 379 | 1495 | 3 | wide and shallow: 153 independent cells in one rank, the SPN signature |
 
 Each also writes `images/dag.dot` and a standalone `images/dag.html` (inline
 SVG, legend, counts). Constants are drawn as one `0`/`1` tie-off stub per
 consuming pin rather than a shared GND/VCC hub — which is why the leftmost
 column is tall: between 68% and 88% of the edges in these drawings are
-constant tie-offs.
+constant tie-offs. The exception is 12_present_sbox, which is an order of
+magnitude bigger and uses `--const-hub`: there the 2292 stubs are most of the
+file and none of the information.
 
 Every walkthrough reruns end to end inside the build container:
 
