@@ -116,28 +116,39 @@ class _Container(object):
             attrs["label"] = label
         self._edges.append((str(source), str(target), dict(attrs)))
 
-    def add_subgraph(self, name, label=None, cluster=False, **graph_attrs):
-        """Add a nested subgraph.  Use ``cluster=True`` for a boxed cluster."""
-        sub = DotSubgraph(name, cluster=cluster)
+    def add_subgraph(self, name, label=None, cluster=False, counted=True, **graph_attrs):
+        """Add a nested subgraph.  Use ``cluster=True`` for a boxed cluster.
+
+        ``counted=False`` keeps the subgraph out of :attr:`node_count` and
+        :attr:`edge_count`.  That is what a legend is: drawn on the canvas, but
+        not part of the circuit anyone is counting.
+        """
+        sub = DotSubgraph(name, cluster=cluster, counted=counted)
         if label is not None:
             sub.graph_attrs["label"] = label
         sub.graph_attrs.update(graph_attrs)
         self._subgraphs.append(sub)
         return sub
 
-    def add_cluster(self, name, label=None, **graph_attrs):
+    def add_cluster(self, name, label=None, counted=True, **graph_attrs):
         """Shorthand for :meth:`add_subgraph` with ``cluster=True``."""
-        return self.add_subgraph(name, label=label, cluster=True, **graph_attrs)
+        return self.add_subgraph(
+            name, label=label, cluster=True, counted=counted, **graph_attrs
+        )
 
     # -- inspection ------------------------------------------------------
 
     @property
     def node_count(self):
-        return len(self._nodes) + sum(s.node_count for s in self._subgraphs)
+        return len(self._nodes) + sum(
+            s.node_count for s in self._subgraphs if s.counted
+        )
 
     @property
     def edge_count(self):
-        return len(self._edges) + sum(s.edge_count for s in self._subgraphs)
+        return len(self._edges) + sum(
+            s.edge_count for s in self._subgraphs if s.counted
+        )
 
     # -- emission --------------------------------------------------------
 
@@ -179,13 +190,14 @@ class _Container(object):
 class DotSubgraph(_Container):
     """A nested ``subgraph`` block, optionally a ``cluster_*`` box."""
 
-    def __init__(self, name, cluster=False):
+    def __init__(self, name, cluster=False, counted=True):
         _Container.__init__(self)
         name = sanitize_id(name, prefix="sg")
         if cluster and not name.startswith("cluster"):
             name = "cluster_" + name
         self.name = name
         self.cluster = cluster
+        self.counted = counted
 
     def _lines(self, indent, edge_op):
         pad = " " * indent

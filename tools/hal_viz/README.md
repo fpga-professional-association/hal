@@ -10,6 +10,7 @@ Subcommands:
 | command | what it draws |
 | --- | --- |
 | `netlist_graph` | gate-level graph — gates as nodes, nets as edges, scoped by module or by a depth-limited gate neighborhood |
+| `dag`           | the same graph *levelled*: feedback cut at every flip-flop and latch, Kahn levels laid out left to right, so combinational depth is what you read off the picture |
 | `module_tree`   | the module hierarchy of a netlist, with per-module gate counts |
 | `dataflow`      | the register groups recovered by the DANA `dataflow_analysis` plugin |
 | `clock_tree`    | the clock tree extracted by the `clock_tree_extractor` plugin |
@@ -125,12 +126,56 @@ python tools/hal_viz netlist_graph ./fsm --gate FSM_sequential_STATE_reg_0 \
 unambiguous substring of a name. `--max-gates` (default 400) refuses to render
 scopes that would produce an unreadable picture; raise it deliberately.
 
+**Constants and the legend.** GND and VCC gates are not drawn as gates. One
+constant gate drives hundreds of pins on a real netlist, and a single node with
+that fan-out is a spider that hides the circuit, so each constant-driven edge
+gets its own little source stub labelled `0` or `1`, pinned to the source rank;
+the driving gate is named in the stub's tooltip and the count is noted in the
+`.dot` comment header. `--const-hub` brings the old shared node back. Every
+drawing also carries a `legend` cluster decoding the node shapes, the edge
+styles and the tie-offs; `--no-legend` omits it.
+
 For large-but-still-plausible graphs, switch layout engine:
 
 ```bash
 python tools/hal_viz netlist_graph ./fsm --module top --recursive \
     --max-gates 2000 --engine sfdp --no-net-labels -o out/big.png
 ```
+
+### Levelled graph (`dag`)
+
+`netlist_graph` shows *what is connected*; `dag` shows *how deep it is*. A
+gate-level netlist is a directed graph, and its combinational part is a DAG
+once the feedback is cut at the registers — that is the graph every timing,
+cone and dataflow argument is actually made about, and this draws it:
+
+* every edge that **ends** at a flip-flop or latch is a *cut* edge (dashed
+  red), so a register output is a source of the remaining graph and a register
+  input is one of its sinks;
+* levels come from Kahn's algorithm on the cut graph: level 0 is the primary
+  inputs, the constant tie-offs and the register outputs, and every other gate
+  sits one level behind its deepest driver;
+* each level is a `rank=same` group, so with the default `rankdir=LR` level 0
+  is on the far left and depth increases to the right.
+
+```bash
+python tools/hal_viz dag ./fsm --module top -o out/fsm_dag.svg --html
+```
+
+It takes exactly the scoping and shared options of `netlist_graph`
+(`--module`/`--recursive`, `--gate`/`--depth`/`--direction`, `--max-gates`,
+`-o/-f/--engine/--html/-g/--hal-lib/-q/--traceback`), plus `--net-labels`,
+`--pin-labels`, `--no-level-labels`, `--no-legend` and `--const-hub`.
+
+A **real combinational loop** — one that survives the cut — is neither an error
+nor a reason to drop gates: the loop members are levelled anyway, drawn with a
+red outline, named in a warning on stderr and repeated in the `.dot` comment
+header and on the HTML page.
+
+`--html` writes `<base>.html`: one standalone page with the SVG **inlined**, a
+caption (design, scope, gate/edge/level counts) and the legend. Inline CSS, no
+scripts, no request to anything outside the file, so it survives being copied
+or archived on its own.
 
 ### Dataflow analysis (DANA)
 
@@ -243,8 +288,9 @@ Relation to the rest of the toolchain:
 
 ## Options shared by every netlist subcommand
 
-These apply to `netlist_graph`, `module_tree`, `dataflow` and `clock_tree`;
-`report` takes no netlist and no `--hal-lib` and has its own option table above.
+These apply to `netlist_graph`, `dag`, `module_tree`, `dataflow` and
+`clock_tree`; `report` takes no netlist and no `--hal-lib` and has its own
+option table above.
 
 | option | meaning |
 | --- | --- |
@@ -253,7 +299,7 @@ These apply to `netlist_graph`, `module_tree`, `dataflow` and `clock_tree`;
 | `--engine {dot,neato,fdp,sfdp,circo,twopi,osage}` | Graphviz layout, passed as `dot -K<engine>`. Only the `dot` binary is needed. |
 | `--dot-binary PATH` | explicit path to `dot`; otherwise `$HAL_VIZ_DOT`, otherwise `PATH`. |
 | `--render-timeout SECONDS` | abort a runaway layout (default 600). |
-| `--html` | also write an `index.html` next to the outputs that embeds the SVG/PNG. |
+| `--html` | also write an `index.html` next to the outputs that embeds the SVG/PNG. `dag` instead writes `<base>.html`, a standalone page with the SVG inlined. |
 | `-g, --gate-library FILE` | gate library for HDL netlists. |
 | `--hal-lib DIR` | directory containing `hal_py` (repeatable; also `$HAL_PY_PATH`). |
 | `-q, --quiet` | suppress progress messages on stderr. |
@@ -284,8 +330,10 @@ without a built HAL:
 ```
 tools/hal_viz/
   dot.py       Graphviz DOT emission: quoting, escaping, clusters. Pure stdlib.
+  levels.py    Kahn levelling + SCC detection on plain node keys. Pure stdlib.
   extract.py   netlist objects -> DotGraph. Duck-typed; never imports hal_py.
-  render.py    finds and drives the `dot` binary; writes the HTML index.
+  render.py    finds and drives the `dot` binary; writes the HTML index and
+               the standalone single-diagram page.
   report.py    findings documents + artifacts -> one static HTML page. Pure stdlib.
   halenv.py    the only module that imports hal_py / hal_plugins.
   cli.py       argument parsing and the subcommands.

@@ -101,11 +101,21 @@ EXPECTED_STRONG_COMPONENT_SIZES = [68, 50, 15]
 SCOPE_SEED_GATE = "CLK_CNT_10_i_1_inst"
 EXPECTED_SCOPE_NODES = {"g10", "g12", "g294", "g298", "g303", "g304", "g305"}
 EXPECTED_SCOPE_EDGES = 7
+# The same scope levelled by 'hal_viz dag': the five FFRs are register outputs and the second LUT6
+# has no driver inside the scope, so all six are level-0 sources; the seed LUT6 is one level behind
+# them, and its single edge into CLK_CNT_reg_10 is the one cut at a register.
+EXPECTED_DAG_LEVELS = {
+    0: {"g12", "g294", "g298", "g303", "g304", "g305"},
+    1: {"g10"},
+}
+EXPECTED_DAG_CUT_EDGES = 1
 # The example has a single module, so its tree is one node and no edges.
 EXPECTED_MODULE_TREE_NODES = {"m1"}
 
 _DOT_NODE_RE = re.compile(r'^\s*"([^"]+)"\s*\[')
 _DOT_EDGE_RE = re.compile(r'^\s*"([^"]+)"\s*->\s*"([^"]+)"')
+#: hal_viz names every node of its legend cluster this way; see extract.add_legend.
+_LEGEND_PREFIX = "legend"
 
 
 class SmokeError(RuntimeError):
@@ -413,7 +423,12 @@ def save_and_reload(hal_py, netlist, project_dir, report):
 
 
 def parse_dot(path):
-    """Return (nodes, edges) of a .dot file, failing on anything that is not one."""
+    """Return (nodes, edges) of a .dot file, failing on anything that is not one.
+
+    Every hal_viz drawing carries a legend cluster whose node ids all start with
+    ``legend``. That is a key, not circuit, so it is filtered out here -- the
+    checks below are about which gates were drawn.
+    """
     require(path.is_file(), "hal_viz did not write {}".format(path))
     text = path.read_text(encoding="utf-8")
     require(text.strip(), "hal_viz wrote an empty {}".format(path.name))
@@ -437,10 +452,11 @@ def parse_dot(path):
     for line in body:
         edge = _DOT_EDGE_RE.match(line)
         if edge:
-            edges.append((edge.group(1), edge.group(2)))
+            if not edge.group(1).startswith(_LEGEND_PREFIX):
+                edges.append((edge.group(1), edge.group(2)))
             continue
         node = _DOT_NODE_RE.match(line)
-        if node:
+        if node and not node.group(1).startswith(_LEGEND_PREFIX):
             nodes.add(node.group(1))
     return nodes, edges
 
@@ -521,6 +537,113 @@ def check_scoped_graph(project_dir, out_dir, hal_libs, report):
     report.ok(
         "{}: {} nodes, {} edges, all in scope".format(
             dot_path.name, len(nodes), len(edges)
+        )
+    )
+
+
+def check_dag(project_dir, out_dir, hal_libs, report):
+    report.step("levelling the same scope with hal_viz dag")
+    base = out_dir / "scoped_dag"
+    run_hal_viz(
+        [
+            "dag",
+            str(project_dir),
+            "--gate",
+            SCOPE_SEED_GATE,
+            "--depth",
+            "1",
+            "--format",
+            "svg",
+            "--html",
+            "-o",
+            str(base),
+        ],
+        hal_libs,
+        report,
+    )
+
+    dot_path = base.with_suffix(".dot")
+    text = dot_path.read_text(encoding="utf-8")
+    nodes, edges = parse_dot(dot_path)
+    gate_nodes = {node for node in nodes if node.startswith("g")}
+    require(
+        gate_nodes == EXPECTED_SCOPE_NODES,
+        "the dag view drew {}, expected the same gates as netlist_graph, {}".format(
+            sorted(gate_nodes), sorted(EXPECTED_SCOPE_NODES)
+        ),
+    )
+
+    # Cutting the feedback at the flops leaves exactly one edge cut (the LUT that
+    # drives CLK_CNT_reg_10) and two levels: the five flops plus the second LUT
+    # are sources, the seed LUT sits behind them.
+    for level, expected in sorted(EXPECTED_DAG_LEVELS.items()):
+        marker = 'subgraph "level_{}" {{'.format(level)
+        require(marker in text, "{} has no {}".format(dot_path.name, marker))
+        block = text.split(marker, 1)[1].split("\n  }", 1)[0]
+        drawn = {
+            match.group(1)
+            for match in (_DOT_NODE_RE.match(line) for line in block.splitlines())
+            if match and match.group(1).startswith("g")
+        }
+        require(
+            drawn == expected,
+            "level {} holds {}, expected {}".format(level, sorted(drawn), sorted(expected)),
+        )
+    require(
+        'subgraph "level_{}" {{'.format(len(EXPECTED_DAG_LEVELS)) not in text,
+        "the dag view has more than {} levels".format(len(EXPECTED_DAG_LEVELS)),
+    )
+
+    cut = [
+        line
+        for line in text.splitlines()
+        if "->" in line
+        and 'style="dashed"' in line
+        and "#c0392b" in line
+        and _LEGEND_PREFIX not in line  # the legend draws one as an example
+    ]
+    require(
+        len(cut) == EXPECTED_DAG_CUT_EDGES,
+        "{} edge(s) are cut at a register, expected {}: {}".format(
+            len(cut), EXPECTED_DAG_CUT_EDGES, cut
+        ),
+    )
+    # the rank markers are chained with invisible edges, so count gate edges only
+    gate_edges = [pair for pair in edges if pair[0].startswith("g") and pair[1].startswith("g")]
+    require(
+        len(gate_edges) == EXPECTED_SCOPE_EDGES,
+        "the dag view has {} gate edges, expected {}".format(
+            len(gate_edges), EXPECTED_SCOPE_EDGES
+        ),
+    )
+    require("cluster_legend" in text, "the dag view carries no legend")
+
+    page = base.with_suffix(".html")
+    require(page.is_file(), "hal_viz dag --html did not write {}".format(page))
+    html_text = page.read_text(encoding="utf-8")
+    require(html_text.startswith("<!doctype html>"), "{} is not an HTML page".format(page.name))
+    require("<script" not in html_text, "{} is not script-free".format(page.name))
+    require("Legend" in html_text, "{} has no legend".format(page.name))
+    require(
+        "<b>{}</b> levels".format(len(EXPECTED_DAG_LEVELS)) in html_text,
+        "{} does not caption the level count".format(page.name),
+    )
+
+    # The page has to stand on its own, so when Graphviz is here the SVG must be
+    # inside it rather than linked -- which is also the only check that the .dot
+    # the dag view emits is one Graphviz can actually lay out.
+    if os.environ.get("HAL_VIZ_DOT") or shutil.which("dot"):
+        svg_path = base.with_suffix(".svg")
+        require(svg_path.is_file(), "hal_viz dag did not render {}".format(svg_path))
+        require("<svg" in html_text, "{} did not inline the SVG".format(page.name))
+        require("<?xml" not in html_text, "{} inlined the XML prologue too".format(page.name))
+        require(
+            "http://" not in html_text.replace("http://www.w3.org", ""),
+            "{} refers to something outside itself".format(page.name),
+        )
+    report.ok(
+        "{}: {} gates over {} level(s), {} cut edge(s), standalone page written".format(
+            dot_path.name, len(gate_nodes), len(EXPECTED_DAG_LEVELS), len(cut)
         )
     )
 
@@ -840,6 +963,7 @@ def run(args, report):
     out_dir.mkdir(exist_ok=True)
     saved_project = work_dir / "roundtrip_project"
     check_scoped_graph(saved_project, out_dir, hal_libs, report)
+    check_dag(saved_project, out_dir, hal_libs, report)
     check_module_tree(example_dir, out_dir, hal_libs, report)
     svg_rendered = check_svg(saved_project, out_dir, hal_libs, args.require_graphviz, report)
     check_findings_report(reloaded, out_dir, svg_rendered, report)

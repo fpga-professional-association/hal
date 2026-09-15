@@ -1,13 +1,16 @@
 ---
 name: hal-viz
-description: Render a netlist to Graphviz diagrams (module tree, gate-level graph, DANA dataflow groups, clock tree) or build a static HTML findings report. Use when an agent needs a picture of a design, a scoped close-up around a gate, or a human-readable page over hal_findings documents.
+description: Render a netlist to Graphviz diagrams (module tree, gate-level graph, topologically levelled DAG, DANA dataflow groups, clock tree) or build a static HTML findings report. Use when an agent needs a picture of a design, a scoped close-up around a gate, a left-to-right view of combinational depth, or a human-readable page over hal_findings documents.
 ---
 
 # hal_viz — headless visualization for HAL
 
 ## When to use
-- You need a diagram of a netlist (module hierarchy, gate-level graph, DANA
-  register groups, clock tree) and cannot open a GUI — this repo has none.
+- You need a diagram of a netlist (module hierarchy, gate-level graph, levelled
+  DAG, DANA register groups, clock tree) and cannot open a GUI — this repo has
+  none.
+- You need to *show* combinational depth, or that the design is a DAG once the
+  feedback is cut at the registers: that is `dag`, not `netlist_graph`.
 - You need one static HTML page summarizing one or more `hal_findings`
   documents, with the claimed scope outlined on the diagrams that back it.
 - `report` needs no HAL build; every other subcommand needs `hal_py`.
@@ -29,6 +32,10 @@ python tools/hal_viz netlist_graph ./fsm --module top --show-boundary -o out/top
 python tools/hal_viz netlist_graph ./fsm --gate FSM_sequential_STATE_reg_0 \
     --depth 1 --show-boundary --pin-labels -o out/around_state_reg.svg
 
+# levelled view: feedback cut at the flops, combinational depth left to right,
+# plus a standalone HTML page with the SVG inlined
+python tools/hal_viz dag ./fsm --module top -o out/top_dag.svg --html
+
 # DANA dataflow groups -- output is a directory, and -f svg is required
 python tools/hal_viz dataflow ./fsm -o out/dataflow -f svg --html
 
@@ -49,22 +56,25 @@ python tools/hal_viz module_tree ./fsm -o out/fsm_modules.svg 2>&1 \
 | command | draws | notes |
 | --- | --- | --- |
 | `netlist_graph` | gates as nodes, nets as edges | scope with `--module NAME[/ID]` (+`--cluster-modules`/`--recursive`) or `--gate NAME` +`--depth N` `--direction {in,out,both}`; `--max-gates` (400) refuses an unreadable render |
+| `dag` | the same graph levelled: feedback cut at every FF/latch, Kahn levels as `rank=same` columns, level 0 (primary inputs, tie-offs, register outputs) on the far left | same scoping and shared options as `netlist_graph`; `--net-labels`, `--pin-labels`, `--no-level-labels`; a real combinational loop is highlighted and warned about, never dropped; `--html` writes a standalone `<base>.html` with the SVG inlined |
 | `module_tree` | module hierarchy, per-module gate counts | `--depth N`, `--no-gate-counts` |
 | `dataflow` | DANA register groups | writes a **directory**: `graph.dot`/`groups.txt` (from DANA) plus `graph.svg`/`index.html`; tuning via `--min-group-size`, `--expected-size` (repeatable), `--stage-identification`, `--enforce-type-consistency` |
 | `clock_tree` | clock tree from `clock_tree_extractor` | same shared options as above |
 | `report` | static HTML over `hal_findings` documents + artifacts | no netlist, no `--hal-lib`; see options below |
 
-Shared options (`netlist_graph`/`module_tree`/`dataflow`/`clock_tree`):
+Shared options (`netlist_graph`/`dag`/`module_tree`/`dataflow`/`clock_tree`):
 
 | option | meaning |
 | --- | --- |
 | `-o, --output PATH` | base name; trailing `/` or an existing dir means "default name in here" |
 | `-f, --format {svg,png,pdf,none}` | default `svg`; `none` writes only `.dot` |
 | `--engine {dot,neato,fdp,sfdp,circo,twopi,osage}` | Graphviz layout |
-| `--html` | also write `index.html` embedding the image |
+| `--html` | also write `index.html` embedding the image (`dag`: a standalone `<base>.html` with the SVG inlined, caption and legend) |
 | `-g, --gate-library FILE` | required for HDL (`.v`/`.vhd`) netlists |
 | `--hal-lib DIR` | repeatable; or `$HAL_PY_PATH` |
 | `-q` / `--traceback` | quiet progress / full Python traceback on error |
+
+Both graph commands also take `--no-legend` and `--const-hub` (see Pitfalls).
 
 `report`-only options: `--title`, `--artifact PATH` (repeatable, attach an
 output no finding references), `--no-embed`, `--max-embed-bytes`,
@@ -83,16 +93,29 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
 - HAL's native log lines print to **stdout**, not stderr. If you're capturing
   the emitted file path from stdout (per the README's pipeline pattern), filter
   first: `grep -vE "\[info\]|\[warning\]"`.
+- **GND/VCC are not drawn as gates** in `netlist_graph` or `dag`. Each
+  constant-driven edge gets its own `0`/`1` stub on the source rank, because one
+  shared hub node with a real netlist's constant fan-out is a spider that hides
+  the circuit. So don't look for a `GND_inst` node in the `.dot` — look for
+  `tie0_*`/`tie1_*` (the driving gate is in the stub's tooltip, the count in the
+  `.dot` comment header). `--const-hub` restores the old single node.
+- Every drawing carries a `cluster_legend` whose node ids all start with
+  `legend`. If you parse an emitted `.dot`, filter those out before counting
+  gates — `tests/headless_smoke/real_netlist_smoke.py` shows the pattern.
+- `dag` levels are computed on the **cut** graph, so a flip-flop is always at
+  level 0 and the edge into it is dashed. A level count is therefore the
+  combinational depth between registers, not a path length through the design.
 - `netlist_graph --depth 2` can swallow a small design whole. On
   `08_shift_debouncer` (16 gates total), depth 2 around any flop *is* the whole
   netlist — use `--depth 1` for an actual close-up (7 gates) on designs that
   size. Check gate count first; don't assume depth 2 is always "a close-up".
 
 ## Where things live
-- Tool: `tools/hal_viz/` — `dot.py` (DOT emission, pure stdlib), `extract.py`
-  (netlist → DotGraph, duck-typed), `render.py` (drives `dot`), `report.py`
-  (findings → HTML, pure stdlib), `halenv.py` (the only module importing
-  `hal_py`), `cli.py`.
+- Tool: `tools/hal_viz/` — `dot.py` (DOT emission, pure stdlib), `levels.py`
+  (Kahn levelling + SCC detection on plain keys, pure stdlib), `extract.py`
+  (netlist → DotGraph, duck-typed), `render.py` (drives `dot`, writes the
+  standalone page), `report.py` (findings → HTML, pure stdlib), `halenv.py`
+  (the only module importing `hal_py`), `cli.py`.
 - Unit tests (no HAL): `tools/hal_viz/test_hal_viz.py`,
   `test_hal_viz_report.py`, or
   `python -m unittest discover -s tools/hal_viz -t tools -p "test_*.py"`.

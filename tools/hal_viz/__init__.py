@@ -9,8 +9,12 @@ built HAL can be imported (and unit tested) with a plain Python interpreter:
     Turns netlist objects into :class:`~hal_viz.dot.DotGraph` instances.  It
     only ever calls duck-typed accessors, so it can be exercised with stub
     objects instead of real ``hal_py`` ones.
+``hal_viz.levels``
+    Topological levelling (Kahn plus SCC detection) of a cut graph, on plain
+    node keys -- the graph-theory half of the ``dag`` view.
 ``hal_viz.render``
-    Locates and drives the Graphviz ``dot`` binary, writes an HTML index.
+    Locates and drives the Graphviz ``dot`` binary, writes an HTML index and
+    the standalone single-diagram page.
 ``hal_viz.report``
     Turns ``hal_findings`` documents plus the artifacts they reference into one
     static, self-contained HTML page.  Reads files, never a netlist.
