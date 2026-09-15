@@ -218,6 +218,21 @@ def build_cases(work_dir):
             ],
             lambda result: check_findings(out("agilex_findings.json")),
         ),
+        # hal_crypto reaches hal_py.NetlistFactory through hal_agilex.hal_adapter rather than
+        # calling it itself, which is exactly the kind of indirection that hides a missing
+        # load_all_plugins(): the delegation is only correct as long as the module it delegates to
+        # keeps loading the plugins. 'elaborate' is the one hal_crypto subcommand that loads a
+        # netlist in-process -- the rest read the .vo with the standard library -- so it is the one
+        # this audit has to run.
+        (
+            "hal_crypto",
+            [
+                "-m", "hal_crypto", "elaborate", str(AGILEX_NETLIST),
+                "--gate-library", str(AGILEX_LIBRARY),
+                "-o", out("crypto_findings.json"),
+            ],
+            lambda result: check_findings(out("crypto_findings.json")),
+        ),
         (
             "hal_apb_check",
             [

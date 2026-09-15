@@ -1,0 +1,103 @@
+{
+  "device": "A3CW135BM16AE6S",
+  "family": "Agilex 3",
+  "files": {
+    "arx_round8.vo": {
+      "description": "one ARX round: 8-bit add, rotate by 3, XOR, register",
+      "expected_family": "arx",
+      "expected_style": "classical-style",
+      "role": "positive control for the ARX pass",
+      "sha256": "92f099939e63840289fa8f87ef4949c1b2115c7b22eeb9d4e1111a8e611fc9b3",
+      "size_bytes": 10196
+    },
+    "butterfly4.vo": {
+      "description": "4-bit butterfly: a+b and a-b over the same operands",
+      "expected_family": "none-detected",
+      "expected_style": "undetermined",
+      "role": "positive control for butterfly detection, negative for the modulus",
+      "sha256": "324f63ad77192b58264f9cc0b311eeb37312ef0525b8ca9457cd419a19e01c55",
+      "size_bytes": 8836
+    },
+    "counter8.vo": {
+      "description": "8-bit accumulator: adders without rotation or XOR layers",
+      "expected_family": "none-detected",
+      "expected_style": "undetermined",
+      "role": "negative control for the ARX pass -- an adder alone is not ARX",
+      "sha256": "e707cb25dee94d2a3a78ed6d5fdba2f4addcce8b604e24d845f86be639338e9b",
+      "size_bytes": 5622
+    },
+    "lfsr16_fibonacci.vo": {
+      "description": "16-stage Fibonacci LFSR, x^16 + x^15 + x^13 + x^4 + 1",
+      "expected_family": "lfsr-stream",
+      "expected_style": "classical-style",
+      "role": "positive control for the LFSR pass",
+      "sha256": "55da840875a44385e1e3f379ddba7b074ea8e4930291fc7e90953cebba28435d",
+      "size_bytes": 5093
+    },
+    "lfsr16_galois.vo": {
+      "description": "16-stage Galois LFSR with three injection points",
+      "expected_family": "lfsr-stream",
+      "expected_style": "classical-style",
+      "role": "positive control for Galois-versus-Fibonacci",
+      "sha256": "0d2646db567b616610ef06facddface5352bfaebc9a583fd26002558bcb8fc85",
+      "size_bytes": 5739
+    },
+    "nlfsr16.vo": {
+      "description": "16-stage NLFSR: the same taps with an AND term in the feedback",
+      "expected_family": "lfsr-stream",
+      "expected_style": "classical-style",
+      "role": "negative control for *linear* feedback: no polynomial exists",
+      "sha256": "316f92adc340e139c63506095bf1893d493c99b9953f98a6b0b74cd88f1e175b",
+      "size_bytes": 5084
+    },
+    "ntt_stage13.vo": {
+      "description": "a butterfly with a conditional subtract of q = 3329",
+      "expected_family": "lattice-ntt",
+      "expected_style": "pqc-style",
+      "role": "positive control for the NTT pass and the PQC-style verdict",
+      "sha256": "17d8690e4ff4dde053223e55ab19bd010ea22e69bc3ef0fa3efe7d0a9a20afb4",
+      "size_bytes": 28651
+    },
+    "present_sbox_layer.vo": {
+      "description": "two PRESENT S-boxes between register banks",
+      "expected_family": "spn",
+      "expected_style": "classical-style",
+      "role": "positive control for the S-box pass",
+      "sha256": "4e8146726020a22a57812c03c9a98c16be8d6e0983c69b5894ca62d713ae7890",
+      "size_bytes": 5540
+    },
+    "rotate16.vo": {
+      "description": "two 16-bit register banks joined by a rotation of 5",
+      "expected_family": "none-detected",
+      "expected_style": "undetermined",
+      "role": "positive control for the permutation pass, negative for ARX",
+      "sha256": "4b0a4af5df6a4857ee6829595f43c71e4d661f23840b87d6a9582332c3f81555",
+      "size_bytes": 9159
+    },
+    "shift16_plain.vo": {
+      "description": "16-stage shift register with no feedback at all",
+      "expected_family": "none-detected",
+      "expected_style": "undetermined",
+      "role": "negative control for the LFSR pass",
+      "sha256": "415ce25b2a8bd5072b2254f610f38cf421209c75b70d8e2d84003fcabddb2814",
+      "size_bytes": 4737
+    },
+    "unknown_sbox_layer.vo": {
+      "description": "the same shape with a 4-bit bijection that is in no library",
+      "expected_family": "spn",
+      "expected_style": "classical-style",
+      "role": "negative control for S-box *matching*: extracted, never matched",
+      "sha256": "c71e1f1ccc9a45c8447d0af8b99f2e2c065559d6b1e1da6bd94d632460ee7689",
+      "size_bytes": 5540
+    }
+  },
+  "generator": "tools/hal_crypto/fixtures/synth.py",
+  "kind": "synthesized shapes, not vendor exports",
+  "provenance": "Assembled from the tennm_lcell_comb and tennm_ff semantics in hal_agilex.primitives, which were validated against real Quartus exports in tools/hal_agilex/fixtures. Nothing here came out of Quartus, so nothing here is evidence about vendor primitive behaviour -- only about the hal_crypto recognizers.",
+  "regenerate": [
+    "python tools/hal_crypto fixtures --write"
+  ],
+  "verify": [
+    "python tools/hal_crypto fixtures --check"
+  ]
+}
