@@ -576,6 +576,14 @@ class TestLevels(unittest.TestCase):
         second = levels.compute_levels("abc", edges)
         self.assertEqual(first.levels, second.levels)
         self.assertEqual(first.broken_edges, second.broken_edges)
+        self.assertEqual(first.cycle_groups, second.cycle_groups)
+
+    def test_several_cycles_are_reported_in_input_order(self):
+        # two disjoint loops: the report must not depend on set iteration order
+        nodes = ["a", "b", "c", "d"]
+        edges = [("a", "b"), ("b", "a"), ("c", "d"), ("d", "c")]
+        result = levels.compute_levels(nodes, edges)
+        self.assertEqual([["a", "b"], ["c", "d"]], result.cycle_groups)
 
     def test_strongly_connected_components(self):
         components = levels.strongly_connected_components(

@@ -144,10 +144,15 @@ def strongly_connected_components(nodes, edges):
     return components
 
 
-def _cycles(order, edges_set):
-    """Non-trivial SCCs plus self-loops, i.e. every node on a directed cycle."""
+def _cycles(order, ordered_edges, edges_set):
+    """Non-trivial SCCs plus self-loops, i.e. every node on a directed cycle.
+
+    ``ordered_edges`` rather than ``edges_set`` is what goes into the SCC walk:
+    iterating a set of tuples follows hash order, which moves between
+    interpreters, and that would reorder the reported cycles run to run.
+    """
     groups = []
-    for component in strongly_connected_components(order, edges_set):
+    for component in strongly_connected_components(order, ordered_edges):
         if len(component) > 1:
             groups.append(component)
         elif (component[0], component[0]) in edges_set:
@@ -169,10 +174,10 @@ def compute_levels(nodes, edges):
     levelled exactly once, and the result is deterministic.
     """
     order, successors, predecessors = _adjacency(nodes, edges)
-    edges_set = set()
-    for source, targets in successors.items():
-        for target in targets:
-            edges_set.add((source, target))
+    ordered_edges = [
+        (source, target) for source in order for target in successors[source]
+    ]
+    edges_set = set(ordered_edges)
 
     position = dict((node, index) for index, node in enumerate(order))
     remaining = dict((node, len(predecessors[node])) for node in order)
@@ -215,7 +220,7 @@ def compute_levels(nodes, edges):
     for node in order:
         by_level.setdefault(levels[node], []).append(node)
 
-    cycle_groups = _cycles(order, edges_set)
+    cycle_groups = _cycles(order, ordered_edges, edges_set)
     cycle_nodes = set()
     for group in cycle_groups:
         cycle_nodes.update(group)
