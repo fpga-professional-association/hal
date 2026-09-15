@@ -98,6 +98,30 @@ numbers the register from the other end, which gives the reciprocal polynomial:
 `x^8 + x^2 + x + 1` — its stated 0x07 generator — as the reciprocal. Both are
 reported, always, with the convention named.
 
+### An ARX round in a vendor export names neither its R nor its X
+
+Both were measured on `examples/agilex3_walkthroughs/11_speck_toy`, a Quartus
+Prime Pro export of Speck32/64, and both defeat the obvious reading:
+
+- **the rotation is not a vector.** Rotating a word is free wiring, so a
+  synthesiser keeps no net for it: in that export not one declared vector, and
+  not one register bank's `d` pins, carries a rotated word. What survives is
+  the *order an ordered layer of cells reads one bank* — the operand of carry
+  chain slice *i*, or the single bank bit that bit *i*'s next-state cell reads.
+  `permutation.vector_rotation` and `permutation.register_bank_rotations`
+  classify those, and every reported rotation says under `read_from` which of
+  the three readings produced it;
+- **the XOR is packed with the multiplexer beside it.** `x <= load ? pt : (sum
+  ^ k)` is four inputs and fits one ALM, so all sixteen XOR cells of the Speck
+  round are multiplexers and none is an XOR of anything. `arx.xor_nets` also
+  accepts a cell that becomes an XOR once **one** input is held at a constant,
+  and reports it as `conditional` with the `cofactor` that recovered it.
+  Standalone and conditional XOR cells are counted separately in the finding,
+  because one is stronger evidence than the other.
+
+Holding one input is deliberately the limit: freeze enough inputs and almost
+any function turns affine.
+
 ## Fixtures
 
 `fixtures/*.vo` are **synthesized shapes, not vendor exports**: they are
@@ -117,11 +141,13 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-65 tests, no HAL, ~4 s. Registered with ctest as
+76 tests, no HAL, ~5 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
-two end-to-end cases are the acceptance criteria of the issue this package came
+end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
-specification states, and `01_blinky_counter` must classify `none-detected`.
+specification states, `01_blinky_counter` must classify `none-detected`, and
+`11_speck_toy` must classify `arx` with the published SPECK-32/64 rotation set
+quoted and no claim that the design *is* SPECK.
 
 `elaborate` is the one subcommand that loads a netlist in HAL's own process, so
 it also has a case in `tests/headless_smoke/tool_cli_plugin_load_smoke.py`,

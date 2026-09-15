@@ -180,11 +180,14 @@ def verdict(evidence):
     if evidence["arx"]["verdict"] == "arx-candidate":
         present.append("arx")
         evidence_lines.append(
-            "{} verified adder(s), {} fixed rotation(s) and {} pure-XOR cell(s), "
-            "wired into a round".format(
+            "{} verified adder(s), {} fixed rotation(s) and {} XOR cell(s) "
+            "({} standalone), wired into a round".format(
                 len(evidence["arx"]["adders"]),
                 len(evidence["arx"]["rotations"]),
                 evidence["arx"]["xor_cells"],
+                evidence["arx"].get(
+                    "standalone_xor_cells", evidence["arx"]["xor_cells"]
+                ),
             )
         )
         families = evidence["arx"].get("rotation_families") or []
@@ -575,13 +578,22 @@ def arx_findings(artifact_id, result):
                 ),
                 _scope(artifact_id),
                 summary=(
-                    "{} verified adder(s), {} fixed rotation(s) and {} pure-XOR cell(s) "
-                    "are present and wired to one another. This is the shape of an ARX "
-                    "round; it is not a proof that the design is a cipher, and it names "
-                    "no algorithm.".format(
+                    "{} verified adder(s), {} fixed rotation(s) ({} of them read off a "
+                    "named vector, the rest off the order a cell layer reads a register "
+                    "bank) and {} XOR cell(s) ({} standalone, {} recovered by holding one "
+                    "packed multiplexer input) are present and wired to one another. This "
+                    "is the shape of an ARX round; it is not a proof that the design is a "
+                    "cipher, and it names no algorithm.".format(
                         len(result["adders"]),
                         len(result["rotations"]),
+                        sum(
+                            1
+                            for entry in result["rotations"]
+                            if entry.get("read_from") == "named vector"
+                        ),
                         result["xor_cells"],
+                        result.get("standalone_xor_cells", result["xor_cells"]),
+                        result.get("conditional_xor_cells", 0),
                     )
                 ),
                 confidence=0.65,

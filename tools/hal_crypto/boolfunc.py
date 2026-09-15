@@ -157,6 +157,27 @@ class TruthTable(object):
             values.append(self.values[address])
         return TruthTable(inputs, values)
 
+    def cofactor(self, position, value):
+        """The function with input *position* held at *value*.
+
+        A synthesiser routinely packs an XOR and the multiplexer that selects
+        it into one ALM, and the packed cell is no longer an XOR of anything.
+        Holding the select input at the value that chooses the XOR recovers it,
+        which is why the ARX pass wants this: see
+        :func:`hal_crypto.arx.xor_nets`.
+        """
+        if not 0 <= position < self.arity:
+            raise IndexError("no input at position {}".format(position))
+        keep = [index for index in range(self.arity) if index != position]
+        inputs = tuple(self.inputs[index] for index in keep)
+        values = []
+        for index in range(1 << len(keep)):
+            address = (int(value) & 1) << position
+            for new_position, old_position in enumerate(keep):
+                address |= ((index >> new_position) & 1) << old_position
+            values.append(self.values[address])
+        return TruthTable(inputs, values)
+
     def is_constant(self):
         return len(set(self.values)) == 1
 

@@ -24,9 +24,27 @@ register bank.  Each map is classified before it is matched --
 Inversions along the way are recorded, not ignored: a rotation whose bits
 arrive complemented is still a rotation of the bit positions, but it is not the
 same function, and the finding says which.
+
+## Rotations a vendor export does not name
+
+The three destinations above all need the permuted word to *exist* as a named
+vector.  In a hand-built netlist it does; in a Quartus export of a real ARX
+round it does not, because a pure-wire rotation is not a signal a synthesiser
+has any reason to keep.  What survives instead is the *order in which an
+ordered layer of cells reads one register bank*:
+
+* the slices of a carry chain, whose operand for bit *i* is the bank bit the
+  rotation put there -- :func:`vector_rotation` over an adder's operand list;
+* the next-state cells of a register bank, when each bit's cell reads exactly
+  one bit of that same bank -- :func:`register_bank_rotations`.
+
+Both are weaker evidence than a named vector, and both are reported with the
+place they were read from, so a finding never claims a wire that is not there.
 """
 
 from . import known
+from .boolfunc import TruthTable
+from .netlist_model import ConeTooWide, UnsupportedCell
 
 __all__ = [
     "MIN_PERMUTATION_WIDTH",
@@ -34,6 +52,8 @@ __all__ = [
     "find_permutations",
     "classify_permutation",
     "match_permutation",
+    "vector_rotation",
+    "register_bank_rotations",
 ]
 
 #: Narrower than this, "permutation" is not a useful word: any two-bit swap
@@ -198,6 +218,133 @@ def match_permutation(permutation):
             }
         )
     return matches
+
+
+def vector_width(netlist, name):
+    """The declared width of vector *name*, or ``None`` when it is not one."""
+    entry = netlist.declarations.get(name)
+    if entry is None or entry[1] is None:
+        return None
+    return abs(entry[2] - entry[1]) + 1
+
+
+def vector_rotation(keys, width=None):
+    """Classify what an ordered cell layer reads as a rotation of one vector.
+
+    ``keys[i]`` is the source net position *i* of the layer reads, least
+    significant position first.  Unlike :func:`classify_permutation` the layer
+    does **not** have to cover the whole source vector: a carry chain's top
+    slice is classified separately (its generate half is dead, so the chain
+    walk stops one short), which would leave a hole in the index set.  The
+    offset is therefore taken modulo *width* -- the source vector's declared
+    width -- and how many positions were actually seen is reported.
+
+    Returns ``None`` unless every key is a bit of one vector, the bits are
+    distinct, and one non-zero offset explains every position.
+    """
+    keys = list(keys)
+    if len(keys) < MIN_PERMUTATION_WIDTH:
+        return None
+    names = {_split(key)[0] for key in keys}
+    if len(names) != 1:
+        return None
+    source = names.pop()
+    indices = [_split(key)[1] for key in keys]
+    if any(index is None for index in indices):
+        return None
+    if len(set(indices)) != len(indices):
+        return None
+    if width is None:
+        width = max(indices) + 1
+    if width < MIN_PERMUTATION_WIDTH or max(indices) >= width:
+        return None
+    for amount in range(width):
+        if all(indices[i] == (i + amount) % width for i in range(len(indices))):
+            if amount == 0:
+                return None  # straight wiring; every netlist is full of these
+            return {
+                "kind": "rotation",
+                "source": source,
+                "width": width,
+                "rotation": amount,
+                "rotate_left_by": (width - amount) % width,
+                "bits_observed": len(indices),
+            }
+    return None
+
+
+def _bank_self_source(model, ff, bank_name):
+    """The single bit of *bank_name* the flip-flop's next-state cell reads.
+
+    ``None`` when the ``d`` pin is not driven by an ALM's ``combout``, when the
+    cell cannot be decoded, or when it reads no bit of the bank or more than
+    one.  "Exactly one" is the point: it is what makes the map a function of
+    the bit index rather than a cone.
+    """
+    data = ff.connections.get("d")
+    if not data:
+        return None
+    resolved = model.resolve(data[0])
+    if resolved[0] != "net":
+        return None
+    driver = model.driver(resolved[1])
+    if driver is None or driver[1] != "combout":
+        return None
+    try:
+        keys, table, _, _, _ = model._lut_inputs(driver[0])  # noqa: SLF001
+    except (UnsupportedCell, ConeTooWide):
+        return None
+    if not keys:
+        return None
+    function = TruthTable(keys, table).restricted()
+    own = []
+    for key in function.inputs:
+        peeled = model.peel(key)[0]
+        if _split(peeled)[0] == bank_name:
+            own.append(peeled)
+    if len(own) != 1:
+        return None
+    return own[0]
+
+
+def register_bank_rotations(model):
+    """Rotations read off the next-state fan-in of a register bank.
+
+    For every bank wide enough to be a cipher word, ask which bit of the bank
+    each bit's next-state cell reads *directly* (not through the cone: through
+    the cell's own pins).  When that is exactly one bit for every position and
+    the resulting index map is a rotation, the rotation is in the wiring even
+    though no vector in the netlist carries it -- which is how Quartus spells
+    ``y <= ROL(y, 2) ^ something``.
+    """
+    results = []
+    for name, bank in sorted(_register_banks(model).items()):
+        indices = sorted(bank)
+        # The bank has to be bits 0..n-1 of its vector, not merely contiguous:
+        # position i of the list below is read as bank bit i, and a bank whose
+        # lowest bit is missing would shift every index by a constant and turn
+        # straight wiring into a rotation.  Refuse rather than offset-correct --
+        # the offset is not recoverable from a partial bank.
+        if indices != list(range(len(indices))):
+            continue
+        sources = []
+        for index in indices:
+            source = _bank_self_source(model, bank[index], name)
+            if source is None:
+                sources = None
+                break
+            sources.append(source)
+        if not sources:
+            continue
+        entry = vector_rotation(sources, width=vector_width(model.netlist, name))
+        if entry is None:
+            continue
+        entry = dict(entry)
+        entry["destination"] = "register bank {} next-state fan-in".format(name)
+        entry["read_from"] = "register-bank next-state cells"
+        entry["all_inverted"] = False
+        results.append(entry)
+    return results
 
 
 def rotation_amounts(permutations):
