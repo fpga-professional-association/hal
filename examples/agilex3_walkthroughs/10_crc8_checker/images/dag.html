@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>top - levelled netlist graph</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{font:14px/1.55 system-ui,-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;padding:2rem;color:#1b1b1b;background:#fff}
+main{max-width:100%;margin:0 auto}
+h1{font-size:1.35rem;margin:0 0 .2rem}
+p.caption{color:#444;margin:.2rem 0 1rem}
+ul.stats{list-style:none;display:flex;flex-wrap:wrap;gap:.4rem;padding:0;margin:0 0 1rem}
+ul.stats li{border:1px solid #e0e0e0;border-radius:999px;padding:.1rem .7rem;
+background:#fafafa;color:#333;font-size:.85rem}
+ul.stats li b{font-weight:600}
+p.warning{border-left:4px solid #c0392b;background:#fdecea;margin:0 0 1rem;
+padding:.5rem .75rem;color:#7d241a}
+.figure{border:1px solid #ddd;border-radius:6px;background:#fff;padding:.5rem;
+overflow:auto}
+.figure svg{max-width:100%;height:auto;display:block}
+.legend{margin:1.25rem 0 0;border:1px solid #e0e0e0;border-radius:6px;
+padding:.75rem 1rem;background:#fcfcfc}
+.legend h2{font-size:.95rem;margin:0 0 .5rem}
+.legend dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .9rem;margin:0}
+.legend dt{font-weight:600;color:#2a5d8f}
+.legend dd{margin:0;color:#444}
+footer{margin-top:1.5rem;color:#777;font-size:.8rem}
+a{color:#1a73e8}
+</style></head><body><main>
+<h1>top - levelled netlist graph</h1>
+<p class="caption">Whole netlist. Feedback is cut at every flip-flop and latch, so what is drawn left to right is the depth of the combinational core.</p>
+<ul class="stats">
+<li><b>13</b> gates</li>
+<li><b>111</b> edges</li>
+<li><b>3</b> levels</li>
+<li><b>64</b> edges cut at a register</li>
+<li><b>89</b> constant tie-offs</li>
+</ul>
+<div class="figure">
+<svg width="793pt" height="4577pt"
+ viewBox="0.00 0.00 792.78 4577.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 4573)">
+<title>top &#45; whole netlist &#45; levelled graph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-4573 788.78,-4573 788.78,4 -4,4"/>
+<text text-anchor="middle" x="392.39" y="-4552.2" font-family="Helvetica,sans-Serif" font-size="16.00">top &#45; whole netlist &#45; levelled graph</text>
+<g id="clust4" class="cluster">
+<title>cluster_legend</title>
+<path fill="#fcfcfc" stroke="#bbbbbb" d="M44.83,-4073C44.83,-4073 456.48,-4073 456.48,-4073 462.48,-4073 468.48,-4079 468.48,-4085 468.48,-4085 468.48,-4523 468.48,-4523 468.48,-4529 462.48,-4535 456.48,-4535 456.48,-4535 44.83,-4535 44.83,-4535 38.83,-4535 32.83,-4529 32.83,-4523 32.83,-4523 32.83,-4085 32.83,-4085 32.83,-4079 38.83,-4073 44.83,-4073"/>
+<text text-anchor="middle" x="250.66" y="-4522.2" font-family="Helvetica,sans-Serif" font-size="11.00">legend</text>
+</g>
+<!-- lvl_0 -->
+<g id="node1" class="node">
+<title>lvl_0</title>
+<text text-anchor="middle" x="140.83" y="-15.2" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#777777">level 0</text>
+</g>
+<!-- lvl_1 -->
+<g id="node99" class="node">
+<title>lvl_1</title>
+<text text-anchor="middle" x="458.32" y="-15.2" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#777777">level 1</text>
+</g>
+<!-- lvl_0&#45;&gt;lvl_1 -->
+<!-- tie0_1 -->
+<g id="node2" class="node">
+<title>tie0_1</title>
+<g id="a_node2"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1473" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1470.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g1 -->
+<g id="node91" class="node">
+<title>g1</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-1559.5 106.83,-1559.5 106.83,-1518.5 174.83,-1518.5 174.83,-1559.5"/>
+<text text-anchor="middle" x="140.83" y="-1547.5" font-family="Helvetica,sans-Serif" font-size="10.00">u3</text>
+<text text-anchor="middle" x="140.83" y="-1536.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-1525.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 1</text>
+</g>
+<!-- tie0_1&#45;&gt;g1 -->
+<g id="edge27" class="edge">
+<title>tie0_1&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-1483.05C140.83,-1491.44 140.83,-1499.83 140.83,-1508.22"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="137.33,-1508.46 140.83,-1518.46 144.33,-1508.46 137.33,-1508.46"/>
+</g>
+<!-- tie0_2 -->
+<g id="node3" class="node">
+<title>tie0_2</title>
+<g id="a_node3"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1795" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1792.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_2&#45;&gt;g1 -->
+<g id="edge28" class="edge">
+<title>tie0_2&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1796.76C105.41,-1800.52 39.52,-1806.05 16.33,-1767 -3.18,-1734.13 -3.18,-1627.87 16.33,-1595 33.11,-1566.74 68.23,-1552.67 96.91,-1545.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-1549.1 106.75,-1543.52 96.23,-1542.27 97.74,-1549.1"/>
+</g>
+<!-- tie0_3 -->
+<g id="node4" class="node">
+<title>tie0_3</title>
+<g id="a_node4"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1757" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1754.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_3&#45;&gt;g1 -->
+<g id="edge29" class="edge">
+<title>tie0_3&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1758.76C105.41,-1762.52 39.52,-1768.05 16.33,-1729 1.13,-1703.39 1.13,-1620.61 16.33,-1595 33.11,-1566.74 68.23,-1552.67 96.91,-1545.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-1549.1 106.75,-1543.52 96.23,-1542.27 97.74,-1549.1"/>
+</g>
+<!-- tie0_4 -->
+<g id="node5" class="node">
+<title>tie0_4</title>
+<g id="a_node5"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1719" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1716.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_4&#45;&gt;g1 -->
+<g id="edge30" class="edge">
+<title>tie0_4&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1720.76C105.41,-1724.52 39.52,-1730.05 16.33,-1691 -5.44,-1654.31 -5.44,-1631.69 16.33,-1595 33.11,-1566.74 68.23,-1552.67 96.91,-1545.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-1549.1 106.75,-1543.52 96.23,-1542.27 97.74,-1549.1"/>
+</g>
+<!-- tie0_5 -->
+<g id="node6" class="node">
+<title>tie0_5</title>
+<g id="a_node6"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1093" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1090.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g2 -->
+<g id="node92" class="node">
+<title>g2</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-1009.5 106.83,-1009.5 106.83,-968.5 174.83,-968.5 174.83,-1009.5"/>
+<text text-anchor="middle" x="140.83" y="-997.5" font-family="Helvetica,sans-Serif" font-size="10.00">u5</text>
+<text text-anchor="middle" x="140.83" y="-986.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-975.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 2</text>
+</g>
+<!-- tie0_5&#45;&gt;g2 -->
+<g id="edge31" class="edge">
+<title>tie0_5&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1094.76C105.41,-1098.52 39.52,-1104.05 16.33,-1065 -5.01,-1029.04 52.99,-1007.85 96.85,-997.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-1000.7 106.8,-995.07 96.27,-993.88 97.82,-1000.7"/>
+</g>
+<!-- tie0_6 -->
+<g id="node7" class="node">
+<title>tie0_6</title>
+<g id="a_node7"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1055" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1052.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_6&#45;&gt;g2 -->
+<g id="edge32" class="edge">
+<title>tie0_6&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-1044.72C140.83,-1036.4 140.83,-1028.09 140.83,-1019.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-1019.62 140.83,-1009.62 137.33,-1019.63 144.33,-1019.62"/>
+</g>
+<!-- tie0_7 -->
+<g id="node8" class="node">
+<title>tie0_7</title>
+<g id="a_node8"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1283" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1280.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_7&#45;&gt;g2 -->
+<g id="edge33" class="edge">
+<title>tie0_7&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1284.76C105.41,-1288.52 39.52,-1294.05 16.33,-1255 4.42,-1234.94 4.42,-1065.06 16.33,-1045 33.11,-1016.74 68.23,-1002.67 96.91,-995.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-999.1 106.75,-993.52 96.23,-992.27 97.74,-999.1"/>
+</g>
+<!-- tie0_8 -->
+<g id="node9" class="node">
+<title>tie0_8</title>
+<g id="a_node9"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1245" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1242.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_8&#45;&gt;g2 -->
+<g id="edge34" class="edge">
+<title>tie0_8&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1246.76C105.41,-1250.52 39.52,-1256.05 16.33,-1217 -3.18,-1184.13 -3.18,-1077.87 16.33,-1045 33.11,-1016.74 68.23,-1002.67 96.91,-995.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-999.1 106.75,-993.52 96.23,-992.27 97.74,-999.1"/>
+</g>
+<!-- tie0_9 -->
+<g id="node10" class="node">
+<title>tie0_9</title>
+<g id="a_node10"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-826" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-823.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g3 -->
+<g id="node93" class="node">
+<title>g3</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-552.5 106.83,-552.5 106.83,-511.5 174.83,-511.5 174.83,-552.5"/>
+<text text-anchor="middle" x="140.83" y="-540.5" font-family="Helvetica,sans-Serif" font-size="10.00">u7</text>
+<text text-anchor="middle" x="140.83" y="-529.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-518.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 3</text>
+</g>
+<!-- tie0_9&#45;&gt;g3 -->
+<g id="edge35" class="edge">
+<title>tie0_9&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-827.76C105.41,-831.52 39.52,-837.05 16.33,-798 4.42,-777.94 4.42,-608.06 16.33,-588 33.11,-559.74 68.23,-545.67 96.91,-538.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-542.1 106.75,-536.52 96.23,-535.27 97.74,-542.1"/>
+</g>
+<!-- tie0_10 -->
+<g id="node11" class="node">
+<title>tie0_10</title>
+<g id="a_node11"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-788" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-785.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_10&#45;&gt;g3 -->
+<g id="edge36" class="edge">
+<title>tie0_10&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-789.76C105.41,-793.52 39.52,-799.05 16.33,-760 -3.18,-727.13 -3.18,-620.87 16.33,-588 33.11,-559.74 68.23,-545.67 96.91,-538.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-542.1 106.75,-536.52 96.23,-535.27 97.74,-542.1"/>
+</g>
+<!-- tie0_11 -->
+<g id="node12" class="node">
+<title>tie0_11</title>
+<g id="a_node12"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-750" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-747.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_11&#45;&gt;g3 -->
+<g id="edge37" class="edge">
+<title>tie0_11&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-751.76C105.41,-755.52 39.52,-761.05 16.33,-722 1.13,-696.39 1.13,-613.61 16.33,-588 33.11,-559.74 68.23,-545.67 96.91,-538.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-542.1 106.75,-536.52 96.23,-535.27 97.74,-542.1"/>
+</g>
+<!-- tie0_12 -->
+<g id="node13" class="node">
+<title>tie0_12</title>
+<g id="a_node13"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-712" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-709.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_12&#45;&gt;g3 -->
+<g id="edge38" class="edge">
+<title>tie0_12&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-713.76C105.41,-717.52 39.52,-723.05 16.33,-684 -5.44,-647.31 -5.44,-624.69 16.33,-588 33.11,-559.74 68.23,-545.67 96.91,-538.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-542.1 106.75,-536.52 96.23,-535.27 97.74,-542.1"/>
+</g>
+<!-- tie0_13 -->
+<g id="node14" class="node">
+<title>tie0_13</title>
+<g id="a_node14"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-483" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-480.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g4 -->
+<g id="node94" class="node">
+<title>g4</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-209.5 106.83,-209.5 106.83,-168.5 174.83,-168.5 174.83,-209.5"/>
+<text text-anchor="middle" x="140.83" y="-197.5" font-family="Helvetica,sans-Serif" font-size="10.00">u9</text>
+<text text-anchor="middle" x="140.83" y="-186.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-175.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 4</text>
+</g>
+<!-- tie0_13&#45;&gt;g4 -->
+<g id="edge39" class="edge">
+<title>tie0_13&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-484.76C105.41,-488.52 39.52,-494.05 16.33,-455 4.42,-434.94 4.42,-265.06 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- tie0_14 -->
+<g id="node15" class="node">
+<title>tie0_14</title>
+<g id="a_node15"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-445" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-442.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_14&#45;&gt;g4 -->
+<g id="edge40" class="edge">
+<title>tie0_14&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-446.76C105.41,-450.52 39.52,-456.05 16.33,-417 -3.18,-384.13 -3.18,-277.87 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- tie0_15 -->
+<g id="node16" class="node">
+<title>tie0_15</title>
+<g id="a_node16"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-407" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-404.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_15&#45;&gt;g4 -->
+<g id="edge41" class="edge">
+<title>tie0_15&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-408.76C105.41,-412.52 39.52,-418.05 16.33,-379 1.13,-353.39 1.13,-270.61 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- tie0_16 -->
+<g id="node17" class="node">
+<title>tie0_16</title>
+<g id="a_node17"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-369" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-366.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_16&#45;&gt;g4 -->
+<g id="edge42" class="edge">
+<title>tie0_16&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-370.76C105.41,-374.52 39.52,-380.05 16.33,-341 -5.44,-304.31 -5.44,-281.69 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- tie0_17 -->
+<g id="node18" class="node">
+<title>tie0_17</title>
+<g id="a_node18"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3813" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3810.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g5 -->
+<g id="node95" class="node">
+<title>g5</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-3577.5 106.83,-3577.5 106.83,-3536.5 174.83,-3536.5 174.83,-3577.5"/>
+<text text-anchor="middle" x="140.83" y="-3565.5" font-family="Helvetica,sans-Serif" font-size="10.00">u11</text>
+<text text-anchor="middle" x="140.83" y="-3554.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-3543.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 5</text>
+</g>
+<!-- tie0_17&#45;&gt;g5 -->
+<g id="edge43" class="edge">
+<title>tie0_17&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3814.76C105.41,-3818.52 39.52,-3824.05 16.33,-3785 -3.18,-3752.13 -3.18,-3645.87 16.33,-3613 33.11,-3584.74 68.23,-3570.67 96.91,-3563.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3567.1 106.75,-3561.52 96.23,-3560.27 97.74,-3567.1"/>
+</g>
+<!-- tie0_18 -->
+<g id="node19" class="node">
+<title>tie0_18</title>
+<g id="a_node19"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3775" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3772.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_18&#45;&gt;g5 -->
+<g id="edge44" class="edge">
+<title>tie0_18&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3776.76C105.41,-3780.52 39.52,-3786.05 16.33,-3747 1.13,-3721.39 1.13,-3638.61 16.33,-3613 33.11,-3584.74 68.23,-3570.67 96.91,-3563.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3567.1 106.75,-3561.52 96.23,-3560.27 97.74,-3567.1"/>
+</g>
+<!-- tie0_19 -->
+<g id="node20" class="node">
+<title>tie0_19</title>
+<g id="a_node20"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3737" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3734.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_19&#45;&gt;g5 -->
+<g id="edge45" class="edge">
+<title>tie0_19&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3738.76C105.41,-3742.52 39.52,-3748.05 16.33,-3709 -5.44,-3672.31 -5.44,-3649.69 16.33,-3613 33.11,-3584.74 68.23,-3570.67 96.91,-3563.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3567.1 106.75,-3561.52 96.23,-3560.27 97.74,-3567.1"/>
+</g>
+<!-- tie0_20 -->
+<g id="node21" class="node">
+<title>tie0_20</title>
+<g id="a_node21"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3699" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3696.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_20&#45;&gt;g5 -->
+<g id="edge46" class="edge">
+<title>tie0_20&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3700.76C105.41,-3704.52 39.52,-3710.05 16.33,-3671 3.18,-3648.83 3.18,-3635.17 16.33,-3613 33.11,-3584.74 68.23,-3570.67 96.91,-3563.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3567.1 106.75,-3561.52 96.23,-3560.27 97.74,-3567.1"/>
+</g>
+<!-- tie0_21 -->
+<g id="node22" class="node">
+<title>tie0_21</title>
+<g id="a_node22"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3470" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3467.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g6 -->
+<g id="node96" class="node">
+<title>g6</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-3234.5 106.83,-3234.5 106.83,-3193.5 174.83,-3193.5 174.83,-3234.5"/>
+<text text-anchor="middle" x="140.83" y="-3222.5" font-family="Helvetica,sans-Serif" font-size="10.00">u0</text>
+<text text-anchor="middle" x="140.83" y="-3211.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-3200.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 6</text>
+</g>
+<!-- tie0_21&#45;&gt;g6 -->
+<g id="edge47" class="edge">
+<title>tie0_21&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3471.76C105.41,-3475.52 39.52,-3481.05 16.33,-3442 -3.18,-3409.13 -3.18,-3302.87 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- tie0_22 -->
+<g id="node23" class="node">
+<title>tie0_22</title>
+<g id="a_node23"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3432" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3429.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_22&#45;&gt;g6 -->
+<g id="edge48" class="edge">
+<title>tie0_22&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3433.76C105.41,-3437.52 39.52,-3443.05 16.33,-3404 1.13,-3378.39 1.13,-3295.61 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- tie0_23 -->
+<g id="node24" class="node">
+<title>tie0_23</title>
+<g id="a_node24"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3394" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3391.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_23&#45;&gt;g6 -->
+<g id="edge49" class="edge">
+<title>tie0_23&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3395.76C105.41,-3399.52 39.52,-3405.05 16.33,-3366 -5.44,-3329.31 -5.44,-3306.69 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- tie0_24 -->
+<g id="node25" class="node">
+<title>tie0_24</title>
+<g id="a_node25"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3356" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3353.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_24&#45;&gt;g6 -->
+<g id="edge50" class="edge">
+<title>tie0_24&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3357.76C105.41,-3361.52 39.52,-3367.05 16.33,-3328 3.18,-3305.83 3.18,-3292.17 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- tie0_25 -->
+<g id="node26" class="node">
+<title>tie0_25</title>
+<g id="a_node26"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3127" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3124.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g7 -->
+<g id="node97" class="node">
+<title>g7</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-2891.5 106.83,-2891.5 106.83,-2850.5 174.83,-2850.5 174.83,-2891.5"/>
+<text text-anchor="middle" x="140.83" y="-2879.5" font-family="Helvetica,sans-Serif" font-size="10.00">u2</text>
+<text text-anchor="middle" x="140.83" y="-2868.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-2857.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 7</text>
+</g>
+<!-- tie0_25&#45;&gt;g7 -->
+<g id="edge51" class="edge">
+<title>tie0_25&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3128.76C105.41,-3132.52 39.52,-3138.05 16.33,-3099 -3.18,-3066.13 -3.18,-2959.87 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- tie0_26 -->
+<g id="node27" class="node">
+<title>tie0_26</title>
+<g id="a_node27"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3089" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3086.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_26&#45;&gt;g7 -->
+<g id="edge52" class="edge">
+<title>tie0_26&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3090.76C105.41,-3094.52 39.52,-3100.05 16.33,-3061 1.13,-3035.39 1.13,-2952.61 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- tie0_27 -->
+<g id="node28" class="node">
+<title>tie0_27</title>
+<g id="a_node28"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3051" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3048.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_27&#45;&gt;g7 -->
+<g id="edge53" class="edge">
+<title>tie0_27&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3052.76C105.41,-3056.52 39.52,-3062.05 16.33,-3023 -5.44,-2986.31 -5.44,-2963.69 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- tie0_28 -->
+<g id="node29" class="node">
+<title>tie0_28</title>
+<g id="a_node29"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3013" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3010.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_28&#45;&gt;g7 -->
+<g id="edge54" class="edge">
+<title>tie0_28&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3014.76C105.41,-3018.52 39.52,-3024.05 16.33,-2985 3.18,-2962.83 3.18,-2949.17 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- tie0_29 -->
+<g id="node30" class="node">
+<title>tie0_29</title>
+<g id="a_node30"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2252" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2249.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g8 -->
+<g id="node98" class="node">
+<title>g8</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="174.83,-2206.5 106.83,-2206.5 106.83,-2165.5 174.83,-2165.5 174.83,-2206.5"/>
+<text text-anchor="middle" x="140.83" y="-2194.5" font-family="Helvetica,sans-Serif" font-size="10.00">u4</text>
+<text text-anchor="middle" x="140.83" y="-2183.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_ff]</text>
+<text text-anchor="middle" x="140.83" y="-2172.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 8</text>
+</g>
+<!-- tie0_29&#45;&gt;g8 -->
+<g id="edge55" class="edge">
+<title>tie0_29&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-2241.72C140.83,-2233.4 140.83,-2225.09 140.83,-2216.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-2216.62 140.83,-2206.62 137.33,-2216.63 144.33,-2216.62"/>
+</g>
+<!-- tie0_30 -->
+<g id="node31" class="node">
+<title>tie0_30</title>
+<g id="a_node31"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2480" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2477.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_30&#45;&gt;g8 -->
+<g id="edge56" class="edge">
+<title>tie0_30&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2481.76C105.41,-2485.52 39.52,-2491.05 16.33,-2452 4.42,-2431.94 4.42,-2262.06 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- tie0_31 -->
+<g id="node32" class="node">
+<title>tie0_31</title>
+<g id="a_node32"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2442" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2439.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_31&#45;&gt;g8 -->
+<g id="edge57" class="edge">
+<title>tie0_31&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2443.76C105.41,-2447.52 39.52,-2453.05 16.33,-2414 -3.18,-2381.13 -3.18,-2274.87 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- tie0_32 -->
+<g id="node33" class="node">
+<title>tie0_32</title>
+<g id="a_node33"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2404" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2401.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_32&#45;&gt;g8 -->
+<g id="edge58" class="edge">
+<title>tie0_32&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2405.76C105.41,-2409.52 39.52,-2415.05 16.33,-2376 1.13,-2350.39 1.13,-2267.61 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- tie0_33 -->
+<g id="node34" class="node">
+<title>tie0_33</title>
+<g id="a_node34"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-140" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-137.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g9 -->
+<g id="node100" class="node">
+<title>g9</title>
+<path fill="#f4f4f4" stroke="#555555" d="M502.82,-884.5C502.82,-884.5 413.82,-884.5 413.82,-884.5 407.82,-884.5 401.82,-878.5 401.82,-872.5 401.82,-872.5 401.82,-855.5 401.82,-855.5 401.82,-849.5 407.82,-843.5 413.82,-843.5 413.82,-843.5 502.82,-843.5 502.82,-843.5 508.82,-843.5 514.82,-849.5 514.82,-855.5 514.82,-855.5 514.82,-872.5 514.82,-872.5 514.82,-878.5 508.82,-884.5 502.82,-884.5"/>
+<text text-anchor="middle" x="458.32" y="-872.5" font-family="Helvetica,sans-Serif" font-size="10.00">u6</text>
+<text text-anchor="middle" x="458.32" y="-861.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_lcell_comb]</text>
+<text text-anchor="middle" x="458.32" y="-850.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 9</text>
+</g>
+<!-- tie0_33&#45;&gt;g9 -->
+<g id="edge59" class="edge">
+<title>tie0_33&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M151,-139.8C169.34,-139.79 211.34,-141.83 240.83,-159 298.86,-192.79 309.51,-213.59 338.83,-274 434.86,-471.79 453.08,-743.1 456.52,-833.39"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="453.03,-833.61 456.87,-843.49 460.02,-833.37 453.03,-833.61"/>
+</g>
+<!-- tie0_34 -->
+<g id="node35" class="node">
+<title>tie0_34</title>
+<g id="a_node35"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-902" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-899.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_34&#45;&gt;g9 -->
+<g id="edge60" class="edge">
+<title>tie0_34&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-900.9C185.7,-896.72 312.09,-881.49 391.27,-871.96"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="392.13,-875.38 401.64,-870.71 391.29,-868.43 392.13,-875.38"/>
+</g>
+<!-- tie0_35 -->
+<g id="node36" class="node">
+<title>tie0_35</title>
+<g id="a_node36"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-64" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-61.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_35&#45;&gt;g9 -->
+<g id="edge61" class="edge">
+<title>tie0_35&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M150.84,-63.59C182.78,-62.7 291.24,-64.45 338.83,-126 426.67,-239.59 451.19,-708.28 456.22,-833.26"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="452.73,-833.44 456.61,-843.29 459.72,-833.16 452.73,-833.44"/>
+</g>
+<!-- tie0_36 -->
+<g id="node37" class="node">
+<title>tie0_36</title>
+<g id="a_node37"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-102" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-99.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_36&#45;&gt;g9 -->
+<g id="edge62" class="edge">
+<title>tie0_36&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M151,-102.21C183.45,-103.49 293.43,-112.69 338.83,-178 414.6,-286.98 447.58,-713.94 455.42,-833.02"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="451.94,-833.49 456.08,-843.25 458.92,-833.04 451.94,-833.49"/>
+</g>
+<!-- tie0_37 -->
+<g id="node38" class="node">
+<title>tie0_37</title>
+<g id="a_node38"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-940" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-937.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_37&#45;&gt;g9 -->
+<g id="edge63" class="edge">
+<title>tie0_37&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M150.88,-938.45C168.34,-935.42 207.87,-928.36 240.83,-921 291.86,-909.61 349.04,-894.45 391.81,-882.63"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="392.84,-885.98 401.54,-879.93 390.96,-879.23 392.84,-885.98"/>
+</g>
+<!-- tie0_38 -->
+<g id="node39" class="node">
+<title>tie0_38</title>
+<g id="a_node39"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-864" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-861.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_38&#45;&gt;g9 -->
+<g id="edge64" class="edge">
+<title>tie0_38&#45;&gt;g9</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-864C185.7,-864 312.09,-864 391.27,-864"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="391.64,-867.5 401.64,-864 391.64,-860.5 391.64,-867.5"/>
+</g>
+<!-- tie0_39 -->
+<g id="node40" class="node">
+<title>tie0_39</title>
+<g id="a_node40"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-4053" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-4050.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g10 -->
+<g id="node105" class="node">
+<title>g10</title>
+<polygon fill="#d6ecff" stroke="#2a5d8f" points="784.77,-3793.05 784.77,-3818.95 734.11,-3837.26 662.48,-3837.26 611.82,-3818.95 611.82,-3793.05 662.48,-3774.74 734.11,-3774.74 784.77,-3793.05"/>
+<text text-anchor="middle" x="698.29" y="-3814.5" font-family="Helvetica,sans-Serif" font-size="10.00">u8</text>
+<text text-anchor="middle" x="698.29" y="-3803.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_lcell_comb]</text>
+<text text-anchor="middle" x="698.29" y="-3792.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 10</text>
+</g>
+<!-- tie0_39&#45;&gt;g10 -->
+<g id="edge65" class="edge">
+<title>tie0_39&#45;&gt;g10</title>
+<path fill="none" stroke="#8a8a8a" d="M151.04,-4053.09C196.88,-4053.12 403.91,-4048.68 544.81,-3969 598.28,-3938.76 643.99,-3883.48 671.06,-3845.76"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="673.97,-3847.71 676.87,-3837.52 668.25,-3843.67 673.97,-3847.71"/>
+</g>
+<!-- tie0_40 -->
+<g id="node41" class="node">
+<title>tie0_40</title>
+<g id="a_node41"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-4015" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-4012.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_40&#45;&gt;g10 -->
+<g id="edge66" class="edge">
+<title>tie0_40&#45;&gt;g10</title>
+<path fill="none" stroke="#8a8a8a" d="M151.11,-4014.47C196.45,-4011.6 398.45,-3995.27 544.81,-3926 587.85,-3905.63 629.86,-3871.16 658.84,-3844.38"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="661.39,-3846.79 666.29,-3837.4 656.6,-3841.68 661.39,-3846.79"/>
+</g>
+<!-- tie0_41 -->
+<g id="node42" class="node">
+<title>tie0_41</title>
+<g id="a_node42"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3965" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3962.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_41&#45;&gt;g10 -->
+<g id="edge67" class="edge">
+<title>tie0_41&#45;&gt;g10</title>
+<path fill="none" stroke="#8a8a8a" d="M150.9,-3964.34C195.23,-3960.89 393.25,-3943.03 544.81,-3889 579.93,-3876.48 616.71,-3856.68 645.35,-3839.56"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="647.23,-3842.51 653.97,-3834.34 643.6,-3836.53 647.23,-3842.51"/>
+</g>
+<!-- tie0_42 -->
+<g id="node43" class="node">
+<title>tie0_42</title>
+<g id="a_node43"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3927" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3924.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_42&#45;&gt;g10 -->
+<g id="edge68" class="edge">
+<title>tie0_42&#45;&gt;g10</title>
+<path fill="none" stroke="#8a8a8a" d="M151.02,-3925.88C195.11,-3920.37 389.42,-3894.95 544.81,-3856 572.01,-3849.18 601.39,-3840 627.03,-3831.36"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="628.32,-3834.62 636.66,-3828.08 626.07,-3827.99 628.32,-3834.62"/>
+</g>
+<!-- tie0_43 -->
+<g id="node44" class="node">
+<title>tie0_43</title>
+<g id="a_node44"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-3889" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3886.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_43&#45;&gt;g10 -->
+<g id="edge69" class="edge">
+<title>tie0_43&#45;&gt;g10</title>
+<path fill="none" stroke="#8a8a8a" d="M151.01,-3887.63C202.6,-3879.92 459.22,-3841.57 601.64,-3820.29"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="602.32,-3823.73 611.69,-3818.79 601.28,-3816.81 602.32,-3823.73"/>
+</g>
+<!-- tie0_44 -->
+<g id="node45" class="node">
+<title>tie0_44</title>
+<g id="a_node45"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2822" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2819.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g11 -->
+<g id="node101" class="node">
+<title>g11</title>
+<polygon fill="#d6ecff" stroke="#2a5d8f" points="544.79,-2657.05 544.79,-2682.95 494.14,-2701.26 422.5,-2701.26 371.85,-2682.95 371.85,-2657.05 422.5,-2638.74 494.14,-2638.74 544.79,-2657.05"/>
+<text text-anchor="middle" x="458.32" y="-2678.5" font-family="Helvetica,sans-Serif" font-size="10.00">u10</text>
+<text text-anchor="middle" x="458.32" y="-2667.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_lcell_comb]</text>
+<text text-anchor="middle" x="458.32" y="-2656.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 11</text>
+</g>
+<!-- tie0_44&#45;&gt;g11 -->
+<g id="edge70" class="edge">
+<title>tie0_44&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M151.05,-2821.06C168.8,-2819.07 208.8,-2813.71 240.83,-2803 304.96,-2781.57 369.91,-2738.12 411.7,-2706.7"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="413.9,-2709.43 419.75,-2700.59 409.67,-2703.85 413.9,-2709.43"/>
+</g>
+<!-- tie0_45 -->
+<g id="node46" class="node">
+<title>tie0_45</title>
+<g id="a_node46"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2784" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2781.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_45&#45;&gt;g11 -->
+<g id="edge71" class="edge">
+<title>tie0_45&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.98,-2782.83C168.61,-2780.46 208.41,-2774.47 240.83,-2765 296.26,-2748.81 356.14,-2721.73 398.85,-2700.61"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="400.58,-2703.66 407.96,-2696.07 397.45,-2697.4 400.58,-2703.66"/>
+</g>
+<!-- tie0_46 -->
+<g id="node47" class="node">
+<title>tie0_46</title>
+<g id="a_node47"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2746" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2743.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_46&#45;&gt;g11 -->
+<g id="edge72" class="edge">
+<title>tie0_46&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.88,-2744.45C168.34,-2741.42 207.87,-2734.36 240.83,-2727 287.19,-2716.65 338.62,-2703.19 379.71,-2691.95"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="380.68,-2695.32 389.39,-2689.3 378.82,-2688.57 380.68,-2695.32"/>
+</g>
+<!-- tie0_47 -->
+<g id="node48" class="node">
+<title>tie0_47</title>
+<g id="a_node48"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2708" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2705.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_47&#45;&gt;g11 -->
+<g id="edge73" class="edge">
+<title>tie0_47&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2706.9C181.59,-2703.21 283.49,-2690.94 361.44,-2681.55"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="362.27,-2684.97 371.78,-2680.3 361.44,-2678.02 362.27,-2684.97"/>
+</g>
+<!-- tie0_48 -->
+<g id="node49" class="node">
+<title>tie0_48</title>
+<g id="a_node49"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2670" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2667.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_48&#45;&gt;g11 -->
+<g id="edge74" class="edge">
+<title>tie0_48&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2670C181.59,-2670 283.49,-2670 361.44,-2670"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.78,-2673.5 371.78,-2670 361.78,-2666.5 361.78,-2673.5"/>
+</g>
+<!-- tie0_49 -->
+<g id="node50" class="node">
+<title>tie0_49</title>
+<g id="a_node50"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2632" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2629.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_49&#45;&gt;g11 -->
+<g id="edge75" class="edge">
+<title>tie0_49&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2633.1C181.59,-2636.79 283.49,-2649.06 361.44,-2658.45"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.44,-2661.98 371.78,-2659.7 362.27,-2655.03 361.44,-2661.98"/>
+</g>
+<!-- tie0_50 -->
+<g id="node51" class="node">
+<title>tie0_50</title>
+<g id="a_node51"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2594" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2591.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_50&#45;&gt;g11 -->
+<g id="edge76" class="edge">
+<title>tie0_50&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M150.89,-2595.53C168.35,-2598.52 207.9,-2605.51 240.83,-2613 286.97,-2623.49 338.19,-2636.89 379.21,-2648.07"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="378.31,-2651.45 388.88,-2650.71 380.15,-2644.69 378.31,-2651.45"/>
+</g>
+<!-- tie0_51 -->
+<g id="node52" class="node">
+<title>tie0_51</title>
+<g id="a_node52"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2556" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2553.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_51&#45;&gt;g11 -->
+<g id="edge77" class="edge">
+<title>tie0_51&#45;&gt;g11</title>
+<path fill="none" stroke="#8a8a8a" d="M151.01,-2557.06C168.69,-2559.26 208.58,-2564.97 240.83,-2575 295.6,-2592.04 355.09,-2618.78 397.82,-2639.56"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="396.43,-2642.77 406.95,-2644.03 399.51,-2636.49 396.43,-2642.77"/>
+</g>
+<!-- tie0_52 -->
+<g id="node53" class="node">
+<title>tie0_52</title>
+<g id="a_node53"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1947" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1944.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g12 -->
+<g id="node102" class="node">
+<title>g12</title>
+<polygon fill="#d6ecff" stroke="#2a5d8f" points="544.79,-2048.05 544.79,-2073.95 494.14,-2092.26 422.5,-2092.26 371.85,-2073.95 371.85,-2048.05 422.5,-2029.74 494.14,-2029.74 544.79,-2048.05"/>
+<text text-anchor="middle" x="458.32" y="-2069.5" font-family="Helvetica,sans-Serif" font-size="10.00">u12</text>
+<text text-anchor="middle" x="458.32" y="-2058.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_lcell_comb]</text>
+<text text-anchor="middle" x="458.32" y="-2047.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 12</text>
+</g>
+<!-- tie0_52&#45;&gt;g12 -->
+<g id="edge78" class="edge">
+<title>tie0_52&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M151.01,-1948.06C168.69,-1950.26 208.58,-1955.97 240.83,-1966 295.6,-1983.04 355.09,-2009.78 397.82,-2030.56"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="396.43,-2033.77 406.95,-2035.03 399.51,-2027.49 396.43,-2033.77"/>
+</g>
+<!-- tie0_53 -->
+<g id="node54" class="node">
+<title>tie0_53</title>
+<g id="a_node54"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1985" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1982.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_53&#45;&gt;g12 -->
+<g id="edge79" class="edge">
+<title>tie0_53&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.89,-1986.53C168.35,-1989.52 207.9,-1996.51 240.83,-2004 286.97,-2014.49 338.19,-2027.89 379.21,-2039.07"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="378.31,-2042.45 388.88,-2041.71 380.15,-2035.69 378.31,-2042.45"/>
+</g>
+<!-- tie0_54 -->
+<g id="node55" class="node">
+<title>tie0_54</title>
+<g id="a_node55"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2518" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2515.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_54&#45;&gt;g12 -->
+<g id="edge80" class="edge">
+<title>tie0_54&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.82,-2518.77C169.56,-2519.88 213.4,-2519.88 240.83,-2499 374.57,-2397.19 430.98,-2190.57 449.64,-2102.39"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="453.09,-2102.99 451.68,-2092.49 446.24,-2101.57 453.09,-2102.99"/>
+</g>
+<!-- tie0_55 -->
+<g id="node56" class="node">
+<title>tie0_55</title>
+<g id="a_node56"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2061" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2058.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_55&#45;&gt;g12 -->
+<g id="edge81" class="edge">
+<title>tie0_55&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2061C181.59,-2061 283.49,-2061 361.44,-2061"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.78,-2064.5 371.78,-2061 361.78,-2057.5 361.78,-2064.5"/>
+</g>
+<!-- tie0_56 -->
+<g id="node57" class="node">
+<title>tie0_56</title>
+<g id="a_node57"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2137" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2134.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_56&#45;&gt;g12 -->
+<g id="edge82" class="edge">
+<title>tie0_56&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.88,-2135.45C168.34,-2132.42 207.87,-2125.36 240.83,-2118 287.19,-2107.65 338.62,-2094.19 379.71,-2082.95"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="380.68,-2086.32 389.39,-2080.3 378.82,-2079.57 380.68,-2086.32"/>
+</g>
+<!-- tie0_57 -->
+<g id="node58" class="node">
+<title>tie0_57</title>
+<g id="a_node58"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2099" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2096.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_57&#45;&gt;g12 -->
+<g id="edge83" class="edge">
+<title>tie0_57&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2097.9C181.59,-2094.21 283.49,-2081.94 361.44,-2072.55"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="362.27,-2075.97 371.78,-2071.3 361.44,-2069.02 362.27,-2075.97"/>
+</g>
+<!-- tie0_58 -->
+<g id="node59" class="node">
+<title>tie0_58</title>
+<g id="a_node59"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-2023" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2020.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_58&#45;&gt;g12 -->
+<g id="edge84" class="edge">
+<title>tie0_58&#45;&gt;g12</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-2024.1C181.59,-2027.79 283.49,-2040.06 361.44,-2049.45"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.44,-2052.98 371.78,-2050.7 362.27,-2046.03 361.44,-2052.98"/>
+</g>
+<!-- tie0_59 -->
+<g id="node60" class="node">
+<title>tie0_59</title>
+<g id="a_node60"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1871" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1868.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- g13 -->
+<g id="node103" class="node">
+<title>g13</title>
+<polygon fill="#d6ecff" stroke="#2a5d8f" points="544.79,-1422.05 544.79,-1447.95 494.14,-1466.26 422.5,-1466.26 371.85,-1447.95 371.85,-1422.05 422.5,-1403.74 494.14,-1403.74 544.79,-1422.05"/>
+<text text-anchor="middle" x="458.32" y="-1443.5" font-family="Helvetica,sans-Serif" font-size="10.00">u1</text>
+<text text-anchor="middle" x="458.32" y="-1432.5" font-family="Helvetica,sans-Serif" font-size="10.00">[tennm_lcell_comb]</text>
+<text text-anchor="middle" x="458.32" y="-1421.5" font-family="Helvetica,sans-Serif" font-size="10.00">id 13</text>
+</g>
+<!-- tie0_59&#45;&gt;g13 -->
+<g id="edge85" class="edge">
+<title>tie0_59&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M151.1,-1870.87C169.27,-1870.26 210.46,-1867.18 240.83,-1852 293.46,-1825.7 306.1,-1811.89 338.83,-1763 400.71,-1670.6 434.79,-1541.94 449.11,-1476.62"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="452.56,-1477.21 451.24,-1466.7 445.72,-1475.74 452.56,-1477.21"/>
+</g>
+<!-- tie0_60 -->
+<g id="node61" class="node">
+<title>tie0_60</title>
+<g id="a_node61"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1833" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1830.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_60&#45;&gt;g13 -->
+<g id="edge86" class="edge">
+<title>tie0_60&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M151,-1833.65C169.72,-1834.49 212.93,-1833.95 240.83,-1814 360.39,-1728.52 423.05,-1555.01 446.4,-1475.93"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="449.77,-1476.9 449.19,-1466.32 443.04,-1474.95 449.77,-1476.9"/>
+</g>
+<!-- tie0_61 -->
+<g id="node62" class="node">
+<title>tie0_61</title>
+<g id="a_node62"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1435" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1432.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_61&#45;&gt;g13 -->
+<g id="edge87" class="edge">
+<title>tie0_61&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-1435C181.59,-1435 283.49,-1435 361.44,-1435"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.78,-1438.5 371.78,-1435 361.78,-1431.5 361.78,-1438.5"/>
+</g>
+<!-- tie0_62 -->
+<g id="node63" class="node">
+<title>tie0_62</title>
+<g id="a_node63"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1397" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1394.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_62&#45;&gt;g13 -->
+<g id="edge88" class="edge">
+<title>tie0_62&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M150.94,-1398.1C181.59,-1401.79 283.49,-1414.06 361.44,-1423.45"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="361.44,-1426.98 371.78,-1424.7 362.27,-1420.03 361.44,-1426.98"/>
+</g>
+<!-- tie0_63 -->
+<g id="node64" class="node">
+<title>tie0_63</title>
+<g id="a_node64"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1359" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1356.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_63&#45;&gt;g13 -->
+<g id="edge89" class="edge">
+<title>tie0_63&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M150.89,-1360.53C168.35,-1363.52 207.9,-1370.51 240.83,-1378 286.97,-1388.49 338.19,-1401.89 379.21,-1413.07"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="378.31,-1416.45 388.88,-1415.71 380.15,-1409.69 378.31,-1416.45"/>
+</g>
+<!-- tie0_64 -->
+<g id="node65" class="node">
+<title>tie0_64</title>
+<g id="a_node65"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1321" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1318.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_64&#45;&gt;g13 -->
+<g id="edge90" class="edge">
+<title>tie0_64&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M151.01,-1322.06C168.69,-1324.26 208.58,-1329.97 240.83,-1340 295.6,-1357.04 355.09,-1383.78 397.82,-1404.56"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="396.43,-1407.77 406.95,-1409.03 399.51,-1401.49 396.43,-1407.77"/>
+</g>
+<!-- tie0_65 -->
+<g id="node66" class="node">
+<title>tie0_65</title>
+<g id="a_node66"><a xlink:title="constant 0 from global_gnd [HAL_GND], net &#39;0&#39;">
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-1909" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1906.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</a>
+</g>
+</g>
+<!-- tie0_65&#45;&gt;g13 -->
+<g id="edge91" class="edge">
+<title>tie0_65&#45;&gt;g13</title>
+<path fill="none" stroke="#8a8a8a" d="M151.01,-1908.68C169.02,-1907.73 209.94,-1904.09 240.83,-1890 291.23,-1867.02 307.36,-1858.58 338.83,-1813 412.86,-1705.79 442.21,-1550.27 452.47,-1476.64"/>
+<polygon fill="#8a8a8a" stroke="#8a8a8a" points="455.98,-1476.76 453.85,-1466.38 449.05,-1475.83 455.98,-1476.76"/>
+</g>
+<!-- tie1_66 -->
+<g id="node67" class="node">
+<title>tie1_66</title>
+<g id="a_node67"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1681" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1678.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_66&#45;&gt;g1 -->
+<g id="edge92" class="edge">
+<title>tie1_66&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1682.76C105.41,-1686.52 39.52,-1692.05 16.33,-1653 3.18,-1630.83 3.18,-1617.17 16.33,-1595 33.11,-1566.74 68.23,-1552.67 96.91,-1545.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-1549.1 106.75,-1543.52 96.23,-1542.27 97.74,-1549.1"/>
+</g>
+<!-- tie1_67 -->
+<g id="node68" class="node">
+<title>tie1_67</title>
+<g id="a_node68"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1207" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1204.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_67&#45;&gt;g2 -->
+<g id="edge93" class="edge">
+<title>tie1_67&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1208.76C105.41,-1212.52 39.52,-1218.05 16.33,-1179 1.13,-1153.39 1.13,-1070.61 16.33,-1045 33.11,-1016.74 68.23,-1002.67 96.91,-995.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-999.1 106.75,-993.52 96.23,-992.27 97.74,-999.1"/>
+</g>
+<!-- tie1_68 -->
+<g id="node69" class="node">
+<title>tie1_68</title>
+<g id="a_node69"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-674" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-671.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_68&#45;&gt;g3 -->
+<g id="edge94" class="edge">
+<title>tie1_68&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-675.76C105.41,-679.52 39.52,-685.05 16.33,-646 3.18,-623.83 3.18,-610.17 16.33,-588 33.11,-559.74 68.23,-545.67 96.91,-538.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-542.1 106.75,-536.52 96.23,-535.27 97.74,-542.1"/>
+</g>
+<!-- tie1_69 -->
+<g id="node70" class="node">
+<title>tie1_69</title>
+<g id="a_node70"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-331" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-328.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_69&#45;&gt;g4 -->
+<g id="edge95" class="edge">
+<title>tie1_69&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-332.76C105.41,-336.52 39.52,-342.05 16.33,-303 3.18,-280.83 3.18,-267.17 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- tie1_70 -->
+<g id="node71" class="node">
+<title>tie1_70</title>
+<g id="a_node71"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3661" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3658.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_70&#45;&gt;g5 -->
+<g id="edge96" class="edge">
+<title>tie1_70&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3662.76C105.41,-3666.52 39.52,-3672.05 16.33,-3633 -5.01,-3597.04 52.99,-3575.85 96.85,-3565.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-3568.7 106.8,-3563.07 96.27,-3561.88 97.82,-3568.7"/>
+</g>
+<!-- tie1_71 -->
+<g id="node72" class="node">
+<title>tie1_71</title>
+<g id="a_node72"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3318" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3315.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_71&#45;&gt;g6 -->
+<g id="edge97" class="edge">
+<title>tie1_71&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3319.76C105.41,-3323.52 39.52,-3329.05 16.33,-3290 -5.01,-3254.04 52.99,-3232.85 96.85,-3222.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-3225.7 106.8,-3220.07 96.27,-3218.88 97.82,-3225.7"/>
+</g>
+<!-- tie1_72 -->
+<g id="node73" class="node">
+<title>tie1_72</title>
+<g id="a_node73"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-2975" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2972.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_72&#45;&gt;g7 -->
+<g id="edge98" class="edge">
+<title>tie1_72&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2976.76C105.41,-2980.52 39.52,-2986.05 16.33,-2947 -5.01,-2911.04 52.99,-2889.85 96.85,-2879.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-2882.7 106.8,-2877.07 96.27,-2875.88 97.82,-2882.7"/>
+</g>
+<!-- tie1_73 -->
+<g id="node74" class="node">
+<title>tie1_73</title>
+<g id="a_node74"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-2366" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2363.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_73&#45;&gt;g8 -->
+<g id="edge99" class="edge">
+<title>tie1_73&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2367.76C105.41,-2371.52 39.52,-2377.05 16.33,-2338 -5.44,-2301.31 -5.44,-2278.69 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- tie1_74 -->
+<g id="node75" class="node">
+<title>tie1_74</title>
+<g id="a_node75"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1643" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1640.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_74&#45;&gt;g1 -->
+<g id="edge100" class="edge">
+<title>tie1_74&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1644.76C105.41,-1648.52 39.52,-1654.05 16.33,-1615 -5.01,-1579.04 52.99,-1557.85 96.85,-1547.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-1550.7 106.8,-1545.07 96.27,-1543.88 97.82,-1550.7"/>
+</g>
+<!-- tie1_75 -->
+<g id="node76" class="node">
+<title>tie1_75</title>
+<g id="a_node76"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1169" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1166.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_75&#45;&gt;g2 -->
+<g id="edge101" class="edge">
+<title>tie1_75&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1170.76C105.41,-1174.52 39.52,-1180.05 16.33,-1141 -5.44,-1104.31 -5.44,-1081.69 16.33,-1045 33.11,-1016.74 68.23,-1002.67 96.91,-995.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-999.1 106.75,-993.52 96.23,-992.27 97.74,-999.1"/>
+</g>
+<!-- tie1_76 -->
+<g id="node77" class="node">
+<title>tie1_76</title>
+<g id="a_node77"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-636" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-633.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_76&#45;&gt;g3 -->
+<g id="edge102" class="edge">
+<title>tie1_76&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-637.76C105.41,-641.52 39.52,-647.05 16.33,-608 -5.01,-572.04 52.99,-550.85 96.85,-540.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-543.7 106.8,-538.07 96.27,-536.88 97.82,-543.7"/>
+</g>
+<!-- tie1_77 -->
+<g id="node78" class="node">
+<title>tie1_77</title>
+<g id="a_node78"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-293" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-290.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_77&#45;&gt;g4 -->
+<g id="edge103" class="edge">
+<title>tie1_77&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-294.76C105.41,-298.52 39.52,-304.05 16.33,-265 -5.01,-229.04 52.99,-207.85 96.85,-197.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-200.7 106.8,-195.07 96.27,-193.88 97.82,-200.7"/>
+</g>
+<!-- tie1_78 -->
+<g id="node79" class="node">
+<title>tie1_78</title>
+<g id="a_node79"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3623" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3620.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_78&#45;&gt;g5 -->
+<g id="edge104" class="edge">
+<title>tie1_78&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-3612.72C140.83,-3604.4 140.83,-3596.09 140.83,-3587.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-3587.62 140.83,-3577.62 137.33,-3587.63 144.33,-3587.62"/>
+</g>
+<!-- tie1_79 -->
+<g id="node80" class="node">
+<title>tie1_79</title>
+<g id="a_node80"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3280" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3277.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_79&#45;&gt;g6 -->
+<g id="edge105" class="edge">
+<title>tie1_79&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-3269.72C140.83,-3261.4 140.83,-3253.09 140.83,-3244.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-3244.62 140.83,-3234.62 137.33,-3244.63 144.33,-3244.62"/>
+</g>
+<!-- tie1_80 -->
+<g id="node81" class="node">
+<title>tie1_80</title>
+<g id="a_node81"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-2937" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2934.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_80&#45;&gt;g7 -->
+<g id="edge106" class="edge">
+<title>tie1_80&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-2926.72C140.83,-2918.4 140.83,-2910.09 140.83,-2901.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-2901.62 140.83,-2891.62 137.33,-2901.63 144.33,-2901.62"/>
+</g>
+<!-- tie1_81 -->
+<g id="node82" class="node">
+<title>tie1_81</title>
+<g id="a_node82"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-2328" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2325.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_81&#45;&gt;g8 -->
+<g id="edge107" class="edge">
+<title>tie1_81&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2329.76C105.41,-2333.52 39.52,-2339.05 16.33,-2300 3.18,-2277.83 3.18,-2264.17 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- tie1_82 -->
+<g id="node83" class="node">
+<title>tie1_82</title>
+<g id="a_node83"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1605" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1602.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_82&#45;&gt;g1 -->
+<g id="edge108" class="edge">
+<title>tie1_82&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-1594.72C140.83,-1586.4 140.83,-1578.09 140.83,-1569.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-1569.62 140.83,-1559.62 137.33,-1569.63 144.33,-1569.62"/>
+</g>
+<!-- tie1_83 -->
+<g id="node84" class="node">
+<title>tie1_83</title>
+<g id="a_node84"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-1131" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-1128.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_83&#45;&gt;g2 -->
+<g id="edge109" class="edge">
+<title>tie1_83&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-1132.76C105.41,-1136.52 39.52,-1142.05 16.33,-1103 3.18,-1080.83 3.18,-1067.17 16.33,-1045 33.11,-1016.74 68.23,-1002.67 96.91,-995.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-999.1 106.75,-993.52 96.23,-992.27 97.74,-999.1"/>
+</g>
+<!-- tie1_84 -->
+<g id="node85" class="node">
+<title>tie1_84</title>
+<g id="a_node85"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-598" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-595.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_84&#45;&gt;g3 -->
+<g id="edge110" class="edge">
+<title>tie1_84&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-587.72C140.83,-579.4 140.83,-571.09 140.83,-562.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-562.62 140.83,-552.62 137.33,-562.63 144.33,-562.62"/>
+</g>
+<!-- tie1_85 -->
+<g id="node86" class="node">
+<title>tie1_85</title>
+<g id="a_node86"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-255" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-252.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_85&#45;&gt;g4 -->
+<g id="edge111" class="edge">
+<title>tie1_85&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M140.83,-244.72C140.83,-236.4 140.83,-228.09 140.83,-219.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="144.33,-219.62 140.83,-209.62 137.33,-219.63 144.33,-219.62"/>
+</g>
+<!-- tie1_86 -->
+<g id="node87" class="node">
+<title>tie1_86</title>
+<g id="a_node87"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3851" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3848.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_86&#45;&gt;g5 -->
+<g id="edge112" class="edge">
+<title>tie1_86&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3852.76C105.41,-3856.52 39.52,-3862.05 16.33,-3823 4.42,-3802.94 4.42,-3633.06 16.33,-3613 33.11,-3584.74 68.23,-3570.67 96.91,-3563.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3567.1 106.75,-3561.52 96.23,-3560.27 97.74,-3567.1"/>
+</g>
+<!-- tie1_87 -->
+<g id="node88" class="node">
+<title>tie1_87</title>
+<g id="a_node88"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3508" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3505.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_87&#45;&gt;g6 -->
+<g id="edge113" class="edge">
+<title>tie1_87&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3509.76C105.41,-3513.52 39.52,-3519.05 16.33,-3480 4.42,-3459.94 4.42,-3290.06 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- tie1_88 -->
+<g id="node89" class="node">
+<title>tie1_88</title>
+<g id="a_node89"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-3165" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-3162.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_88&#45;&gt;g7 -->
+<g id="edge114" class="edge">
+<title>tie1_88&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-3166.76C105.41,-3170.52 39.52,-3176.05 16.33,-3137 4.42,-3116.94 4.42,-2947.06 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- tie1_89 -->
+<g id="node90" class="node">
+<title>tie1_89</title>
+<g id="a_node90"><a xlink:title="constant 1 from global_vcc [HAL_VCC], net &#39;1&#39;">
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-2290" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-2287.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</a>
+</g>
+</g>
+<!-- tie1_89&#45;&gt;g8 -->
+<g id="edge115" class="edge">
+<title>tie1_89&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M130.74,-2291.76C105.41,-2295.52 39.52,-2301.05 16.33,-2262 -5.01,-2226.04 52.99,-2204.85 96.85,-2194.34"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.82,-2197.7 106.8,-2192.07 96.27,-2190.88 97.82,-2197.7"/>
+</g>
+<!-- g1&#45;&gt;g9 -->
+<g id="edge5" class="edge">
+<title>g1&#45;&gt;g9</title>
+<path fill="none" stroke="#777777" d="M174.86,-1530.57C196.33,-1523.52 223.46,-1511.43 240.83,-1492 404.98,-1308.49 445.91,-994.28 454.97,-895.01"/>
+<polygon fill="#777777" stroke="#777777" points="458.49,-895.03 455.86,-884.77 451.51,-894.43 458.49,-895.03"/>
+</g>
+<!-- g1&#45;&gt;g12 -->
+<g id="edge6" class="edge">
+<title>g1&#45;&gt;g12</title>
+<path fill="none" stroke="#777777" d="M175.2,-1548.31C196.27,-1555.63 222.81,-1567.7 240.83,-1586 257.44,-1602.86 391.11,-1908.53 439.73,-2020.41"/>
+<polygon fill="#777777" stroke="#777777" points="436.56,-2021.91 443.76,-2029.69 442.98,-2019.12 436.56,-2021.91"/>
+</g>
+<!-- g2&#45;&gt;g9 -->
+<g id="edge7" class="edge">
+<title>g2&#45;&gt;g9</title>
+<path fill="none" stroke="#777777" d="M175.06,-979.69C194.39,-974.09 219.14,-966.59 240.83,-959 285.08,-943.52 295.84,-938.69 338.83,-920 361.09,-910.32 385.37,-898.99 406.12,-889.06"/>
+<polygon fill="#777777" stroke="#777777" points="407.89,-892.09 415.39,-884.6 404.86,-885.78 407.89,-892.09"/>
+</g>
+<!-- g2&#45;&gt;g13 -->
+<g id="edge8" class="edge">
+<title>g2&#45;&gt;g13</title>
+<path fill="none" stroke="#777777" d="M175.25,-998.9C196.07,-1006.41 222.33,-1018.46 240.83,-1036 351.52,-1140.87 418.55,-1315.13 444.7,-1393.99"/>
+<polygon fill="#777777" stroke="#777777" points="441.39,-1395.15 447.83,-1403.57 448.05,-1392.98 441.39,-1395.15"/>
+</g>
+<!-- g3&#45;&gt;g4 -->
+<g id="edge9" class="edge">
+<title>g3&#45;&gt;g4</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M106.65,-532.69C76.39,-531.17 34.31,-523.29 16.33,-493 2.27,-469.31 2.27,-268.69 16.33,-245 33.11,-216.74 68.23,-202.67 96.91,-195.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-199.1 106.75,-193.52 96.23,-192.27 97.74,-199.1"/>
+</g>
+<!-- g3&#45;&gt;g9 -->
+<g id="edge10" class="edge">
+<title>g3&#45;&gt;g9</title>
+<path fill="none" stroke="#777777" d="M175.29,-543.25C195.63,-551.16 221.34,-563.17 240.83,-579 333.84,-654.55 409.57,-778 441.28,-834.32"/>
+<polygon fill="#777777" stroke="#777777" points="438.41,-836.36 446.33,-843.39 444.52,-832.95 438.41,-836.36"/>
+</g>
+<!-- g4&#45;&gt;g5 -->
+<g id="edge11" class="edge">
+<title>g4&#45;&gt;g5</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M106.75,-193.52C76.77,-199.55 35.09,-213.41 16.33,-245 4.73,-264.54 4.73,-3498.46 16.33,-3518 32.35,-3544.97 67.47,-3554.18 96.34,-3556.94"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="96.42,-3560.46 106.65,-3557.69 96.93,-3553.48 96.42,-3560.46"/>
+</g>
+<!-- g4&#45;&gt;g9 -->
+<g id="edge12" class="edge">
+<title>g4&#45;&gt;g9</title>
+<path fill="none" stroke="#777777" d="M174.86,-197.43C196.33,-204.48 223.46,-216.57 240.83,-236 404.98,-419.51 445.91,-733.72 454.97,-832.99"/>
+<polygon fill="#777777" stroke="#777777" points="451.51,-833.57 455.86,-843.23 458.49,-832.97 451.51,-833.57"/>
+</g>
+<!-- g5&#45;&gt;g6 -->
+<g id="edge13" class="edge">
+<title>g5&#45;&gt;g6</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M106.65,-3557.69C76.39,-3556.17 34.31,-3548.29 16.33,-3518 2.27,-3494.31 2.27,-3293.69 16.33,-3270 33.11,-3241.74 68.23,-3227.67 96.91,-3220.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-3224.1 106.75,-3218.52 96.23,-3217.27 97.74,-3224.1"/>
+</g>
+<!-- g5&#45;&gt;g10 -->
+<g id="edge14" class="edge">
+<title>g5&#45;&gt;g10</title>
+<path fill="none" stroke="#777777" d="M174.92,-3571.83C264.85,-3612.15 514.99,-3724.28 633.48,-3777.39"/>
+<polygon fill="#777777" stroke="#777777" points="632.26,-3780.68 642.81,-3781.58 635.12,-3774.29 632.26,-3780.68"/>
+</g>
+<!-- g6&#45;&gt;g7 -->
+<g id="edge15" class="edge">
+<title>g6&#45;&gt;g7</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M106.65,-3214.69C76.39,-3213.17 34.31,-3205.29 16.33,-3175 2.27,-3151.31 2.27,-2950.69 16.33,-2927 33.11,-2898.74 68.23,-2884.67 96.91,-2877.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2881.1 106.75,-2875.52 96.23,-2874.27 97.74,-2881.1"/>
+</g>
+<!-- g6&#45;&gt;g10 -->
+<g id="edge16" class="edge">
+<title>g6&#45;&gt;g10</title>
+<path fill="none" stroke="#777777" d="M175.03,-3225.58C195.27,-3233.62 220.97,-3245.63 240.83,-3261 439.4,-3414.6 610.59,-3668.17 672.55,-3765.88"/>
+<polygon fill="#777777" stroke="#777777" points="669.74,-3767.98 678.03,-3774.57 675.66,-3764.25 669.74,-3767.98"/>
+</g>
+<!-- g7&#45;&gt;g8 -->
+<g id="edge17" class="edge">
+<title>g7&#45;&gt;g8</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M106.65,-2871.69C76.39,-2870.17 34.31,-2862.29 16.33,-2832 -0.4,-2803.81 -0.4,-2270.19 16.33,-2242 33.11,-2213.74 68.23,-2199.67 96.91,-2192.7"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="97.74,-2196.1 106.75,-2190.52 96.23,-2189.27 97.74,-2196.1"/>
+</g>
+<!-- g7&#45;&gt;g10 -->
+<g id="edge18" class="edge">
+<title>g7&#45;&gt;g10</title>
+<path fill="none" stroke="#777777" d="M175.19,-2881.65C195.74,-2889.39 221.71,-2901.43 240.83,-2918 425.46,-3078 435.61,-3157.45 544.81,-3376 612.91,-3512.3 664.76,-3686.55 686.34,-3764.76"/>
+<polygon fill="#777777" stroke="#777777" points="683.04,-3765.99 689.06,-3774.71 689.79,-3764.14 683.04,-3765.99"/>
+</g>
+<!-- g8&#45;&gt;g11 -->
+<g id="edge20" class="edge">
+<title>g8&#45;&gt;g11</title>
+<path fill="none" stroke="#777777" d="M174.86,-2192.85C197.2,-2199.3 225.35,-2211.32 240.83,-2233 316.49,-2338.92 210.77,-2410.14 273.83,-2524 282.05,-2538.83 357.27,-2596.18 408.81,-2634.44"/>
+<polygon fill="#777777" stroke="#777777" points="406.75,-2637.27 416.87,-2640.4 410.92,-2631.64 406.75,-2637.27"/>
+</g>
+<!-- g8&#45;&gt;g12 -->
+<g id="edge21" class="edge">
+<title>g8&#45;&gt;g12</title>
+<path fill="none" stroke="#777777" d="M175.06,-2176.69C194.39,-2171.09 219.14,-2163.59 240.83,-2156 285.08,-2140.52 295.84,-2135.69 338.83,-2117 357.76,-2108.77 378.14,-2099.35 396.57,-2090.61"/>
+<polygon fill="#777777" stroke="#777777" points="398.21,-2093.7 405.74,-2086.24 395.2,-2087.38 398.21,-2093.7"/>
+</g>
+<!-- g8&#45;&gt;g13 -->
+<g id="edge22" class="edge">
+<title>g8&#45;&gt;g13</title>
+<path fill="none" stroke="#777777" d="M175.18,-2183.65C196.51,-2180.47 223.36,-2173.07 240.83,-2156 341.41,-2057.76 425.84,-1615.41 450.22,-1476.72"/>
+<polygon fill="#777777" stroke="#777777" points="453.74,-1476.97 452.01,-1466.51 446.84,-1475.76 453.74,-1476.97"/>
+</g>
+<!-- g8&#45;&gt;g10 -->
+<g id="edge19" class="edge">
+<title>g8&#45;&gt;g10</title>
+<path fill="none" stroke="#777777" d="M175.27,-2197.28C195.6,-2205.2 221.31,-2217.2 240.83,-2233 413.59,-2372.78 460.07,-2424.56 544.81,-2630 632.59,-2842.84 683.38,-3581.41 694.81,-3764.62"/>
+<polygon fill="#777777" stroke="#777777" points="691.32,-3764.89 695.43,-3774.66 698.31,-3764.46 691.32,-3764.89"/>
+</g>
+<!-- lvl_2 -->
+<g id="node104" class="node">
+<title>lvl_2</title>
+<text text-anchor="middle" x="698.29" y="-15.2" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#777777">level 2</text>
+</g>
+<!-- lvl_1&#45;&gt;lvl_2 -->
+<!-- g9&#45;&gt;g10 -->
+<g id="edge23" class="edge">
+<title>g9&#45;&gt;g10</title>
+<path fill="none" stroke="#777777" d="M463.38,-884.65C477.15,-955.45 522.44,-1195.03 544.81,-1395 651.79,-2351.47 689.5,-3530.45 696.17,-3764.51"/>
+<polygon fill="#777777" stroke="#777777" points="692.67,-3764.73 696.45,-3774.63 699.67,-3764.54 692.67,-3764.73"/>
+</g>
+<!-- g11&#45;&gt;g1 -->
+<g id="edge24" class="edge">
+<title>g11&#45;&gt;g1</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M451.23,-2638.49C416.94,-2461.32 249.31,-1596.87 240.83,-1586 226.96,-1568.21 204.69,-1556.81 184.79,-1549.71"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="185.85,-1546.37 175.25,-1546.55 183.65,-1553.02 185.85,-1546.37"/>
+</g>
+<!-- g12&#45;&gt;g2 -->
+<g id="edge25" class="edge">
+<title>g12&#45;&gt;g2</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M451.48,-2029.47C420.22,-1861.38 273.01,-1076.79 240.83,-1036 226.86,-1018.28 204.59,-1006.9 184.7,-999.77"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="185.78,-996.44 175.18,-996.61 183.57,-1003.09 185.78,-996.44"/>
+</g>
+<!-- g13&#45;&gt;g3 -->
+<g id="edge26" class="edge">
+<title>g13&#45;&gt;g3</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M450.17,-1403.62C415.83,-1253.26 268.31,-612.45 240.83,-579 226.51,-561.56 204.21,-550.2 184.4,-543.02"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="185.52,-539.7 174.92,-539.82 183.28,-546.33 185.52,-539.7"/>
+</g>
+<!-- legend_comb -->
+<g id="node106" class="node">
+<title>legend_comb</title>
+<path fill="#f4f4f4" stroke="#555555" d="M168.83,-4507C168.83,-4507 112.83,-4507 112.83,-4507 106.83,-4507 100.83,-4501 100.83,-4495 100.83,-4495 100.83,-4483 100.83,-4483 100.83,-4477 106.83,-4471 112.83,-4471 112.83,-4471 168.83,-4471 168.83,-4471 174.83,-4471 180.83,-4477 180.83,-4483 180.83,-4483 180.83,-4495 180.83,-4495 180.83,-4501 174.83,-4507 168.83,-4507"/>
+<text text-anchor="middle" x="140.83" y="-4491.8" font-family="Helvetica,sans-Serif" font-size="9.00">combinational</text>
+<text text-anchor="middle" x="140.83" y="-4481.8" font-family="Helvetica,sans-Serif" font-size="9.00">gate</text>
+</g>
+<!-- legend_seq -->
+<g id="node107" class="node">
+<title>legend_seq</title>
+<polygon fill="#dbe9f6" stroke="#2a5d8f" stroke-width="2" points="169.33,-4453 112.33,-4453 112.33,-4417 169.33,-4417 169.33,-4453"/>
+<text text-anchor="middle" x="140.83" y="-4437.8" font-family="Helvetica,sans-Serif" font-size="9.00">flip&#45;flop /</text>
+<text text-anchor="middle" x="140.83" y="-4427.8" font-family="Helvetica,sans-Serif" font-size="9.00">latch</text>
+</g>
+<!-- legend_io -->
+<g id="node108" class="node">
+<title>legend_io</title>
+<polygon fill="#d6ecff" stroke="#2a5d8f" points="183.32,-4373.54 183.32,-4388.46 158.43,-4399 123.24,-4399 98.35,-4388.46 98.35,-4373.54 123.24,-4363 158.43,-4363 183.32,-4373.54"/>
+<text text-anchor="middle" x="140.83" y="-4378.8" font-family="Helvetica,sans-Serif" font-size="9.00">primary I/O</text>
+</g>
+<!-- legend_tie0 -->
+<g id="node109" class="node">
+<title>legend_tie0</title>
+<ellipse fill="#e8e8e8" stroke="#8a8a8a" cx="140.83" cy="-4335" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-4332.5" font-family="Helvetica,sans-Serif" font-size="10.00">0</text>
+</g>
+<!-- legend_tie1 -->
+<g id="node110" class="node">
+<title>legend_tie1</title>
+<ellipse fill="#fff2cc" stroke="#bf9000" cx="140.83" cy="-4297" rx="10" ry="10"/>
+<text text-anchor="middle" x="140.83" y="-4294.5" font-family="Helvetica,sans-Serif" font-size="10.00">1</text>
+</g>
+<!-- legend_tie_note -->
+<g id="node111" class="node">
+<title>legend_tie_note</title>
+<text text-anchor="middle" x="140.83" y="-4253.8" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#555555">constant tie&#45;off,</text>
+<text text-anchor="middle" x="140.83" y="-4243.8" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#555555">one stub per sink</text>
+</g>
+<!-- legend_net_a -->
+<g id="node112" class="node">
+<title>legend_net_a</title>
+<ellipse fill="#777777" stroke="#777777" cx="140.83" cy="-4213" rx="2.16" ry="2.16"/>
+</g>
+<!-- legend_net_b -->
+<g id="node113" class="node">
+<title>legend_net_b</title>
+<ellipse fill="#777777" stroke="#777777" cx="458.32" cy="-4218" rx="2.16" ry="2.16"/>
+</g>
+<!-- legend_net_a&#45;&gt;legend_net_b -->
+<g id="edge1" class="edge">
+<title>legend_net_a&#45;&gt;legend_net_b</title>
+<path fill="none" stroke="#777777" d="M143.24,-4213.02C163.28,-4213.34 391.39,-4216.96 445.75,-4217.82"/>
+<polygon fill="#777777" stroke="#777777" points="445.97,-4221.32 456.02,-4217.98 446.08,-4214.32 445.97,-4221.32"/>
+<text text-anchor="middle" x="306.33" y="-4218.8" font-family="Helvetica,sans-Serif" font-size="9.00">net</text>
+</g>
+<!-- legend_cut_a -->
+<g id="node114" class="node">
+<title>legend_cut_a</title>
+<ellipse fill="#c0392b" stroke="#c0392b" cx="140.83" cy="-4191" rx="2.16" ry="2.16"/>
+</g>
+<!-- legend_cut_b -->
+<g id="node115" class="node">
+<title>legend_cut_b</title>
+<ellipse fill="#c0392b" stroke="#c0392b" cx="458.32" cy="-4185" rx="2.16" ry="2.16"/>
+</g>
+<!-- legend_cut_a&#45;&gt;legend_cut_b -->
+<g id="edge2" class="edge">
+<title>legend_cut_a&#45;&gt;legend_cut_b</title>
+<path fill="none" stroke="#c0392b" stroke-dasharray="5,2" d="M143.24,-4190.97C163.28,-4190.59 391.39,-4186.25 445.75,-4185.22"/>
+<polygon fill="#c0392b" stroke="#c0392b" points="446.09,-4188.71 456.02,-4185.02 445.96,-4181.72 446.09,-4188.71"/>
+<text text-anchor="middle" x="306.33" y="-4190.8" font-family="Helvetica,sans-Serif" font-size="9.00">cut at register</text>
+</g>
+<!-- legend_cycle -->
+<g id="node116" class="node">
+<title>legend_cycle</title>
+<path fill="#fdecea" stroke="#c0392b" stroke-width="3" d="M168.83,-4171C168.83,-4171 112.83,-4171 112.83,-4171 106.83,-4171 100.83,-4165 100.83,-4159 100.83,-4159 100.83,-4147 100.83,-4147 100.83,-4141 106.83,-4135 112.83,-4135 112.83,-4135 168.83,-4135 168.83,-4135 174.83,-4135 180.83,-4141 180.83,-4147 180.83,-4147 180.83,-4159 180.83,-4159 180.83,-4165 174.83,-4171 168.83,-4171"/>
+<text text-anchor="middle" x="140.83" y="-4155.8" font-family="Helvetica,sans-Serif" font-size="9.00">combinational</text>
+<text text-anchor="middle" x="140.83" y="-4145.8" font-family="Helvetica,sans-Serif" font-size="9.00">loop</text>
+</g>
+<!-- legend_levels -->
+<g id="node117" class="node">
+<title>legend_levels</title>
+<text text-anchor="middle" x="140.83" y="-4101.8" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#555555">level 0 (inputs, tie&#45;offs, register outputs)</text>
+<text text-anchor="middle" x="140.83" y="-4091.8" font-family="Helvetica,sans-Serif" font-size="9.00" fill="#555555">on the left; depth increases to the right</text>
+</g>
+</g>
+</svg>
+
+</div>
+<section class="legend"><h2>Legend</h2><dl>
+<dt>rounded grey box</dt><dd>combinational gate</dd>
+<dt>blue square box</dt><dd>flip-flop or latch</dd>
+<dt>blue octagon</dt><dd>gate on a global (primary) input or output net</dd>
+<dt>small 0 / 1 circle</dt><dd>constant tie-off: one stub per consuming edge, so the GND/VCC gate itself is never drawn</dd>
+<dt>solid grey arrow</dt><dd>net, from its driver to one sink</dd>
+<dt>dashed red arrow</dt><dd>edge cut at a register: it ends at a flip-flop or latch and is ignored when levelling, which is what makes the rest a DAG</dd>
+<dt>red outlined gate</dt><dd>gate on a real combinational loop</dd>
+<dt>level N column</dt><dd>topological level: level 0 (primary inputs, tie-offs, register outputs) on the left, depth increasing to the right</dd>
+</dl></section>
+<footer>generated by hal_viz 1.0.0 (dag) - this page is self-contained: inline SVG, inline CSS, no scripts, no external requests</footer>
+</main></body></html>

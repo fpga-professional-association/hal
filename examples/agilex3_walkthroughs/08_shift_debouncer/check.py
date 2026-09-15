@@ -26,6 +26,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -37,6 +38,8 @@ sys.path.insert(0, HERE)
 
 VO = os.path.join(HERE, "shift_debouncer.vo")
 HALV = os.path.join(HERE, "netlist.hal.v")
+
+DAG_LEVELS = 2  # the depth "The netlist as a graph" quotes
 
 FAILURES = []
 
@@ -52,6 +55,28 @@ def check(name, condition, detail=""):
 # ---------------------------------------------------------------------------
 # tier 1
 # ---------------------------------------------------------------------------
+
+
+def check_dag():
+    """The committed levelled DAG and the guide agree on the level count.
+
+    ``hal_viz dag`` records the counts in the .dot comment header, so a
+    regenerated picture cannot silently disagree with the prose.  Pure file
+    inspection: no HAL, no Graphviz.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    if not check("images/dag.dot exists", os.path.isfile(dot_path), dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    check("the levelled DAG is {} levels deep".format(DAG_LEVELS),
+          levels == DAG_LEVELS, "levels={}".format(levels))
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    check("guide.html quotes the same level count",
+          "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
 def check_coverage():
@@ -359,6 +384,7 @@ def main(argv=None):
 
     print("== tier 1: no HAL build required")
     check_coverage()
+    check_dag()
     check_shipped_findings()
     check_import_is_the_same_circuit()
     check_netlist_vs_references()

@@ -32,6 +32,9 @@ echo "== 3. the whole gate-level graph (33 gates -- it fits on one page)"
 python3 tools/hal_viz netlist_graph "$NET" -g "$GL" --pin-labels \
     -o "$EX/images/netlist_graph.svg" -q
 
+echo "== 3b. the same graph levelled, feedback cut at the flops (2 levels)"
+python3 tools/hal_viz dag "$NET" -g "$GL" -o "$EX/images/dag.svg" --html -q
+
 echo "== 4. the cone around the only wide combinational cell"
 python3 tools/hal_viz netlist_graph "$NET" -g "$GL" --gate feedback --depth 2 \
     --show-boundary --pin-labels -o "$EX/images/feedback_cone.svg" -q

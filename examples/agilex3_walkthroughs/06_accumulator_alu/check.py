@@ -25,6 +25,7 @@ Usage::
 
 import argparse
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -40,6 +41,8 @@ GATE_LIBRARY = os.path.join(
     REPO, "plugins", "gate_libraries", "definitions", "AGILEX_TENNM.hgl"
 )
 
+DAG_LEVELS = 12  # the depth "The netlist as a graph" quotes
+
 FAILURES = []
 
 
@@ -49,6 +52,28 @@ def check(label, condition, detail=""):
     if not condition:
         FAILURES.append(label)
     return condition
+
+
+def check_dag():
+    """The committed levelled DAG and the guide agree on the level count.
+
+    ``hal_viz dag`` records the counts in the .dot comment header, so a
+    regenerated picture that disagrees with the prose fails here.  Pure file
+    inspection -- no HAL, no Graphviz.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    if not check("images/dag.dot exists", os.path.isfile(dot_path), dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    check("the levelled DAG is {} levels deep".format(DAG_LEVELS),
+          levels == DAG_LEVELS, "levels={}".format(levels))
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    check("guide.html quotes the same level count",
+          "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
 # ---------------------------------------------------------------------------
@@ -290,6 +315,7 @@ def main():
     arguments = parser.parse_args()
 
     tier_one()
+    check_dag()
     tier_two(arguments.require_hal)
 
     print()

@@ -21,6 +21,7 @@ Two tiers:
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -60,6 +61,31 @@ def check_coverage():
     statuses = {f["status"] for f in doc["findings"]}
     check("hal_agilex inventory reports no gap",
           statuses == {"proven_under_assumptions"}, str(sorted(statuses)))
+
+
+DAG_LEVELS = 3  # the depth "The netlist as a graph" quotes
+
+
+def check_dag():
+    """The committed levelled DAG and the guide still agree on the depth.
+
+    ``hal_viz dag`` writes its counts into the .dot comment header, so a
+    regenerated picture cannot silently drift away from the prose.  Pure file
+    inspection: no HAL, no Graphviz.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    if not check("images/dag.dot exists", os.path.isfile(dot_path), dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    check("the levelled DAG is {} levels deep".format(DAG_LEVELS),
+          levels == DAG_LEVELS, "levels={}".format(levels))
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    check("guide.html quotes the same level count",
+          "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
 def _sim(path):
@@ -237,6 +263,7 @@ def main(argv=None):
 
     print("== tier 1: no HAL build required")
     check_coverage()
+    check_dag()
     check_anonymisation()
     check_netlist_vs_reference()
     check_probe(args.output)

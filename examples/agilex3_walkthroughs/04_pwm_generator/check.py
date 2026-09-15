@@ -14,6 +14,7 @@ Exit code 0 = every check passed.
 """
 
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +30,9 @@ REFERENCE = os.path.join(HERE, "artifacts", "recovered_reference.py")
 WIDTH = 8
 MASK = (1 << WIDTH) - 1
 
+# The combinational depth "The netlist as a graph" quotes.
+DAG_LEVELS = 8
+
 _failures = []
 _checks = 0
 
@@ -41,6 +45,27 @@ def check(label, condition, detail=""):
     else:
         print("  FAIL %s %s" % (label, detail))
         _failures.append(label)
+
+
+def check_dag():
+    """The committed levelled DAG and the guide agree on the level count.
+
+    ``hal_viz dag`` records its counts in the .dot comment header, so the
+    picture cannot drift away from the prose unnoticed.  Pure file inspection.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    check("images/dag.dot exists", os.path.isfile(dot_path), dot_path)
+    if not os.path.isfile(dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    check("the levelled DAG is %d levels deep" % DAG_LEVELS, levels == DAG_LEVELS, levels)
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    check("guide.html quotes the same level count",
+          "<code>%d</code> topological levels" % DAG_LEVELS in guide)
 
 
 def carry_chains(netlist):
@@ -98,6 +123,7 @@ def main():
 
     # ---- 3. the structure the guide walks -----------------------------------
     print("\n[3] structure")
+    check_dag()
     chains = carry_chains(netlist)
     check("exactly two carry chains", len(chains) == 2, [len(c) for c in chains])
     lengths = sorted(len(c) for c in chains)

@@ -28,6 +28,11 @@ python3 tools/hal_viz module_tree "$EX/netlist.hal.v" -g "$GL" \
 python3 tools/hal_viz netlist_graph "$EX/netlist.hal.v" -g "$GL" \
     --module top_module --show-boundary -o "$EX/images/netlist_graph.svg" -q
 
+echo "== 1b. the same graph, levelled: feedback cut at the flops =========="
+# 24 levels: level 0 is the 24 tennm_ff, then one carry cell per level.
+python3 tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" \
+    -o "$EX/images/dag.svg" --html -q
+
 echo "== 2. one bit slice, close up ======================================="
 python3 tools/hal_viz netlist_graph "$EX/netlist.hal.v" -g "$GL" \
     --gate 'count[7]' --depth 2 --show-boundary --pin-labels \

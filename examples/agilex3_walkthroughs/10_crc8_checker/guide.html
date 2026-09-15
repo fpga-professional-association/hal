@@ -134,7 +134,10 @@ anonymisation and the <code>hal_agilex</code> coverage/behaviour checks are all
 real and reproducible from the files in this directory. Everything from
 &ldquo;first contact with the netlist&rdquo; onwards needs a built HAL, and the
 build container was unreachable when this page was written, so no HAL command was
-executed and <strong>no image was generated</strong>.</p>
+executed and no image was generated. The one exception, added later: the levelled DAG in
+&ldquo;<a href="#dag">The netlist as a graph</a>&rdquo; <em>was</em> generated, from
+<code>netlist/netlist.anon.hal.v</code>, by the command printed above it, and every number
+quoted around it is read out of the emitted <code>images/dag.dot</code>.</p>
 <p style="margin-bottom:0">Every place that would hold a tool&rsquo;s output says so
 explicitly rather than showing a plausible-looking result. To fill them in, run
 <code>bash run_all.sh</code> from a checkout with a built HAL and Graphviz, then
@@ -463,6 +466,78 @@ amount of staring at the graph will produce "CRC-8, polynomial 0x07". This is th
 central lesson of gate-level RE: <em>the picture localises, the algebra
 decides.</em> Use the drawing to pick where to point the analysis, then stop
 looking at it.</p></div>
+
+<h4 id="dag">The netlist as a graph</h4>
+
+<p>&ldquo;The flip-flops form a long chain&rdquo; is a claim about a <em>graph</em>, so make
+the graph explicit. <strong>Nodes are gates, edges are nets</strong> — one edge per
+driver&nbsp;→&nbsp;sink pair, from the output pin that drives a net to each input pin that
+reads it. That is all a netlist is, and steps 2, 3 and 5 are graph algorithms over it.</p>
+
+<p>It is not acyclic: step 3 will find one big loop, because a CRC register feeds itself. But
+in a synchronous design every cycle passes through a register, so if you <em>cut</em> every
+edge that lands on a flip-flop pin the cycles all vanish and what is left is a directed acyclic
+graph — the combinational core. &ldquo;Cut the design at the register boundary&rdquo; is
+exactly that cut. A DAG can be topologically levelled: level 0 is everything with no remaining
+predecessor, level <em>n</em> is everything whose deepest predecessor is at level
+<em>n</em>&minus;1. <code>hal_viz dag</code> runs Kahn's algorithm and draws each level as a
+column.</p>
+
+<pre><code>$ python tools/hal_viz dag "$NET" --gate-library "$GL" \
+      -o examples/agilex3_walkthroughs/10_crc8_checker/images/dag.svg --html</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/dag.svg" alt="Levelled DAG of the blinded netlist: eight flip-flops in the level-0 column, four cells at level 1, one at level 2, and a column of constant tie-off stubs.">
+  </div>
+  <figcaption>13 gates, 111 edges, <code>3</code> topological levels, 64 edges cut at a
+  register, 89 constant tie-offs. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>. All 13 vendor instances are drawn; the
+  <code>HAL_GND</code> and <code>HAL_VCC</code> gates HAL adds on load are never drawn as
+  gates, their fan-out becomes the tie-off stubs instead.</figcaption>
+</figure>
+
+<p>Eight of the 64 cut edges start at a gate (the other 56 come from tie-offs — a flip-flop's
+constant control pins are cut too), and those eight, plus four cells, are the entire
+design:</p>
+<ul class="tight">
+<li><strong>Level 0 is exactly the eight flip-flops.</strong> After the cut a register has no
+combinational predecessor, so it is a source by construction.</li>
+<li><strong>Five of the eight cut edges go register&nbsp;→&nbsp;register with nothing in
+between</strong>: <code>u7</code>&rarr;<code>u9</code>&rarr;<code>u11</code>&rarr;
+<code>u0</code>&rarr;<code>u2</code>&rarr;<code>u4</code>. A flop whose D pin is another
+flop's Q, with no logic on the path, is a shift stage. Six of the eight registers are in that
+one line.</li>
+<li><strong>The other three go through one cell each, and all three of those cells read
+<code>u4</code></strong> — the register at the far end of the shift line.
+<code>u10</code> reads <em>only</em> <code>u4</code> and drives <code>u3</code>;
+<code>u12</code> reads <code>u3</code> and <code>u4</code> and drives <code>u5</code>;
+<code>u1</code> reads <code>u5</code> and <code>u4</code> and drives <code>u7</code>. Join
+that to the shift line and the eight registers close into a single ring, with one signal —
+whatever <code>u4</code> is — injected at three consecutive positions and nowhere else. A
+shift ring with feedback into a fixed, sparse set of positions is the shape of an LFSR; the
+three positions are the shape of its taps. The picture cannot tell you the cells are XORs, or
+which polynomial that makes: that is step 5's algebra and step 6's fit.</li>
+<li><strong>One structure is not part of the ring.</strong> <code>u6</code> at level 1 reads
+four registers and <code>u8</code> at level 2 reads the other four plus <code>u6</code>. Eight
+registers reduced to one bit in two levels — a reduction tree, and <code>u8</code> is drawn as
+an octagon because it sits on a primary output net. It is the only reason this design has a
+level 2 at all: the CRC's own next-state logic is one gate deep, and the flag hanging off the
+side is two.</li>
+</ul>
+
+<div class="note"><span class="tag">What the drawing leaves out</span>
+<p><strong>Primary inputs are not nodes.</strong> They have no driving gate, so nothing can
+draw an edge from one: the data input, the enable, the clock and the reset are all absent, and
+a cell's drawn fan-in is a <em>lower bound</em> on its real fan-in. (<code>u10</code> reading
+&ldquo;only <code>u4</code>&rdquo; above means only one <em>gate</em> feeds it.)</p>
+<p style="margin-bottom:0"><strong>Constants are not one node either.</strong> 89 of the 111
+edges — 80% of the drawing — are constant tie-offs, and <code>hal_viz</code> gives each one
+its own small <code>0</code>/<code>1</code> circle on the source rank rather than a shared
+GND/VCC hub, because one hub with 89 spokes is a spider that hides the circuit. That column is
+unused ALM inputs and unused flip-flop control pins held at a constant, which is most of what
+an FPGA netlist is. Only 22 edges carry a signal.</p></div>
 
 <!-- ===================================================================== -->
 <h2 id="walk">5. The walk, step by step</h2>

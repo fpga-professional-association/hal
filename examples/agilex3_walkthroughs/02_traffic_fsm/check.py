@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import re
 import subprocess
 import sys
 from contextlib import redirect_stdout
@@ -58,6 +59,33 @@ def check_inventory():
               "got {} ff, {} lcell".format(len(ffs), len(luts)))
         others = {i.type for i in parsed.instances} - {primitives.FF, primitives.LCELL}
         check("{}: no other primitive types".format(name), not others, str(sorted(others)))
+
+
+# ---------------------------------------------------------------------------
+# 1b. the committed DAG picture and the guide still agree
+# ---------------------------------------------------------------------------
+
+DAG_LEVELS = 3  # the number "The netlist as a graph" quotes
+
+
+def check_dag():
+    """``images/dag.dot`` exists and its level count is the one the guide states.
+
+    ``hal_viz dag`` writes the counts into the .dot comment header, so a
+    regenerated picture that disagrees with the prose fails here instead of
+    quietly shipping.
+    """
+    dot = HERE / "images" / "dag.dot"
+    check("images/dag.dot exists", dot.is_file(), str(dot))
+    if not dot.is_file():
+        return
+    match = re.search(r"^// (\d+) level\(s\)", dot.read_text(encoding="utf-8"), re.M)
+    levels = int(match.group(1)) if match else None
+    check("the levelled DAG is {} levels deep".format(DAG_LEVELS),
+          levels == DAG_LEVELS, "levels={}".format(levels))
+    guide = (HERE / "guide.html").read_text(encoding="utf-8")
+    check("guide.html quotes the same level count",
+          "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
 # ---------------------------------------------------------------------------
@@ -410,6 +438,7 @@ def check_equivalence():
 def main() -> int:
     print("traffic_fsm walkthrough -- checking the claims in guide.html\n")
     check_inventory()
+    check_dag()
     check_anonymization()
     check_structure()
     check_behaviour()

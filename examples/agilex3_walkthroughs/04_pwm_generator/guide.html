@@ -308,6 +308,86 @@ never renderable.</p>
   claims you can defend.</p>
 </div>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Gates are nodes, nets are edges — but the picture above draws them in whatever order
+Graphviz felt like, and the shapes you are told to look for are shapes <em>in the topological
+order</em>. So draw the topological order.</p>
+
+<p>The obstacle is that the graph has cycles: <code>cnt[0]</code> feeds
+<code>cnt[0]~0</code> feeds <code>cnt[0]</code>. In a synchronous design every cycle has to
+pass through a register, so <em>cut</em> every edge that lands on a flip-flop pin and the
+cycles all vanish. What remains is a directed acyclic graph — the combinational core — and a
+DAG can be levelled with Kahn's algorithm: level 0 is everything with no remaining predecessor,
+level <em>n</em> is everything whose deepest predecessor is at level <em>n</em>&minus;1. That
+is what <code>hal_viz dag</code> draws, level 0 on the left.</p>
+
+<pre><code>python tools/hal_viz dag .../netlist/netlist.hal.v \
+    --gate-library plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o .../images/dag.svg --html</code></pre>
+
+<figure>
+  <img src="images/dag.svg" alt="Levelled DAG: sixteen flip-flops at level 0, then two parallel seven-cell staircases climbing to level 7, plus a two-level NOR pair">
+  <figcaption>34 gates, 305 edges, <code>8</code> topological levels, 128 edges cut at a
+  register, 243 constant tie-offs. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>. 34, not 36: <code>HAL_GND</code> and
+  <code>HAL_VCC</code> are never drawn as gates.</figcaption>
+</figure>
+
+<p>Now the three shapes are not glances, they are columns.</p>
+<ul>
+  <li><strong>Level 0 is exactly the sixteen flip-flops</strong> — <code>cnt[7:0]</code> and
+  <code>duty[7:0]</code> — plus the tie-off stubs. After the cut a register has no
+  combinational predecessor, so it is a source by construction.</li>
+  <li><strong>Two carry chains, side by side, in step.</strong> Levels 3 to 7 hold exactly
+  <em>two</em> cells each, one from each chain, and nothing else. One chain is
+  <code>add_0~31</code>&nbsp;→&nbsp;<code>~26</code>&nbsp;→&nbsp;<code>~21</code>&nbsp;→
+  <code>~16</code>&nbsp;→&nbsp;<code>~11</code>&nbsp;→&nbsp;<code>~6</code>&nbsp;→
+  <code>~1</code>: the bottom cell reads <code>cnt[0]</code> and <code>cnt[1]</code>, and every
+  cell after it takes the previous cell's carry plus exactly one more <code>cnt</code> bit, in
+  order 2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7. The
+  other is <code>LessThan_0~27</code>&nbsp;→&nbsp;<code>~22</code>&nbsp;→&nbsp;<code>~17</code>
+  &nbsp;→&nbsp;<code>~12</code>&nbsp;→&nbsp;<code>~7</code>&nbsp;→&nbsp;<code>~1</code>
+  (then a wire cell at level 7), each cell taking the previous cell's carry plus one or two
+  <em>pairs</em> of bits, one from <code>cnt</code> and one from <code>duty</code> at the same
+  index. Same shape, different fan-in arity: an
+  incrementer reads one operand, a comparator reads two. The bottom cell of each chain is at
+  level 1 and reads the lowest bits; that is what "the bottom of the chain" in step 3 means,
+  read off the drawing.</li>
+  <li><strong>A shallow reduction next to a deep chain.</strong> <code>reduce_nor_1~0</code>
+  (level 1, over <code>cnt[3:0]</code>) and <code>reduce_nor_1</code> (level 2, over
+  <code>cnt[7:4]</code> plus that first cell) are the whole 8-bit zero detect: two levels,
+  because a NOR tree is logarithmic where a carry chain is linear. It reads the same eight
+  <code>cnt</code> registers the incrementer does and is finished at level 2, while the
+  incrementer is still climbing to level 7.</li>
+  <li><strong>The one control node.</strong> <code>duty_we~0</code> sits at level 1 with no
+  drawn predecessor at all — only tie-offs — and eight dashed cut edges leaving it, one into
+  every <code>duty</code> flip-flop. Highest fan-out in the drawing, no data fan-in: that is a
+  write strobe, and it is visible before any mask is decoded.</li>
+  <li><strong>The bit-0 toggle.</strong> <code>cnt[0]~0</code> reads <code>cnt[0]</code> and
+  drives <code>cnt[0]</code> — a two-node cycle, cut, with the level-0 register on one side and
+  a level-1 LUT on the other. Bit 0 of a counter never needs a carry.</li>
+</ul>
+
+<p>Critical depth: seven gates, from <code>add_0~31</code> at level 1 to <code>add_0~1</code>
+at level 7. Linear in the counter width, because Quartus built ripple carry chains rather than
+lookahead — the drawing is the timing story as well as the structural one.</p>
+
+<div class="box why">
+  <span class="lbl">Where the wall of little 0 and 1 circles comes from</span>
+  <p>243 of the 305 edges — 80% of the drawing — are constant tie-offs. <code>hal_viz</code>
+  gives each one its own small <code>0</code>/<code>1</code> stub on the source rank instead of
+  one shared GND/VCC node, because a single hub with 243 spokes is a spider that hides the
+  circuit; that is also why <code>HAL_GND</code> and <code>HAL_VCC</code> are not among the 34
+  drawn gates. What you are looking at is unused ALM inputs and unused flip-flop control pins,
+  which is most of what an FPGA netlist is. Only 62 edges carry a signal.</p>
+  <p>Two things are deliberately absent: <strong>primary inputs are not nodes</strong> (they
+  have no driving gate, so nothing can draw an edge from them — which is why
+  <code>duty_we~0</code> looks unfed), and <strong>the clock and reset are invisible</strong>
+  for the same reason. A cell's drawn fan-in is a lower bound on its real fan-in.</p>
+</div>
+
 <h2 id="walk">4. The reverse-engineering walk</h2>
 
 <div class="box warn">

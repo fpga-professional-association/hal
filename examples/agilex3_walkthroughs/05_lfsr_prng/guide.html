@@ -370,6 +370,80 @@ whether the sequence is maximal-length or degenerate. Those are the next four se
   the printouts, and nowhere in the reasoning.
 </div>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>&ldquo;A long chain of flip-flops&rdquo; is a statement about a <em>graph</em>, so make the
+graph explicit. Nodes are gates; edges are nets, one per driver&nbsp;→&nbsp;sink pair, from the
+output pin that drives the net to each input pin that reads it. That is the entire data
+structure, and it is what the SCC search in step 2 and the cone walks later on operate on.</p>
+
+<p>It is not acyclic: a shift register is a cycle by definition. But every cycle in a
+synchronous design passes through at least one register, so if you <em>cut</em> every edge that
+lands on a flip-flop pin the cycles all disappear and what is left is a DAG — the combinational
+core. A DAG can be topologically levelled: level 0 is everything with no remaining predecessor,
+level <em>n</em> is everything whose deepest predecessor is at level <em>n</em>&minus;1. That is
+Kahn's algorithm; <code>hal_viz dag</code> runs it and draws each level as a column.</p>
+
+<pre><code>python tools/hal_viz dag examples/agilex3_walkthroughs/05_lfsr_prng/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/05_lfsr_prng/images/dag.svg --html</code></pre>
+
+<figure>
+  <img src="images/dag.svg" alt="Levelled DAG: sixteen flip-flops in the level-0 column, seventeen one-LUT cells at level 1, and a long column of constant tie-off stubs">
+  <figcaption>33 gates, 298 edges, <code>2</code> topological levels, 128 edges cut at a
+  register, 262 constant tie-offs. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>. 33 nodes for the 35 gates HAL loads:
+  <code>HAL_GND</code> and <code>HAL_VCC</code> are never drawn as gates.</figcaption>
+</figure>
+
+<p><strong>Two levels.</strong> That is the headline, and it is a measurement, not an
+impression: after the cut, every combinational cell in this design is a single LUT away from a
+register. There is no second rank, no chain, no ripple. Compare walkthrough 01, where the same
+command yields 24 levels because a 24-bit ripple carry really is 23 gates end to end — the
+level count measures the circuit, not its size.</p>
+
+<p>Read the 16 dashed cut edges that leave a gate (the other 112 come from tie-offs, because a
+flip-flop's constant control pins are cut too) and the chain assembles itself:</p>
+<ul>
+  <li><strong>Seven of them go register&nbsp;→&nbsp;register with no cell in between</strong>:
+  <code>state[1]</code>&rarr;<code>state[2]</code>&rarr;<code>state[3]</code>&rarr;<code>state[4]</code>,
+  <code>state[5]</code>&rarr;<code>state[6]</code>&rarr;<code>state[7]</code>,
+  <code>state[8]</code>&rarr;<code>state[9]</code>, and
+  <code>state[10]</code>&rarr;<code>state[11]</code>. A wire, nothing else.</li>
+  <li><strong>Eight go through exactly one level-1 cell</strong>, and each of those cells reads
+  exactly one register — the one immediately below its target
+  (<code>state[0]</code>&rarr;cell&rarr;<code>state[1]</code>,
+  <code>state[4]</code>&rarr;cell&rarr;<code>state[5]</code>, and so on). Same shift, with a
+  one-input LUT in the path. Sixteen of the seventeen level-1 cells have exactly one drawn
+  input like this; the eight that drive nothing at all are output buffers.</li>
+  <li><strong>One is different.</strong> A single level-1 cell has four drawn inputs where
+  every other cell has one, and it drives the <em>bottom</em> of the chain. Those four inputs
+  are <code>state[3]</code>, <code>state[12]</code>, <code>state[14]</code> and
+  <code>state[15]</code> — positions 4, 13, 15 and 16 counting from one. Nothing in the drawing
+  says &ldquo;polynomial&rdquo;, but a 16-register chain whose head is fed by an XOR-shaped cell
+  over four fixed positions is exactly the shape section 4 has to prove is an LFSR, and the
+  positions are what it has to prove are taps.</li>
+</ul>
+
+<p>So the graph gives you the width (16 registers in one path), the topology (a chain that
+closes on itself, not a tree), the tap positions (four, named by the fan-in of the one wide
+cell) and the depth (one gate) — before a single <code>lut_mask</code> has been decoded. What
+it cannot give you is what any of it <em>means</em>: whether that cell is an XOR or something
+else, whether the sequence is maximal length, or which end is bit 0.</p>
+
+<div class="warn">
+  <strong>Why the left-hand column is so tall</strong>
+  262 of the 298 edges — 88% of the drawing — are constant tie-offs, and <code>hal_viz</code>
+  gives each its own little <code>0</code>/<code>1</code> circle on the source rank rather than
+  one shared GND/VCC node, because a hub with 262 spokes is a spider that hides the circuit.
+  That column is unused ALM inputs and unused flip-flop control pins, tied off, which is most
+  of what an FPGA netlist is; only 36 edges carry a signal. Note also that primary inputs are
+  <em>not</em> nodes — they have no driving gate, so <code>clk</code>, <code>rst_n</code> and
+  <code>en</code> are invisible here and a cell's drawn fan-in is a lower bound on its real
+  fan-in.
+</div>
+
 <h2 id="walk">4. The reverse-engineering walk, step by step</h2>
 
 <p>Everything below is in
