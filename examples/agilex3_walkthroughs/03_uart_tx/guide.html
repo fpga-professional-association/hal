@@ -330,6 +330,79 @@ is not optional. <code>tennm_lcell_comb</code> carries no <code>lut_config</code
 library, so a tool that loads the netlist and asks HAL for Boolean functions gets empty ones —
 and will happily analyse a design whose combinational logic it cannot see.</p>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Every step in section 4 is a graph algorithm, so be explicit about the graph.
+<strong>Nodes are gates, edges are nets</strong> — one edge per driver&nbsp;→&nbsp;sink pair,
+from the output pin that drives a net to each input pin that reads it. There is nothing else in
+the file. The SCC search of step 3, the register graph of step 4, the cone walks of step 7 all
+run on this one object.</p>
+
+<p>It has cycles — a counter counts, a shift register shifts — but in a synchronous design
+every cycle passes through a register. Cut every edge that lands on a flip-flop pin and the
+cycles are gone; what is left is a directed acyclic graph, the combinational core. A DAG has a
+topological order, so it can be drawn in columns: level 0 is everything with no remaining
+predecessor, level <em>n</em> is everything whose deepest predecessor is at level
+<em>n</em>&nbsp;&minus;&nbsp;1. That is Kahn's algorithm, and it is what <code>hal_viz dag</code>
+draws, left to right.</p>
+
+<pre class="cmd"><code>python3 tools/hal_viz dag \
+    examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/03_uart_tx/images/dag.svg --html</code></pre>
+
+<figure>
+<img src="images/dag.svg" alt="Levelled DAG of the blinded UART netlist: eighteen flip-flops in the level-0 column, twenty cells at level 1, two cells at level 2, and a long column of constant tie-off stubs">
+<figcaption><strong>images/dag.svg</strong> — 40 gates, 370 edges,
+<code>3</code> topological levels, 162 edges cut at a register, 269 constant tie-offs.
+Same picture with a legend and
+these counts: <a href="images/dag.html">images/dag.html</a>; DOT source:
+<a href="images/dag.dot">images/dag.dot</a>. 40 nodes for a 42-gate netlist, because
+<code>HAL_GND</code> and <code>HAL_VCC</code> are never drawn as gates.</figcaption>
+</figure>
+
+<p>Four things are readable straight off the picture, before any of the seven steps has
+run:</p>
+<ul class="tight">
+<li><strong>Level 0 is exactly the 18 flip-flops</strong> (plus the tie-off stubs). After the
+cut a register has no combinational predecessor, so it is a source by construction.</li>
+<li><strong>The combinational depth is two.</strong> Twenty of the 22 ALM cells sit at level 1
+— one LUT away from a register — and only <code>g_030</code> and <code>g_038</code> reach
+level 2. Both are there for the same reason: they read <code>g_005</code>, a single cell that
+ANDs four flip-flops together. One gate is the entire critical path of this design. Contrast
+walkthrough 01, where the same command yields 24 levels because a ripple carry really is 23
+gates deep; the level count measures the circuit, not its size.</li>
+<li><strong>A diagonal of eight near-identical cells.</strong> Eight level-1 cells have exactly
+two drawn inputs — one flip-flop and the same shared flip-flop <code>g_021</code> — and each
+drives exactly one flip-flop over a dashed cut edge. <em>Seven</em> of them link one register
+to a different one, and following register&nbsp;→&nbsp;cell&nbsp;→&nbsp;register composes them
+into a single path eight registers long:
+<code>g_001</code>&nbsp;→&nbsp;<code>g_018</code>&nbsp;→&nbsp;<code>g_031</code>&nbsp;→
+<code>g_000</code>&nbsp;→&nbsp;<code>g_029</code>&nbsp;→&nbsp;<code>g_024</code>&nbsp;→
+<code>g_032</code>&nbsp;→&nbsp;<code>g_034</code>. (The eighth,
+<code>g_007</code>, loops <code>g_002</code> straight back onto itself.) One gate between each
+pair, the same control input on every one of them: that is a shift register. The path does not
+stop there — <code>g_034</code> feeds <code>g_038</code>, which drives <code>g_006</code> —
+but <code>g_038</code> is a four-input cell, not one of the eight, which is why it is also one
+of the two cells at level 2. Step 4 recovers the full nine-stage chain independently.</li>
+<li><strong>One flip-flop is everywhere.</strong> <code>g_021</code> is in the drawn fan-in of
+20 of the 22 combinational cells — every one except <code>g_005</code> and
+<code>g_014</code>. A single register that gates almost all of the logic is a mode bit, and
+step 4's register table says the same thing from the other direction.</li>
+</ul>
+
+<div class="note">
+<strong>What the drawing leaves out, on purpose</strong>
+<em>Primary inputs are not nodes.</em> They have no driving gate, so no edge can start at one;
+<code>i0</code>…<code>i3</code> and the clock and reset simply are not in the picture, and a
+cell's drawn fan-in is therefore a lower bound on its real fan-in. <em>Constants are not one
+node either.</em> 269 of the 370 edges — 73% of the drawing — are constant tie-offs, and
+<code>hal_viz</code> gives each its own little <code>0</code>/<code>1</code> circle on the far
+left instead of a shared GND/VCC hub, because one hub with 269 spokes is a spider that hides
+the circuit. That is what the long left-hand column is: unused ALM inputs and unused flip-flop
+control pins, tied off. Only 101 edges carry a signal.
+</div>
+
 <h2 id="structure">4. Half A — structure</h2>
 
 <p>Seven steps, all from the one <code>analyze.py</code> run above. Each step gives the file it

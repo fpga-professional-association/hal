@@ -33,6 +33,9 @@ echo "== 1. first contact: module tree and gate-level graph"
 python tools/hal_viz module_tree "$NET" --gate-library "$GL" -o "$IMG/module_tree.svg"
 python tools/hal_viz netlist_graph "$NET" --gate-library "$GL" \
     --module top --pin-labels -o "$IMG/netlist_graph.svg"
+# ...and the same graph levelled, feedback cut at the flops: 3 levels.
+python tools/hal_viz dag "$NET" --gate-library "$GL" \
+    -o "$IMG/dag.svg" --html
 
 echo "== 2. which port is the clock, which is the reset"
 python tools/hal_cdc discover "$NET" --gate-library "$GL" -o "$ART/clocks.json"

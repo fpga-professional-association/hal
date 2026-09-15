@@ -19,6 +19,27 @@ checkout: inline CSS, relative image paths, no external requests.
 | `images/` | every diagram in the guide (all generated, none drawn by hand) |
 | `artifacts/` | findings documents, next-state functions, traces, reports |
 
+## The netlist as a graph
+
+Nodes are gates, edges are nets. A shift register is a cycle, but every cycle
+in a synchronous design passes through a register, so cutting the edges that
+land on a flip-flop pin leaves a DAG — the combinational core —
+which `hal_viz dag` levels topologically and draws left to right
+(`images/dag.svg`, plus the standalone `images/dag.html`).
+
+**2 levels**, 33 gates, 298 edges, 128 cut at a register. Two levels is the
+whole point: after the cut, every combinational cell here is one LUT away from
+a register — no ripple, no chain, maximal parallelism. Level 0 is exactly the
+16 flip-flops. Of the 16 cut edges that start at a gate, seven go
+register→register directly and eight through a single one-input cell; the
+sixteenth comes from the one cell with four drawn inputs — `state[3]`,
+`state[12]`, `state[14]`, `state[15]` — which drives the bottom of the chain.
+Those four positions are the taps, visible from connectivity alone. 262 of the
+298 edges are constant tie-offs, drawn as one `0`/`1` circle per consuming pin
+rather than a shared GND/VCC hub.
+
+`run_analysis.sh` regenerates it as step 3b.
+
 Reproduce the analysis in a container with a built HAL and Graphviz:
 
 ```bash

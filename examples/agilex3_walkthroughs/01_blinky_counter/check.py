@@ -14,6 +14,7 @@ input, exactly as it is for a reader following the guide.
 """
 
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -23,12 +24,43 @@ import analysis  # noqa: E402  (needs HERE on the path)
 
 FAILURES = []
 
+# The combinational depth the guide's "The netlist as a graph" section states.
+DAG_LEVELS = 24
+
 
 def check(label, condition, detail=""):
     status = "ok  " if condition else "FAIL"
     print("[{}] {}{}".format(status, label, (" -- " + detail) if detail else ""))
     if not condition:
         FAILURES.append(label)
+
+
+def check_dag():
+    """The committed DAG image and the guide agree on the level count.
+
+    Pure file inspection -- no HAL needed.  ``hal_viz dag`` writes the counts
+    into the .dot comment header, so the picture cannot silently drift away
+    from the number the prose quotes.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    check("images/dag.dot exists", os.path.isfile(dot_path))
+    if not os.path.isfile(dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    check(
+        "the levelled DAG is {} levels deep".format(DAG_LEVELS),
+        levels == DAG_LEVELS,
+        "levels={}".format(levels),
+    )
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    check(
+        "guide.html quotes the same level count",
+        "<code>{}</code> topological levels".format(DAG_LEVELS) in guide,
+    )
 
 
 def main():
@@ -46,6 +78,9 @@ def main():
         report["elaborated"] == 24 and not report["refused"],
         "elaborated={} refused={}".format(report["elaborated"], len(report["refused"])),
     )
+
+    # --- the committed pictures still say what the guide says they say ------
+    check_dag()
 
     # --- step 1: first contact ---------------------------------------------
     stats = analysis.step_stats(hal_py, netlist)

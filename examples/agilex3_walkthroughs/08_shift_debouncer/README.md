@@ -34,6 +34,26 @@ no external requests.
 | `artifacts/` | the text and JSON outputs the guide quotes |
 | `guide.html` | **the walkthrough** |
 
+## The netlist as a graph
+
+Nodes are gates, edges are nets. Cutting every edge that lands on a flip-flop
+pin removes all the cycles — in a synchronous design every cycle passes through
+a register — and leaves a DAG, the combinational core, which `hal_viz dag`
+levels topologically and draws left to right (`images/dag.svg`, plus the
+standalone `images/dag.html`; `run_analysis.sh` regenerates it as step 1b).
+
+**2 levels**, 14 gates, 131 edges, 71 cut at a register. Two levels means every
+one of the six ALM cells is one LUT away from a register — the same fact
+`hal_agilex recognize` reports as "no carry chain", seen from the other side.
+Level 0 is exactly the eight flip-flops. Of the seven cut edges that start at a
+gate, two go register→register with no logic in between (`sync[0]`→`sync[1]`
+and `state`→`state_d`: the two shift stages), and `sync[0]` itself has no
+incoming edge at all because its D comes from a primary input, which the
+drawing cannot show. The four `cnt[k]~n` cells have identical fan-in — all four
+counter bits plus `sync[1]` — which is the counter, four independent 5-input
+LUTs with no carry between them. 97 of the 131 edges are constant tie-offs,
+drawn as one `0`/`1` circle per consuming pin rather than a shared GND/VCC hub.
+
 ## Reproducing
 
 Synthesis (Windows, Quartus Prime Pro 26.1):

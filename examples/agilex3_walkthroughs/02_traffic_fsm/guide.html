@@ -406,6 +406,84 @@ global output nets : o0, o1, o2</code></pre></div>
   first.</li>
 </ul>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Everything in section 5 is a graph algorithm, so be explicit about the graph.
+<b>Nodes are gates, edges are nets</b> — one edge per driver&nbsp;→&nbsp;sink pair, from the
+output pin that drives a net to each input pin that reads it. That is the whole data structure.
+Register grouping, SCC search, transitive fan-in cones and FSM solving all run on it.</p>
+
+<p>It has cycles: <code>g14</code> drives <code>g1</code> drives <code>g14</code>. It has to —
+a state machine is a loop. But in a synchronous design every loop passes through a register, so
+if you <em>cut</em> every edge that lands on a flip-flop pin the cycles disappear and what is
+left is a directed acyclic graph, the combinational core. A DAG can be topologically levelled:
+level&nbsp;0 is everything with no remaining predecessor, level&nbsp;<i>n</i> is everything
+whose deepest predecessor is at level&nbsp;<i>n</i>&minus;1. <code>hal_viz dag</code> runs
+Kahn's algorithm and draws the levels as columns, left to right.</p>
+
+<div class="scroll">
+<pre class="cmd"><code>python3 tools/hal_viz dag examples/agilex3_walkthroughs/02_traffic_fsm/netlist_anon.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/02_traffic_fsm/images/dag.svg --html</code></pre>
+</div>
+
+<figure>
+  <img src="images/dag.svg" alt="Levelled DAG of the blinded netlist: eight flip-flops in the level-0 column, six condition cells at level 1, eight next-state cells at level 2.">
+  <figcaption><code>images/dag.svg</code> — 22 gates, 207 edges,
+  <code>3</code> topological levels, 72 edges cut at a register, 141 constant tie-offs.
+  The standalone page with a legend
+  and these counts is <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>. (22 nodes, not 24: <code>HAL_GND</code> and
+  <code>HAL_VCC</code> are never drawn as gates — see below.)</figcaption>
+</figure>
+
+<p>Three columns is the whole story, and it is a very different picture from a datapath. Read
+it before you know any names:</p>
+<ul>
+  <li><b>Level 0</b> is exactly the eight <code>tennm_ff</code> —
+  <code>g1</code>, <code>g2</code>, <code>g4</code>, <code>g6</code>, <code>g7</code>,
+  <code>g9</code>, <code>g10</code>, <code>g11</code> — plus the tie-off stubs. After the cut a
+  flip-flop has no combinational predecessor, so it <em>is</em> a source.</li>
+  <li><b>Level 1</b> is six cells. Two of them, <code>g3</code> and <code>g5</code>, are drawn
+  as octagons (a gate sitting on a primary net) and their only drawn predecessors are two
+  flip-flops each. Three more — <code>g8</code>, <code>g12</code>, <code>g13</code> — read
+  flip-flops and feed level 2: conditions. The sixth, <code>g22</code>, has
+  <em>no</em> drawn predecessor at all, only nine tie-offs.</li>
+  <li><b>Level 2</b> is eight cells, and every one of them drives a flip-flop over a dashed
+  cut edge. Four of them (<code>g14</code>…<code>g17</code>) each read two flip-flops
+  <em>and all three of</em> <code>g8</code>, <code>g12</code>, <code>g13</code>. That fan-in
+  pattern — four next-state cells behind one shared condition layer, each touching a small,
+  overlapping subset of the same four registers — is what a one-hot next-state cone looks like
+  before you have proved it is one. The other four (<code>g18</code>…<code>g21</code>) read
+  strictly <em>nested</em> subsets of the other four flip-flops — one, then two, then three,
+  then all four — plus the same pair of conditions <code>g8</code> and <code>g12</code>. Nested
+  fan-in like that is the signature of an incrementer: bit&nbsp;<i>k</i> flips only when every
+  lower bit is already set, so bit&nbsp;<i>k</i>'s next-state cell has to see bits
+  0…<i>k</i>. And each of those four flops takes a second cut edge, from <code>g22</code>: a
+  shared control line, i.e. an enable.</li>
+</ul>
+
+<p>So the design's critical depth is two gates: condition, then next state. Nothing here
+ripples. Compare walkthrough 01, where the same command produces 24 levels because a 24-bit
+ripple carry really is 23 gates end to end — the level count is a measurement of the circuit,
+not of its size.</p>
+
+<div class="note">
+<p><span class="label">Two things the picture cannot show you</span>
+<b>Primary inputs are not nodes.</b> They have no driving gate, so nothing draws an edge from
+them; that is why <code>g22</code> appears to float. Its real fan-in is
+<code>.dataa (i0)</code> — it is a buffer on an input, and its four cut edges into
+<code>g7</code>, <code>g9</code>, <code>g10</code>, <code>g11</code> are that input reaching
+the counter's enable. Likewise <code>clk</code> and <code>rst_n</code> are invisible here; that
+is <code>hal_cdc</code>'s job in step 0c.</p>
+<p><b>Constants are not a node either.</b> 141 of the 207 edges are constant tie-offs — 68% of
+the drawing — and <code>hal_viz</code> gives each one its own small <code>0</code>/<code>1</code>
+circle on the far left rather than a shared GND/VCC hub, because one hub with 141 spokes is a
+spider that hides the circuit. That long left column is unused ALM inputs and unused flip-flop
+control pins held at a constant, which is most of what an FPGA netlist is. Only 66 edges
+carry a signal.</p>
+</div>
+
 <!-- =================================================================== -->
 <h2 id="walk">5. The reverse-engineering walk</h2>
 

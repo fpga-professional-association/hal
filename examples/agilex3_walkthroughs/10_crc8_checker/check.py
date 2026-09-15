@@ -13,6 +13,7 @@ Exit 0 = every assertion held.  Exit 1 = at least one did not.
 """
 
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +23,8 @@ import re_walk  # noqa: E402
 
 ANON = os.path.join(HERE, "netlist", "netlist.anon.hal.v")
 NAMED = os.path.join(HERE, "netlist", "netlist.hal.v")
+
+DAG_LEVELS = 3  # the depth "The netlist as a graph" quotes
 
 EXPECTED_POLYNOMIAL = 0x07
 EXPECTED_WIDTH = 8
@@ -41,6 +44,27 @@ class Checker(object):
 
     def equal(self, actual, expected, message):
         self.ok(actual == expected, "%s (got %r, want %r)" % (message, actual, expected))
+
+
+def check_dag(checker):
+    """The committed levelled DAG still says what guide.html says it says.
+
+    ``hal_viz dag`` records its counts in the .dot comment header, so this is
+    pure file inspection: no HAL, no Graphviz.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    checker.ok(os.path.isfile(dot_path), "images/dag.dot exists")
+    if not os.path.isfile(dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    checker.equal(levels, DAG_LEVELS, "the levelled DAG's depth")
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    checker.ok("<code>%d</code> topological levels" % DAG_LEVELS in guide,
+               "guide.html quotes the same level count")
 
 
 def run(checker, path, label):
@@ -111,6 +135,8 @@ def run(checker, path, label):
 
 def main():
     checker = Checker()
+    check_dag(checker)
+    print()
     anon = run(checker, ANON, "anonymised netlist")
     print()
     named = run(checker, NAMED, "as-exported netlist")

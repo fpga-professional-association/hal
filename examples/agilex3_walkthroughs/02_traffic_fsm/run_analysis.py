@@ -640,6 +640,10 @@ def main() -> int:
     run([sys.executable, str(TOOLS / "hal_viz"), "netlist_graph", str(NETLIST),
          "-g", str(GATE_LIBRARY), "--module", "top", "--pin-labels",
          "-o", str(IMAGES / "netlist_graph.svg")])
+    # ...and the same graph levelled, with the feedback cut at the flip-flops:
+    # 3 levels, i.e. a combinational depth of two.
+    run([sys.executable, str(TOOLS / "hal_viz"), "dag", str(NETLIST),
+         "-g", str(GATE_LIBRARY), "-o", str(IMAGES / "dag.svg"), "--html"])
 
     banner("STEP 0b  DANA dataflow analysis (register grouping)")
     run([sys.executable, str(TOOLS / "hal_viz"), "dataflow", str(NETLIST),

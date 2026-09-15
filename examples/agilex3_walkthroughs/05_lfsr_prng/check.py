@@ -25,6 +25,7 @@ import argparse
 import json
 import os
 import random
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +39,7 @@ EXPECTED_SEED = 0xACE1
 EXPECTED_PERIOD = 65535
 EXPECTED_FF = 16
 EXPECTED_LCELL = 17
+EXPECTED_DAG_LEVELS = 2                  # "The netlist as a graph" in guide.html
 
 
 class CheckFailed(Exception):
@@ -59,6 +61,27 @@ class Checks(object):
     @property
     def failed(self):
         return [r for r in self.results if not r[0]]
+
+
+def check_dag(checks):
+    """The committed levelled DAG still says what guide.html says it says.
+
+    ``hal_viz dag`` writes its counts into the .dot comment header, so this is
+    pure file inspection: no HAL, no Graphviz.
+    """
+    dot_path = os.path.join(HERE, "images", "dag.dot")
+    if not checks("images/dag.dot exists", os.path.isfile(dot_path), dot_path):
+        return
+    with open(dot_path) as handle:
+        header = handle.read(4096)
+    match = re.search(r"^// (\d+) level\(s\)", header, re.M)
+    levels = int(match.group(1)) if match else None
+    checks("the levelled DAG is %d levels deep" % EXPECTED_DAG_LEVELS,
+           levels == EXPECTED_DAG_LEVELS, "levels=%s" % levels)
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        guide = handle.read()
+    checks("guide.html quotes the same level count",
+           "<code>%d</code> topological levels" % EXPECTED_DAG_LEVELS in guide)
 
 
 # ---------------------------------------------------------------------------
@@ -675,6 +698,7 @@ def main(argv=None):
 
     checks = Checks()
     checks("hal_agilex refused no gate", not report["refused"], str(report["refused"]))
+    check_dag(checks)
     rng = random.Random(args.seed)
     try:
         out = analyse(hal_py, netlist, checks, rng, args.cycles)

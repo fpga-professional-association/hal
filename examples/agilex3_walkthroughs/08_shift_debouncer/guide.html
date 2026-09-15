@@ -340,6 +340,84 @@ a counter that must go both directions and clamp at both ends is cheaper as four
 "no counter", you will walk straight past the middle third of this design.
 </div>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Everything in Half A is a graph algorithm, so be explicit about the graph.
+<strong>Nodes are gates, edges are nets</strong> — one edge per driver&nbsp;→&nbsp;sink pair,
+from the output pin that drives a net to each input pin that reads it. The SCC search in step 3,
+the register graph in step 4, the cone walks in step 6: all of them run on this object and
+nothing else.</p>
+
+<p>It has cycles, because a counter counts and a state bit holds. But every cycle in a
+synchronous design passes through a register, so if you <em>cut</em> every edge that lands on a
+flip-flop pin the cycles all vanish, and what is left is a directed acyclic graph — the
+combinational core. A DAG can be levelled topologically: level 0 is everything with no
+remaining predecessor, level <em>n</em> is everything whose deepest predecessor is at level
+<em>n</em>&minus;1. That is Kahn's algorithm, and <code>hal_viz dag</code> draws its levels as
+columns, level 0 on the left.</p>
+
+<pre class="cmd"><code>python3 tools/hal_viz dag \
+    examples/agilex3_walkthroughs/08_shift_debouncer/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/08_shift_debouncer/images/dag.svg --html</code></pre>
+
+<figure>
+<img src="images/dag.svg" alt="Levelled DAG: eight flip-flops in the level-0 column, six one-LUT cells at level 1, and a long column of constant tie-off stubs">
+<figcaption><strong>images/dag.svg</strong> — 14 gates, 131 edges,
+<code>2</code> topological levels, 71 edges cut at a register, 97 constant tie-offs.
+The standalone page with a legend and
+these counts is <a href="images/dag.html">images/dag.html</a>; the DOT source is
+<a href="images/dag.dot">images/dag.dot</a>. 14 nodes, one per vendor instance: HAL adds a
+<code>HAL_GND</code> and a <code>HAL_VCC</code> when it loads the file, and those two are never
+drawn as gates — their fan-out becomes the tie-off stubs instead.</figcaption>
+</figure>
+
+<p><strong>Two levels.</strong> That is a measurement of the circuit, not of its size: after
+the cut, every one of the six ALM cells is a single LUT away from a register. There is no
+ripple to draw, which is the same fact <code>recognize</code> reported as "no carry chain",
+seen from the other side. Compare walkthrough 01, where this command gives 24 levels because a
+24-bit ripple carry really is 23 gates deep.</p>
+
+<p>Seven of the 71 cut edges start at a gate (the other 64 come from tie-offs — a flip-flop's
+constant control pins are cut too), and those seven are the whole sequential structure:</p>
+<ul class="tight">
+<li><strong>Two of them go register&nbsp;→&nbsp;register with nothing in between.</strong>
+<code>sync[0]</code>&nbsp;→&nbsp;<code>sync[1]</code>, and <code>state</code>&nbsp;→
+&nbsp;<code>state_d</code>. A flop whose D pin is another flop's Q, and no logic anywhere on
+the path, is a shift stage; two of them, in two separate two-deep chains. That is the shift
+structure this walkthrough is named for, and it is visible before any function is
+decoded.</li>
+<li><strong><code>sync[0]</code> has no incoming edge at all.</strong> Its D comes from a
+primary input, and primary inputs are not nodes in this drawing (they have no driving gate, so
+nothing can draw an edge from one). A register with no drawn predecessor sitting at the head of
+a two-stage chain is exactly what a synchronizer looks like from the graph.</li>
+<li><strong>Four cells with identical fan-in.</strong> <code>cnt[0]~1</code>,
+<code>cnt[1]~2</code>, <code>cnt[2]~3</code> and <code>cnt[3]~0</code> each read the same five
+registers — all four <code>cnt</code> bits plus <code>sync[1]</code> — and each drives exactly
+one <code>cnt</code> flop. Four independent 5-input LUTs, one per bit, no carry between them:
+that <em>is</em> the counter, built the way the <code>recognize</code> finding above predicted
+it would have to be.</li>
+<li><strong>One cell reads the state bit and the whole counter.</strong> <code>i38~0</code>
+takes <code>state</code> and <code>cnt[3:0]</code> and drives <code>state</code> back. A single
+LUT closing a loop around a register plus a counter is a threshold: the output flips when the
+count says so.</li>
+<li><strong>One cell reads only the two-stage delay.</strong> <code>btn_rise~0</code> takes
+<code>state</code> and <code>state_d</code>, drives no flip-flop, and is drawn as an octagon
+because it sits on a primary output net. Two adjacent samples in, one bit out, nothing
+stored: an edge detector.</li>
+</ul>
+
+<div class="note">
+<strong>Why the left-hand column is so tall</strong>
+97 of the 131 edges — 74% of the drawing — are constant tie-offs, and <code>hal_viz</code>
+gives each one its own small <code>0</code>/<code>1</code> circle on the source rank rather
+than a shared GND/VCC hub, because one hub with 97 spokes is a spider that hides the circuit.
+That column is unused ALM inputs and unused flip-flop control pins held at a constant, which is
+most of what an FPGA netlist is. Only 34 edges carry a signal: 27 between cells and registers,
+plus the 7 cut edges. Remember too that a cell's drawn fan-in is a <em>lower bound</em> on its
+real fan-in, because the primary inputs are missing.
+</div>
+
 <h2 id="structure">4. Half A — structure</h2>
 
 <p>Everything in this half is produced by

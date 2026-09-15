@@ -29,6 +29,12 @@ python3 tools/hal_viz module_tree "$EX/netlist.hal.v" -g "$GL" \
 python3 tools/hal_viz netlist_graph "$EX/netlist.hal.v" -g "$GL" \
     --show-boundary --pin-labels -o "$EX/images/netlist_graph.svg" -q
 
+echo "== 1b. the same graph levelled, feedback cut at the flops =========="
+# 2 levels: every cell is one LUT from a register, which is "no carry chain"
+# seen from the other side.
+python3 tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" \
+    -o "$EX/images/dag.svg" --html -q
+
 echo "== 2. two close-ups: one counter bit slice, and the hysteresis bit =="
 # NOTE: --depth 2 is useless on a design this small -- the depth-2
 # neighbourhood of any flop here is all 16 gates, i.e. the whole netlist.

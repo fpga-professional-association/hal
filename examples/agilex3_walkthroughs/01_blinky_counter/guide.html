@@ -311,6 +311,85 @@ Readable, and almost useless. Scroll it: the structure <em>is</em> in there, but
 going to find it by looking.</figcaption>
 </figure>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Every step after this one is a graph algorithm, so it is worth being explicit about the
+graph. <strong>Nodes are gates. Edges are nets</strong>, one edge per driver&nbsp;→&nbsp;sink
+pair, pointing from the output pin that drives the net to each input pin that reads it. HAL
+hands you exactly this and nothing else: no hierarchy, no signal names you can trust, no
+notion of "the adder". Strongly connected components, transitive fan-in cones, carry-chain
+ordering — all of it is done on this object.</p>
+
+<p>The object has cycles. <code>count[0]</code> drives <code>count[0]~0</code>, which drives
+<code>count[0]</code> again; that is a 2-cycle, and there are 24 of them here. But in a
+synchronous design every cycle has to pass through at least one register, so if you
+<em>cut</em> every edge that ends on a flip-flop pin the cycles all vanish and what is left is
+a directed acyclic graph: the combinational core. A DAG can be levelled — level 0 is everything
+with no remaining predecessor, level <em>n</em> is everything whose deepest predecessor sits at
+level <em>n</em>&nbsp;&minus;&nbsp;1 — which is Kahn's algorithm, and that is what
+<code>hal_viz dag</code> draws, left to right.</p>
+
+<pre class="cmd"><code>python3 tools/hal_viz dag \
+    examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/dag.svg --html</code></pre>
+
+<figure>
+<img src="images/dag.svg" alt="Levelled DAG of blinky_counter: 24 flip-flops in the level-0 column, then a single carry cell per level rippling right across 23 levels">
+<figcaption><strong>images/dag.svg</strong> — 48 gates, 456 edges,
+<code>24</code> topological levels, 216 edges cut at a register, 385 constant tie-offs.
+The same picture with a legend and these counts is
+<a href="images/dag.html">images/dag.html</a>; the source is
+<a href="images/dag.dot">images/dag.dot</a>. 48, not 50: <code>HAL_GND</code> and
+<code>HAL_VCC</code> are never drawn as gates (see the constants paragraph below).</figcaption>
+</figure>
+
+<p>Read the columns:</p>
+<ul class="tight">
+<li><strong>Level 0</strong> is exactly the 24 <code>tennm_ff</code> instances,
+<code>count[0]</code>…<code>count[23]</code>, plus the tie-off stubs. Nothing else is there,
+because after the cut a flip-flop has no combinational predecessor left — it <em>is</em> a
+source.</li>
+<li><strong>Level 1</strong> has two gates: <code>add_0~111</code>, which reads
+<code>count[0]</code> and <code>count[1]</code>, and <code>count[0]~0</code>, the bit-0
+toggle.</li>
+<li><strong>Levels 2 to 23 hold exactly one gate each</strong> —
+<code>add_0~106</code>, <code>add_0~101</code>, … , <code>add_0~1</code>. Each one reads the
+previous cell's carry out and one more register bit, and drives one flip-flop. That single-file
+staircase <em>is</em> the ripple carry chain, and it is the whole reason the drawing is 24
+columns wide for a design with only 24 combinational cells.</li>
+<li><strong>Twenty-four of the 216 cut edges start at a gate</strong> — each carry cell's
+<code>sumout</code> going back into its flip-flop's <code>d</code> pin, drawn dashed and red.
+Follow one and you have closed the loop the levelling opened. The other 192 cut edges come from
+tie-offs: a flip-flop's constant control pins are cut too.</li>
+</ul>
+
+<p class="small">Longest combinational path in this design: 23 gates, from
+<code>add_0~111</code> at level 1 to <code>add_0~1</code> at level 23. That is the critical
+depth a timing tool would report a delay for, and it is linear in the counter width because
+Quartus built a ripple carry, not a carry-lookahead. A 24-bit counter at 23 levels is the
+picture of that decision.</p>
+
+<div class="note">
+<strong>Where all those little 0 and 1 circles come from</strong>
+385 of the 456 edges — 84% of the drawing — are constant tie-offs, and
+<code>hal_viz</code> gives each one its own stub on the far left instead of one shared GND/VCC
+node, because a single hub with 385 spokes hides the circuit behind a spider. Each
+<code>tennm_ff</code> contributes exactly eight: <code>aload</code>, <code>asdata</code>,
+<code>devclrn</code>, <code>devpor</code>, <code>ena</code>, <code>sclr</code>,
+<code>sclr1</code> and <code>sload</code> are all wired to <code>gnd</code>/<code>vcc</code> in
+this netlist. 24&nbsp;×&nbsp;8&nbsp;=&nbsp;192; the 24 ALM cells supply the other 193 through
+their unused LUT inputs. Only <strong>71 edges carry a signal</strong>: 47 into the LUTs and
+the 24 cut edges into the flops. Most of a real FPGA netlist is unused pins held at a
+constant, and this is what that looks like.
+</div>
+
+<p class="small">Two things are deliberately <em>not</em> nodes. <code>clk</code> and
+<code>rst_n</code> are primary inputs with no driving gate, so they have nothing to draw an
+edge from — the clock and reset fan-out is invisible here and you need
+<code>hal_viz clock_tree</code> for it. And <code>led</code> is a net off
+<code>count[23]</code>, not a gate.</p>
+
 <h3>What the netlist actually tells you, for free</h3>
 
 <pre class="cmd"><code>python3 examples/agilex3_walkthroughs/01_blinky_counter/analysis.py stats</code></pre>

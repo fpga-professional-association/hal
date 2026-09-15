@@ -439,6 +439,83 @@ leans on a name, the guide says so and also gives the structural argument that
 would survive renaming — because that is the argument you will actually need.
 </p>
 
+<h3 id="dag">The netlist as a graph</h3>
+
+<p>Everything in section 4 is a graph algorithm, so be explicit about the graph.
+<strong>Nodes are gates, edges are nets</strong>: one edge per driver&nbsp;→&nbsp;sink pair,
+from the pin that drives a net to each pin that reads it. Carry-chain ordering, the SCC search,
+the cone walks and DANA's register grouping all run on this one object and nothing else.</p>
+
+<p>The graph has cycles — an accumulator accumulates — but in a synchronous design every cycle
+passes through a register. <em>Cut</em> every edge that ends on a flip-flop pin and the cycles
+vanish, leaving a directed acyclic graph: the combinational core. A DAG can be topologically
+levelled — level 0 is everything with no remaining predecessor, level <em>n</em> is everything
+whose deepest predecessor is at level <em>n</em>&minus;1 — which is Kahn's algorithm, and it is
+what <code>hal_viz dag</code> draws, one column per level, level 0 on the left.</p>
+
+<pre><code>python tools/hal_viz dag netlist/netlist.hal.v -g AGILEX_TENNM.hgl \
+    -o images/dag.svg --html</code></pre>
+
+<figure>
+  <img src="images/dag.svg" alt="Levelled DAG: nine flip-flops at level 0, then two ranks climbing in lockstep across twelve columns — the adder carry chain and the per-bit output stage one level behind it.">
+  <figcaption>
+    31 gates, 255 edges, <code>12</code> topological levels, 81 edges cut at a register, 202
+    constant tie-offs. The standalone page with a legend and these counts is
+    <a href="images/dag.html">images/dag.html</a>; the DOT source is
+    <a href="images/dag.dot">images/dag.dot</a>. 31 nodes, matching the 31 real cells:
+    <code>HAL_GND</code> and <code>HAL_VCC</code> are never drawn as gates.
+  </figcaption>
+</figure>
+
+<p>Twelve columns for a design with 31 cells. The picture is almost all staircase, and the
+staircase is the answer to step 2 before step 2 runs:</p>
+<ul>
+  <li><strong>Level 0 is exactly the nine flip-flops</strong> — <code>acc[0]~reg0</code> …
+  <code>acc[7]~reg0</code> and <code>carry~reg0</code> — plus the tie-off stubs. After the cut
+  a register has no combinational predecessor, so it is a source by construction.</li>
+  <li><strong>One cell per level, ten levels long: the carry chain.</strong>
+  <code>add_0~47</code> at level 1, then <code>add_0~1</code>, <code>~6</code>,
+  <code>~11</code>, <code>~16</code>, <code>~21</code>, <code>~26</code>, <code>~31</code>,
+  <code>~36</code> and <code>~41</code>, one per column down to level 10. Each cell reads the
+  previous cell's carry <em>and</em> one <code>acc</code> register, in bit order 0 through 7,
+  and the last one reads only the carry. That is a ripple: linear in the operand width, which
+  is why an 8-bit ALU costs eleven columns and a 4-bit reduction costs two.</li>
+  <li><strong>A second rank, one level behind.</strong> <code>i45~0</code>, <code>~2</code>,
+  <code>~3</code> … <code>~8</code> and <code>i46~0</code> occupy levels 3 to 11, each reading
+  exactly one adder cell, each driving exactly one flip-flop. A per-bit output stage riding the
+  chain — the shape of a result multiplexer, before you know what it selects.</li>
+  <li><strong>Every register takes two cut edges.</strong> One from its own second-rank cell,
+  one from <code>i45~1</code> — a level-1 cell with no drawn data fan-in at all, whose nine
+  dashed edges reach all nine flip-flops. Highest fan-out in the drawing, no data in: a control
+  line.</li>
+  <li><strong>And one thing that is not a staircase.</strong> <code>reduce_or_0~0</code> at
+  level 1 reads <code>acc[3:0]</code>; <code>reduce_or_0</code> at level 2 reads
+  <code>acc[7:4]</code> plus that first cell. Eight registers, two levels — an OR tree is
+  logarithmic where a carry chain is linear, and the two structures read the same bank and
+  finish nine columns apart.</li>
+</ul>
+
+<p class="small">
+Critical depth: eleven gates, level 1 to level 11. That is what a timing tool would price, and
+it is a property of the ripple, not of the design's size — compare walkthrough 05, whose whole
+combinational core is one level deep.
+</p>
+
+<div class="callout">
+  <span class="label">What the drawing leaves out</span>
+  <p><strong>Primary inputs are not nodes.</strong> They have no driving gate, so no edge can
+  start at one: <code>op</code>, <code>operand</code>, <code>clk</code> and the reset are not in
+  the picture, which is why <code>add_0~47</code> and <code>i45~1</code> look unfed. A cell's
+  drawn fan-in is a lower bound on its real fan-in.</p>
+  <p><strong>Constants are not one node either.</strong> 202 of the 255 edges — 79% of the
+  drawing — are constant tie-offs, and <code>hal_viz</code> gives each its own small
+  <code>0</code>/<code>1</code> circle on the source rank rather than a shared GND/VCC hub,
+  because one hub with 202 spokes is a spider that hides the circuit. That long left column is
+  unused ALM inputs and unused flip-flop control pins held at a constant, which is most of what
+  an FPGA netlist is. Only 53 edges carry a signal: 35 between cells and the 18 cut edges into
+  the flops.</p>
+</div>
+
 <!-- ==================================================================== -->
 <h2 id="walk">4. The reverse-engineering walk</h2>
 

@@ -22,6 +22,32 @@ Recommended order — each introduces one or two techniques the later ones lean 
 
 07 and 09 do not exist; the numbering is the series' history, not a promise.
 
+## The netlist as a graph
+
+Every guide now carries a "The netlist as a graph" section built on
+`images/dag.svg` — the design drawn as a directed graph (nodes = gates, edges =
+nets) with the feedback cut at every flip-flop, so the combinational core is a
+DAG and can be levelled topologically, level 0 on the left. The level count is
+the design's combinational depth between registers, and it is a measurement of
+the circuit rather than of its size:
+
+| walkthrough | gates | edges | levels | what the shape is |
+| --- | --- | --- | --- | --- |
+| 01_blinky_counter | 48 | 456 | 24 | one carry cell per level: a 23-gate ripple |
+| 02_traffic_fsm | 22 | 207 | 3 | condition layer, then a one-hot next-state cone |
+| 03_uart_tx | 40 | 370 | 3 | a shift chain of eight two-input cells; one gate sets the depth |
+| 04_pwm_generator | 34 | 305 | 8 | two carry chains side by side: increment and compare |
+| 05_lfsr_prng | 33 | 298 | 2 | a shift ring; one wide cell over four taps |
+| 06_accumulator_alu | 31 | 255 | 12 | a ten-cell carry chain with an output rank behind it |
+| 08_shift_debouncer | 14 | 131 | 2 | no chain at all: one LUT per counter bit |
+| 10_crc8_checker | 13 | 111 | 3 | a shift ring with feedback into three positions |
+
+Each also writes `images/dag.dot` and a standalone `images/dag.html` (inline
+SVG, legend, counts). Constants are drawn as one `0`/`1` tie-off stub per
+consuming pin rather than a shared GND/VCC hub — which is why the leftmost
+column is tall: between 68% and 88% of the edges in these drawings are
+constant tie-offs.
+
 Every walkthrough reruns end to end inside the build container:
 
 ```

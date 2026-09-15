@@ -25,6 +25,35 @@ proving a cell is a full adder, recovering the opcode decode, and spotting the
 | `recovered_reference.py` | the same claim as an executable model, checked against the export |
 | `check.py` | headless re-assertion of the guide's claims, for CI |
 
+## The netlist as a graph
+
+Nodes are gates, edges are nets. An accumulator is a cycle, but every cycle in
+a synchronous design passes through a register, so cutting the edges that land
+on a flip-flop pin leaves a DAG — the combinational core — which `hal_viz dag`
+levels topologically and draws left to right.
+
+`images/dag.svg` (and the standalone `images/dag.html`): **12 levels**, 31
+gates, 255 edges, 81 cut at a register. Level 0 is exactly the nine flip-flops.
+Levels 1–10 hold the carry chain one cell per column — `add_0~47`, then
+`add_0~1` through `add_0~41`, each reading the previous carry plus one `acc`
+bit in order 0…7 — and a second rank (`i45~0`, `~2`…`~8`, `i46~0`) rides one
+level behind it, one cell per register. So the critical depth is eleven gates,
+linear in the operand width. The zero-detect (`reduce_or_0~0` then
+`reduce_or_0`) reads the same eight registers and finishes at level 2, because
+an OR tree is logarithmic where a carry chain is not. 202 of the 255 edges are
+constant tie-offs, one `0`/`1` circle per consuming pin rather than a shared
+GND/VCC hub.
+
+Like the other whole-netlist views, it is produced by a single `hal_viz`
+command rather than by `analyze.py`:
+
+```bash
+python3 tools/hal_viz dag \
+    examples/agilex3_walkthroughs/06_accumulator_alu/netlist/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/06_accumulator_alu/images/dag.svg --html
+```
+
 ## A note on `.gitignore`
 
 `examples/.gitignore` ignores everything by default and un-ignores the shipped

@@ -32,8 +32,37 @@ external requests.
 | `recovered.vo` | that reconstruction, re-synthesized by Quartus — the structural round trip |
 | `recovered.hal.v` | the round-trip export, rewritten for HAL |
 | `check.py` | headless re-run of every claim the guide makes |
+| `images/` | the levelled DAG of the blinded netlist (`dag.dot`/`.svg`/`.html`) |
 | `artifacts/` | the step outputs the guide quotes, plus `register_graph.svg` and `07_frame.svg` |
 | `guide.html` | **the walkthrough** |
+
+## The netlist as a graph
+
+Nodes are gates, edges are nets. The graph has cycles, but every cycle in a
+synchronous design passes through a register, so cutting the edges that land on
+a flip-flop pin leaves a DAG — the combinational core — which can be levelled
+topologically. `images/dag.svg` (and the standalone `images/dag.html`) is that
+levelled view of the *blinded* netlist: **3 levels**, 40 gates, 370 edges, 162
+cut at a register.
+
+Level 0 is exactly the 18 flip-flops. 20 of the 22 ALM cells are one LUT away
+from a register; only `g_030` and `g_038` reach level 2, and both only because
+they read `g_005`. So the combinational depth is two, and one gate accounts for
+it. Eight level-1 cells read exactly one flip-flop plus the shared `g_021`;
+seven of those compose into a single eight-register path — the shift register,
+which step 4 then recovers as nine stages including the one that joins through
+the wider `g_038`. `g_021` itself is in the fan-in of 20 of the 22 cells, which
+is what a mode bit looks like. 269 of the 370 edges are constant tie-offs,
+drawn as one `0`/`1` circle per consuming pin rather than a shared GND/VCC hub.
+
+There is no run script for this walkthrough; the command is:
+
+```
+python3 tools/hal_viz dag \
+    examples/agilex3_walkthroughs/03_uart_tx/netlist_anon.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/03_uart_tx/images/dag.svg --html
+```
 
 ## Reproducing
 

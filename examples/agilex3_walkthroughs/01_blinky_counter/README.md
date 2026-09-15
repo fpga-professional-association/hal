@@ -25,6 +25,27 @@ no external requests.
 | `artifacts/` | the JSON/report outputs the guide quotes |
 | `guide.html` | **the walkthrough** |
 
+## The netlist as a graph
+
+Nodes are gates, edges are nets. The graph has cycles — each counter bit feeds
+the cell that recomputes it — but every cycle passes through a flip-flop, so
+cutting the edges that end on a flip-flop pin leaves a DAG: the combinational
+core. `images/dag.svg` (and the standalone `images/dag.html`) draws that DAG
+levelled left to right with Kahn's algorithm: **24 levels**, 48 gates, 456
+edges, 216 cut at a register.
+
+Level 0 is exactly the 24 `tennm_ff`. Levels 2–23 hold one gate each — the
+ripple carry chain, `add_0~106` down to `add_0~1`, one cell per counter bit —
+so the longest combinational path is 23 gates. 385 of the 456 edges are
+constant tie-offs, drawn as one small `0`/`1` circle per consuming pin rather
+than a shared GND/VCC hub; only 71 edges carry a signal.
+
+```
+python tools/hal_viz dag examples/agilex3_walkthroughs/01_blinky_counter/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/dag.svg --html
+```
+
 ## Reproducing
 
 Synthesis (Windows, Quartus Prime Pro 26.1 — same flow as
