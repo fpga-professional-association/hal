@@ -301,6 +301,24 @@ Both graph commands draw GND/VCC as a `0`/`1` stub per consuming edge rather
 than one shared node (`--const-hub` restores the old drawing), and every
 drawing carries a legend cluster whose node ids start with `legend`.
 
+A levelled drawing shows structure; to put *behaviour* on it, record a bounded
+per-cycle trace of the design and hand both to `clock_step`, which writes one
+standalone page you can step a clock at a time (prev/next, scrubber,
+play/pause, ←/→). It needs neither HAL nor Graphviz — both inputs already
+exist on disk — and for an Agilex export the trace comes from `hal_agilex`:
+
+```bash
+python3 tools/hal_agilex trace export.vo --reference reference.py \
+    --cycles 32 -o out/dag_trace.json
+python  tools/hal_viz clock_step out/top_dag.svg --trace out/dag_trace.json \
+    -o out/dag_interactive.html
+```
+
+Nets are coloured by the value they carry, flip-flop and primary outputs get a
+`0`/`1` label, and anything the simulator could not resolve is drawn as unknown
+rather than guessed. Every `examples/agilex3_walkthroughs/*` ships one as
+`images/dag_interactive.html`.
+
 To hand a *result* to a human rather than a picture, render the findings
 documents an analysis wrote (the `tools/hal_findings` schema) into one static
 HTML page. This subcommand needs neither HAL nor a netlist, and the page opens

@@ -436,6 +436,35 @@ Kahn's algorithm and draws the levels as columns, left to right.</p>
   <a href="images/dag.dot">images/dag.dot</a>. (22 nodes, not 24: <code>HAL_GND</code> and
   <code>HAL_VCC</code> are never drawn as gates — see below.)</figcaption>
 </figure>
+<p><strong>The same graph, one clock at a time.</strong> The picture above is structure;
+<code>hal_viz clock_step</code> puts <em>values</em> on it. <code>hal_agilex trace</code>
+records a bounded, seeded run of the export &mdash; every net, every cycle, from the same
+simulator and the same stimulus conventions the <code>behavior</code> check uses &mdash; and
+<code>clock_step</code> joins that trace to this drawing and to nothing else, producing one
+self-contained page: prev/next, a scrubber, play/pause, &larr;/&rarr; keys, nets coloured by
+the value they carry and a <code>0</code>/<code>1</code> beside every flip-flop and primary
+output.</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex trace \
+    examples/agilex3_walkthroughs/02_traffic_fsm/traffic_fsm.vo \
+    --reference examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/reference_recovered.py \
+    --cycles 34 --hold hold=0 \
+    -o examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dag_trace.json
+python3 tools/hal_viz clock_step examples/agilex3_walkthroughs/02_traffic_fsm/images/dag.svg \
+    --trace examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/dag_trace.json \
+    --name-map examples/agilex3_walkthroughs/02_traffic_fsm/artifacts/anonymize_map.json \
+    -o examples/agilex3_walkthroughs/02_traffic_fsm/images/dag_interactive.html</code></pre>
+
+<p><a href="images/dag_interactive.html"><strong>images/dag_interactive.html</strong></a>
+&mdash; cycles 0&ndash;33 with <code>hold</code> tied low, which is one complete phase cycle:
+phase A through cycle 10, B through 13, C through 26, D through 31, and back to A at cycle 32.
+The window is a bound, not a claim: nothing outside it is drawn and nothing
+about it is asserted. A net the simulator cannot resolve &mdash; <code>clk</code> has no driver
+in the export, because the simulator steps the registers itself &mdash; is drawn amber and
+marked unknown, never guessed as&nbsp;0. This walkthrough analyses the anonymised netlist, so
+the drawing keeps its blinded gate names while the values come from a trace of the named export;
+the page says so at the top. Come back to it after the un-blinding step if you are working the
+exercise.</p>
 
 <p>Three columns is the whole story, and it is a very different picture from a datapath. Read
 it before you know any names:</p>

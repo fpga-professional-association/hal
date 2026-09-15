@@ -497,6 +497,35 @@ column.</p>
   <code>HAL_GND</code> and <code>HAL_VCC</code> gates HAL adds on load are never drawn as
   gates, their fan-out becomes the tie-off stubs instead.</figcaption>
 </figure>
+<p><strong>The same graph, one clock at a time.</strong> The picture above is structure;
+<code>hal_viz clock_step</code> puts <em>values</em> on it. <code>hal_agilex trace</code>
+records a bounded, seeded run of the export &mdash; every net, every cycle, from the same
+simulator and the same stimulus conventions the <code>behavior</code> check uses &mdash; and
+<code>clock_step</code> joins that trace to this drawing and to nothing else, producing one
+self-contained page: prev/next, a scrubber, play/pause, &larr;/&rarr; keys, nets coloured by
+the value they carry and a <code>0</code>/<code>1</code> beside every flip-flop and primary
+output.</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex trace \
+    examples/agilex3_walkthroughs/10_crc8_checker/netlist/crc8_checker.vo \
+    --reference examples/agilex3_walkthroughs/10_crc8_checker/reference.py \
+    --cycles 32 --hold en=1 \
+    -o examples/agilex3_walkthroughs/10_crc8_checker/artifacts/dag_trace.json
+python3 tools/hal_viz clock_step examples/agilex3_walkthroughs/10_crc8_checker/images/dag.svg \
+    --trace examples/agilex3_walkthroughs/10_crc8_checker/artifacts/dag_trace.json \
+    --name-map examples/agilex3_walkthroughs/10_crc8_checker/netlist/anonymize_map.json \
+    -o examples/agilex3_walkthroughs/10_crc8_checker/images/dag_interactive.html</code></pre>
+
+<p><a href="images/dag_interactive.html"><strong>images/dag_interactive.html</strong></a>
+&mdash; cycles 0&ndash;31 with <code>en</code> tied high: 31 bits shifted in, each one XORing
+the <code>0x07</code> polynomial into the register when the feedback bit is set. The window is a
+bound, not a claim: nothing outside it is drawn and nothing
+about it is asserted. A net the simulator cannot resolve &mdash; <code>clk</code> has no driver
+in the export, because the simulator steps the registers itself &mdash; is drawn amber and
+marked unknown, never guessed as&nbsp;0. This walkthrough analyses the anonymised netlist, so
+the drawing keeps its blinded gate names while the values come from a trace of the named export;
+the page says so at the top. Come back to it after the un-blinding step if you are working the
+exercise.</p>
 
 <p>Eight of the 64 cut edges start at a gate (the other 56 come from tie-offs — a flip-flop's
 constant control pins are cut too), and those eight, plus four cells, are the entire

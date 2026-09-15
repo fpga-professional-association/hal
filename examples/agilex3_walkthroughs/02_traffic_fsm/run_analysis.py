@@ -644,6 +644,21 @@ def main() -> int:
     # 3 levels, i.e. a combinational depth of two.
     run([sys.executable, str(TOOLS / "hal_viz"), "dag", str(NETLIST),
          "-g", str(GATE_LIBRARY), "-o", str(IMAGES / "dag.svg"), "--html"])
+    # ...and the same levelled graph with values on it, one clock at a time.
+    # 34 cycles with `hold` tied low is one complete phase cycle.  The drawing
+    # is of the anonymised netlist, so the join needs anonymize_map.json; the
+    # page states which side each name comes from.  The export and the model
+    # are passed repository-relative (run() sets cwd=ROOT) so the trace records
+    # a stable path and not a per-machine absolute one.
+    run([sys.executable, str(TOOLS / "hal_agilex"), "trace",
+         EXPORT.relative_to(ROOT).as_posix(),
+         "--reference", (ARTIFACTS / "reference_recovered.py").relative_to(ROOT).as_posix(),
+         "--cycles", "34", "--hold", "hold=0",
+         "-o", (ARTIFACTS / "dag_trace.json").relative_to(ROOT).as_posix()])
+    run([sys.executable, str(TOOLS / "hal_viz"), "clock_step", str(IMAGES / "dag.svg"),
+         "--trace", str(ARTIFACTS / "dag_trace.json"),
+         "--name-map", str(ARTIFACTS / "anonymize_map.json"),
+         "-o", str(IMAGES / "dag_interactive.html")])
 
     banner("STEP 0b  DANA dataflow analysis (register grouping)")
     run([sys.executable, str(TOOLS / "hal_viz"), "dataflow", str(NETLIST),

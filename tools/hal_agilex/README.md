@@ -124,6 +124,7 @@ of offending types.
 python tools/hal_agilex inventory  export.vo [-o findings.json] [--strict]
 python tools/hal_agilex import     export.vo -o export.hal.v
 python tools/hal_agilex behavior   export.vo --reference reference.py
+python tools/hal_agilex trace      export.vo --reference reference.py --cycles 32 -o trace.json
 python tools/hal_agilex recognize  export.vo
 python tools/hal_agilex fixture    tools/hal_agilex/fixtures/agilex3_counter_adder
 python tools/hal_agilex library    --check
@@ -133,6 +134,18 @@ python tools/hal_agilex elaborate  export.hal.v --gate-library plugins/gate_libr
 Exit codes: `0` success, `1` failure, `2` with `--strict` when the findings
 contain a counterexample, an error or an unsupported result.
 
+`trace` is the odd one out: it emits plain JSON, not a findings document,
+because a trace makes no claim. It records the value of every net in every
+cycle of a bounded window of the run `behavior` checks — same simulator, same
+seeded stimulus conventions (`INPUTS` minus `IGNORED_INPUTS` drawn from
+`random.Random(--seed)`, `ASYNC_CLEAR_INPUT` asserted before the first cycle
+and on every `--clear-cycle`, default cycle 0). `--hold NAME=VALUE` pins an
+input for the whole run and `--skip N` advances the stream without recording,
+so a window is a window of one long run and not a shorter different one. A net
+the simulator cannot resolve is recorded as `x`, never as a guessed 0.
+`tools/hal_viz clock_step` turns a trace plus a `hal_viz dag` drawing into one
+standalone, steppable HTML page.
+
 ## Layout
 
 ```
@@ -140,6 +153,7 @@ primitives.py     the modelled semantics and the coverage predicates
 vo_netlist.py     reader for the Quartus .vo subset (refuses what it cannot read)
 simulate.py       reference simulator over the modelled primitives
 behavior.py       netlist-versus-RTL validation -> findings
+trace.py          bounded per-cycle recording of every net -> JSON
 inventory.py      primitive inventory and coverage -> findings
 recognize.py      architecture dispatch + carry-chain adder/counter -> findings
 vo_import.py      rewrite a .vo into HAL-readable Verilog
@@ -159,7 +173,8 @@ Without HAL, from the repository root:
 python -m unittest discover -s tools/hal_agilex -t tools -p "test_hal_agilex.py"
 ```
 
-35 tests, about 8 seconds. With a built HAL (inside the build container):
+49 tests, about 8 seconds; also registered with ctest as
+`runTest-hal_agilex_standalone`. With a built HAL (inside the build container):
 
 ```bash
 export HAL_PY_PATH=/opt/hal/build/lib

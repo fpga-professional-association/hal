@@ -173,6 +173,22 @@ class Simulator(object):
             value |= self._read(bit) << position
         return value
 
+    def net_value(self, bit):
+        """The settled value of one net, or ``None`` when it is unknown.
+
+        ``get_output`` reads *declared signals* and raises when a net cannot be
+        resolved, which is the right answer for a comparison against a
+        reference model.  A trace walks every net in the export, including the
+        ones nothing drives, so it needs the third answer -- unknown -- rather
+        than an exception or a guessed 0.
+        """
+        if not self._settled:
+            self.settle()
+        try:
+            return self._read(bit)
+        except SimulationError:
+            return None
+
     # -- evaluation -------------------------------------------------------
 
     def _read(self, bit, depth=0):

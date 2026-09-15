@@ -1,0 +1,1528 @@
+{
+  "design": "uart_tx",
+  "frames": [
+    {
+      "cycle": 0,
+      "inputs": {
+        "rst_n": 0,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 0
+      },
+      "values": "000000000x11101000000100110100101100000000000x110010110101x1"
+    },
+    {
+      "cycle": 1,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 0
+      },
+      "values": "000000000x11101000000100110100101101000000000x110010110101x1"
+    },
+    {
+      "cycle": 2,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "000000001x11100001000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 3,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "100000001x11100000100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 4,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "010000001x11100001100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 5,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "110000001x11100100000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 6,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "001000001x11100101000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 7,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "101000001x11100100100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 8,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "011000001x11100101100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 9,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "111000001x11100010000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 10,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "000100001x11100011000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 11,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "100100001x11100010100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 12,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "010100001x11100011100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 13,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "110100001x11100110000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 14,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "001100001x11100111000000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 15,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "101100001x11100110100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 16,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "011100001x11100111100000101001011101110100101x001010110101x1"
+    },
+    {
+      "cycle": 17,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "111100001x11101000010100101001010111110100101x001010110101x1"
+    },
+    {
+      "cycle": 18,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "000010001x11100001011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 19,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "100010001x11100000111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 20,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "010010001x11100001111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 21,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "110010001x11100100011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 22,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "001010001x11100101011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 23,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "101010001x11100100111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 24,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "011010001x11100101111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 25,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "111010001x11100010011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 26,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "000110001x11100011011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 27,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "100110001x11100010111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 28,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "010110001x11100011111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 29,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "110110001x11100110011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 30,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "001110001x11100111011000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 31,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "101110001x11100110111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 32,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "011110001x11100111111000110010100101101001010x001010110101x1"
+    },
+    {
+      "cycle": 33,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 0,
+        "tx_busy": 1
+      },
+      "values": "111110001x11101000001100010010100111101001010x001010110101x1"
+    },
+    {
+      "cycle": 34,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "000001001x11100001001000000101000101010010100x111010110101x1"
+    },
+    {
+      "cycle": 35,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "100001001x11100000101000000101000101010010100x111010110101x1"
+    },
+    {
+      "cycle": 36,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "010001001x11100001101000000101000101010010100x111010110101x1"
+    },
+    {
+      "cycle": 37,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "110001001x11100100001000000101000101010010100x111010110101x1"
+    },
+    {
+      "cycle": 38,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "001001001x11100101001000000101000101010010100x111010110101x1"
+    },
+    {
+      "cycle": 39,
+      "inputs": {
+        "rst_n": 1,
+        "tx_data": 90,
+        "tx_start": 1
+      },
+      "outputs": {
+        "tx": 1,
+        "tx_busy": 1
+      },
+      "values": "101001001x11100100101000000101000101010010100x111010110101x1"
+    }
+  ],
+  "gates": {
+    "baud_cnt[0]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 17,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 0,
+      "output_pin": "q",
+      "outputs": {
+        "q": 0
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "baud_cnt[1]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 18,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 1,
+      "output_pin": "q",
+      "outputs": {
+        "q": 1
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "baud_cnt[2]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 15,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 2,
+      "output_pin": "q",
+      "outputs": {
+        "q": 2
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "baud_cnt[3]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 16,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 3,
+      "output_pin": "q",
+      "outputs": {
+        "q": 3
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "bit_cnt[0]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 19,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 4,
+      "output_pin": "q",
+      "outputs": {
+        "q": 4
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "bit_cnt[1]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 20,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 21,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 5,
+      "output_pin": "q",
+      "outputs": {
+        "q": 5
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "bit_cnt[2]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 22,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 21,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 6,
+      "output_pin": "q",
+      "outputs": {
+        "q": 6
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "bit_cnt[3]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 23,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 21,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 7,
+      "output_pin": "q",
+      "outputs": {
+        "q": 7
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "busy": {
+      "drives_ports": [
+        "tx_busy"
+      ],
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 33,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 8,
+      "output_pin": "q",
+      "outputs": {
+        "q": 8
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "i21~0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 2,
+        "datac": 3,
+        "datad": 0,
+        "datae": 1,
+        "dataf": 57,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 14,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 14
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i41~0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 2,
+        "datac": 0,
+        "datad": 1,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 15,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 15
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i41~1": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 2,
+        "datac": 3,
+        "datad": 0,
+        "datae": 1,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 16,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 16
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i41~2": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 0,
+        "datac": 13,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 17,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 17
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i41~3": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 0,
+        "datac": 1,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 18,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 18
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i45~0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 2,
+        "datac": 3,
+        "datad": 0,
+        "datae": 1,
+        "dataf": 4,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 19,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 19
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i45~1": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 4,
+        "datac": 5,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 20,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 20
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i45~2": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 2,
+        "datac": 3,
+        "datad": 0,
+        "datae": 1,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 21,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 21
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i45~3": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 4,
+        "datac": 5,
+        "datad": 6,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 22,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 22
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i45~4": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 4,
+        "datac": 5,
+        "datad": 6,
+        "datae": 7,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 23,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 23
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 36,
+        "datab": 8,
+        "datac": 57,
+        "datad": 37,
+        "datae": 34,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 24,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 24
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~1": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 38,
+        "datac": 49,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 25,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 25
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~2": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 39,
+        "datac": 50,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 26,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 26
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~3": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 40,
+        "datac": 51,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 27,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 27
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~4": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 41,
+        "datac": 52,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 28,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 28
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~5": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 42,
+        "datac": 53,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 29,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 29
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~6": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 43,
+        "datac": 54,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 30,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 30
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~7": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 44,
+        "datac": 55,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 31,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 31
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i55~8": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 57,
+        "datac": 44,
+        "datad": 56,
+        "datae": 34,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 32,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 32
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i56~0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 8,
+        "datab": 57,
+        "datac": 4,
+        "datad": 5,
+        "datae": 6,
+        "dataf": 7,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 33,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 33
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "reduce_and_0": {
+      "inputs": {
+        "cin": 13,
+        "dataa": 2,
+        "datab": 3,
+        "datac": 0,
+        "datad": 1,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 34,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 34
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "shreg[0]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 24,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 36,
+      "output_pin": "q",
+      "outputs": {
+        "q": 36
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[0]~_wirecell": {
+      "drives_ports": [
+        "tx"
+      ],
+      "inputs": {
+        "cin": 13,
+        "dataa": 36,
+        "datab": 13,
+        "datac": 13,
+        "datad": 13,
+        "datae": 13,
+        "dataf": 13,
+        "datag": 13,
+        "datah": 13,
+        "sharein": 13
+      },
+      "output": 46,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 46
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "shreg[1]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 25,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 37,
+      "output_pin": "q",
+      "outputs": {
+        "q": 37
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[2]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 26,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 38,
+      "output_pin": "q",
+      "outputs": {
+        "q": 38
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[3]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 27,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 39,
+      "output_pin": "q",
+      "outputs": {
+        "q": 39
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[4]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 28,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 40,
+      "output_pin": "q",
+      "outputs": {
+        "q": 40
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[5]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 29,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 41,
+      "output_pin": "q",
+      "outputs": {
+        "q": 41
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[6]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 30,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 42,
+      "output_pin": "q",
+      "outputs": {
+        "q": 42
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[7]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 31,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 14,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 43,
+      "output_pin": "q",
+      "outputs": {
+        "q": 43
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "shreg[8]": {
+      "inputs": {
+        "aload": 13,
+        "asdata": 59,
+        "clk": 9,
+        "clrn": 35,
+        "d": 32,
+        "devclrn": 10,
+        "devpor": 12,
+        "ena": 59,
+        "sclr": 13,
+        "sclr1": 13,
+        "sload": 13
+      },
+      "output": 44,
+      "output_pin": "q",
+      "outputs": {
+        "q": 44
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    }
+  },
+  "nets": [
+    "baud_cnt[0]",
+    "baud_cnt[1]",
+    "baud_cnt[2]",
+    "baud_cnt[3]",
+    "bit_cnt[0]",
+    "bit_cnt[1]",
+    "bit_cnt[2]",
+    "bit_cnt[3]",
+    "busy~q",
+    "clk",
+    "devclrn",
+    "devoe",
+    "devpor",
+    "gnd",
+    "i21~0_combout",
+    "i41~0_combout",
+    "i41~1_combout",
+    "i41~2_combout",
+    "i41~3_combout",
+    "i45~0_combout",
+    "i45~1_combout",
+    "i45~2_combout",
+    "i45~3_combout",
+    "i45~4_combout",
+    "i55~0_combout",
+    "i55~1_combout",
+    "i55~2_combout",
+    "i55~3_combout",
+    "i55~4_combout",
+    "i55~5_combout",
+    "i55~6_combout",
+    "i55~7_combout",
+    "i55~8_combout",
+    "i56~0_combout",
+    "reduce_and_0~combout",
+    "rst_n",
+    "shreg[0]",
+    "shreg[1]",
+    "shreg[2]",
+    "shreg[3]",
+    "shreg[4]",
+    "shreg[5]",
+    "shreg[6]",
+    "shreg[7]",
+    "shreg[8]",
+    "shreg[9]",
+    "shreg[0]~_wirecell_combout",
+    "tx",
+    "tx_busy",
+    "tx_data[0]",
+    "tx_data[1]",
+    "tx_data[2]",
+    "tx_data[3]",
+    "tx_data[4]",
+    "tx_data[5]",
+    "tx_data[6]",
+    "tx_data[7]",
+    "tx_start",
+    "unknown",
+    "vcc"
+  ],
+  "ports": {
+    "inputs": {
+      "clk": [
+        9
+      ],
+      "rst_n": [
+        35
+      ],
+      "tx_data": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "tx_start": [
+        57
+      ]
+    },
+    "outputs": {
+      "tx": [
+        47
+      ],
+      "tx_busy": [
+        48
+      ]
+    }
+  },
+  "reference": {
+    "kind": "sequential",
+    "path": "examples/agilex3_walkthroughs/03_uart_tx/reference.py"
+  },
+  "schema": "hal_agilex/trace/1",
+  "source": {
+    "path": "examples/agilex3_walkthroughs/03_uart_tx/uart_tx.vo",
+    "sha256": "cdff389c18318fcdfe2083aa658a2be35da03089fa5e21fd91708df48e0874b1"
+  },
+  "stimulus": {
+    "clear_cycles": [
+      0
+    ],
+    "clear_input": "rst_n",
+    "cleared_before_first_cycle": true,
+    "driveable_inputs": [
+      [
+        "rst_n",
+        1
+      ],
+      [
+        "tx_start",
+        1
+      ],
+      [
+        "tx_data",
+        8
+      ]
+    ],
+    "generator": "random.Random(seed).randrange(1 << width), one draw per driveable input per cycle, in declaration order",
+    "held_inputs": {
+      "tx_data": 90,
+      "tx_start": 1
+    },
+    "ignored_inputs": [
+      "clk"
+    ],
+    "seed": 20260908
+  },
+  "window": {
+    "cycles": 40,
+    "end": 39,
+    "start": 0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "gates": {
+    "crc_r[0]": "u3",
+    "crc_r[1]": "u5",
+    "crc_r[2]": "u7",
+    "crc_r[3]": "u9",
+    "crc_r[4]": "u11",
+    "crc_r[5]": "u0",
+    "crc_r[6]": "u2",
+    "crc_r[7]": "u4",
+    "feedback": "u10",
+    "i8": "u12",
+    "i9": "u1",
+    "reduce_nor_0": "u8",
+    "reduce_nor_0~0": "u6"
+  },
+  "nets": {
+    "__bit_crc_r_0__": "n2",
+    "__bit_crc_r_1__": "n6",
+    "__bit_crc_r_2__": "n1",
+    "__bit_crc_r_3__": "n5",
+    "__bit_crc_r_4__": "n0",
+    "__bit_crc_r_5__": "n8",
+    "__bit_crc_r_6__": "n12",
+    "__bit_crc_r_7__": "n7",
+    "clk": "port_i1",
+    "crc": "port_o0",
+    "crc8_checker": "top",
+    "din": "port_i0",
+    "en": "port_i3",
+    "feedback~combout": "n9",
+    "i8~combout": "n3",
+    "i9~combout": "n10",
+    "match": "port_o1",
+    "reduce_nor_0~0_combout": "n4",
+    "reduce_nor_0~combout": "n11",
+    "rst_n": "port_i2"
+  },
+  "source": "netlist.hal.v"
+}

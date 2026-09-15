@@ -25,6 +25,7 @@ A reference module declares::
 import random
 
 from .simulate import Simulator
+from .trace import driveable_inputs as _driveable, load_reference
 
 from hal_findings import model
 from hal_findings.adapters.common import utc_now
@@ -34,21 +35,6 @@ __all__ = ["PRODUCER", "run_reference_check", "build_document", "load_reference"
 PRODUCER = {"name": "hal_agilex.behavior", "version": "1.0.0"}
 
 DEFAULT_CYCLES = 200
-
-
-def load_reference(path):
-    """Import a fixture ``reference.py`` by file path."""
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("hal_agilex_reference", str(path))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _driveable(reference):
-    ignored = set(getattr(reference, "IGNORED_INPUTS", ()))
-    return [(name, width) for name, width in reference.INPUTS if name not in ignored]
 
 
 def run_reference_check(netlist, reference, cycles=DEFAULT_CYCLES, seed=20260908):

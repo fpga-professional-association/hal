@@ -84,6 +84,51 @@ def check_dag(checks):
            "<code>%d</code> topological levels" % EXPECTED_DAG_LEVELS in guide)
 
 
+def check_dag_interactive(checks):
+    """The committed clock-step page is built from a trace that reproduces.
+
+    The page's whole claim is that its values are *this* run of the export, so
+    this re-runs the exporter with the options guide.html prints and requires
+    the same document back.  Pure Python: no HAL, no Graphviz, no browser, and
+    nothing is written into the tree.
+    """
+    sys.path.insert(0, os.path.join(REPO, "tools"))
+    from hal_agilex import trace as agilex_trace, vo_netlist
+
+    trace_path = os.path.join(HERE, "artifacts", "dag_trace.json")
+    page_path = os.path.join(HERE, "images", "dag_interactive.html")
+    if not checks("artifacts/dag_trace.json exists", os.path.isfile(trace_path),
+                  trace_path):
+        return
+    if not checks("images/dag_interactive.html exists", os.path.isfile(page_path),
+                  page_path):
+        return
+
+    with open(trace_path, encoding="utf-8") as handle:
+        committed = json.load(handle)
+    fresh = agilex_trace.run_trace(
+        vo_netlist.parse_file(os.path.join(HERE, "lfsr_prng.vo")),
+        agilex_trace.load_reference(os.path.join(HERE, "recovered_model.py")),
+        cycles=32,
+        holds={"en": 1},
+    )
+    differences = agilex_trace.differences(committed, fresh)
+    checks("the committed trace reproduces from the committed .vo",
+           not differences, ", ".join(differences))
+
+    with open(page_path, encoding="utf-8") as handle:
+        page = handle.read()
+    checks("the page embeds every recorded cycle",
+           page.count('"cycle":') == len(committed["frames"]),
+           "%d of %d" % (page.count('"cycle":'), len(committed["frames"])))
+    checks("the page is self-contained: no external request",
+           "http://" not in page.replace("http://www.w3.org", "")
+           and "https://" not in page)
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        checks("guide.html links the interactive page",
+               "images/dag_interactive.html" in handle.read())
+
+
 # ---------------------------------------------------------------------------
 # netlist plumbing
 # ---------------------------------------------------------------------------
@@ -699,6 +744,7 @@ def main(argv=None):
     checks = Checks()
     checks("hal_agilex refused no gate", not report["refused"], str(report["refused"]))
     check_dag(checks)
+    check_dag_interactive(checks)
     rng = random.Random(args.seed)
     try:
         out = analyse(hal_py, netlist, checks, rng, args.cycles)

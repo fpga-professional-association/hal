@@ -65,6 +65,18 @@ add_test(NAME runTest-hal_crypto_standalone
                  -p "test_*.py"
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+# hal_agilex models two Altera primitives in pure Python and checks the model against the vendor's
+# own export, so its unit tests need neither HAL nor Quartus: they cover the .vo reader, the
+# primitive semantics, the import rewrite, the coverage refusals and the per-cycle trace exporter.
+# Named rather than discovered, because the test_hal_agilex_hal.py sibling in the same directory
+# wants hal_py plus the AGILEX_TENNM library on the path and is run by the walkthrough "hal" tier
+# (tests/headless_smoke/run_walkthrough_checks.sh) instead.
+add_test(NAME runTest-hal_agilex_standalone
+         COMMAND ${Python3_EXECUTABLE} -m unittest discover
+                 -s ${CMAKE_SOURCE_DIR}/tools/hal_agilex -t ${CMAKE_SOURCE_DIR}/tools
+                 -p "test_hal_agilex.py"
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_test(NAME runTest-hal_capabilities_standalone
          COMMAND ${Python3_EXECUTABLE} -m unittest discover
                  -s ${CMAKE_SOURCE_DIR}/tools/hal_capabilities -t ${CMAKE_SOURCE_DIR}/tools

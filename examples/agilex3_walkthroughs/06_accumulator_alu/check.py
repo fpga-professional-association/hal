@@ -76,6 +76,49 @@ def check_dag():
           "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
+def check_dag_interactive():
+    """The committed clock-step page is built from a trace that reproduces.
+
+    The page's whole claim is that its values are *this* run of the export, so
+    this re-runs the exporter with the options guide.html prints and requires
+    the same document back.  Pure Python: no HAL, no Graphviz, no browser, and
+    nothing is written into the tree.
+    """
+    import json
+
+    from hal_agilex import trace as agilex_trace, vo_netlist
+
+    trace_path = os.path.join(HERE, "artifacts", "dag_trace.json")
+    page_path = os.path.join(HERE, "images", "dag_interactive.html")
+    if not check("artifacts/dag_trace.json exists", os.path.isfile(trace_path)):
+        return
+    if not check("images/dag_interactive.html exists", os.path.isfile(page_path)):
+        return
+
+    with open(trace_path, encoding="utf-8") as handle:
+        committed = json.load(handle)
+    fresh = agilex_trace.run_trace(
+        vo_netlist.parse_file(NETLIST_VO),
+        agilex_trace.load_reference(REFERENCE),
+        cycles=32,
+    )
+    differences = agilex_trace.differences(committed, fresh)
+    check("the committed trace reproduces from the committed .vo",
+          not differences, ", ".join(differences))
+
+    with open(page_path, encoding="utf-8") as handle:
+        page = handle.read()
+    check("the page embeds every recorded cycle",
+          page.count('"cycle":') == len(committed["frames"]),
+          "{} of {}".format(page.count('"cycle":'), len(committed["frames"])))
+    check("the page is self-contained: no external request",
+          "http://" not in page.replace("http://www.w3.org", "")
+          and "https://" not in page)
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        check("guide.html links the interactive page",
+              "images/dag_interactive.html" in handle.read())
+
+
 # ---------------------------------------------------------------------------
 # tier 1: no HAL needed
 # ---------------------------------------------------------------------------
@@ -316,6 +359,7 @@ def main():
 
     tier_one()
     check_dag()
+    check_dag_interactive()
     tier_two(arguments.require_hal)
 
     print()

@@ -23,6 +23,7 @@ from hal_agilex import (
     primitives,
     recognize,
     simulate,
+    trace,
     vo_import,
     vo_netlist,
 )
@@ -558,6 +559,190 @@ class GateLibraryTest(unittest.TestCase):
         self.assertIn("ena", ff["ff_config"]["next_state"])
         for pin in primitives.FF_MUST_BE_ZERO_PINS:
             self.assertNotIn(pin, ff["ff_config"]["next_state"])
+
+
+class TraceTest(unittest.TestCase):
+    """``hal_agilex trace``: the same run ``behavior`` checks, recorded.
+
+    The value of a trace is entirely in it being *this* run and not some other
+    one, so most of what is asserted here is reproducibility and agreement with
+    the reference model -- not that a JSON document came out.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.netlist = load(COUNTER, "counter_adder.vo")
+        cls.reference = trace.load_reference(
+            os.path.join(COUNTER, "reference.py")
+        )
+
+    def run_trace(self, **kwargs):
+        return trace.run_trace(self.netlist, self.reference, **kwargs)
+
+    def test_every_net_has_a_character_in_every_frame(self):
+        document = self.run_trace(cycles=6)
+        self.assertEqual(document["schema"], trace.SCHEMA)
+        self.assertEqual(document["design"], "counter_adder")
+        self.assertEqual(len(document["frames"]), 6)
+        self.assertEqual(document["window"], {"start": 0, "cycles": 6, "end": 5})
+        for frame in document["frames"]:
+            self.assertEqual(len(frame["values"]), len(document["nets"]))
+            self.assertLessEqual(set(frame["values"]), set("01x"))
+
+    def test_the_same_options_give_the_same_bytes(self):
+        first = trace.dumps(self.run_trace(cycles=8, holds={"en": 1}))
+        second = trace.dumps(self.run_trace(cycles=8, holds={"en": 1}))
+        self.assertEqual(first, second)
+        self.assertTrue(first.endswith("}\n"))
+        self.assertNotIn("\r", first)
+
+    def test_a_different_seed_is_a_different_run(self):
+        default = self.run_trace(cycles=8)
+        other = self.run_trace(cycles=8, seed=trace.DEFAULT_SEED + 1)
+        self.assertNotEqual(
+            [frame["inputs"] for frame in default["frames"]],
+            [frame["inputs"] for frame in other["frames"]],
+        )
+
+    def test_skip_is_a_window_of_the_same_run_not_a_new_one(self):
+        whole = self.run_trace(cycles=12)
+        window = self.run_trace(cycles=4, skip=8)
+        self.assertEqual(window["window"], {"start": 8, "cycles": 4, "end": 11})
+        self.assertEqual(window["frames"], whole["frames"][8:])
+
+    def test_the_recorded_outputs_are_the_reference_models(self):
+        # This is the property that makes the trace usable as evidence: it is
+        # the run `behavior` proves, so a page built from it is showing values
+        # that were checked, not values that were merely computed.
+        document = self.run_trace(cycles=40)
+        state = self.reference.initial_state()
+        for frame in document["frames"]:
+            values = dict(frame["inputs"])
+            if values[self.reference.ASYNC_CLEAR_INPUT] == 0:
+                state = self.reference.initial_state()
+            self.assertEqual(
+                frame["outputs"], self.reference.outputs(state, values), frame["cycle"]
+            )
+            state = self.reference.next_state(state, values)
+
+    def test_a_gate_output_is_the_value_of_the_net_it_drives(self):
+        document = self.run_trace(cycles=6, holds={"en": 1})
+        flops = [
+            (name, gate)
+            for name, gate in document["gates"].items()
+            if gate["sequential"]
+        ]
+        self.assertTrue(flops)
+        for name, gate in flops:
+            self.assertEqual(gate["outputs"]["q"], gate["output"])
+            self.assertTrue(
+                document["nets"][gate["output"]].startswith(name),
+                "{} drives {}".format(name, document["nets"][gate["output"]]),
+            )
+        # the accumulator's flops really do step: at least one of them changes
+        # value inside the window, so the recorded run is not a still picture
+        columns = {
+            gate["output"]
+            for _name, gate in flops
+        }
+        moved = any(
+            len({frame["values"][index] for frame in document["frames"]}) > 1
+            for index in columns
+        )
+        self.assertTrue(moved)
+
+    def test_the_primary_output_bits_are_attributed_to_their_driver(self):
+        document = self.run_trace(cycles=4)
+        labelled = sorted(
+            label
+            for gate in document["gates"].values()
+            for label in gate.get("drives_ports", ())
+        )
+        self.assertIn("carry_out", labelled)
+        self.assertIn("count[0]", labelled)
+        # every bit of every declared output port is accounted for
+        expected = 1 + self.netlist.width("count")
+        self.assertEqual(len(labelled), expected)
+
+    def test_an_output_behind_an_inversion_is_not_attributed_to_a_driver(self):
+        # `assign y = ~x` means the gate driving x does not carry y's value, so
+        # labelling that gate with y would print the wrong digit. No label is
+        # the honest answer; the counter fixture has no such assignment, so the
+        # property is checked on a netlist built for it.
+        netlist = vo_netlist.parse_text(
+            """
+            module inverted_output (clk, rst_n, q);
+            input clk; input rst_n; output q;
+            wire clk; wire rst_n; wire q; wire n0; wire gnd; wire vcc;
+            assign gnd = 1'b0;
+            assign vcc = 1'b1;
+            assign q = ~n0;
+            tennm_ff ff0 (.clk(clk), .d(vcc), .clrn(rst_n), .ena(vcc),
+                          .devclrn(vcc), .devpor(vcc), .q(n0));
+            endmodule
+            """
+        )
+
+        class Reference(object):
+            KIND = "sequential"
+            INPUTS = [("clk", 1), ("rst_n", 1)]
+            OUTPUTS = []
+            IGNORED_INPUTS = ["clk"]
+            ASYNC_CLEAR_INPUT = "rst_n"
+
+        document = trace.run_trace(netlist, Reference, cycles=2)
+        self.assertNotIn("drives_ports", document["gates"]["ff0"])
+
+    def test_an_unresolvable_net_is_x_in_every_frame(self):
+        # `clk` is declared and drives nothing the simulator models: it has no
+        # value, and the trace says so rather than picking one.
+        document = self.run_trace(cycles=4)
+        index = document["nets"].index("clk")
+        for frame in document["frames"]:
+            self.assertEqual(frame["values"][index], "x")
+
+    def test_the_stimulus_travels_with_the_values(self):
+        document = self.run_trace(cycles=5, holds={"en": 1}, clear_cycles=[0, 3])
+        stimulus = document["stimulus"]
+        self.assertEqual(stimulus["seed"], trace.DEFAULT_SEED)
+        self.assertEqual(stimulus["clear_input"], "rst_n")
+        self.assertEqual(stimulus["clear_cycles"], [0, 3])
+        self.assertEqual(stimulus["held_inputs"], {"en": 1})
+        self.assertEqual(stimulus["ignored_inputs"], ["clk"])
+        self.assertNotIn(
+            "clk", [name for name, _ in stimulus["driveable_inputs"]]
+        )
+        for frame in document["frames"]:
+            self.assertEqual(frame["inputs"]["en"], 1)
+            self.assertEqual(
+                frame["inputs"]["rst_n"], 0 if frame["cycle"] in (0, 3) else 1
+            )
+
+    def test_holding_the_clear_input_is_refused(self):
+        with self.assertRaises(trace.TraceError):
+            self.run_trace(cycles=2, holds={"rst_n": 1})
+
+    def test_holding_an_input_the_model_does_not_declare_is_refused(self):
+        with self.assertRaises(trace.TraceError):
+            self.run_trace(cycles=2, holds={"nonesuch": 1})
+
+    def test_a_combinational_model_cannot_be_traced_over_cycles(self):
+        combinational = trace.load_reference(os.path.join(LUT_LOGIC, "reference.py"))
+        with self.assertRaises(trace.TraceError):
+            trace.run_trace(load(LUT_LOGIC, "lut_logic.vo"), combinational, cycles=4)
+
+    def test_an_empty_window_is_refused(self):
+        for kwargs in ({"cycles": 0}, {"cycles": 4, "skip": -1}):
+            with self.assertRaises(trace.TraceError):
+                self.run_trace(**kwargs)
+
+    def test_the_source_digest_is_recorded(self):
+        path = os.path.join(COUNTER, "counter_adder.vo")
+        document = trace.run_trace(
+            self.netlist, self.reference, cycles=2, source_path=path
+        )
+        self.assertEqual(document["source"]["sha256"], serialize.sha256_file(path))
+        self.assertEqual(document["source"]["path"], path.replace("\\", "/"))
 
 
 class FixtureManifestTest(unittest.TestCase):

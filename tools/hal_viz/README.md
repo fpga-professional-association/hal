@@ -14,21 +14,24 @@ Subcommands:
 | `module_tree`   | the module hierarchy of a netlist, with per-module gate counts |
 | `dataflow`      | the register groups recovered by the DANA `dataflow_analysis` plugin |
 | `clock_tree`    | the clock tree extracted by the `clock_tree_extractor` plugin |
+| `clock_step`    | one standalone, steppable HTML page: a `dag` drawing with a bounded per-cycle trace painted onto it |
 | `report`        | a static HTML report over findings documents and the artifacts above |
 
 `dataflow` and `clock_tree` deliberately reuse the DOT exporters those plugins
 already ship (`dataflow.Result.write_dot` / `ClockTree.export`) instead of
 reimplementing their graphs; `hal_viz` runs the analysis, collects the output
 and renders it. `report` goes one step further and re-derives nothing at all:
-its input is what the other commands already wrote.
+its input is what the other commands already wrote. `clock_step` is the same
+kind of command: its inputs are a `dag` SVG plus its `.dot`, and a trace
+recorded elsewhere.
 
 ## Requirements
 
 * **A built HAL.** `hal_viz` imports `hal_py`, so HAL must be built and its
   library directory reachable. See the Build Instructions in the top-level
   `README.md`. There is no pip package, and nothing here can run against a
-  netlist without HAL. The one exception is `report`, which reads JSON and
-  files and therefore runs on a plain interpreter.
+  netlist without HAL. The exceptions are `report` and `clock_step`, which read
+  JSON and files and therefore run on a plain interpreter.
 * **Python 3.8+**, standard library only. No third-party Python dependencies.
 * **Graphviz** (the `dot` executable), *optional*. Without it you still get the
   `.dot` files; `hal_viz` prints a warning and carries on. Install from
@@ -176,6 +179,44 @@ header and on the HTML page.
 caption (design, scope, gate/edge/level counts) and the legend. Inline CSS, no
 scripts, no request to anything outside the file, so it survives being copied
 or archived on its own.
+
+### Clock-step page (`clock_step`)
+
+`dag` draws the structure; `clock_step` puts the values on it. It takes the SVG
+`dag` already rendered, the `.dot` it was rendered from, and a per-cycle trace
+(`tools/hal_agilex trace` for an Agilex export), and writes **one** HTML file:
+
+```bash
+python3 tools/hal_agilex trace export.vo --reference reference.py \
+    --cycles 32 --hold en=1 -o out/dag_trace.json
+python  tools/hal_viz clock_step out/fsm_dag.svg --trace out/dag_trace.json \
+    -o out/dag_interactive.html
+```
+
+Inline SVG, inline CSS, inline script, inline trace: no request leaves the
+page. Controls are prev/next, a cycle scrubber, play/pause, a zoom slider and
+the ←/→ keys. Nets and edges are coloured by the value they carry (green 1,
+grey 0, amber dotted unknown), flip-flop outputs and primary outputs get a
+small `0`/`1` label, and the page states its cycle bound and the exact
+stimulus that produced it.
+
+The join needs no new attributes in the drawing: Graphviz already writes the
+DOT node and edge identifiers into the SVG's `<title>` elements, and the `.dot`
+carries each node's gate name. An edge whose endpoints share more than one net
+is *ambiguous* — Graphviz gives both arrows the same title — and is drawn
+unknown rather than assigned a value; so is a drawn gate the trace does not
+mention. Both counts appear on the page.
+
+`--name-map JSON` maps trace gate names to drawing gate names, for a
+walkthrough whose `dag` is drawn on an anonymised netlist; it accepts a flat
+`{"real": "anon"}` object or one with a `"gates"` member of that shape, and a
+key spelled `name$b3` also answers to `name[3]` (the anonymisers split buses
+into scalars). Passing a map also makes the page carry a spoiler warning,
+because the trace's port names are the un-blinded ones.
+
+Options: `--trace JSON` (required), `--dot PATH` (default: the SVG's `.dot`
+sibling), `--name-map JSON`, `-o/--output`, `--title`, `--caption`, `-q`,
+`--traceback`.
 
 ### Dataflow analysis (DANA)
 
@@ -335,18 +376,21 @@ tools/hal_viz/
   render.py    finds and drives the `dot` binary; writes the HTML index and
                the standalone single-diagram page.
   report.py    findings documents + artifacts -> one static HTML page. Pure stdlib.
+  clockstep.py a dag .dot/.svg + a per-cycle trace -> one interactive page. Pure stdlib.
   halenv.py    the only module that imports hal_py / hal_plugins.
   cli.py       argument parsing and the subcommands.
 ```
 
-Because `dot.py`, `extract.py` and `report.py` never touch `hal_py`, the
-formatting, escaping, graph-building and reporting logic is unit tested with
-stub objects and synthetic findings on any machine:
+Because `dot.py`, `extract.py`, `report.py` and `clockstep.py` never touch
+`hal_py`, the formatting, escaping, graph-building, reporting and value-join
+logic is unit tested with stub objects, synthetic findings and a synthetic
+trace on any machine:
 
 ```bash
 python tools/hal_viz/test_hal_viz.py
 python tools/hal_viz/test_hal_viz_report.py
-# or both at once
+python tools/hal_viz/test_hal_viz_clockstep.py
+# or all of them at once
 python -m unittest discover -s tools/hal_viz -t tools -p "test_*.py"
 ```
 
@@ -354,9 +398,12 @@ The report tests cover what the page is trusted for: that hostile netlist names
 cannot break out of the HTML, that all nine statuses render and stay
 distinguishable, that missing artifacts, truncated lists, bounded claims and
 coverage gaps produce visible markers, and that the page contains no script and
-no external reference. These tests do **not** exercise `hal_py` itself. `ctest`
-runs them as `runTest-hal_viz_standalone`, registered in
-`tests/headless_smoke/`.
+no external reference. The clock-step tests cover the join: which node and
+which arrow gets which net, that a tie-off carries its constant, that an
+unresolvable gate or an ambiguous arrow is reported rather than guessed, and
+that the emitted page embeds the trace, carries its controls and fetches
+nothing. These tests do **not** exercise `hal_py` itself. `ctest` runs them as
+`runTest-hal_viz_standalone`, registered in `tests/headless_smoke/`.
 
 The end-to-end path — real bindings, a real plugin, a real netlist — is covered
 by `tests/headless_smoke/real_netlist_smoke.py`, which needs a built HAL. It

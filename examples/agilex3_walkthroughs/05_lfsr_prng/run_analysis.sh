@@ -35,6 +35,15 @@ python3 tools/hal_viz netlist_graph "$NET" -g "$GL" --pin-labels \
 echo "== 3b. the same graph levelled, feedback cut at the flops (2 levels)"
 python3 tools/hal_viz dag "$NET" -g "$GL" -o "$EX/images/dag.svg" --html -q
 
+echo "== 3c. ... and the same graph with values, one clock at a time"
+# 32 shifts out of the 0xACE1 reset seed, with en tied high.  Needs no HAL.
+python3 tools/hal_agilex trace "$EX/lfsr_prng.vo" \
+    --reference "$EX/recovered_model.py" --cycles 32 --hold en=1 \
+    -o "$EX/artifacts/dag_trace.json"
+python3 tools/hal_viz clock_step "$EX/images/dag.svg" \
+    --trace "$EX/artifacts/dag_trace.json" \
+    -o "$EX/images/dag_interactive.html" -q
+
 echo "== 4. the cone around the only wide combinational cell"
 python3 tools/hal_viz netlist_graph "$NET" -g "$GL" --gate feedback --depth 2 \
     --show-boundary --pin-labels -o "$EX/images/feedback_cone.svg" -q
