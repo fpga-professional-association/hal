@@ -279,6 +279,7 @@ image.
 export HAL_PY_PATH=/path/to/hal/build/lib     # or pass --hal-lib
 PYTHONPATH=tools python -m hal_viz module_tree ./unzipped_project -o out/
 PYTHONPATH=tools python -m hal_viz netlist_graph ./unzipped_project --module top --cluster-modules -o out/top.svg
+PYTHONPATH=tools python -m hal_viz dag ./unzipped_project --module top -o out/top_dag.svg --html
 PYTHONPATH=tools python -m hal_viz dataflow ./unzipped_project -o out/dataflow --html
 PYTHONPATH=tools python -m hal_viz clock_tree ./unzipped_project -o out/clocks.svg
 ```
@@ -288,9 +289,17 @@ subcommand takes `-o/--output PATH` and `-f/--format {svg,png,pdf,none}`
 (default `svg`); a `.dot` is *always* emitted regardless of format or whether
 `dot` is installed. `netlist_graph` needs a scope (`--module` or `--gate`,
 plus `--depth`) — a full netlist is rarely renderable, and `--max-gates`
-(default 400) refuses to try. `dataflow` and `clock_tree` run the
-`dataflow_analysis`/`clock_tree_extractor` plugins and reuse their own DOT
-exporters rather than re-deriving the graph.
+(default 400) refuses to try. `dag` scopes the same way but levels what it
+draws: the feedback is cut at every flip-flop and latch, Kahn's algorithm ranks
+what is left, and level 0 (primary inputs, constant tie-offs, register outputs)
+ends up on the far left with combinational depth increasing to the right; its
+`--html` writes one standalone page with the SVG inlined. `dataflow` and
+`clock_tree` run the `dataflow_analysis`/`clock_tree_extractor` plugins and
+reuse their own DOT exporters rather than re-deriving the graph.
+
+Both graph commands draw GND/VCC as a `0`/`1` stub per consuming edge rather
+than one shared node (`--const-hub` restores the old drawing), and every
+drawing carries a legend cluster whose node ids start with `legend`.
 
 To hand a *result* to a human rather than a picture, render the findings
 documents an analysis wrote (the `tools/hal_findings` schema) into one static
