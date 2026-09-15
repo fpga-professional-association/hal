@@ -88,6 +88,50 @@ def check_dag():
           "<code>{}</code> topological levels".format(DAG_LEVELS) in guide)
 
 
+def check_dag_interactive():
+    """The committed clock-step page is built from a trace that reproduces.
+
+    The page's whole claim is that its values are *this* run of the export, so
+    this re-runs the exporter with the options guide.html prints and requires
+    the same document back.  Pure Python: no HAL, no Graphviz, no browser, and
+    nothing is written into the tree.
+    """
+    import json
+
+    from hal_agilex import trace as agilex_trace
+
+    trace_path = HERE / "artifacts" / "dag_trace.json"
+    page_path = HERE / "images" / "dag_interactive.html"
+    check("artifacts/dag_trace.json exists", trace_path.is_file(), str(trace_path))
+    check("images/dag_interactive.html exists", page_path.is_file(), str(page_path))
+    if not (trace_path.is_file() and page_path.is_file()):
+        return
+
+    committed = json.loads(trace_path.read_text(encoding="utf-8"))
+    fresh = agilex_trace.run_trace(
+        vo_netlist.parse_file(str(HERE / "traffic_fsm.vo")),
+        agilex_trace.load_reference(str(HERE / "artifacts" / "reference_recovered.py")),
+        cycles=34,
+        holds={"hold": 0},
+    )
+    differences = agilex_trace.differences(committed, fresh)
+    check("the committed trace reproduces from the committed .vo",
+          not differences, ", ".join(differences))
+
+    page = page_path.read_text(encoding="utf-8")
+    check("the page embeds every recorded cycle",
+          page.count('"cycle":') == len(committed["frames"]),
+          "{} of {}".format(page.count('"cycle":'), len(committed["frames"])))
+    check("the page is self-contained: no external request",
+          "http://" not in page.replace("http://www.w3.org", "")
+          and "https://" not in page)
+    check("the page warns that the drawing is the anonymised netlist",
+          "Spoiler warning" in page)
+    guide = (HERE / "guide.html").read_text(encoding="utf-8")
+    check("guide.html links the interactive page",
+          "images/dag_interactive.html" in guide)
+
+
 # ---------------------------------------------------------------------------
 # 2. the anonymization is a pure relabelling
 # ---------------------------------------------------------------------------
@@ -439,6 +483,7 @@ def main() -> int:
     print("traffic_fsm walkthrough -- checking the claims in guide.html\n")
     check_inventory()
     check_dag()
+    check_dag_interactive()
     check_anonymization()
     check_structure()
     check_behaviour()

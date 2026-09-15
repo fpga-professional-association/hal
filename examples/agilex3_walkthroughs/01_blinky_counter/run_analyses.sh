@@ -33,6 +33,17 @@ echo "== 1b. the same graph, levelled: feedback cut at the flops =========="
 python3 tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" \
     -o "$EX/images/dag.svg" --html -q
 
+echo "== 1c. ... and the same graph with values, one clock at a time ======"
+# 32 cycles out of the asynchronous clear: the counter walks 0 -> 30 and the
+# carry ripples the full width of the chain at 15 -> 16.  Needs no HAL: the
+# trace is pure Python and clock_step only joins two committed files.
+python3 tools/hal_agilex trace "$EX/blinky_counter.vo" \
+    --reference "$EX/recovered_reference.py" --cycles 32 \
+    -o "$EX/artifacts/dag_trace.json"
+python3 tools/hal_viz clock_step "$EX/images/dag.svg" \
+    --trace "$EX/artifacts/dag_trace.json" \
+    -o "$EX/images/dag_interactive.html" -q
+
 echo "== 2. one bit slice, close up ======================================="
 python3 tools/hal_viz netlist_graph "$EX/netlist.hal.v" -g "$GL" \
     --gate 'count[7]' --depth 2 --show-boundary --pin-labels \

@@ -1,0 +1,690 @@
+{
+  "design": "shift_debouncer",
+  "frames": [
+    {
+      "cycle": 0,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 0
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x000000001110000000x1"
+    },
+    {
+      "cycle": 1,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x000000001110010000x1"
+    },
+    {
+      "cycle": 2,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x000000001110010010x1"
+    },
+    {
+      "cycle": 3,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x000010001110010011x1"
+    },
+    {
+      "cycle": 4,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x100001001110010011x1"
+    },
+    {
+      "cycle": 5,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x010011001110010011x1"
+    },
+    {
+      "cycle": 6,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x110000101110010011x1"
+    },
+    {
+      "cycle": 7,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x001010101110010011x1"
+    },
+    {
+      "cycle": 8,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x101001101110010011x1"
+    },
+    {
+      "cycle": 9,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x011011101110010011x1"
+    },
+    {
+      "cycle": 10,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x111000011110010011x1"
+    },
+    {
+      "cycle": 11,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x000110011110010011x1"
+    },
+    {
+      "cycle": 12,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x100101011110010011x1"
+    },
+    {
+      "cycle": 13,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x010111011110010011x1"
+    },
+    {
+      "cycle": 14,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x110100111110010011x1"
+    },
+    {
+      "cycle": 15,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x001110111110010011x1"
+    },
+    {
+      "cycle": 16,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x101101111110010011x1"
+    },
+    {
+      "cycle": 17,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x011111111110010011x1"
+    },
+    {
+      "cycle": 18,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 0
+      },
+      "values": "1000x111111111110110011x1"
+    },
+    {
+      "cycle": 19,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 1,
+        "btn_state": 1
+      },
+      "values": "1111x111111111110110111x1"
+    },
+    {
+      "cycle": 20,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 1
+      },
+      "values": "1001x111111111110111111x1"
+    },
+    {
+      "cycle": 21,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 1
+      },
+      "values": "1001x111111111110111111x1"
+    },
+    {
+      "cycle": 22,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 1
+      },
+      "values": "1001x111111111110111111x1"
+    },
+    {
+      "cycle": 23,
+      "inputs": {
+        "btn_raw": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "btn_rise": 0,
+        "btn_state": 1
+      },
+      "values": "1001x111111111110111111x1"
+    }
+  ],
+  "gates": {
+    "btn_rise~0": {
+      "drives_ports": [
+        "btn_rise"
+      ],
+      "inputs": {
+        "cin": 16,
+        "dataa": 20,
+        "datab": 19,
+        "datac": 16,
+        "datad": 16,
+        "datae": 16,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 2,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 2
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "cnt[0]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 9,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 5,
+      "output_pin": "q",
+      "outputs": {
+        "q": 5
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "cnt[0]~1": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 8,
+        "datab": 5,
+        "datac": 6,
+        "datad": 7,
+        "datae": 22,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 9,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 9
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "cnt[1]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 10,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 6,
+      "output_pin": "q",
+      "outputs": {
+        "q": 6
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "cnt[1]~2": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 8,
+        "datab": 5,
+        "datac": 6,
+        "datad": 7,
+        "datae": 22,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 10,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 10
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "cnt[2]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 11,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 7,
+      "output_pin": "q",
+      "outputs": {
+        "q": 7
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "cnt[2]~3": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 8,
+        "datab": 5,
+        "datac": 6,
+        "datad": 7,
+        "datae": 22,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 11,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 11
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "cnt[3]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 12,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 8,
+      "output_pin": "q",
+      "outputs": {
+        "q": 8
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "cnt[3]~0": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 8,
+        "datab": 5,
+        "datac": 6,
+        "datad": 7,
+        "datae": 22,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 12,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 12
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "i38~0": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 20,
+        "datab": 8,
+        "datac": 5,
+        "datad": 6,
+        "datae": 7,
+        "dataf": 16,
+        "datag": 16,
+        "datah": 16,
+        "sharein": 16
+      },
+      "output": 17,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 17
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state": {
+      "drives_ports": [
+        "btn_state"
+      ],
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 17,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 20,
+      "output_pin": "q",
+      "outputs": {
+        "q": 20
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state_d": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 20,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 19,
+      "output_pin": "q",
+      "outputs": {
+        "q": 19
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "sync[0]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 0,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 21,
+      "output_pin": "q",
+      "outputs": {
+        "q": 21
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "sync[1]": {
+      "inputs": {
+        "aload": 16,
+        "asdata": 24,
+        "clk": 4,
+        "clrn": 18,
+        "d": 21,
+        "devclrn": 13,
+        "devpor": 15,
+        "ena": 24,
+        "sclr": 16,
+        "sclr1": 16,
+        "sload": 16
+      },
+      "output": 22,
+      "output_pin": "q",
+      "outputs": {
+        "q": 22
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    }
+  },
+  "nets": [
+    "btn_raw",
+    "btn_rise",
+    "btn_rise~0_combout",
+    "btn_state",
+    "clk",
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[0]~1_combout",
+    "cnt[1]~2_combout",
+    "cnt[2]~3_combout",
+    "cnt[3]~0_combout",
+    "devclrn",
+    "devoe",
+    "devpor",
+    "gnd",
+    "i38~0_combout",
+    "rst_n",
+    "state_d~q",
+    "state~q",
+    "sync[0]",
+    "sync[1]",
+    "unknown",
+    "vcc"
+  ],
+  "ports": {
+    "inputs": {
+      "btn_raw": [
+        0
+      ],
+      "clk": [
+        4
+      ],
+      "rst_n": [
+        18
+      ]
+    },
+    "outputs": {
+      "btn_rise": [
+        1
+      ],
+      "btn_state": [
+        3
+      ]
+    }
+  },
+  "reference": {
+    "kind": "sequential",
+    "path": "examples/agilex3_walkthroughs/08_shift_debouncer/reference.py"
+  },
+  "schema": "hal_agilex/trace/1",
+  "source": {
+    "path": "examples/agilex3_walkthroughs/08_shift_debouncer/shift_debouncer.vo",
+    "sha256": "47a569c5accaec01ef36f31b013495ed5f86675bf42a4b8275aed3c159f8e99a"
+  },
+  "stimulus": {
+    "clear_cycles": [
+      0
+    ],
+    "clear_input": "rst_n",
+    "cleared_before_first_cycle": true,
+    "driveable_inputs": [
+      [
+        "rst_n",
+        1
+      ],
+      [
+        "btn_raw",
+        1
+      ]
+    ],
+    "generator": "random.Random(seed).randrange(1 << width), one draw per driveable input per cycle, in declaration order",
+    "held_inputs": {
+      "btn_raw": 1
+    },
+    "ignored_inputs": [
+      "clk"
+    ],
+    "seed": 20260908
+  },
+  "window": {
+    "cycles": 24,
+    "end": 23,
+    "start": 0
+  }
+}

@@ -35,6 +35,17 @@ echo "== 1b. the same graph levelled, feedback cut at the flops =========="
 python3 tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" \
     -o "$EX/images/dag.svg" --html -q
 
+echo "== 1c. ... and the same graph with values, one clock at a time ======"
+# btn_raw held high for 24 cycles: the clear, the counter climbing to its
+# clamp, and btn_state rising on cycle 19 with its one-cycle btn_rise pulse.
+# Needs no HAL: the trace is pure Python and clock_step joins two files.
+python3 tools/hal_agilex trace "$EX/shift_debouncer.vo" \
+    --reference "$EX/reference.py" --cycles 24 --hold btn_raw=1 \
+    -o "$EX/artifacts/dag_trace.json"
+python3 tools/hal_viz clock_step "$EX/images/dag.svg" \
+    --trace "$EX/artifacts/dag_trace.json" \
+    -o "$EX/images/dag_interactive.html" -q
+
 echo "== 2. two close-ups: one counter bit slice, and the hysteresis bit =="
 # NOTE: --depth 2 is useless on a design this small -- the depth-2
 # neighbourhood of any flop here is all 16 gates, i.e. the whole netlist.

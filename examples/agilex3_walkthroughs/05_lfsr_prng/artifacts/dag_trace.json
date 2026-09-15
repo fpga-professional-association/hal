@@ -1,0 +1,1285 @@
+{
+  "design": "lfsr_prng",
+  "frames": [
+    {
+      "cycle": 0,
+      "inputs": {
+        "en": 1,
+        "rst_n": 0
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 44257
+      },
+      "values": "1x1111001000011100110101000000000000000001111111111111111x1"
+    },
+    {
+      "cycle": 1,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 44257
+      },
+      "values": "1x1111001000011100110101100000000000000001111111111111111x1"
+    },
+    {
+      "cycle": 2,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 22979
+      },
+      "values": "0x1111101100001110011010101000100101011111101100000110111x1"
+    },
+    {
+      "cycle": 3,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 45958
+      },
+      "values": "1x1111100110000111001101111100110111110000000001111010011x1"
+    },
+    {
+      "cycle": 4,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 26380
+      },
+      "values": "0x1111100011000011100110110110111110100110010011100010000x1"
+    },
+    {
+      "cycle": 5,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 52760
+      },
+      "values": "1x1111000001100001110011110011111010001100011110001000000x1"
+    },
+    {
+      "cycle": 6,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 39985
+      },
+      "values": "1x1111101000110000111001100001011000011001111100011101000x1"
+    },
+    {
+      "cycle": 7,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 14434
+      },
+      "values": "0x1111000100011000011100111000001001010010101101110011100x1"
+    },
+    {
+      "cycle": 8,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 28869
+      },
+      "values": "0x1111101010001100001110100100100001110111100001100110111x1"
+    },
+    {
+      "cycle": 9,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 57738
+      },
+      "values": "1x1111000101000110000111111010110101100100100011101010011x1"
+    },
+    {
+      "cycle": 10,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 49941
+      },
+      "values": "1x1111101010100011000011100101111111101101000010001100000x1"
+    },
+    {
+      "cycle": 11,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 34346
+      },
+      "values": "1x1111100101010001100001111010011010101000010010011011000x1"
+    },
+    {
+      "cycle": 12,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 3156
+      },
+      "values": "0x1111100010101000110000110101101000001010111110010000100x1"
+    },
+    {
+      "cycle": 13,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 6312
+      },
+      "values": "0x1111100001010100011000110010010001011010101100010011011x1"
+    },
+    {
+      "cycle": 14,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 12624
+      },
+      "values": "0x1111000000101010001100110001101101110010100001110000100x1"
+    },
+    {
+      "cycle": 15,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 25249
+      },
+      "values": "0x1111001000010101000110100000010011100111000011100111011x1"
+    },
+    {
+      "cycle": 16,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 50499
+      },
+      "values": "1x1111101100001010100011101000101100101101110010001110100x1"
+    },
+    {
+      "cycle": 17,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 35462
+      },
+      "values": "1x1111000110000101010001111100110011001000001110011010011x1"
+    },
+    {
+      "cycle": 18,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 5389
+      },
+      "values": "0x1111101011000010101000100110111100111011110000010110000x1"
+    },
+    {
+      "cycle": 19,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 10778
+      },
+      "values": "0x1111000101100001010100111011111011000010001111110000000x1"
+    },
+    {
+      "cycle": 20,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 21557
+      },
+      "values": "0x1111101010110000101010100101011000111111110000000101000x1"
+    },
+    {
+      "cycle": 21,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 43114
+      },
+      "values": "1x1111100101011000010101111010001001000000101111111011100x1"
+    },
+    {
+      "cycle": 22,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 20692
+      },
+      "values": "0x1111100010101100001010110101100001111110100000000000111x1"
+    },
+    {
+      "cycle": 23,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 41384
+      },
+      "values": "1x1111100001010110000101110010010101100000100011111011011x1"
+    },
+    {
+      "cycle": 24,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 17232
+      },
+      "values": "0x1111000000101011000010110001101111101110000010000000100x1"
+    },
+    {
+      "cycle": 25,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 34465
+      },
+      "values": "1x1111001000010101100001100000010010101001010010011111011x1"
+    },
+    {
+      "cycle": 26,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 3395
+      },
+      "values": "0x1111101100001010110000101000101100001011111110010110100x1"
+    },
+    {
+      "cycle": 27,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 6790
+      },
+      "values": "0x1111000110000101011000111100110011011010001100010010011x1"
+    },
+    {
+      "cycle": 28,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 13581
+      },
+      "values": "0x1111101011000010101100100110111100110011110001110110000x1"
+    },
+    {
+      "cycle": 29,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 0,
+        "rand_out": 27162
+      },
+      "values": "0x1111100101100001010110111011111011000110001111100000000x1"
+    },
+    {
+      "cycle": 30,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 54324
+      },
+      "values": "1x1111000010110000101011110101011000111100110000001001000x1"
+    },
+    {
+      "cycle": 31,
+      "inputs": {
+        "en": 1,
+        "rst_n": 1
+      },
+      "outputs": {
+        "bit_out": 1,
+        "rand_out": 43113
+      },
+      "values": "1x1111101001011000010101100010001001000001101111111111100x1"
+    }
+  ],
+  "gates": {
+    "feedback": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 28,
+        "datab": 37,
+        "datac": 39,
+        "datad": 40,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 6,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 6
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[0]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 6,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 25,
+      "output_pin": "q",
+      "outputs": {
+        "q": 25
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[0]~_wirecell": {
+      "drives_ports": [
+        "rand_out[0]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 25,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 41,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 41
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[10]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 42,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 35,
+      "output_pin": "q",
+      "outputs": {
+        "q": 35
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[10]~3": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 34,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 42,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 42
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[10]~_wirecell": {
+      "drives_ports": [
+        "rand_out[10]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 35,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 43,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 43
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[11]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 35,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 36,
+      "output_pin": "q",
+      "outputs": {
+        "q": 36
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[11]~_wirecell": {
+      "drives_ports": [
+        "rand_out[11]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 36,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 44,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 44
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[12]": {
+      "drives_ports": [
+        "rand_out[12]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 45,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 37,
+      "output_pin": "q",
+      "outputs": {
+        "q": 37
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[12]~4": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 36,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 45,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 45
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[13]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 46,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 38,
+      "output_pin": "q",
+      "outputs": {
+        "q": 38
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[13]~5": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 37,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 46,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 46
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[13]~_wirecell": {
+      "drives_ports": [
+        "rand_out[13]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 38,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 47,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 47
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[14]": {
+      "drives_ports": [
+        "rand_out[14]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 48,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 39,
+      "output_pin": "q",
+      "outputs": {
+        "q": 39
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[14]~6": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 38,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 48,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 48
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[15]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 49,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 40,
+      "output_pin": "q",
+      "outputs": {
+        "q": 40
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[15]~7": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 39,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 49,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 49
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[15]~_wirecell": {
+      "drives_ports": [
+        "rand_out[15]",
+        "bit_out"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 40,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 50,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 50
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[1]": {
+      "drives_ports": [
+        "rand_out[1]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 51,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 26,
+      "output_pin": "q",
+      "outputs": {
+        "q": 26
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[1]~0": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 25,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 51,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 51
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[2]": {
+      "drives_ports": [
+        "rand_out[2]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 26,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 27,
+      "output_pin": "q",
+      "outputs": {
+        "q": 27
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[3]": {
+      "drives_ports": [
+        "rand_out[3]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 27,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 28,
+      "output_pin": "q",
+      "outputs": {
+        "q": 28
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[4]": {
+      "drives_ports": [
+        "rand_out[4]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 28,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 29,
+      "output_pin": "q",
+      "outputs": {
+        "q": 29
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[5]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 52,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 30,
+      "output_pin": "q",
+      "outputs": {
+        "q": 30
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[5]~1": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 29,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 52,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 52
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[5]~_wirecell": {
+      "drives_ports": [
+        "rand_out[5]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 30,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 53,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 53
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[6]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 30,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 31,
+      "output_pin": "q",
+      "outputs": {
+        "q": 31
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[6]~_wirecell": {
+      "drives_ports": [
+        "rand_out[6]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 31,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 54,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 54
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[7]": {
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 31,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 32,
+      "output_pin": "q",
+      "outputs": {
+        "q": 32
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[7]~_wirecell": {
+      "drives_ports": [
+        "rand_out[7]"
+      ],
+      "inputs": {
+        "cin": 7,
+        "dataa": 32,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 55,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 55
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[8]": {
+      "drives_ports": [
+        "rand_out[8]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 56,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 33,
+      "output_pin": "q",
+      "outputs": {
+        "q": 33
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "state[8]~2": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 32,
+        "datab": 7,
+        "datac": 7,
+        "datad": 7,
+        "datae": 7,
+        "dataf": 7,
+        "datag": 7,
+        "datah": 7,
+        "sharein": 7
+      },
+      "output": 56,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 56
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "state[9]": {
+      "drives_ports": [
+        "rand_out[9]"
+      ],
+      "inputs": {
+        "aload": 7,
+        "asdata": 58,
+        "clk": 1,
+        "clrn": 24,
+        "d": 33,
+        "devclrn": 2,
+        "devpor": 4,
+        "ena": 5,
+        "sclr": 7,
+        "sclr1": 7,
+        "sload": 7
+      },
+      "output": 34,
+      "output_pin": "q",
+      "outputs": {
+        "q": 34
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    }
+  },
+  "nets": [
+    "bit_out",
+    "clk",
+    "devclrn",
+    "devoe",
+    "devpor",
+    "en",
+    "feedback~combout",
+    "gnd",
+    "rand_out[0]",
+    "rand_out[1]",
+    "rand_out[2]",
+    "rand_out[3]",
+    "rand_out[4]",
+    "rand_out[5]",
+    "rand_out[6]",
+    "rand_out[7]",
+    "rand_out[8]",
+    "rand_out[9]",
+    "rand_out[10]",
+    "rand_out[11]",
+    "rand_out[12]",
+    "rand_out[13]",
+    "rand_out[14]",
+    "rand_out[15]",
+    "rst_n",
+    "state[0]",
+    "state[1]",
+    "state[2]",
+    "state[3]",
+    "state[4]",
+    "state[5]",
+    "state[6]",
+    "state[7]",
+    "state[8]",
+    "state[9]",
+    "state[10]",
+    "state[11]",
+    "state[12]",
+    "state[13]",
+    "state[14]",
+    "state[15]",
+    "state[0]~_wirecell_combout",
+    "state[10]~3_combout",
+    "state[10]~_wirecell_combout",
+    "state[11]~_wirecell_combout",
+    "state[12]~4_combout",
+    "state[13]~5_combout",
+    "state[13]~_wirecell_combout",
+    "state[14]~6_combout",
+    "state[15]~7_combout",
+    "state[15]~_wirecell_combout",
+    "state[1]~0_combout",
+    "state[5]~1_combout",
+    "state[5]~_wirecell_combout",
+    "state[6]~_wirecell_combout",
+    "state[7]~_wirecell_combout",
+    "state[8]~2_combout",
+    "unknown",
+    "vcc"
+  ],
+  "ports": {
+    "inputs": {
+      "clk": [
+        1
+      ],
+      "en": [
+        5
+      ],
+      "rst_n": [
+        24
+      ]
+    },
+    "outputs": {
+      "bit_out": [
+        0
+      ],
+      "rand_out": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    }
+  },
+  "reference": {
+    "kind": "sequential",
+    "path": "examples/agilex3_walkthroughs/05_lfsr_prng/recovered_model.py"
+  },
+  "schema": "hal_agilex/trace/1",
+  "source": {
+    "path": "examples/agilex3_walkthroughs/05_lfsr_prng/lfsr_prng.vo",
+    "sha256": "92b8753def7b474367e7ea95c8229d39975e19894aaa63312d23c02ccde91de6"
+  },
+  "stimulus": {
+    "clear_cycles": [
+      0
+    ],
+    "clear_input": "rst_n",
+    "cleared_before_first_cycle": true,
+    "driveable_inputs": [
+      [
+        "rst_n",
+        1
+      ],
+      [
+        "en",
+        1
+      ]
+    ],
+    "generator": "random.Random(seed).randrange(1 << width), one draw per driveable input per cycle, in declaration order",
+    "held_inputs": {
+      "en": 1
+    },
+    "ignored_inputs": [
+      "clk"
+    ],
+    "seed": 20260908
+  },
+  "window": {
+    "cycles": 32,
+    "end": 31,
+    "start": 0
+  }
+}

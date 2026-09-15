@@ -7,6 +7,15 @@ checkable rather than asserted.
 
 Naming and semantics follow `design.v` exactly, including the constant top bit
 of the shift register (`shreg[9]`), which the model keeps and synthesis deletes.
+
+Two interfaces onto the same model, so there is only ever one model:
+
+*   `UartTx`, a mutable object, which is what `check.py` and `probe.py` drive;
+*   the `KIND` / `INPUTS` / `initial_state` / `outputs` / `next_state` surface
+    at the bottom of this file, which is the contract `tools/hal_agilex`
+    consumes -- it makes `hal_agilex behavior` and `hal_agilex trace` usable on
+    this walkthrough without a second, separately maintained restatement of
+    the RTL that could quietly drift from the first.
 """
 
 DIV_W = 4
@@ -96,3 +105,57 @@ def sample_frame(byte):
     """Sample the middle of every slot of one frame -- what a receiver sees."""
     trace = transmit(byte)
     return [trace[slot * CLK_DIV + CLK_DIV // 2][0] for slot in range(N_SLOTS)]
+
+
+# ---------------------------------------------------------------------------
+# the tools/hal_agilex reference contract
+#
+# `UartTx` above is the model; everything below is the plain-data view of it
+# that `hal_agilex behavior` and `hal_agilex trace` expect.  State is a dict
+# because those drivers treat it as an opaque immutable value they may hold on
+# to, which a mutable object would not survive.
+# ---------------------------------------------------------------------------
+
+KIND = "sequential"
+
+#: Exactly the ports `uart_tx.vo` declares.
+INPUTS = [("clk", 1), ("rst_n", 1), ("tx_start", 1), ("tx_data", 8)]
+OUTPUTS = [("tx", 1), ("tx_busy", 1)]
+
+#: The export has no clock net to drive; the simulator steps the registers.
+IGNORED_INPUTS = ["clk"]
+#: Active-low asynchronous clear, on every flip-flop's `clrn`.
+ASYNC_CLEAR_INPUT = "rst_n"
+
+_STATE_FIELDS = ("baud_cnt", "bit_cnt", "shreg", "busy")
+
+
+def _snapshot(dut):
+    return {field: getattr(dut, field) for field in _STATE_FIELDS}
+
+
+def _restore(state):
+    dut = UartTx()
+    for field in _STATE_FIELDS:
+        setattr(dut, field, state[field])
+    return dut
+
+
+def initial_state():
+    """What `rst_n = 0` leaves behind: idle line high, nothing in flight."""
+    return _snapshot(UartTx())
+
+
+def outputs(state, values):
+    dut = _restore(state)
+    return {"tx": dut.tx, "tx_busy": dut.tx_busy}
+
+
+def next_state(state, values):
+    dut = _restore(state)
+    dut.clock(
+        tx_start=values["tx_start"],
+        tx_data=values["tx_data"],
+        rst_n=values["rst_n"],
+    )
+    return _snapshot(dut)

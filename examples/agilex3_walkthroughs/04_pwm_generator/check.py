@@ -68,6 +68,52 @@ def check_dag():
           "<code>%d</code> topological levels" % DAG_LEVELS in guide)
 
 
+def check_dag_interactive():
+    """The committed clock-step page is built from a trace that reproduces.
+
+    The page's whole claim is that its values are *this* run of the export, so
+    this re-runs the exporter with the options guide.html prints and requires
+    the same document back.  Pure Python: no HAL, no Graphviz, no browser, and
+    nothing is written into the tree.
+    """
+    import json
+
+    from hal_agilex import trace as agilex_trace
+
+    trace_path = os.path.join(HERE, "artifacts", "dag_trace.json")
+    page_path = os.path.join(HERE, "images", "dag_interactive.html")
+    check("artifacts/dag_trace.json exists", os.path.isfile(trace_path), trace_path)
+    check("images/dag_interactive.html exists", os.path.isfile(page_path), page_path)
+    if not (os.path.isfile(trace_path) and os.path.isfile(page_path)):
+        return
+
+    with open(trace_path, encoding="utf-8") as handle:
+        committed = json.load(handle)
+    fresh = agilex_trace.run_trace(
+        vo_netlist.parse_file(VO),
+        agilex_trace.load_reference(
+            os.path.join(HERE, "artifacts", "recovered_reference.py")
+        ),
+        cycles=32,
+        holds={"run": 1},
+    )
+    differences = agilex_trace.differences(committed, fresh)
+    check("the committed trace reproduces from the committed .vo",
+          not differences, ", ".join(differences))
+
+    with open(page_path, encoding="utf-8") as handle:
+        page = handle.read()
+    check("the page embeds every recorded cycle",
+          page.count('"cycle":') == len(committed["frames"]),
+          "%d of %d" % (page.count('"cycle":'), len(committed["frames"])))
+    check("the page is self-contained: no external request",
+          "http://" not in page.replace("http://www.w3.org", "")
+          and "https://" not in page)
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        check("guide.html links the interactive page",
+              "images/dag_interactive.html" in handle.read())
+
+
 def carry_chains(netlist):
     """Follow cout -> cin over the ALM instances; returns a list of chains."""
     cells = netlist.instances_of_type(primitives.LCELL)
@@ -124,6 +170,7 @@ def main():
     # ---- 3. the structure the guide walks -----------------------------------
     print("\n[3] structure")
     check_dag()
+    check_dag_interactive()
     chains = carry_chains(netlist)
     check("exactly two carry chains", len(chains) == 2, [len(c) for c in chains])
     lengths = sorted(len(c) for c in chains)

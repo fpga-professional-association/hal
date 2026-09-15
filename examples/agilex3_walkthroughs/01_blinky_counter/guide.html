@@ -343,6 +343,32 @@ The same picture with a legend and these counts is
 <a href="images/dag.dot">images/dag.dot</a>. 48, not 50: <code>HAL_GND</code> and
 <code>HAL_VCC</code> are never drawn as gates (see the constants paragraph below).</figcaption>
 </figure>
+<p><strong>The same graph, one clock at a time.</strong> The picture above is structure;
+<code>hal_viz clock_step</code> puts <em>values</em> on it. <code>hal_agilex trace</code>
+records a bounded, seeded run of the export &mdash; every net, every cycle, from the same
+simulator and the same stimulus conventions the <code>behavior</code> check uses &mdash; and
+<code>clock_step</code> joins that trace to this drawing and to nothing else, producing one
+self-contained page: prev/next, a scrubber, play/pause, &larr;/&rarr; keys, nets coloured by
+the value they carry and a <code>0</code>/<code>1</code> beside every flip-flop and primary
+output.</p>
+
+<pre class="cmd"><code>python3 tools/hal_agilex trace \
+    examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo \
+    --reference examples/agilex3_walkthroughs/01_blinky_counter/recovered_reference.py \
+    --cycles 32 \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/artifacts/dag_trace.json
+python3 tools/hal_viz clock_step examples/agilex3_walkthroughs/01_blinky_counter/images/dag.svg \
+    --trace examples/agilex3_walkthroughs/01_blinky_counter/artifacts/dag_trace.json \
+    -o examples/agilex3_walkthroughs/01_blinky_counter/images/dag_interactive.html</code></pre>
+
+<p><a href="images/dag_interactive.html"><strong>images/dag_interactive.html</strong></a>
+&mdash; cycles 0&ndash;31, starting from the asynchronous clear, so the counter walks
+0&nbsp;&rarr;&nbsp;30 and the carry ripples the full width of the chain at
+15&nbsp;&rarr;&nbsp;16. The window is a bound, not a claim: nothing outside it is drawn and
+nothing
+about it is asserted. A net the simulator cannot resolve &mdash; <code>clk</code> has no driver
+in the export, because the simulator steps the registers itself &mdash; is drawn amber and
+marked unknown, never guessed as&nbsp;0.</p>
 
 <p>Read the columns:</p>
 <ul class="tight">

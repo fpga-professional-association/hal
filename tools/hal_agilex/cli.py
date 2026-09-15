@@ -5,6 +5,7 @@
     python tools/hal_agilex inventory  export.vo [-o findings.json]
     python tools/hal_agilex import     export.vo -o export.hal.v
     python tools/hal_agilex behavior   export.vo --reference reference.py
+    python tools/hal_agilex trace      export.vo --reference reference.py -o trace.json
     python tools/hal_agilex recognize  export.vo [-o findings.json]
     python tools/hal_agilex fixture    tools/hal_agilex/fixtures/agilex3_counter_adder
     python tools/hal_agilex library    [-o plugins/gate_libraries/definitions/AGILEX_TENNM.hgl]
@@ -19,7 +20,7 @@ import argparse
 import os
 import sys
 
-from . import behavior, inventory, library, recognize, vo_import, vo_netlist
+from . import behavior, inventory, library, recognize, trace, vo_import, vo_netlist
 from .primitives import UnsupportedConfiguration
 from .simulate import SimulationError
 
@@ -91,6 +92,50 @@ def command_behavior(args):
     artifact = inventory._artifact(netlist, args.export, args.artifact_id or netlist.name)
     document = behavior.build_document(netlist, artifact, result)
     return _emit(document, args.output, args.strict)
+
+
+def _parse_hold(text):
+    name, separator, value = str(text).partition("=")
+    if not separator or not name:
+        raise SystemExit("--hold expects NAME=VALUE, not {!r}".format(text))
+    try:
+        return name, int(value, 0)
+    except ValueError:
+        raise SystemExit("--hold value {!r} is not an integer".format(value))
+
+
+def command_trace(args):
+    """Record a bounded, seeded per-cycle value trace as plain JSON.
+
+    Not a findings document: a trace is raw evidence for a picture, it makes no
+    claim, and it deliberately does not go through the findings schema.
+    """
+    netlist = vo_netlist.parse_file(args.export)
+    reference = trace.load_reference(args.reference)
+    holds = dict(_parse_hold(item) for item in args.hold)
+    try:
+        document = trace.run_trace(
+            netlist,
+            reference,
+            cycles=args.cycles,
+            seed=args.seed,
+            skip=args.skip,
+            holds=holds,
+            clear_cycles=args.clear_cycle or None,
+            source_path=args.export,
+            reference_path=args.reference,
+        )
+    except (trace.TraceError, SimulationError) as exc:
+        print("cannot trace: {}".format(exc), file=sys.stderr)
+        return 1
+    text = trace.dumps(document)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
+        print(args.output)
+    else:
+        sys.stdout.write(text)
+    return 0
 
 
 def command_recognize(args):
@@ -204,6 +249,39 @@ def build_parser():
     behavior_parser.add_argument("--cycles", type=int, default=behavior.DEFAULT_CYCLES)
     add_common(behavior_parser)
     behavior_parser.set_defaults(func=command_behavior)
+
+    trace_parser = subparsers.add_parser(
+        "trace",
+        help="record a bounded, seeded per-cycle value trace of an export",
+        description="Simulate the export with the same stimulus conventions "
+        "'behavior' uses (the reference model's INPUTS minus IGNORED_INPUTS, "
+        "driven from a seeded PRNG, with ASYNC_CLEAR_INPUT on a declared "
+        "schedule) and write every net's value for every cycle of a bounded "
+        "window as JSON. Feed it to 'hal_viz clock_step' to get an interactive "
+        "page. Plain JSON, not a findings document: a trace makes no claim.",
+    )
+    trace_parser.add_argument("export")
+    trace_parser.add_argument("--reference", required=True)
+    trace_parser.add_argument(
+        "--cycles", type=int, default=trace.DEFAULT_CYCLES,
+        help="cycles to record (default: %(default)s)")
+    trace_parser.add_argument(
+        "--skip", type=int, default=0, metavar="N",
+        help="advance the same seeded run N cycles before recording, so the "
+        "trace is a window of one long run (default: %(default)s)")
+    trace_parser.add_argument(
+        "--seed", type=int, default=trace.DEFAULT_SEED,
+        help="PRNG seed for the stimulus (default: %(default)s)")
+    trace_parser.add_argument(
+        "--hold", action="append", default=[], metavar="NAME=VALUE",
+        help="pin a driveable input to a constant for the whole run "
+        "(repeatable); may not name the asynchronous clear")
+    trace_parser.add_argument(
+        "--clear-cycle", action="append", default=[], type=int, metavar="N",
+        help="assert the asynchronous clear on cycle N (repeatable; default: "
+        "cycle 0 only, in addition to the clear before the first cycle)")
+    trace_parser.add_argument("-o", "--output", help="write the trace JSON here")
+    trace_parser.set_defaults(func=command_trace)
 
     recognize_parser = subparsers.add_parser(
         "recognize", help="recognize carry-chain adders and accumulators"

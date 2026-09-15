@@ -1,0 +1,1545 @@
+{
+  "design": "blinky_counter",
+  "frames": [
+    {
+      "cycle": 0,
+      "inputs": {
+        "rst_n": 0
+      },
+      "outputs": {
+        "count": 0,
+        "led": 0
+      },
+      "values": "000000000000000000000000000000000000000000000x0000000000000000000000001111000x1"
+    },
+    {
+      "cycle": 1,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 0,
+        "led": 0
+      },
+      "values": "000000000000000000000000000000000000000000000x0000000000000000000000001111001x1"
+    },
+    {
+      "cycle": 2,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 1,
+        "led": 0
+      },
+      "values": "000010000000000000000000000000000000000000000x1000000000000000000000000111001x1"
+    },
+    {
+      "cycle": 3,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 2,
+        "led": 0
+      },
+      "values": "000010000000000000000000000000000000000000000x0100000000000000000000001111001x1"
+    },
+    {
+      "cycle": 4,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 3,
+        "led": 0
+      },
+      "values": "001001000000000000000000000000000000000000000x1100000000000000000000000111001x1"
+    },
+    {
+      "cycle": 5,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 4,
+        "led": 0
+      },
+      "values": "001000000000000000000000000000000000000000000x0010000000000000000000001111001x1"
+    },
+    {
+      "cycle": 6,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 5,
+        "led": 0
+      },
+      "values": "001010000000000000000000000000000000000000000x1010000000000000000000000111001x1"
+    },
+    {
+      "cycle": 7,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 6,
+        "led": 0
+      },
+      "values": "001010000000000000000000000000000000000000000x0110000000000000000000001111001x1"
+    },
+    {
+      "cycle": 8,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 7,
+        "led": 0
+      },
+      "values": "100101000000000000000000000000000000000000000x1110000000000000000000000111001x1"
+    },
+    {
+      "cycle": 9,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 8,
+        "led": 0
+      },
+      "values": "100000000000000000000000000000000000000000000x0001000000000000000000001111001x1"
+    },
+    {
+      "cycle": 10,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 9,
+        "led": 0
+      },
+      "values": "100010000000000000000000000000000000000000000x1001000000000000000000000111001x1"
+    },
+    {
+      "cycle": 11,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 10,
+        "led": 0
+      },
+      "values": "100010000000000000000000000000000000000000000x0101000000000000000000001111001x1"
+    },
+    {
+      "cycle": 12,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 11,
+        "led": 0
+      },
+      "values": "101001000000000000000000000000000000000000000x1101000000000000000000000111001x1"
+    },
+    {
+      "cycle": 13,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 12,
+        "led": 0
+      },
+      "values": "101000000000000000000000000000000000000000000x0011000000000000000000001111001x1"
+    },
+    {
+      "cycle": 14,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 13,
+        "led": 0
+      },
+      "values": "101010000000000000000000000000000000000000000x1011000000000000000000000111001x1"
+    },
+    {
+      "cycle": 15,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 14,
+        "led": 0
+      },
+      "values": "101010000000000000000000000000000000000000000x0111000000000000000000001111001x1"
+    },
+    {
+      "cycle": 16,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 15,
+        "led": 0
+      },
+      "values": "010101000000000000000000000000000000000000010x1111000000000000000000000111001x1"
+    },
+    {
+      "cycle": 17,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 16,
+        "led": 0
+      },
+      "values": "000000000000000000000000000000000000000000010x0000100000000000000000001111001x1"
+    },
+    {
+      "cycle": 18,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 17,
+        "led": 0
+      },
+      "values": "000010000000000000000000000000000000000000010x1000100000000000000000000111001x1"
+    },
+    {
+      "cycle": 19,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 18,
+        "led": 0
+      },
+      "values": "000010000000000000000000000000000000000000010x0100100000000000000000001111001x1"
+    },
+    {
+      "cycle": 20,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 19,
+        "led": 0
+      },
+      "values": "001001000000000000000000000000000000000000010x1100100000000000000000000111001x1"
+    },
+    {
+      "cycle": 21,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 20,
+        "led": 0
+      },
+      "values": "001000000000000000000000000000000000000000010x0010100000000000000000001111001x1"
+    },
+    {
+      "cycle": 22,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 21,
+        "led": 0
+      },
+      "values": "001010000000000000000000000000000000000000010x1010100000000000000000000111001x1"
+    },
+    {
+      "cycle": 23,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 22,
+        "led": 0
+      },
+      "values": "001010000000000000000000000000000000000000010x0110100000000000000000001111001x1"
+    },
+    {
+      "cycle": 24,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 23,
+        "led": 0
+      },
+      "values": "100101000000000000000000000000000000000000010x1110100000000000000000000111001x1"
+    },
+    {
+      "cycle": 25,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 24,
+        "led": 0
+      },
+      "values": "100000000000000000000000000000000000000000010x0001100000000000000000001111001x1"
+    },
+    {
+      "cycle": 26,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 25,
+        "led": 0
+      },
+      "values": "100010000000000000000000000000000000000000010x1001100000000000000000000111001x1"
+    },
+    {
+      "cycle": 27,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 26,
+        "led": 0
+      },
+      "values": "100010000000000000000000000000000000000000010x0101100000000000000000001111001x1"
+    },
+    {
+      "cycle": 28,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 27,
+        "led": 0
+      },
+      "values": "101001000000000000000000000000000000000000010x1101100000000000000000000111001x1"
+    },
+    {
+      "cycle": 29,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 28,
+        "led": 0
+      },
+      "values": "101000000000000000000000000000000000000000010x0011100000000000000000001111001x1"
+    },
+    {
+      "cycle": 30,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 29,
+        "led": 0
+      },
+      "values": "101010000000000000000000000000000000000000010x1011100000000000000000000111001x1"
+    },
+    {
+      "cycle": 31,
+      "inputs": {
+        "rst_n": 1
+      },
+      "outputs": {
+        "count": 30,
+        "led": 0
+      },
+      "values": "101010000000000000000000000000000000000000010x0111100000000000000000001111001x1"
+    }
+  ],
+  "gates": {
+    "add_0~1": {
+      "inputs": {
+        "cin": 32,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 69,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 10,
+      "output_pin": "sumout",
+      "outputs": {
+        "sumout": 10
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~101": {
+      "inputs": {
+        "cin": 3,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 49,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 0,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 1,
+        "sumout": 0
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~106": {
+      "inputs": {
+        "cin": 5,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 48,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 2,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 3,
+        "sumout": 2
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~11": {
+      "inputs": {
+        "cin": 9,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 67,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 6,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 7,
+        "sumout": 6
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~111": {
+      "inputs": {
+        "cin": 74,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 47,
+        "datad": 46,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 4,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 5,
+        "sumout": 4
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~16": {
+      "inputs": {
+        "cin": 12,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 66,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 8,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 9,
+        "sumout": 8
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~21": {
+      "inputs": {
+        "cin": 14,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 65,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 11,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 12,
+        "sumout": 11
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~26": {
+      "inputs": {
+        "cin": 16,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 64,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 13,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 14,
+        "sumout": 13
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~31": {
+      "inputs": {
+        "cin": 18,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 63,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 15,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 16,
+        "sumout": 15
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~36": {
+      "inputs": {
+        "cin": 20,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 62,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 17,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 18,
+        "sumout": 17
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~41": {
+      "inputs": {
+        "cin": 22,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 61,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 19,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 20,
+        "sumout": 19
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~46": {
+      "inputs": {
+        "cin": 24,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 60,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 21,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 22,
+        "sumout": 21
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~51": {
+      "inputs": {
+        "cin": 26,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 59,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 23,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 24,
+        "sumout": 23
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~56": {
+      "inputs": {
+        "cin": 28,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 58,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 25,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 26,
+        "sumout": 25
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~6": {
+      "inputs": {
+        "cin": 7,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 68,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 31,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 32,
+        "sumout": 31
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~61": {
+      "inputs": {
+        "cin": 30,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 57,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 27,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 28,
+        "sumout": 27
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~66": {
+      "inputs": {
+        "cin": 34,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 56,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 29,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 30,
+        "sumout": 29
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~71": {
+      "inputs": {
+        "cin": 36,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 55,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 33,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 34,
+        "sumout": 33
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~76": {
+      "inputs": {
+        "cin": 38,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 54,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 35,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 36,
+        "sumout": 35
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~81": {
+      "inputs": {
+        "cin": 40,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 53,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 37,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 38,
+        "sumout": 37
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~86": {
+      "inputs": {
+        "cin": 42,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 52,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 39,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 40,
+        "sumout": 39
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~91": {
+      "inputs": {
+        "cin": 44,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 51,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 41,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 42,
+        "sumout": 41
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "add_0~96": {
+      "inputs": {
+        "cin": 1,
+        "dataa": 74,
+        "datab": 74,
+        "datac": 50,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 43,
+      "output_pin": "sumout",
+      "outputs": {
+        "cout": 44,
+        "sumout": 43
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "count[0]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 70,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 46,
+      "output_pin": "q",
+      "outputs": {
+        "q": 46
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[0]~0": {
+      "inputs": {
+        "cin": 74,
+        "dataa": 46,
+        "datab": 74,
+        "datac": 74,
+        "datad": 74,
+        "datae": 74,
+        "dataf": 74,
+        "datag": 74,
+        "datah": 74,
+        "sharein": 74
+      },
+      "output": 70,
+      "output_pin": "combout",
+      "outputs": {
+        "combout": 70
+      },
+      "sequential": false,
+      "type": "tennm_lcell_comb"
+    },
+    "count[10]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 29,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 56,
+      "output_pin": "q",
+      "outputs": {
+        "q": 56
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[11]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 27,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 57,
+      "output_pin": "q",
+      "outputs": {
+        "q": 57
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[12]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 25,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 58,
+      "output_pin": "q",
+      "outputs": {
+        "q": 58
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[13]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 23,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 59,
+      "output_pin": "q",
+      "outputs": {
+        "q": 59
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[14]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 21,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 60,
+      "output_pin": "q",
+      "outputs": {
+        "q": 60
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[15]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 19,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 61,
+      "output_pin": "q",
+      "outputs": {
+        "q": 61
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[16]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 17,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 62,
+      "output_pin": "q",
+      "outputs": {
+        "q": 62
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[17]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 15,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 63,
+      "output_pin": "q",
+      "outputs": {
+        "q": 63
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[18]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 13,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 64,
+      "output_pin": "q",
+      "outputs": {
+        "q": 64
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[19]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 11,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 65,
+      "output_pin": "q",
+      "outputs": {
+        "q": 65
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[1]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 4,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 47,
+      "output_pin": "q",
+      "outputs": {
+        "q": 47
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[20]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 8,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 66,
+      "output_pin": "q",
+      "outputs": {
+        "q": 66
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[21]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 6,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 67,
+      "output_pin": "q",
+      "outputs": {
+        "q": 67
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[22]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 31,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 68,
+      "output_pin": "q",
+      "outputs": {
+        "q": 68
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[23]": {
+      "drives_ports": [
+        "led"
+      ],
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 10,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 69,
+      "output_pin": "q",
+      "outputs": {
+        "q": 69
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[2]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 2,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 48,
+      "output_pin": "q",
+      "outputs": {
+        "q": 48
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[3]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 0,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 49,
+      "output_pin": "q",
+      "outputs": {
+        "q": 49
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[4]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 43,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 50,
+      "output_pin": "q",
+      "outputs": {
+        "q": 50
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[5]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 41,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 51,
+      "output_pin": "q",
+      "outputs": {
+        "q": 51
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[6]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 39,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 52,
+      "output_pin": "q",
+      "outputs": {
+        "q": 52
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[7]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 37,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 53,
+      "output_pin": "q",
+      "outputs": {
+        "q": 53
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[8]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 35,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 54,
+      "output_pin": "q",
+      "outputs": {
+        "q": 54
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    },
+    "count[9]": {
+      "inputs": {
+        "aload": 74,
+        "asdata": 78,
+        "clk": 45,
+        "clrn": 76,
+        "d": 33,
+        "devclrn": 71,
+        "devpor": 73,
+        "ena": 78,
+        "sclr": 74,
+        "sclr1": 74,
+        "sload": 74
+      },
+      "output": 55,
+      "output_pin": "q",
+      "outputs": {
+        "q": 55
+      },
+      "sequential": true,
+      "type": "tennm_ff"
+    }
+  },
+  "nets": [
+    "add_0~101_sumout",
+    "add_0~102",
+    "add_0~106_sumout",
+    "add_0~107",
+    "add_0~111_sumout",
+    "add_0~112",
+    "add_0~11_sumout",
+    "add_0~12",
+    "add_0~16_sumout",
+    "add_0~17",
+    "add_0~1_sumout",
+    "add_0~21_sumout",
+    "add_0~22",
+    "add_0~26_sumout",
+    "add_0~27",
+    "add_0~31_sumout",
+    "add_0~32",
+    "add_0~36_sumout",
+    "add_0~37",
+    "add_0~41_sumout",
+    "add_0~42",
+    "add_0~46_sumout",
+    "add_0~47",
+    "add_0~51_sumout",
+    "add_0~52",
+    "add_0~56_sumout",
+    "add_0~57",
+    "add_0~61_sumout",
+    "add_0~62",
+    "add_0~66_sumout",
+    "add_0~67",
+    "add_0~6_sumout",
+    "add_0~7",
+    "add_0~71_sumout",
+    "add_0~72",
+    "add_0~76_sumout",
+    "add_0~77",
+    "add_0~81_sumout",
+    "add_0~82",
+    "add_0~86_sumout",
+    "add_0~87",
+    "add_0~91_sumout",
+    "add_0~92",
+    "add_0~96_sumout",
+    "add_0~97",
+    "clk",
+    "count[0]",
+    "count[1]",
+    "count[2]",
+    "count[3]",
+    "count[4]",
+    "count[5]",
+    "count[6]",
+    "count[7]",
+    "count[8]",
+    "count[9]",
+    "count[10]",
+    "count[11]",
+    "count[12]",
+    "count[13]",
+    "count[14]",
+    "count[15]",
+    "count[16]",
+    "count[17]",
+    "count[18]",
+    "count[19]",
+    "count[20]",
+    "count[21]",
+    "count[22]",
+    "count[23]",
+    "count[0]~0_combout",
+    "devclrn",
+    "devoe",
+    "devpor",
+    "gnd",
+    "led",
+    "rst_n",
+    "unknown",
+    "vcc"
+  ],
+  "ports": {
+    "inputs": {
+      "clk": [
+        45
+      ],
+      "rst_n": [
+        76
+      ]
+    },
+    "outputs": {
+      "led": [
+        75
+      ]
+    }
+  },
+  "reference": {
+    "kind": "sequential",
+    "path": "examples/agilex3_walkthroughs/01_blinky_counter/recovered_reference.py"
+  },
+  "schema": "hal_agilex/trace/1",
+  "source": {
+    "path": "examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo",
+    "sha256": "ad7d2a1a5214b0e356495a6a0a5579e259e2f54a759c53072634f73657fa4871"
+  },
+  "stimulus": {
+    "clear_cycles": [
+      0
+    ],
+    "clear_input": "rst_n",
+    "cleared_before_first_cycle": true,
+    "driveable_inputs": [
+      [
+        "rst_n",
+        1
+      ]
+    ],
+    "generator": "random.Random(seed).randrange(1 << width), one draw per driveable input per cycle, in declaration order",
+    "held_inputs": {},
+    "ignored_inputs": [
+      "clk"
+    ],
+    "seed": 20260908
+  },
+  "window": {
+    "cycles": 32,
+    "end": 31,
+    "start": 0
+  }
+}

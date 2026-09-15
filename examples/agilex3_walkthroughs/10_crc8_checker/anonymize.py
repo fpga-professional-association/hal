@@ -26,9 +26,18 @@ Everything else becomes `top`, `port_i<n>`, `port_o<n>`, `n<n>`, `u<n>`, and the
 numbering is deliberately scrambled so that neither the instance order nor an
 internal vector declaration hands over which flip-flops form a word.
 
-    python anonymize.py netlist/netlist.hal.v netlist/netlist.anon.hal.v
+    python anonymize.py netlist/netlist.hal.v netlist/netlist.anon.hal.v \
+        [netlist/anonymize_map.json]
+
+The optional third argument writes the mapping out.  It is not needed to *do*
+the walkthrough -- knowing the answers is the opposite of the exercise -- but
+tooling that has to line the blinded drawing up with something named does need
+it: `hal_viz clock_step --name-map` uses it to put values from a trace of the
+named export onto the anonymised DAG.
 """
 
+import json
+import os
 import re
 import sys
 
@@ -72,13 +81,19 @@ def _gcd(a, b):
 
 
 def rename_instances(text):
-    """Replace instance names by `u<n>` positionally (they may clash with nets)."""
+    """Replace instance names by `u<n>` positionally (they may clash with nets).
+
+    Returns the rewritten text and the ``{original: u<n>}`` mapping.
+    """
     spans = [match.span(1) for match in INSTANCE.finditer(text)]
     labels = _scramble(["u%d" % index for index in range(len(spans))])
+    gates = {
+        _norm(text[start:end]): label for (start, end), label in zip(spans, labels)
+    }
     for (start, end), label in sorted(zip(spans, labels), reverse=True):
         trailer = " " if text[end - 1].isspace() else ""
         text = text[:start] + label + trailer + text[end:]
-    return text
+    return text, gates
 
 
 def split_internal_buses(text):
@@ -166,15 +181,32 @@ HEADER = """\
 
 
 def main(argv):
-    if len(argv) != 3:
+    if len(argv) not in (3, 4):
         raise SystemExit(__doc__)
     text = open(argv[1]).read()
     text = re.sub(r"\A(//[^\n]*\n)+", "", text)   # the header names the source
-    text = rename_instances(text)
+    text, gates = rename_instances(text)
     text = split_internal_buses(text)
-    text = apply_map(text, build_map(text))
-    open(argv[2], "w").write(HEADER + text.lstrip("\n"))
+    rename = build_map(text)
+    text = apply_map(text, rename)
+    with open(argv[2], "w", newline="\n") as handle:
+        handle.write(HEADER + text.lstrip("\n"))
     print(argv[2])
+    if len(argv) == 4:
+        with open(argv[3], "w", newline="\n") as handle:
+            handle.write(
+                json.dumps(
+                    {
+                        "source": os.path.basename(argv[1]),
+                        "gates": gates,
+                        "nets": rename,
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n"
+            )
+        print(argv[3])
     return 0
 
 

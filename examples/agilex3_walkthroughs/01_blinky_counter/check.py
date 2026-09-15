@@ -63,6 +63,58 @@ def check_dag():
     )
 
 
+def check_dag_interactive():
+    """The committed clock-step page is built from a trace that reproduces.
+
+    The page's whole claim is that its values are *this* run of the export, so
+    the check re-runs the exporter with the options guide.html prints and
+    requires the same document back. Pure Python: no HAL, no Graphviz, no
+    browser, and nothing is written to the tree.
+    """
+    import json
+
+    sys.path.insert(0, os.path.join(HERE, "..", "..", "..", "tools"))
+    from hal_agilex import trace as agilex_trace, vo_netlist
+
+    trace_path = os.path.join(HERE, "artifacts", "dag_trace.json")
+    page_path = os.path.join(HERE, "images", "dag_interactive.html")
+    check("artifacts/dag_trace.json exists", os.path.isfile(trace_path))
+    check("images/dag_interactive.html exists", os.path.isfile(page_path))
+    if not (os.path.isfile(trace_path) and os.path.isfile(page_path)):
+        return
+
+    with open(trace_path, encoding="utf-8") as handle:
+        committed = json.load(handle)
+    fresh = agilex_trace.run_trace(
+        vo_netlist.parse_file(os.path.join(HERE, "blinky_counter.vo")),
+        agilex_trace.load_reference(os.path.join(HERE, "recovered_reference.py")),
+        cycles=32,
+    )
+    differences = agilex_trace.differences(committed, fresh)
+    check(
+        "the committed trace reproduces from the committed .vo",
+        not differences,
+        ", ".join(differences),
+    )
+    with open(page_path, encoding="utf-8") as handle:
+        page = handle.read()
+    check(
+        "the page embeds every recorded cycle",
+        page.count('"cycle":') == len(committed["frames"]),
+        "{} of {}".format(page.count('"cycle":'), len(committed["frames"])),
+    )
+    check(
+        "the page is self-contained: no external request",
+        "http://" not in page.replace("http://www.w3.org", "")
+        and "https://" not in page,
+    )
+    with open(os.path.join(HERE, "guide.html")) as handle:
+        check(
+            "guide.html links the interactive page",
+            "images/dag_interactive.html" in handle.read(),
+        )
+
+
 def main():
     hal_py, netlist = analysis.load()
     report = analysis.elaborate(hal_py, netlist)
@@ -81,6 +133,7 @@ def main():
 
     # --- the committed pictures still say what the guide says they say ------
     check_dag()
+    check_dag_interactive()
 
     # --- step 1: first contact ---------------------------------------------
     stats = analysis.step_stats(hal_py, netlist)
