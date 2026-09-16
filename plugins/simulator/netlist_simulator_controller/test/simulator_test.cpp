@@ -1547,19 +1547,17 @@ namespace hal
     }
 
     /**
-     * `add_clock_period` without a duration runs a simulation that is ten times longer than the 2000 ps
-     * the duration used to fall back to.
+     * `add_clock_period` without a duration generates a clock for the whole simulation. It used to fall
+     * back to 2000 ps, and since the clock waveform is what the simulation thread replays, the run ended
+     * there: every later sample repeated the last value instead of the simulation failing or saying so.
      *
-     * This asserts that the run completes and the results read back, not the sampled values: whether a
-     * *combinational* net that follows the clock keeps its intermediate value within a time slot depends
-     * on the order in which two events for the same net at the same time are processed, and both the
-     * clock waveform replayed by the simulation thread and `NetlistSimulator::prepare_clock_events`
-     * produce one. That the clock really does cover the whole simulation is asserted end to end by
-     * `tests/python_bindings/test_plugin_surfaces.py`, which clocks the 24-bit blinky counter through 32
-     * cycles at 1000 ps without passing a duration and checks every counter bit: with the old default
-     * the counter would stop after two cycles.
+     * This samples a *combinational* net that follows the clock, which is also what pins the fix for
+     * issue #73 down: the clock net gets an event per half period from the waveform the simulation
+     * thread replays and another one from `NetlistSimulator::prepare_clock_events`, so every sample here
+     * is taken from a time slot that holds two events for the same net. A sequential net would read
+     * correctly no matter how those two resolve against each other; the inverter output does not.
      */
-    TEST_F(HalSimulatorRobustnessTest, check_default_clock_duration_runs_past_the_old_default)
+    TEST_F(HalSimulatorRobustnessTest, check_default_clock_duration_covers_the_whole_simulation)
     {
         TEST_START
         {
@@ -1570,6 +1568,8 @@ namespace hal
             ASSERT_NE(nl, nullptr);
             const GateLibrary* gl = nl->get_gate_library();
 
+            // The inverter follows the clock directly, so its output is defined at every point in time
+            // the clock reaches -- and frozen from the point on where the clock stops.
             Gate* inv = nl->create_gate(gl->get_gate_type_by_name("INV"), "clock_inverter");
             Net* clk  = nl->create_net("clk");
             clk->mark_global_input_net();
@@ -1593,7 +1593,97 @@ namespace hal
             ASSERT_TRUE(ctrl->run_simulation());
             ASSERT_EQ(wait_for(engine), (int)SimulationEngine::Done);
             ASSERT_TRUE(ctrl->get_results());
-            EXPECT_NE(ctrl->get_waveform_by_net(out), nullptr);
+
+            WaveData* wave = ctrl->get_waveform_by_net(out);
+            ASSERT_NE(wave, nullptr);
+
+            // The clock starts low and toggles every period/2, so it is high in every second half
+            // period and the inverted output is the complement of that.
+            for (u64 t = 250; t < total; t += period / 2)
+            {
+                const int expected = ((t / (period / 2)) % 2) ? 0 : 1;
+                EXPECT_EQ(wave->get_value_at(t), expected) << "inverted clock at t=" << t;
+            }
+        }
+        TEST_END
+    }
+
+    /**
+     * The clock net of a `hal_simulator` run carries two events per half period -- one from the clock
+     * waveform the simulation thread replays, one from `NetlistSimulator::prepare_clock_events` -- and
+     * before #73 was fixed, which of the two ended up as the recorded value of the time slot was decided
+     * by whatever the uninitialized `WaveEvent::id` of the sort tiebreak happened to hold.
+     *
+     * The effect is only observable on a *combinational* net: a flip-flop is clocked by the first of the
+     * two events either way, so its output reads correctly no matter how the tiebreak goes, while the
+     * inverter below loses the value of the whole half period when the two resolve the wrong way round.
+     * The two same-time events are therefore sampled indirectly, through the net that can see them --
+     * repeating the same run and comparing it against the previous one, so that a tiebreak that is not
+     * merely defined but also stable is what the assertion rests on.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_same_time_events_on_one_net_resolve_deterministically)
+    {
+        TEST_START
+        {
+            const u64 period = 1000;
+            const u64 total  = 8 * period;
+
+            std::vector<std::vector<int>> runs;
+
+            for (int run = 0; run < 3; ++run)
+            {
+                std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+                ASSERT_NE(nl, nullptr);
+                const GateLibrary* gl = nl->get_gate_library();
+
+                Gate* inv = nl->create_gate(gl->get_gate_type_by_name("INV"), "clock_inverter");
+                Net* clk  = nl->create_net("clk");
+                clk->mark_global_input_net();
+                clk->add_destination(inv, "I");
+                Net* out = test_utils::connect_global_out(nl.get(), inv, "O", "out");
+                ASSERT_NE(out, nullptr);
+
+                auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
+                ASSERT_NE(plugin, nullptr);
+                auto ctrl = plugin->create_simulator_controller("hal_simulator_same_time_events_" + std::to_string(run));
+                ASSERT_NE(ctrl, nullptr);
+
+                ctrl->add_gates(nl->get_gates());
+                SimulationEngine* engine = ctrl->create_simulation_engine("hal_simulator");
+                ASSERT_NE(engine, nullptr);
+
+                ctrl->add_clock_period(clk, period);
+                ctrl->simulate(total);
+
+                ASSERT_TRUE(ctrl->run_simulation());
+                ASSERT_EQ(wait_for(engine), (int)SimulationEngine::Done);
+                ASSERT_TRUE(ctrl->get_results());
+
+                WaveData* wave = ctrl->get_waveform_by_net(out);
+                ASSERT_NE(wave, nullptr);
+
+                std::vector<int> samples;
+                for (u64 t = 250; t < total; t += period / 2)
+                {
+                    samples.push_back(wave->get_value_at(t));
+                }
+                runs.push_back(samples);
+            }
+
+            // Every run resolves the two same-time clock events the same way ...
+            for (size_t run = 1; run < runs.size(); ++run)
+            {
+                EXPECT_EQ(runs[run], runs[0]) << "run " << run << " sampled the inverted clock differently than run 0";
+            }
+
+            // ... and the way it resolves them is the one that keeps the clock: both events describe the
+            // same clock and now carry the same value, so the second one is dropped as a no-op rather
+            // than overwriting the value the first one recorded.
+            ASSERT_FALSE(runs.empty());
+            for (size_t i = 0; i < runs[0].size(); ++i)
+            {
+                EXPECT_EQ(runs[0][i], (i % 2) ? 0 : 1) << "inverted clock at sample " << i;
+            }
         }
         TEST_END
     }
