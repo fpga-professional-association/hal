@@ -1786,7 +1786,9 @@ namespace hal
 
                 // an ascending pin group starts at its lowest index, a descending one at its highest index. A bit of
                 // the bus that is not connected to the outside of the module does not become a pin, in which case the
-                // remaining pins are indexed consecutively from the start index on, as a pin group cannot hold gaps
+                // remaining pins are indexed consecutively from the start index on, as a pin group cannot hold gaps.
+                // The declared bit position of every surviving bit is kept in its pin name ('a(0)', 'a(3)'), which is
+                // what a writer has to go by so that the bits of a sparse bus do not shift (see issue #61)
                 std::sort(indexed_pins.begin(), indexed_pins.end(), [ascending](const std::pair<i32, ModulePin*>& a, const std::pair<i32, ModulePin*>& b) {
                     return ascending ? (a.first < b.first) : (a.first > b.first);
                 });
@@ -1804,12 +1806,18 @@ namespace hal
 
                 const u32 start_index = (u32)indexed_pins.front().first;
 
-                if (auto res = module->create_pin_group(group_name, pins, direction, PinType::none, ascending, start_index); res.is_error())
+                auto group_res = module->create_pin_group(group_name, pins, direction, PinType::none, ascending, start_index);
+                if (group_res.is_error())
                 {
-                    return ERR_APPEND(res.get_error(),
+                    return ERR_APPEND(group_res.get_error(),
                                       "could not construct netlist: failed to create pin group '" + group_name + "' within module '" + module->get_name() + "' with ID "
                                           + std::to_string(module->get_id()));
                 }
+
+                // A port declared with a range is a bus, even where a single bit of it is all that survives as a pin. Since a
+                // one-pin group is indistinguishable from a scalar port by size alone, record the bus-ness on the group so
+                // that writers do not have to infer it -- 'input [0:0] a;' would otherwise come back as the scalar 'a(0)'.
+                group_res.get()->set_ordered(true);
             }
         }
 

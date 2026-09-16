@@ -667,4 +667,300 @@ namespace hal
             }
         TEST_END
     }
+
+    /**
+     * Issue #59: the unconnected members of a partially connected gate pin group used to be written as
+     * 'HAL_UNUSED_SIGNAL_<n>' identifiers that were never declared as wires, so HAL refused to re-parse its own output.
+     * The slot now carries the high-impedance literal, which the parser skips, so the pin comes back unconnected
+     * instead of being driven by a dangling net.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_partially_connected_pin_group) {
+        TEST_START
+            {
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_partial_pin_group.v");
+                std::unique_ptr<Netlist> nl = std::make_unique<Netlist>(m_gl);
+
+                {
+                    Module* top_module = nl->get_top_module();
+                    Gate* ram = nl->create_gate(m_gl->get_gate_type_by_name("RAM"), "ram_0");
+
+                    // only one bit of the four-bit DATA_IN and DATA_OUT groups is connected
+                    Net* data_in_3 = test_utils::connect_global_in(nl.get(), ram, "DATA_IN(3)", "data_in_3");
+                    Net* data_out_0 = test_utils::connect_global_out(nl.get(), ram, "DATA_OUT(0)", "data_out_0");
+
+                    for (Net* net : std::vector<Net*>({data_in_3, data_out_0}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                    }
+                }
+
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                // the placeholder identifier was never declared anywhere, so it must not be written at all
+                EXPECT_EQ(file_content.find("HAL_UNUSED_SIGNAL"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("1'bz"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                ASSERT_EQ(parsed_nl->get_gates().size(), 1);
+                const Gate* parsed_ram = parsed_nl->get_gates().front();
+                ASSERT_NE(parsed_ram->get_fan_in_net("DATA_IN(3)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(3)")->get_name(), "data_in_3");
+                ASSERT_NE(parsed_ram->get_fan_out_net("DATA_OUT(0)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(0)")->get_name(), "data_out_0");
+
+                // the unconnected members of the groups stay unconnected instead of picking up a dangling net
+                EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(2)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(1)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(0)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(3)"), nullptr);
+                EXPECT_EQ(parsed_nl->get_nets().size(), 2);
+            }
+        TEST_END
+    }
+
+    /**
+     * Issue #60: HAL's constant nets are named "'0'" and "'1'", which used to be escaped into \'0' and \'1' on write --
+     * exactly how a net that genuinely carries such an escaped identifier (as emitted by fasm2bels) is written as well.
+     * The file then declared one wire for two distinct nets and they silently merged on re-parse.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_constant_nets_vs_escaped_literal_names) {
+        TEST_START
+            {
+                const std::string source("module m (\n"
+                                         "  c,\n"
+                                         "  d\n"
+                                         " ) ;\n"
+                                         "  output c ;\n"
+                                         "  output d ;\n"
+                                         "  wire \\'1' ;\n"
+                                         "VCC v (\n"
+                                         "  .O (\\'1' )\n"
+                                         " ) ;\n"
+                                         "BUF b0 (\n"
+                                         "  .I (\\'1' ),\n"
+                                         "  .O (c )\n"
+                                         " ) ;\n"
+                                         "BUF b1 (\n"
+                                         "  .I (1'b1 ),\n"
+                                         "  .O (d )\n"
+                                         " ) ;\n"
+                                         "endmodule");
+
+                VerilogParser source_parser;
+                auto source_res = source_parser.parse_and_instantiate(test_utils::create_sandbox_file("constant_nets.v", source), m_gl);
+                ASSERT_TRUE(source_res.is_ok());
+                std::unique_ptr<Netlist> nl = source_res.get();
+                ASSERT_NE(nl, nullptr);
+                const size_t net_count = nl->get_nets().size();
+
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_constant_nets.v");
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                // the escaped identifier keeps its name, the constant net is the one that gets a unique suffix, and it
+                // carries the literal it stands for as its assignment
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("wire \\'1' ;"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find(" = 1'b1;"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                // the two nets did not merge: 'b0' is still fed by the escaped identifier, 'b1' by the constant
+                EXPECT_EQ(parsed_nl->get_nets().size(), net_count);
+                const std::vector<Gate*> b0_gates = parsed_nl->get_gates(test_utils::gate_filter("BUF", "b0"));
+                const std::vector<Gate*> b1_gates = parsed_nl->get_gates(test_utils::gate_filter("BUF", "b1"));
+                ASSERT_EQ(b0_gates.size(), 1);
+                ASSERT_EQ(b1_gates.size(), 1);
+                ASSERT_NE(b0_gates.front()->get_fan_in_net("I"), nullptr);
+                ASSERT_NE(b1_gates.front()->get_fan_in_net("I"), nullptr);
+                EXPECT_EQ(b0_gates.front()->get_fan_in_net("I")->get_name(), "\\'1'");
+                EXPECT_EQ(b1_gates.front()->get_fan_in_net("I")->get_name(), "'1'");
+                EXPECT_NE(b0_gates.front()->get_fan_in_net("I"), b1_gates.front()->get_fan_in_net("I"));
+            }
+            {
+                // a constant net that a GND gate drives cannot be written as a literal, an instance output pin may not be
+                // connected to one. It becomes a wire carrying the literal as its assignment, which the parser merges back
+                // into the constant net it came from
+                const std::string source("module m (\n"
+                                         "  c\n"
+                                         " ) ;\n"
+                                         "  output c ;\n"
+                                         "BUF b (\n"
+                                         "  .I (1'b0 ),\n"
+                                         "  .O (c )\n"
+                                         " ) ;\n"
+                                         "endmodule");
+
+                VerilogParser source_parser;
+                auto source_res = source_parser.parse_and_instantiate(test_utils::create_sandbox_file("driven_constant.v", source), m_gl);
+                ASSERT_TRUE(source_res.is_ok());
+                std::unique_ptr<Netlist> nl = source_res.get();
+                ASSERT_NE(nl, nullptr);
+
+                // the parser added a GND gate for the constant, so the constant net is driven
+                ASSERT_EQ(nl->get_gates().size(), 2);
+                ASSERT_EQ(nl->get_gnd_gates().size(), 1);
+
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_driven_constant.v");
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                // the constant net is a wire carrying the literal as its assignment ...
+                EXPECT_NE(file_content.find(" = 1'b0;"), std::string::npos) << file_content;
+                // ... and the output pin of the GND gate is connected to that wire, never to the literal, which would be
+                // an electrical short that every Verilog tool but HAL rejects
+                EXPECT_EQ(file_content.find(".O(1'b0)"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                // the wire was merged back into the constant net, which kept both its name and its GND gate
+                EXPECT_EQ(parsed_nl->get_gates().size(), 2);
+                EXPECT_EQ(parsed_nl->get_gnd_gates().size(), 1);
+                const std::vector<Gate*> buf_gates = parsed_nl->get_gates(test_utils::gate_filter("BUF", "b"));
+                ASSERT_EQ(buf_gates.size(), 1);
+                Net* constant_net = buf_gates.front()->get_fan_in_net("I");
+                ASSERT_NE(constant_net, nullptr);
+                EXPECT_EQ(constant_net->get_name(), "'0'");
+                EXPECT_TRUE(constant_net->is_gnd_net());
+            }
+        TEST_END
+    }
+
+    /**
+     * Issue #61: a bus port of which only some bits are connected is re-indexed contiguously when the module's pin group
+     * is built, because a pin group cannot hold gaps. Trusting that index shifted every bit above the first gap -- an
+     * 'input [3:0] a' with only a[0] and a[3] in use was written as 'input [3:2] a' with '.I0(a[2])'. The declared bit
+     * position survives in the pin name and is what has to be written.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_sparse_bus_port_indices) {
+        TEST_START
+            {
+                const std::string source("module m (\n"
+                                         "  a,\n"
+                                         "  c\n"
+                                         " ) ;\n"
+                                         "  input [3:0] a ;\n"
+                                         "  output c ;\n"
+                                         "AND2 l (\n"
+                                         "  .I0 (a[0] ),\n"
+                                         "  .I1 (a[3] ),\n"
+                                         "  .O (c )\n"
+                                         " ) ;\n"
+                                         "endmodule");
+
+                VerilogParser source_parser;
+                auto source_res = source_parser.parse_and_instantiate(test_utils::create_sandbox_file("sparse_bus.v", source), m_gl);
+                ASSERT_TRUE(source_res.is_ok());
+                std::unique_ptr<Netlist> nl = source_res.get();
+                ASSERT_NE(nl, nullptr);
+
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_sparse_bus.v");
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("input [3:0] a;"), std::string::npos) << file_content;
+                EXPECT_EQ(file_content.find("input [3:2] a;"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("a[0]"), std::string::npos) << file_content;
+                EXPECT_NE(file_content.find("a[3]"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                // the bits did not shift: I0 is still fed by bit 0 of the bus and I1 by bit 3
+                const std::vector<Gate*> and_gates = parsed_nl->get_gates(test_utils::gate_filter("AND2", "l"));
+                ASSERT_EQ(and_gates.size(), 1);
+                ASSERT_NE(and_gates.front()->get_fan_in_net("I0"), nullptr);
+                ASSERT_NE(and_gates.front()->get_fan_in_net("I1"), nullptr);
+                EXPECT_EQ(and_gates.front()->get_fan_in_net("I0")->get_name(), "a(0)");
+                EXPECT_EQ(and_gates.front()->get_fan_in_net("I1")->get_name(), "a(3)");
+
+                PinGroup<ModulePin>* group_a = parsed_nl->get_top_module()->get_pin_group_by_name("a");
+                ASSERT_NE(group_a, nullptr);
+                ASSERT_EQ(group_a->size(), 2);
+                const std::vector<ModulePin*> pins_a = group_a->get_pins();
+                EXPECT_EQ(pins_a.at(0)->get_name(), "a(3)");
+                EXPECT_EQ(pins_a.at(1)->get_name(), "a(0)");
+            }
+        TEST_END
+    }
+
+    /**
+     * Issue #60: a one-bit bus port ('input [0:0] a') used to lose its bus notation, because a pin group of a single pin
+     * is indistinguishable from a scalar port by size alone. It was written as the escaped scalar '\a(0) ' and came back
+     * as a scalar port literally called 'a(0)'.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_one_bit_bus_port) {
+        TEST_START
+            {
+                const std::string source("module m (\n"
+                                         "  a,\n"
+                                         "  c\n"
+                                         " ) ;\n"
+                                         "  input [0:0] a ;\n"
+                                         "  output c ;\n"
+                                         "BUF b (\n"
+                                         "  .I (a[0] ),\n"
+                                         "  .O (c )\n"
+                                         " ) ;\n"
+                                         "endmodule");
+
+                VerilogParser source_parser;
+                auto source_res = source_parser.parse_and_instantiate(test_utils::create_sandbox_file("one_bit_bus.v", source), m_gl);
+                ASSERT_TRUE(source_res.is_ok());
+                std::unique_ptr<Netlist> nl = source_res.get();
+                ASSERT_NE(nl, nullptr);
+
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_one_bit_bus.v");
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+                EXPECT_NE(file_content.find("input [0:0] a;"), std::string::npos) << file_content;
+                EXPECT_EQ(file_content.find("\\a(0)"), std::string::npos) << file_content;
+
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                PinGroup<ModulePin>* group_a = parsed_nl->get_top_module()->get_pin_group_by_name("a");
+                ASSERT_NE(group_a, nullptr);
+                ASSERT_EQ(group_a->size(), 1);
+                EXPECT_TRUE(group_a->is_ordered());
+                EXPECT_EQ(group_a->get_pins().front()->get_name(), "a(0)");
+                EXPECT_EQ(group_a->get_pins().front()->get_net()->get_name(), "a(0)");
+            }
+        TEST_END
+    }
 } //namespace hal

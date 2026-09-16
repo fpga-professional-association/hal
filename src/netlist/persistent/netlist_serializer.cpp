@@ -626,7 +626,10 @@ namespace hal
                             }
                         }
                         u32 pgid = (pg.id > 0) ? (u32)pg.id : sm->get_unique_pin_group_id();
-                        if (auto res = sm->create_pin_group(pgid, pg.name, pins, pg.direction, pg.type, pg.ascending, pg.start_index, pg.ordered); res.is_error())
+                        // the serialized 'ordered' flag used to be handed to the 'delete_empty_groups' parameter, so it never
+                        // reached the pin group it belongs to; it records whether the group was declared as a bus
+                        auto res = sm->create_pin_group(pgid, pg.name, pins, pg.direction, pg.type, pg.ascending, pg.start_index);
+                        if (res.is_error())
                         {
                             log_error("netlist_persistent",
                                       "could not deserialize pin group '" + pg.name + "' of module '" + sm->get_name() + "' with ID " + std::to_string(sm->get_id())
@@ -634,6 +637,7 @@ namespace hal
                                       res.get_error().get());
                             return false;
                         }
+                        res.get()->set_ordered(pg.ordered);
                     }
                 }
                 return true;

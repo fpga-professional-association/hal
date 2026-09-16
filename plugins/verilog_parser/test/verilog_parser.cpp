@@ -3846,4 +3846,93 @@ namespace hal {
         }
         TEST_END
     }
+
+    /**
+     * Issue #61: a bus port of which only some bits are connected does not yield a pin per declared bit, and a pin group
+     * indexes its pins consecutively -- it cannot hold gaps. The declared bit position of every surviving bit therefore
+     * lives in the pin name only, which is what the Verilog writer has to go by so that the bits do not shift.
+     *
+     * Issue #60: 'input [0:0] a' is a bus of one bit, which a one-pin group cannot express by its size. The parser marks
+     * every pin group that comes from a ranged declaration as ordered, so that "declared as a bus" is recorded rather
+     * than inferred.
+     *
+     * Functions: parse
+     */
+    TEST_F(VerilogParserTest, check_sparse_and_one_bit_bus_ports)
+    {
+        TEST_START
+        {
+            // only bits 0 and 3 of the four-bit port are connected
+            std::string netlist_input("module top (\n"
+                                      "  a,\n"
+                                      "  c\n"
+                                      " ) ;\n"
+                                      "  input [3:0] a ;\n"
+                                      "  output c ;\n"
+                                      "AND2 l (\n"
+                                      "  .I0 (a[0] ),\n"
+                                      "  .I1 (a[3] ),\n"
+                                      "  .O (c )\n"
+                                      " ) ;\n"
+                                      "endmodule");
+
+            const GateLibrary* gate_lib = test_utils::get_gate_library();
+            auto verilog_file           = test_utils::create_sandbox_file("sparse_bus.v", netlist_input);
+            VerilogParser verilog_parser;
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            Module* top_module = nl->get_top_module();
+            PinGroup<ModulePin>* group_a = top_module->get_pin_group_by_name("a");
+            ASSERT_NE(group_a, nullptr);
+            ASSERT_EQ(group_a->size(), 2);
+            EXPECT_TRUE(group_a->is_ordered());
+            EXPECT_TRUE(group_a->is_descending());
+
+            // the group index is contiguous, but the pin names carry the declared bit positions
+            std::vector<ModulePin*> pins_a = group_a->get_pins();
+            EXPECT_EQ(pins_a.at(0)->get_name(), "a(3)");
+            EXPECT_EQ(pins_a.at(1)->get_name(), "a(0)");
+            ASSERT_NE(pins_a.at(0)->get_net(), nullptr);
+            ASSERT_NE(pins_a.at(1)->get_net(), nullptr);
+            EXPECT_EQ(pins_a.at(0)->get_net()->get_name(), "a(3)");
+            EXPECT_EQ(pins_a.at(1)->get_net()->get_name(), "a(0)");
+
+            // a port that was not declared with a range is not a bus
+            PinGroup<ModulePin>* group_c = top_module->get_pin_group_by_name("c");
+            ASSERT_NE(group_c, nullptr);
+            EXPECT_FALSE(group_c->is_ordered());
+        }
+        {
+            // a one-bit bus is a bus, not a scalar port
+            std::string netlist_input("module top (\n"
+                                      "  a,\n"
+                                      "  c\n"
+                                      " ) ;\n"
+                                      "  input [0:0] a ;\n"
+                                      "  output c ;\n"
+                                      "BUF b (\n"
+                                      "  .I (a[0] ),\n"
+                                      "  .O (c )\n"
+                                      " ) ;\n"
+                                      "endmodule");
+
+            const GateLibrary* gate_lib = test_utils::get_gate_library();
+            auto verilog_file           = test_utils::create_sandbox_file("one_bit_bus.v", netlist_input);
+            VerilogParser verilog_parser;
+            auto nl_res = verilog_parser.parse_and_instantiate(verilog_file, gate_lib);
+            ASSERT_TRUE(nl_res.is_ok());
+            std::unique_ptr<Netlist> nl = nl_res.get();
+            ASSERT_NE(nl, nullptr);
+
+            PinGroup<ModulePin>* group_a = nl->get_top_module()->get_pin_group_by_name("a");
+            ASSERT_NE(group_a, nullptr);
+            ASSERT_EQ(group_a->size(), 1);
+            EXPECT_TRUE(group_a->is_ordered());
+            EXPECT_EQ(group_a->get_pins().front()->get_name(), "a(0)");
+        }
+        TEST_END
+    }
 } // namespace hal

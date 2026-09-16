@@ -6,7 +6,10 @@
 #include "hal_core/netlist/netlist.h"
 #include "hal_core/utilities/log.h"
 
+#include <algorithm>
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace hal
 {
@@ -15,8 +18,10 @@ namespace hal
         /**
          * Check whether a pin group is to be written using bus notation, i.e., as `input [1:0] a;` instead of one port per pin.
          *
-         * Only pin groups that comprise more than one pin and that feature a uniform direction across all of their pins can be
-         * written as a bus.
+         * A pin group featuring more than one pin is a bus, provided its pins share a common direction. Whether a pin group of
+         * exactly one pin is a bus cannot be inferred from its size: `input [0:0] a;` and `input a;` both yield a single pin.
+         * The parser therefore marks every pin group that has been declared with a range as ordered, which is the recorded
+         * "declared as a bus" property this relies on.
          *
          * @param[in] pin_group - The pin group.
          * @returns `true` if the pin group is written using bus notation, `false` otherwise.
@@ -24,13 +29,76 @@ namespace hal
         bool is_bus(const PinGroup<ModulePin>* pin_group)
         {
             const std::vector<ModulePin*> pins = pin_group->get_pins();
-            if (pins.size() < 2)
+            if (pins.empty())
+            {
+                return false;
+            }
+
+            if (pins.size() < 2 && !pin_group->is_ordered())
             {
                 return false;
             }
 
             const PinDirection direction = pins.front()->get_direction();
             return std::all_of(pins.begin(), pins.end(), [direction](const ModulePin* pin) { return pin->get_direction() == direction; });
+        }
+
+        // a bit position beyond this is a corrupted pin name rather than a bus index, and honoring it would emit a port
+        // declaration wide enough to exhaust the memory of whatever reads the file back
+        const i32 MAX_BUS_INDEX = 1 << 20;
+
+        /**
+         * Recover the declared bit position of every pin of a bus pin group from its name.
+         *
+         * A pin group indexes its pins consecutively and cannot hold gaps, so a bus port of which only some bits are connected
+         * loses its declared bit positions on import: `input [3:0] a;` with only `a[0]` and `a[3]` in use becomes a two-pin
+         * group indexed `[3:2]`. The declared position does survive in the pin names, which the parser derives from the port
+         * range (`a(0)`, `a(3)`), and that is what is recovered here.
+         *
+         * @param[in] pin_group - The pin group.
+         * @returns One index per pin, in pin order, or an empty vector if the pin names do not encode bit positions.
+         */
+        std::vector<i32> get_declared_bus_indices(const PinGroup<ModulePin>* pin_group)
+        {
+            const std::vector<ModulePin*> pins = pin_group->get_pins();
+            const std::string prefix           = pin_group->get_name() + "(";
+
+            std::vector<i32> indices;
+            indices.reserve(pins.size());
+
+            for (const ModulePin* pin : pins)
+            {
+                const std::string& name = pin->get_name();
+                if (name.size() <= prefix.size() + 1 || name.compare(0, prefix.size(), prefix) != 0 || name.back() != ')')
+                {
+                    return {};
+                }
+
+                const std::string digits = name.substr(prefix.size(), name.size() - prefix.size() - 1);
+                if (digits.size() > 9 || !std::all_of(digits.begin(), digits.end(), [](const char c) { return c >= '0' && c <= '9'; }))
+                {
+                    return {};
+                }
+
+                const i32 index = std::stoi(digits);
+                if (index > MAX_BUS_INDEX)
+                {
+                    return {};
+                }
+
+                indices.push_back(index);
+            }
+
+            // the pins of a bus are ordered by bit position, most significant bit first for a descending bus
+            for (u32 i = 1; i < indices.size(); i++)
+            {
+                if (pin_group->is_ascending() ? (indices.at(i) <= indices.at(i - 1)) : (indices.at(i) >= indices.at(i - 1)))
+                {
+                    return {};
+                }
+            }
+
+            return indices;
         }
     }    // namespace
 
@@ -161,23 +229,47 @@ namespace hal
                 }
 
                 const std::string group_alias = escape(get_unique_alias(identifier_occurrences, pin_group->get_name()));
-                const i32 left_index          = pin_group->is_ascending() ? pin_group->get_lowest_index() : pin_group->get_highest_index();
-                const i32 right_index         = pin_group->is_ascending() ? pin_group->get_highest_index() : pin_group->get_lowest_index();
+
+                // A pin group cannot hold gaps, so a partially connected bus port is re-indexed contiguously on import and
+                // every bit above the first gap would shift when the group index is trusted here. The declared bit positions
+                // survive in the pin names, which is what is written instead. Only the top module is treated this way: the
+                // ports of a sub-module are connected positionally through a concatenation at its instantiation site, which
+                // would no longer line up with a declaration that spans the gaps as well.
+                const std::vector<i32> declared_indices = module->is_top_module() ? get_declared_bus_indices(pin_group) : std::vector<i32>();
+
+                i32 left_index  = pin_group->is_ascending() ? pin_group->get_lowest_index() : pin_group->get_highest_index();
+                i32 right_index = pin_group->is_ascending() ? pin_group->get_highest_index() : pin_group->get_lowest_index();
+                if (!declared_indices.empty())
+                {
+                    left_index  = declared_indices.front();
+                    right_index = declared_indices.back();
+                }
 
                 res_stream << group_alias;
                 tmp_stream << "    " << enum_to_string(pins.front()->get_direction()) << " [" << left_index << ":" << right_index << "] " << group_alias << ";" << std::endl;
 
-                for (const ModulePin* pin : pins)
+                for (u32 pin_index = 0; pin_index < pins.size(); pin_index++)
                 {
-                    auto index_res = pin_group->get_index(pin);
-                    if (index_res.is_error())
+                    const ModulePin* pin = pins.at(pin_index);
+
+                    i32 index;
+                    if (!declared_indices.empty())
                     {
-                        return ERR_APPEND(index_res.get_error(),
-                                          "could not write declaration of module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to get index of pin '"
-                                              + pin->get_name() + "' within pin group '" + pin_group->get_name() + "'");
+                        index = declared_indices.at(pin_index);
+                    }
+                    else
+                    {
+                        auto index_res = pin_group->get_index(pin);
+                        if (index_res.is_error())
+                        {
+                            return ERR_APPEND(index_res.get_error(),
+                                              "could not write declaration of module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to get index of pin '"
+                                                  + pin->get_name() + "' within pin group '" + pin_group->get_name() + "'");
+                        }
+                        index = index_res.get();
                     }
 
-                    aliases[pin->get_net()] = group_alias + "[" + std::to_string(index_res.get()) + "]";
+                    aliases[pin->get_net()] = group_alias + "[" + std::to_string(index) + "]";
                 }
             }
             else
@@ -234,6 +326,10 @@ namespace hal
         port_nets.reserve(output_nets_tmp.size());
         port_nets.insert(output_nets_tmp.begin(), output_nets_tmp.end());
 
+        // HAL models the constant signals as the two nets named "'0'" and "'1'", which are held back for a second pass; see
+        // below for why they cannot be named on a first-come basis like every other net
+        std::vector<Net*> constant_nets;
+
         for (Net* net : module->get_nets())
         {
             if (port_nets.find(net) != port_nets.end())
@@ -243,22 +339,34 @@ namespace hal
 
             if (aliases.find(net) == aliases.end())
             {
+                if (const std::string& net_name = net->get_name(); net_name == "'0'" || net_name == "'1'")
+                {
+                    constant_nets.push_back(net);
+                    continue;
+                }
+
                 auto net_alias = escape(get_unique_alias(identifier_occurrences, net->get_name()));
                 aliases[net]   = net_alias;
 
-                res_stream << "    wire " << net_alias;
-
-                if (net->is_vcc_net() && net->get_num_of_sources() == 0)
-                {
-                    res_stream << " = 1'b1";
-                }
-                else if (net->is_gnd_net() && net->get_num_of_sources() == 0)
-                {
-                    res_stream << " = 1'b0";
-                }
-
-                res_stream << ";" << std::endl;
+                res_stream << "    wire " << net_alias << ";" << std::endl;
             }
+        }
+
+        // Escaping "'0'" yields the escaped identifier \'0' -- which is exactly how a net that genuinely carries that name
+        // (as emitted by fasm2bels, see emsec/hal#545) is written as well. A netlist holding both used to declare the same
+        // wire twice and the two distinct nets silently merged on re-parse. The constant nets are therefore named last and
+        // under the identifier the escaped net would occupy, so the escaped net keeps its name and the constant is the one
+        // that gets a unique suffix. Their wires carry the number literal they stand for as a continuous assignment, which
+        // is what the parser merges back into these very nets, name included -- an identifier alone cannot name them, as
+        // the parser deliberately keeps the backslash of \'0' to tell the two apart.
+        std::sort(constant_nets.begin(), constant_nets.end(), [](const Net* a, const Net* b) { return a->get_name() < b->get_name(); });
+        for (Net* net : constant_nets)
+        {
+            const std::string net_name = net->get_name();
+            const std::string alias    = escape(get_unique_alias(identifier_occurrences, "\\" + net_name));
+            aliases[net]               = alias;
+
+            res_stream << "    wire " << alias << " = " << ((net_name == "'0'") ? "1'b0" : "1'b1") << ";" << std::endl;
         }
 
         // write gate instances
@@ -452,8 +560,6 @@ namespace hal
                                                                 const std::vector<std::pair<std::string, std::vector<const Net*>>>& pin_assignments,
                                                                 std::unordered_map<const DataContainer*, std::string>& aliases) const
     {
-        static u32 unused_signal_counter = 0;
-
         res_stream << " (" << std::endl;
         bool first_pin = true;
         for (const auto& [pin, nets] : pin_assignments)
@@ -497,8 +603,12 @@ namespace hal
                 }
                 else
                 {
-                    // unconnected pin of a group with at least one connection
-                    res_stream << "HAL_UNUSED_SIGNAL_" + std::to_string(unused_signal_counter++);
+                    // An unconnected pin of a group of which at least one other pin is connected. A concatenation slot cannot
+                    // be left empty in Verilog, so it is filled with the high-impedance literal, which the parser skips: the
+                    // pin comes back unconnected. Writing a placeholder identifier instead would either reference a wire that
+                    // is never declared -- which HAL refuses to re-parse -- or, once declared, turn a pin that is unconnected
+                    // into one that is driven by a dangling net.
+                    res_stream << "1'bz";
                 }
             }
 
