@@ -38,22 +38,28 @@ namespace hal
         /**
          * The net affected by the event.
          */
-        const Net* affected_net;
+        const Net* affected_net = nullptr;
 
         /**
          * The new value caused by the event.
          */
-        BooleanFunction::Value new_value;
+        BooleanFunction::Value new_value = BooleanFunction::Value::X;
 
         /**
          * The time of the event.
          */
-        u64 time;
+        u64 time = 0;
 
         /**
          * The unique ID of the event.
+         *
+         * Two events that affect the same net at the same time are ordered by this ID, so it has to
+         * be set by whoever creates the event -- an event queue that sorts on an indeterminate value
+         * has no defined order at all. The default is a backstop, not a valid ID: every producer is
+         * expected to hand out IDs from a counter that only ever increases, so that the order of two
+         * events of the same point in time is the order in which they were created.
          */
-        u64 id;
+        u64 id = 0;
 
         /**
          * Tests whether two events are equal.

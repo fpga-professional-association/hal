@@ -44,6 +44,7 @@ namespace hal
         e.affected_net = net;
         e.time         = m_current_time;
         e.new_value    = value;
+        e.id           = m_id_counter++;
         m_event_queue.push_back(e);
     }
 
@@ -96,6 +97,7 @@ namespace hal
                             e.affected_net = ep->get_net();
                             e.new_value    = value;
                             e.time         = m_current_time;
+                            e.id           = m_id_counter++;
                             m_event_queue.push_back(e);
                             break;
                         }
@@ -104,6 +106,7 @@ namespace hal
                             e.affected_net = ep->get_net();
                             e.new_value    = inv_value;
                             e.time         = m_current_time;
+                            e.id           = m_id_counter++;
                             m_event_queue.push_back(e);
                             break;
                         }
@@ -165,6 +168,7 @@ namespace hal
                                 e.affected_net = ep->get_net();
                                 e.new_value    = value;
                                 e.time         = m_current_time;
+                                e.id           = m_id_counter++;
                                 m_event_queue.push_back(e);
                                 break;
                             }
@@ -173,6 +177,7 @@ namespace hal
                                 e.affected_net = ep->get_net();
                                 e.new_value    = inv_value;
                                 e.time         = m_current_time;
+                                e.id           = m_id_counter++;
                                 m_event_queue.push_back(e);
                                 break;
                             }
@@ -413,6 +418,7 @@ namespace hal
             e.affected_net = net;
             e.new_value    = value;
             e.time         = m_current_time;
+            e.id           = m_id_counter++;
             m_event_queue.push_back(e);
         }
 
@@ -424,12 +430,28 @@ namespace hal
     {
         for (const SimulationInput::Clock& c : mSimulationInput->get_clocks())
         {
+            if (c.switch_time == 0)
+            {
+                // A half period of zero is not a clock, and stepping by it would not terminate.
+                log_error("hal_simulator", "clock net ID={} has a half period of 0 ps, no clock events generated.", c.clock_net ? c.clock_net->get_id() : 0);
+                continue;
+            }
+
             u64 base_time = m_current_time - (m_current_time % c.switch_time);
             u64 time      = 0;
 
-            // determine next signal state
-            // works also if we are in the middle of a cycle
-            BooleanFunction::Value v = static_cast<BooleanFunction::Value>(base_time & 1);
+            // determine the signal state at base_time, which works also if we are in the middle of a
+            // cycle: the clock has switched once per half period since time 0, so the parity of the
+            // number of half periods that fit into base_time is the state. This counts half periods,
+            // not picoseconds -- base_time is a multiple of the half period, so `base_time & 1` was
+            // 0 for every clock whose half period is an even number of picoseconds and the generated
+            // clock restarted at its start value from the base time of every call. The caller may
+            // well be replaying a clock waveform of its own for the same net -- the simulation thread
+            // replays what `NetlistSimulatorController::add_clock_period` generated -- so the clock
+            // net can hold two events of the same point in time. With the phase right both of them
+            // describe the same clock, and whichever one is processed second is dropped as a no-op
+            // instead of overwriting the value the first one recorded.
+            BooleanFunction::Value v = static_cast<BooleanFunction::Value>((base_time / c.switch_time) & 1);
             if (!c.start_at_zero)
             {
                 v = simulation_utils::toggle(v);
@@ -442,6 +464,7 @@ namespace hal
                 e.affected_net = c.clock_net;
                 e.new_value    = v;
                 e.time         = base_time + time;
+                e.id           = m_id_counter++;
                 m_event_queue.push_back(e);
 
                 v = simulation_utils::toggle(v);
