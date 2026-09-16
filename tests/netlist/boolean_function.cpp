@@ -296,6 +296,19 @@ namespace hal {
             {"(A * B) | C", (A() & B()) | C()},
             {"RDATA[0] * c3 + O[0]", (BooleanFunction::Var("RDATA[0]") & BooleanFunction::Var("c3")) | BooleanFunction::Var("O[0]")},
             {"A(1) * B(1) + 0b1", (BooleanFunction::Var("A(1)") & BooleanFunction::Var("B(1)")) | BooleanFunction::Const(1, 1)},
+
+            // the '0b0'/'0b1' spelling of a constant and the whitespace spelling of AND are both documented and
+            // must therefore be usable within the same expression, see issue #62
+            {"A 0b0", A() & BooleanFunction::Const(0, 1)},
+            {"A 0b1", A() & BooleanFunction::Const(1, 1)},
+            {"0b1 A", BooleanFunction::Const(1, 1) & A()},
+            {"0b1 0b0", BooleanFunction::Const(1, 1) & BooleanFunction::Const(0, 1)},
+            {"(A B) & 0b1", (A() & B()) & BooleanFunction::Const(1, 1)},
+            {"(A B) & 1", (A() & B()) & BooleanFunction::Const(1, 1)},
+            {"A & 0b1", A() & BooleanFunction::Const(1, 1)},
+            {"A B + 0b1", (A() & B()) | BooleanFunction::Const(1, 1)},
+            {"A(1) B(1) + 0b0", (BooleanFunction::Var("A(1)") & BooleanFunction::Var("B(1)")) | BooleanFunction::Const(0, 1)},
+            {"!A 0b1", (~A()) & BooleanFunction::Const(1, 1)},
         };
 
         for (const auto& [s, expected] : data) {
@@ -308,6 +321,25 @@ namespace hal {
         for (const auto& s : std::vector<std::string>({"", "A &", "& A", "A & & B", "A * * B", "(A & B", "A & B)", "A +"})) {
             EXPECT_TRUE(BooleanFunction::from_string(s).is_error()) << "unexpectedly parsed '" << s << "'";
         }
+    }
+
+    /**
+     * 'BooleanFunction::from_string' falls back to a pass that removes all spaces before re-parsing. That fallback
+     * must never fuse two operands into a single identifier, as it would silently return a wrong Boolean function
+     * instead of an error, see issue #62.
+     */
+    TEST(BooleanFunction, ParserNoSpaceFallback) {
+        // NEGATIVE: none of these parses, and in particular none of them is silently turned into a single variable
+        for (const auto& s : std::vector<std::string>({"A 0b2", "A 1x", "A B 2y", "SIG 3z"})) {
+            const auto function = BooleanFunction::from_string(s);
+            EXPECT_TRUE(function.is_error()) << "unexpectedly parsed '" << s << "' as '" << (function.is_ok() ? function.get().to_string() : std::string()) << "'";
+        }
+
+        // the whitespace-separated operands must not end up concatenated into one variable name
+        const auto function = BooleanFunction::from_string("A 0b0");
+        ASSERT_TRUE(function.is_ok()) << "could not parse 'A 0b0'";
+        EXPECT_EQ(function.get().get_variable_names(), std::set<std::string>({"A"}));
+        EXPECT_FALSE(function.get().is_variable());
     }
 
     TEST(BooleanFunction, Parameters) {

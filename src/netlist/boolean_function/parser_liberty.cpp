@@ -81,6 +81,16 @@ namespace hal
             const auto VariableRule      = x3::lexeme[(x3::char_("a-zA-Z") >> *x3::char_("a-zA-Z0-9_"))][VariableAction];
             const auto VariableIndexRule = x3::lexeme[(x3::char_("a-zA-Z") >> *x3::char_("a-zA-Z0-9_") >> x3::char_("(") >> x3::int_ >> x3::char_(")"))][VariableIndexAction];
             const auto ConstantRule      = x3::lexeme[x3::char_("0-1")][ConstantAction];
+            // # Developer Note
+            // The '0b0'/'0b1' spelling of a constant is part of the documented
+            // syntax of `BooleanFunction::from_string` and is hence accepted by
+            // this grammar as well. Without it the two documented spellings
+            // 'whitespace means AND' and '0b0/0b1' would be mutually exclusive,
+            // since only this grammar knows the former and only the standard
+            // grammar knew the latter, see issue #62. The rule has to be tried
+            // before `ConstantRule` so that the '0' of a '0b0' is not consumed
+            // on its own.
+            const auto ConstantPrefixRule = x3::lexeme[x3::lit("0b") >> x3::char_("0-1")[ConstantAction]];
 
             auto iter     = expression.begin();
             const auto ok = x3::phrase_parse(iter,
@@ -88,8 +98,8 @@ namespace hal
                                              ////////////////////////////////////////////////////////////////////
                                              // (3) Parsing Expression Grammar
                                              ////////////////////////////////////////////////////////////////////
-                                             +(AndRule | ImplicitAndRule | NotRule | NotSuffixRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantRule | BracketOpenRule
-                                               | BracketCloseRule),
+                                             +(AndRule | ImplicitAndRule | NotRule | NotSuffixRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantPrefixRule | ConstantRule
+                                               | BracketOpenRule | BracketCloseRule),
                                              // we use an invalid a.k.a. non-printable ASCII character in order
                                              // to prevent the skipping of space characters as they are defined
                                              // as an and operation
