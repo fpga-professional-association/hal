@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-206-g06e58ad64</span>
+   &#160;<span id="projectnumber">v4.5.0-207-g9b77a2be2</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -114,13 +114,13 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a13a2a8f076fc926efa952e47f9b43baa"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classhal_1_1_net.html">Net</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a13a2a8f076fc926efa952e47f9b43baa">affected_net</a></td></tr>
+<tr class="memitem:a13a2a8f076fc926efa952e47f9b43baa"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classhal_1_1_net.html">Net</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a13a2a8f076fc926efa952e47f9b43baa">affected_net</a> = nullptr</td></tr>
 <tr class="separator:a13a2a8f076fc926efa952e47f9b43baa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0dca6dc1ec20e07ad6625684e79c7e49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classhal_1_1_boolean_function.html#aac7bb4fda3bf06664f6bc717c3be92fb">BooleanFunction::Value</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a0dca6dc1ec20e07ad6625684e79c7e49">new_value</a></td></tr>
+<tr class="memitem:a0dca6dc1ec20e07ad6625684e79c7e49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classhal_1_1_boolean_function.html#aac7bb4fda3bf06664f6bc717c3be92fb">BooleanFunction::Value</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a0dca6dc1ec20e07ad6625684e79c7e49">new_value</a> = BooleanFunction::Value::X</td></tr>
 <tr class="separator:a0dca6dc1ec20e07ad6625684e79c7e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1676041a8a8287e2562e75ef946500ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a1676041a8a8287e2562e75ef946500ce">time</a></td></tr>
+<tr class="memitem:a1676041a8a8287e2562e75ef946500ce"><td class="memItemLeft" align="right" valign="top"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a1676041a8a8287e2562e75ef946500ce">time</a> = 0</td></tr>
 <tr class="separator:a1676041a8a8287e2562e75ef946500ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89036f8f461f139275fb90db6c3f460d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a89036f8f461f139275fb90db6c3f460d">id</a></td></tr>
+<tr class="memitem:a89036f8f461f139275fb90db6c3f460d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhal_1_1_wave_event.html#a89036f8f461f139275fb90db6c3f460d">id</a> = 0</td></tr>
 <tr class="separator:a89036f8f461f139275fb90db6c3f460d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -160,9 +160,9 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> when this event happened before the other, <code>false</code> otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00075">75</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00081">81</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
-<p class="reference">References <a class="el" href="wave__event_8h_source.html#l00056">id</a>, and <a class="el" href="wave__event_8h_source.html#l00051">time</a>.</p>
+<p class="reference">References <a class="el" href="wave__event_8h_source.html#l00062">id</a>, and <a class="el" href="wave__event_8h_source.html#l00051">time</a>.</p>
 
 </div>
 </div>
@@ -198,7 +198,7 @@ Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> when both events are equal, <code>false</code> otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00064">64</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00070">70</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
 <p class="reference">References <a class="el" href="wave__event_8h_source.html#l00041">affected_net</a>, <a class="el" href="wave__event_8h_source.html#l00046">new_value</a>, and <a class="el" href="wave__event_8h_source.html#l00051">time</a>.</p>
 
@@ -212,7 +212,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classhal_1_1_net.html">Net</a>* hal::WaveEvent::affected_net</td>
+          <td class="memname">const <a class="el" href="classhal_1_1_net.html">Net</a>* hal::WaveEvent::affected_net = nullptr</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -220,7 +220,7 @@ Public Attributes</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00041">41</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="netlist__simulator_8cpp_source.html#l00279">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00076">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00118">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00064">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="netlist__simulator_8cpp_source.html#l00284">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00077">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00121">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00070">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
 
 </div>
 </div>
@@ -231,15 +231,16 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> hal::WaveEvent::id</td>
+          <td class="memname"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> hal::WaveEvent::id = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The unique ID of the event. </p>
+<p>The unique ID of the event.</p>
+<p>Two events that affect the same net at the same time are ordered by this ID, so it has to be set by whoever creates the event &ndash; an event queue that sorts on an indeterminate value has no defined order at all. The default is a backstop, not a valid ID: every producer is expected to hand out IDs from a counter that only ever increases, so that the order of two events of the same point in time is the order in which they were created. </p>
 
-<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00056">56</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00062">62</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="wave__event_8h_source.html#l00075">operator&lt;()</a>, and <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="netlist__simulator_8cpp_source.html#l00284">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00077">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00121">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00081">operator&lt;()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
 
 </div>
 </div>
@@ -250,7 +251,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classhal_1_1_boolean_function.html#aac7bb4fda3bf06664f6bc717c3be92fb">BooleanFunction::Value</a> hal::WaveEvent::new_value</td>
+          <td class="memname"><a class="el" href="classhal_1_1_boolean_function.html#aac7bb4fda3bf06664f6bc717c3be92fb">BooleanFunction::Value</a> hal::WaveEvent::new_value = BooleanFunction::Value::X</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -258,7 +259,7 @@ Public Attributes</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00046">46</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="simulation_8cpp_source.html#l00008">hal::Simulation::get_net_value()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00279">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00076">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00118">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00064">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="simulation_8cpp_source.html#l00008">hal::Simulation::get_net_value()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00284">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00077">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00121">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00070">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
 
 </div>
 </div>
@@ -269,7 +270,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> hal::WaveEvent::time</td>
+          <td class="memname"><a class="el" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> hal::WaveEvent::time = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -277,7 +278,7 @@ Public Attributes</h2></td></tr>
 
 <p class="definition">Definition at line <a class="el" href="wave__event_8h_source.html#l00051">51</a> of file <a class="el" href="wave__event_8h_source.html">wave_event.h</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="simulation_8cpp_source.html#l00008">hal::Simulation::get_net_value()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00279">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00076">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00118">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00075">operator&lt;()</a>, <a class="el" href="wave__event_8h_source.html#l00064">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="simulation_8cpp_source.html#l00008">hal::Simulation::get_net_value()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00284">hal::NetlistSimulator::initialize()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00077">hal::NetlistSimulator::load_initial_values()</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00121">hal::NetlistSimulator::load_initial_values_from_netlist()</a>, <a class="el" href="wave__event_8h_source.html#l00081">operator&lt;()</a>, <a class="el" href="wave__event_8h_source.html#l00070">operator==()</a>, <a class="el" href="plugins_2simulator_2netlist__simulator__controller_2python_2python__bindings_8cpp_source.html#l00020">hal::PYBIND11_PLUGIN()</a>, and <a class="el" href="netlist__simulator_8cpp_source.html#l00027">hal::NetlistSimulator::set_input()</a>.</p>
 
 </div>
 </div>
