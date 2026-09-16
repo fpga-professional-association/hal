@@ -62,6 +62,12 @@ namespace hal {
                 return terminateThread(false, "run");
         }
 
+        // The loop above only sees a failure that happened before the last event was parsed. Checking
+        // once more here keeps finalize(), which unconditionally reports Done, from turning an engine
+        // that failed on the final event into a successful run with an incomplete result.
+        if (mEngine->state()==SimulationEngine::Failed)
+            return terminateThread(false, "run");
+
         terminateThread(mEngine->finalize(), "finalize");
     }
 }

@@ -103,9 +103,9 @@ namespace hal
                 Specify a net that carries the clock signal and set the clock period in picoseconds.
 
                 :param hal_py.Net clock_net: The net that carries the clock signal.
-                :param int period: The clock period from rising edge to rising edge in picoseconds.
+                :param int period: The clock period from rising edge to rising edge in picoseconds. Must be at least 2.
                 :param bool start_at_zero: Initial clock state is 0 if ``True``, 1 otherwise.
-                :param int duration: Optional max time limit when showing clock in VCD viewer or editor
+                :param int duration: Time limit up to which the clock waveform is generated. Defaults to 0, which means for the whole simulation, i.e. up to the time reached by the ``simulate`` calls.
             )")
 
             .def("set_no_clock_used", &NetlistSimulatorController::set_no_clock_used, R"(

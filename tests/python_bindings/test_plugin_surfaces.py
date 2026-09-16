@@ -23,10 +23,13 @@ function of an ALM lives in its per-instance ``lut_mask`` generic. ``tools/hal_a
 that generic into a Boolean function, exactly as the walkthroughs do, so the tests that need gate
 semantics call it before touching a plugin.
 
-Three findings from writing this are encoded in the tests rather than worked around silently; see
-the comments at each site: the clock tree carries no edge for a directly driven clock input, the
-simulator aborts the process on an output pin without a Boolean function, and ``solve_fsm`` refuses
-any flip-flop whose gate type has more than one pin of type ``data``.
+Writing this turned up three defects, reported as issues #63, #64 and #65 and fixed since: the clock
+tree carried no edge for a directly driven clock input (and ``get_subtree`` returned the vertices it
+had excluded), the simulator aborted the process on an output pin without a Boolean function and
+segfaulted on the null fan-out net of an unused one, and ``solve_fsm``/``boolean_influence`` refused
+any flip-flop whose gate type has more than one pin of type ``data``. The tests that used to pin the
+broken behaviour down now assert the fixed one, and the workarounds they needed are gone; the
+comments at each site say what the failure looked like so a regression is recognisable.
 """
 
 import os
@@ -130,16 +133,15 @@ class ClockTreeExtractorTest(unittest.TestCase):
         self.assertEqual(len(tree.get_all()), 25, "24 flip-flops plus the clock net")
         self.assertIs(tree.get_netlist(), netlist)
 
-    def test_direct_clock_input_produces_a_tree_without_edges(self):
-        """Pin down the shape the traversal accessors see, because it is not the obvious one.
+    def test_direct_clock_input_reaches_every_flip_flop_through_edges(self):
+        """The traversal accessors see the same domain the accessors above report.
 
-        ``ClockTree::from_netlist`` inserts the clock net as a vertex and ``continue``s when the net
-        is a global input driven by nothing (``clock_tree.cpp``, the ``is_global_input_net`` branch),
-        so no net -> flip-flop edge is ever added for a clock that arrives straight from a port. The
-        vertices are all there, none of them is connected, and ``get_childs``/``get_parents``
-        therefore report nothing. ``get_subtree`` is worse: it returns 24 gates for a root that has
-        no edges at all, because it treats igraph's vertex map as 1-based. Neither is used above; if
-        either is fixed, this test fails and says so.
+        ``clk`` arrives straight from a port, which is the case ``ClockTree::from_netlist`` used to
+        insert as a vertex and then ``continue`` past without adding a single net -> flip-flop edge:
+        every vertex was there, none of them was connected, and ``get_childs``/``get_parents``
+        reported nothing for anything. ``get_subtree`` compounded it by reading igraph's forward
+        vertex map as if 0 meant "not in the subgraph", which since igraph 1.0 marks absent vertices
+        with -1, so it dropped the root and returned exactly the *excluded* vertices.
         """
         require(BLINKY, GATE_LIBRARY)
         from hal_plugins import clock_tree_extractor
@@ -147,18 +149,33 @@ class ClockTreeExtractorTest(unittest.TestCase):
         netlist = load(BLINKY)
         tree = clock_tree_extractor.ClockTree.from_netlist(netlist)
         clock = tree.get_nets()[0]
+        flip_flop_ids = sorted(gate.get_id() for gate in tree.get_gates())
 
-        # The pointer round trip works, so an empty neighbour list is a real answer and not a
-        # rejected argument.
+        # The pointer round trip works, so the neighbour lists below are real answers and not
+        # rejected arguments.
         vertex = tree.get_vertex_from_ptr(clock)
         self.assertIsNotNone(vertex)
         self.assertEqual(tree.get_ptr_from_vertex(vertex).get_id(), clock.get_id())
 
-        self.assertEqual(tree.get_childs(clock), [], "clock net unexpectedly has children now")
+        # The clock net is the root of the domain and every flip-flop hangs directly off it.
+        self.assertEqual(sorted(gate.get_id() for gate in tree.get_childs(clock)), flip_flop_ids)
         self.assertEqual(tree.get_parents(clock), [])
         for gate in tree.get_gates():
             self.assertEqual(tree.get_childs(gate), [])
-            self.assertEqual(tree.get_parents(gate), [])
+            self.assertEqual([net.get_id() for net in tree.get_parents(gate)], [clock.get_id()])
+
+        # And the subtree rooted at the clock is the whole domain: the root plus its 24 children.
+        subtree = tree.get_subtree(clock)
+        self.assertIsNotNone(subtree, "get_subtree returned None")
+        self.assertEqual([net.get_id() for net in subtree.get_nets()], [clock.get_id()])
+        self.assertEqual(sorted(gate.get_id() for gate in subtree.get_gates()), flip_flop_ids)
+
+        # A leaf reaches nothing, so its subtree is itself alone.
+        leaf = tree.get_gates()[0]
+        leaf_subtree = tree.get_subtree(leaf)
+        self.assertIsNotNone(leaf_subtree)
+        self.assertEqual([gate.get_id() for gate in leaf_subtree.get_gates()], [leaf.get_id()])
+        self.assertEqual(leaf_subtree.get_nets(), [])
 
 
 class BooleanInfluenceTest(unittest.TestCase):
@@ -230,18 +247,13 @@ class SolveFsmTest(unittest.TestCase):
         self.assertEqual(len(logic), 14, "walkthrough 02 publishes 14 tennm_lcell_comb")
         return state, logic
 
-    def test_refuses_a_flip_flop_type_with_two_data_pins(self):
-        """The vendor flip-flop cannot be solved as shipped, and that is worth pinning down.
+    def test_accepts_a_flip_flop_type_with_a_tied_off_second_data_pin(self):
+        """``tennm_ff`` is solved as the library ships it, with no retyped copy in between.
 
-        ``generate_state_bfs`` (``solve_fsm.cpp``) selects the data pin by asking the *gate type* for
-        pins of type ``data`` and refuses unless there is exactly one. ``tennm_ff`` has two, ``d`` and
-        the never-used ``asdata``, so every Agilex netlist is rejected with
-
-            failed to create input - output mapping: currently not supporting flip-flops with
-            multiple or no data inputs, but found 2 for gate type tennm_ff.
-
-        The binding turns that into ``None`` after logging it. If the plugin learns to pick the pin
-        by more than its type, this test fails and the next one stops needing its workaround.
+        ``generate_state_bfs`` (``solve_fsm.cpp``) used to select the data pin by asking the *gate
+        type* for pins of type ``data`` and refuse unless there was exactly one. ``tennm_ff`` has two,
+        ``d`` and ``asdata``, and every walkthrough netlist ties ``asdata`` to ``'1'``, so every
+        Agilex netlist was rejected outright. The pin is now picked by what drives it.
         """
         require(TRAFFIC_FSM, GATE_LIBRARY)
         from hal_plugins import solve_fsm
@@ -250,16 +262,25 @@ class SolveFsmTest(unittest.TestCase):
         elaborate(netlist)
         state, logic = self._state_and_logic(netlist)
 
-        self.assertIsNone(
+        # The second data pin is there and is tied off; that is the whole reason this used to fail.
+        data_pins = [
+            pin.get_name()
+            for pin in state[0].get_type().get_input_pins()
+            if pin.get_type() == hal_py.PinType.data
+        ]
+        self.assertEqual(sorted(data_pins), ["asdata", "d"])
+        self.assertEqual(state[0].get_fan_in_net("asdata").get_name(), "'1'")
+
+        self.assertIsNotNone(
             solve_fsm.solve_fsm_brute_force(netlist, state, logic),
-            "solve_fsm now accepts tennm_ff; drop the retyped library from the next test",
+            "solve_fsm refused tennm_ff",
         )
 
     def test_brute_force_returns_a_transition_graph(self):
         require(TRAFFIC_FSM, GATE_LIBRARY)
         from hal_plugins import solve_fsm
 
-        netlist = load(TRAFFIC_FSM, self._library_with_asdata_as_control())
+        netlist = load(TRAFFIC_FSM)
         elaborate(netlist)
         state, logic = self._state_and_logic(netlist)
 
@@ -281,40 +302,6 @@ class SolveFsmTest(unittest.TestCase):
         self.assertIsNotNone(dot)
         self.assertIn("digraph", dot)
 
-    def _library_with_asdata_as_control(self):
-        """A copy of AGILEX_TENNM whose ``asdata`` pin is typed ``control`` instead of ``data``.
-
-        The only thing standing between ``solve_fsm`` and this netlist is the pin *type* of a pin the
-        design ties to a constant and never uses, so retyping it is enough to let the plugin run
-        while leaving every function, every pin name and every connection alone. It is written to a
-        temporary file under a different library name so that it cannot collide with the AGILEX
-        library the other tests load.
-        """
-        import json
-
-        document = json.loads(GATE_LIBRARY.read_text(encoding="utf-8"))
-        retyped = 0
-        for cell in document["cells"]:
-            if cell["name"] != "tennm_ff":
-                continue
-            for group in cell["pin_groups"]:
-                if group["name"] != "asdata":
-                    continue
-                group["type"] = "control"
-                for pin in group["pins"]:
-                    pin["type"] = "control"
-                retyped += 1
-        self.assertEqual(retyped, 1, "tennm_ff has no asdata pin group any more")
-
-        name = "AGILEX_TENNM_ASDATA_AS_CONTROL"
-        document["library"] = name
-        # Not deleted afterwards: the netlist keeps a pointer into the gate library for as long as
-        # it lives, and the temporary directory goes away with the process anyway.
-        directory = tempfile.mkdtemp(prefix="hal_solve_fsm_")
-        path = Path(directory) / (name + ".hgl")
-        path.write_text(json.dumps(document), encoding="utf-8")
-        return path
-
 
 class NetlistSimulatorTest(unittest.TestCase):
     """``netlist_simulator``/``netlist_simulator_controller``: 32 cycles of the blinky counter."""
@@ -324,12 +311,22 @@ class NetlistSimulatorTest(unittest.TestCase):
     CYCLES = 32
 
     def test_counter_bits_toggle_at_half_the_rate_of_their_predecessor(self):
+        """The netlist is simulated as ``tools/hal_agilex`` leaves it, with no padding.
+
+        Every ``tennm_lcell_comb`` declares four output pins (``combout``, ``sumout``, ``cout``,
+        ``shareout``) and any one ALM configures at most two, so the unused ones have neither a
+        Boolean function nor a net. ``SimulationGateCombinational`` used to look the function of
+        *every* declared output pin up with ``at()``, which threw ``std::out_of_range`` out of the
+        engine thread and terminated the process; giving the pins a constant function instead then
+        segfaulted the read-back, because the result map is keyed on the (null) fan-out net. An
+        output pin that drives nothing is now skipped and a pin that drives a net without having a
+        function is a clean error, so this test needs no preparation beyond the elaboration.
+        """
         require(BLINKY, GATE_LIBRARY)
         from hal_plugins import netlist_simulator_controller  # noqa: F401  (registers the types)
 
         netlist = load(BLINKY)
         elaborate(netlist)
-        self._give_every_output_pin_a_function(netlist)
 
         plugin = hal_py.plugin_manager.get_plugin_instance("netlist_simulator_controller")
         self.assertIsNotNone(plugin)
@@ -345,11 +342,12 @@ class NetlistSimulatorTest(unittest.TestCase):
         self.assertIsNotNone(engine)
 
         period = self.PERIOD_PS
-        total = (self.CYCLES + 2) * period
-        # The fourth argument is not optional in practice: add_clock_period falls back to a 2000 ps
-        # clock waveform ("duration ? duration : 2000"), so without it the clock simply stops after
-        # two periods and every later sample repeats the last value instead of failing.
-        controller.add_clock_period(net_named(netlist, "clk"), period, True, total)
+        # No duration is passed: the default means "for the whole simulation", i.e. the clock
+        # waveform is generated up to the time the simulate() calls below reach. It used to fall
+        # back to a 2000 ps waveform, after which the clock simply stopped and every later sample
+        # repeated the last value instead of failing, so a run of more than two periods needed the
+        # fourth argument to produce anything at all.
+        controller.add_clock_period(net_named(netlist, "clk"), period)
 
         value = hal_py.BooleanFunction.Value
         reset = net_named(netlist, "rst_n")
@@ -393,37 +391,6 @@ class NetlistSimulatorTest(unittest.TestCase):
             if time.time() > deadline:
                 self.fail("engine still in state {} after {:.0f}s".format(state, timeout_s))
             time.sleep(0.02)
-
-    def _give_every_output_pin_a_function(self, netlist):
-        """Work around an abort, not a wrong answer.
-
-        ``SimulationGateCombinational``'s constructor does ``functions.at(pin->get_name())`` for
-        *every* output pin of the gate type. ``tennm_lcell_comb`` has four (``combout``, ``sumout``,
-        ``cout``, ``shareout``) and any one ALM uses at most two, so the lookup throws
-        ``std::out_of_range`` out of the engine thread and terminates the process -- there is no
-        exception for a test to catch and no way to skip afterwards.
-
-        The unused pins are given a constant and a net of their own. A net is needed as well as a
-        function because the same constructor stores ``gate->get_fan_out_net(pin)`` as the key of the
-        result map, and a null key is dereferenced when the results are read back, which segfaults.
-        Neither addition can change the answer: the stub nets have no destinations.
-        """
-        constant = hal_py.BooleanFunction.Const(0, 1)
-        for gate in netlist.get_gates():
-            if not gate.get_type().has_property(hal_py.GateTypeProperty.combinational):
-                continue
-            defined = set(gate.get_boolean_functions())
-            for pin in gate.get_type().get_output_pins():
-                name = pin.get_name()
-                if name in defined:
-                    continue
-                self.assertIsNone(
-                    gate.get_fan_out_net(pin),
-                    "{}.{} drives a net but has no Boolean function".format(gate.get_name(), name),
-                )
-                stub = netlist.create_net("__unused_{}_{}".format(gate.get_id(), name))
-                stub.add_source(gate, name)
-                gate.add_boolean_function(name, constant)
 
 
 class SequentialSymbolicExecutionTest(unittest.TestCase):
