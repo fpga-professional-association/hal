@@ -229,7 +229,8 @@ next state is <code>load ? 0 : rnd+1</code>, and with <code>load = start &amp; ~
 inlined that is a seven-input cone &mdash; <code>start</code>, <code>run</code>
 and all five counter bits &mdash; one past what a normal-mode ALM reads. The fix
 is a <code>/* synthesis keep */</code> on <code>load</code>, which makes it one
-cell that 201 registers share and drops the counter's top bit back to six
+cell that 208 others read &mdash; every register's next-state logic plus the
+shared clock enable &mdash; and drops the counter's top bit back to six
 inputs. The keeps on <code>cpar</code>, <code>theta</code> and <code>chi</code>
 are there for the same reason: unkept, a chi cell fuses with its load
 multiplexer into a seven-input cone. Walkthrough
@@ -315,10 +316,10 @@ step for step:</p>
 <table>
 <tr><th>level</th><th>nodes</th><th>what is in it</th></tr>
 <tr><td>0</td><td>209</td><td>the 207 flip-flops, plus the shared GND/VCC hub</td></tr>
-<tr><td>1</td><td>51</td><td><strong>theta's parity planes</strong>: 40 column-parity cells &mdash; plus the eight round-constant cells, the terminal-count test, the load select and one counter cell, all of which read only the counter</td></tr>
+<tr><td>1</td><td>51</td><td><strong>theta's parity planes</strong>: 40 column-parity cells &mdash; plus the control logic that reads registers directly, namely the eight round-constant cells, the terminal-count test, one counter cell and the load select</td></tr>
 <tr><td>2</td><td>208</td><td><strong>theta proper</strong>: 200 cells, one per state bit &mdash; plus the counter's next state and the two flags</td></tr>
 <tr><td>3</td><td>200</td><td><strong>chi</strong>: 200 cells, one per state bit</td></tr>
-<tr><td>4</td><td>200</td><td><strong>iota and the load multiplexer</strong>, fused: one cell per state bit</td></tr>
+<tr><td>4</td><td>200</td><td><strong>the load multiplexer</strong>, one cell per state bit &mdash; with iota fused into eight of them, the eight bits of lane <code>(0,0)</code></td></tr>
 </table>
 
 <div class="why"><span class="tag">What the level count measures, and how this compares</span>

@@ -126,8 +126,9 @@ module keccak_toy (
     // `keep` again, and again for coverage rather than style: unkept, Quartus
     // inlines `start & ~run` into the round counter's top bit, whose next state
     // is then a seven-input cone (start, run and all five counter bits) and
-    // needs the fracturable ALM mode.  Kept, `load` is one cell that 201
-    // registers share and the counter's top bit reads six inputs.
+    // needs the fracturable ALM mode.  Kept, `load` is one cell that 208 others
+    // read -- every register's next-state logic plus the shared clock enable --
+    // and the counter's top bit is back to six inputs.
     wire load /* synthesis keep */;
     assign load = start & ~run;
 

@@ -81,10 +81,10 @@ On this design the level profile *is* the round, step for step:
 | level | nodes | what is in it |
 | --- | --- | --- |
 | 0 | 209 | the 207 flip-flops, plus the shared GND/VCC hub |
-| 1 | 51 | θ's 40 column-parity cells, plus everything that reads only the round counter (8 round-constant cells, the terminal-count test, the load select, one counter cell) |
+| 1 | 51 | θ's 40 column-parity cells, plus the control logic that reads registers directly (8 round-constant cells, the terminal-count test, one counter cell, the load select) |
 | 2 | 208 | θ proper: 200 cells, one per state bit, plus the counter's next state and the two flags |
 | 3 | 200 | χ: 200 cells, one per state bit |
-| 4 | 200 | ι and the load multiplexer, fused: one cell per state bit |
+| 4 | 200 | the load multiplexer, one cell per state bit — with ι fused into eight of them, the eight bits of lane (0,0) |
 
 Five levels where 12 and 13 are both 3, and for a third reason again: a sponge
 round is a short fixed pipeline of *named* steps, each one LUT deep because each

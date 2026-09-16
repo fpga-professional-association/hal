@@ -247,7 +247,8 @@ confirmed and which it did not:
   (`start`, `run` and all five counter bits) and needed the ALM's fracturable
   seven/eight-input mode (`extended_lut "on"`) — outside the validated
   configuration, and `inventory --strict` said so. Kept, `load` is one cell that
-  201 registers share and the counter's top bit reads six inputs. The keeps on
+  208 others read — every register's next-state logic plus the shared clock
+  enable — and the counter's top bit is back to six inputs. The keeps on
   `cpar`/`theta`/`chi` do the same job for the round: unkept, a χ cell and its
   load multiplexer fuse into a seven-input cone. Walkthrough 13 hit the same
   wall for the same reason and its spec.md says so too.
