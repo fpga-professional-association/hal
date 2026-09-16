@@ -1,0 +1,24 @@
+{
+  "enable_groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "1",
+      "size": 296
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "i638~1_combout",
+      "size": 5
+    }
+  ],
+  "flip_flops": 301,
+  "q_vectors": {
+    "done~q": 1,
+    "hi": 5,
+    "lo": 6,
+    "s": 288,
+    "warm~q": 1
+  }
+}

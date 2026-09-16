@@ -132,8 +132,13 @@ state autonomously driving a 32-bit state is a key schedule driving a data path
 `11_speck_toy` (ARX) is 18 levels over 137 cells -- deep and narrow, because a
 16-bit carry ripples. `12_present_sbox` (SPN) is 3 levels over 226 cells -- wide
 and shallow, because sixteen 4-bit S-boxes are sixteen independent functions
-with no carry between them. Run `hal_viz dag` early: ARX-versus-SPN, and
-iterative-versus-unrolled, are both visible in the column profile alone.
+with no carry between them. `13_trivium_stream` (bit-serial stream cipher) is 3
+levels over 310 -- shallow for a third reason again: one cipher step is *one
+LUT*, and the 1152-step warm-up is schedule, not depth. Run `hal_viz dag` early:
+ARX-versus-SPN, iterative-versus-unrolled, and logic-versus-schedule are all
+visible in the column profile alone. It is also the cheapest whole-netlist
+picture there is -- at 613 gates the *unlevelled* graph does not render at all,
+because a cyclic graph cannot be layered.
 
 **Substitution is recoverable exactly; the permutation around it usually is
 not.** In `12_present_sbox` the 4-bit S-box comes out of the LUT cones as a
@@ -142,6 +147,29 @@ that no pass reports -- it had to be read off which cone drives which flip-flop.
 Same lesson as the ARX rotations: **the layer that costs no logic is the layer
 no tool hands you**, in both families. Recover it from index arithmetic over an
 ordered layer, and say so.
+
+**A structural test that finds *nothing* is a claim about the netlist you were
+given, and the first thing to suspect is the multiplexer on top.** On
+`13_trivium_stream`, a real export of Trivium, the shift-chain test found **zero**
+chains in a design that is three shift registers: every stage's next state is
+`load ? init : q_prev`, so "driven by exactly one register" is false for all 288
+at once. Holding one external net at one constant brings all of them back --
+literally the same move that recovers `11_speck_toy`'s XOR layer. Expect it
+wherever a core is *keyed*: the load path is the thing that makes a cipher usable
+and the thing that hides its structure. And say which mode the claim holds in: "a
+shift chain" and "a shift chain while `start` is low" are different statements.
+
+**Ask whether the object closes onto itself before deciding it is open.** Trivium,
+Grain and every other modern hardware stream cipher are *coupled* registers: no
+segment's feedback is a function of its own stages alone (in `13_trivium_stream`,
+93 -> 84 -> 111 -> 93). A chain whose head reads a sibling looks open to any pass
+that classifies one chain at a time, so find every chain first and resolve foreign
+taps against the set. A coupled register also has **no feedback polynomial** --
+a polynomial is a recurrence over one register's own history -- and the algebraic
+normal form is then the whole answer. That the SCC decomposition of the same
+netlist returns **one** component of all 288 registers is not a contradiction: a
+ring is mutually reachable, so the two methods are answering different questions
+and both answers are load-bearing.
 
 **A published constant set or test vector is literature, not netlist.**
 `hal_crypto` reporting the `speck_32` rotation amounts is a statement about four
@@ -175,7 +203,7 @@ a structural pass is a statement about the netlist you were given.
 
 ## Where things live
 - Examples, teaching order: `examples/agilex3_walkthroughs/
-  {01_blinky_counter..12_present_sbox}/guide.html` + that directory's
+  {01_blinky_counter..13_trivium_stream}/guide.html` + that directory's
   `README.md` ("what it teaches" table). Per walkthrough: `analyze.py`/
   `analysis.py` (structure), `probe.py` (behaviour), `reference.py`/
   `recovered_reference.py` (step 7/8 models), and `check.py` -- the

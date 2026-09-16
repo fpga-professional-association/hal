@@ -1,0 +1,58 @@
+{
+  "fields": [
+    {
+      "bits": 80,
+      "identity_offset": 93,
+      "port": "iv",
+      "port_range": [
+        0,
+        79
+      ],
+      "state_range": [
+        93,
+        172
+      ]
+    },
+    {
+      "bits": 80,
+      "identity_offset": 0,
+      "port": "key",
+      "port_range": [
+        0,
+        79
+      ],
+      "state_range": [
+        0,
+        79
+      ]
+    }
+  ],
+  "load_mode": {
+    "start": 1,
+    "warm~q": 0
+  },
+  "ones_at": [
+    285,
+    286,
+    287
+  ],
+  "ones_at_spec": [
+    286,
+    287,
+    288
+  ],
+  "stages": 288,
+  "zero_bits": 125,
+  "zero_runs": [
+    {
+      "from": 80,
+      "length": 13,
+      "to": 92
+    },
+    {
+      "from": 173,
+      "length": 112,
+      "to": 284
+    }
+  ]
+}

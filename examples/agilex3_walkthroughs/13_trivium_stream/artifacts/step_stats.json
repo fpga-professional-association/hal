@@ -1,0 +1,51 @@
+{
+  "declared_vectors": {
+    "hi": 5,
+    "iv": 80,
+    "key": 80,
+    "lo": 6,
+    "s": 288
+  },
+  "design_name": "trivium_stream",
+  "gate_types": {
+    "tennm_ff": 301,
+    "tennm_lcell_comb": 310
+  },
+  "inputs": [
+    {
+      "name": "key",
+      "width": 80
+    },
+    {
+      "name": "start",
+      "width": 1
+    },
+    {
+      "name": "clk",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "width": 1
+    },
+    {
+      "name": "iv",
+      "width": 80
+    }
+  ],
+  "instances": 611,
+  "outputs": [
+    {
+      "name": "ks",
+      "width": 1
+    },
+    {
+      "name": "ks_valid",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "width": 1
+    }
+  ]
+}

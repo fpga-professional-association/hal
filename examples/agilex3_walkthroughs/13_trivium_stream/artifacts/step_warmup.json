@@ -1,0 +1,25 @@
+{
+  "moduli": [
+    64,
+    18
+  ],
+  "state_bits": 288,
+  "steps_per_state_bit": 4,
+  "terminal_count_cells": [
+    {
+      "cell": "lo_last",
+      "counter": "lo",
+      "fires_on": 63,
+      "modulus": 64,
+      "width": 6
+    },
+    {
+      "cell": "hi_last",
+      "counter": "hi",
+      "fires_on": 17,
+      "modulus": 18,
+      "width": 5
+    }
+  ],
+  "warmup_steps": 1152
+}
