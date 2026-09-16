@@ -68,6 +68,7 @@ COUNTER_EXPORT = os.path.join(WALKTHROUGHS, "01_blinky_counter", "blinky_counter
 CRC_EXPORT = os.path.join(
     WALKTHROUGHS, "10_crc8_checker", "netlist", "crc8_checker.vo"
 )
+SPECK_EXPORT = os.path.join(WALKTHROUGHS, "11_speck_toy", "speck_toy.vo")
 
 _MODEL_CACHE = {}
 
@@ -133,6 +134,22 @@ class TruthTableTest(unittest.TestCase):
         restricted = table.restricted()
         self.assertEqual(("b",), restricted.inputs)
         self.assertEqual((0, 1), restricted.values)
+
+    def test_cofactor_recovers_an_xor_packed_under_a_multiplexer(self):
+        # f(s, p, a, b) = s ? p : (a ^ b) -- one ALM, and not an XOR of
+        # anything until the select is held.
+        values = []
+        for index in range(16):
+            s, p, a, b = ((index >> shift) & 1 for shift in range(4))
+            values.append(p if s else (a ^ b))
+        table = boolfunc.TruthTable(("s", "p", "a", "b"), values)
+        self.assertFalse(table.is_affine())
+        held = table.cofactor(0, 0).restricted()
+        self.assertEqual(("a", "b"), held.inputs)
+        self.assertEqual((0, ["a", "b"]), held.linear_terms())
+        self.assertEqual(("p",), table.cofactor(0, 1).restricted().inputs)
+        with self.assertRaises(IndexError):
+            table.cofactor(4, 0)
 
     def test_polynomial_conventions_are_reciprocal(self):
         exponents = boolfunc.polynomial_exponents([3, 12, 14, 15])
@@ -446,6 +463,60 @@ class ArxPassTest(unittest.TestCase):
         self.assertEqual("not-arx", result["verdict"])
         self.assertTrue(any("adder" in reason for reason in result["missing"]))
 
+    def test_one_rotation_seen_twice_is_reported_once(self):
+        # arx_round8 names the rotated word *and* the register bank behind it
+        # reads the same rotation; the count is a count of rotations.
+        result = arx.identify(fixture("arx_round8"))
+        signatures = {
+            (entry["source"], entry["width"], entry["rotation"])
+            for entry in result["rotations"]
+        }
+        self.assertEqual(len(signatures), len(result["rotations"]))
+
+    def test_the_speck_export_is_arx_although_it_names_nothing(self):
+        """A real Quartus export hides both the R and the X of ARX.
+
+        Nothing in ``11_speck_toy`` carries a rotated word (the wiring is free,
+        so the synthesiser kept no vector for it) and not one cell is a
+        standalone XOR (each is packed with the load multiplexer next to it).
+        The round is still there and the pass has to find it.
+        """
+        model = load(SPECK_EXPORT)
+        result = arx.identify(model)
+        self.assertEqual("arx-candidate", result["verdict"])
+        self.assertEqual(2, len(result["adders"]))
+
+        self.assertEqual(0, result["standalone_xor_cells"])
+        self.assertGreaterEqual(result["conditional_xor_cells"], arx.MIN_XOR_LAYER)
+        self.assertTrue(result["xor_layer_reads_adder_output"])
+        self.assertTrue(result["rotation_on_adder_operand"])
+
+        # no rotation came from a named vector: they are all read off a layer
+        self.assertEqual(
+            set(),
+            {
+                entry["read_from"]
+                for entry in result["rotations"]
+                if entry["read_from"] == "named vector"
+            },
+        )
+        by_source = {entry["source"]: entry for entry in result["rotations"]}
+        self.assertEqual(
+            {"x": 7, "l0": 7, "y": 2, "k": 2},
+            {name: entry["rotate_left_by"] if name in ("y", "k") else entry["rotation"]
+             for name, entry in by_source.items()},
+        )
+        self.assertEqual({16}, {entry["width"] for entry in result["rotations"]})
+        self.assertEqual(
+            ["speck_32"], [entry["name"] for entry in result["rotation_families"]]
+        )
+
+    def test_a_packed_xor_never_makes_a_plain_counter_arx(self):
+        """The cofactor test must not manufacture an XOR layer out of nothing."""
+        for path in (COUNTER_EXPORT, CRC_EXPORT):
+            result = arx.identify(load(path))
+            self.assertEqual("not-arx", result["verdict"], path)
+
 
 class PermutationPassTest(unittest.TestCase):
     def test_rotation_between_banks_is_found_with_both_spellings(self):
@@ -475,6 +546,88 @@ class PermutationPassTest(unittest.TestCase):
             for entry in permutation.find_permutations(fixture("counter8"))
             if entry["kind"] != "identity"
         ]
+        self.assertEqual([], entries)
+
+
+class LayerRotationTest(unittest.TestCase):
+    """Rotations read off an ordered cell layer instead of a named vector."""
+
+    def test_a_full_rotation_is_classified(self):
+        keys = ["v[{}]".format((index + 3) % 8) for index in range(8)]
+        entry = permutation.vector_rotation(keys)
+        self.assertEqual("rotation", entry["kind"])
+        self.assertEqual("v", entry["source"])
+        self.assertEqual(8, entry["width"])
+        self.assertEqual(3, entry["rotation"])
+        self.assertEqual(5, entry["rotate_left_by"])
+        self.assertEqual(8, entry["bits_observed"])
+
+    def test_a_layer_one_bit_short_still_classifies_against_the_full_width(self):
+        # a carry chain's top slice is classified separately, so the operand
+        # list is one bit short of the bank it reads
+        keys = ["v[{}]".format((index + 7) % 16) for index in range(15)]
+        entry = permutation.vector_rotation(keys, width=16)
+        self.assertEqual(7, entry["rotation"])
+        self.assertEqual(16, entry["width"])
+        self.assertEqual(15, entry["bits_observed"])
+        # with no declared width the highest index still fixes it at 16 here,
+        # but a rotation that never reaches the top bit is not classifiable
+        # without one
+        self.assertEqual(16, permutation.vector_rotation(keys)["width"])
+        low = ["v[{}]".format((index + 2) % 16) for index in range(12)]
+        self.assertEqual(16, permutation.vector_rotation(low, width=16)["width"])
+        self.assertEqual(14, permutation.vector_rotation(low)["width"])
+
+    def test_straight_wiring_and_mixed_sources_are_not_rotations(self):
+        self.assertIsNone(
+            permutation.vector_rotation(["v[{}]".format(i) for i in range(8)])
+        )
+        self.assertIsNone(
+            permutation.vector_rotation(["a[0]", "b[1]", "a[2]", "a[3]"])
+        )
+        self.assertIsNone(permutation.vector_rotation(["v[1]", "v[2]", "v[0]"]))
+
+    def test_speck_export_rotations_come_from_the_next_state_fan_in(self):
+        entries = permutation.register_bank_rotations(load(SPECK_EXPORT))
+        self.assertEqual(
+            {"k": 2, "y": 2},
+            {entry["source"]: entry["rotate_left_by"] for entry in entries},
+        )
+        for entry in entries:
+            self.assertEqual(16, entry["width"])
+            self.assertIn("next-state", entry["destination"])
+
+    def test_a_partial_bank_is_refused_rather_than_offset_corrected(self):
+        """Bits 1..n of a vector would read as a rotation of 1; refuse instead."""
+        model = load(SPECK_EXPORT)
+        full = {entry["source"] for entry in permutation.register_bank_rotations(model)}
+        self.assertEqual({"k", "y"}, full)
+
+        class _Partial(object):
+            """The same model with bit 0 of the y bank hidden."""
+
+            def __init__(self, inner):
+                self._inner = inner
+                self.ff_instances = [
+                    ff
+                    for ff in inner.ff_instances
+                    if getattr((ff.connections.get("q") or [None])[0], "key", "")
+                    != "y[0]"
+                ]
+
+            def __getattr__(self, name):
+                return getattr(self._inner, name)
+
+        partial = {
+            entry["source"]
+            for entry in permutation.register_bank_rotations(_Partial(model))
+        }
+        self.assertEqual({"k"}, partial)
+
+    def test_a_holding_register_bank_is_not_a_rotation(self):
+        # every bit of an accumulator's next state reads its own bit on the
+        # hold path, which is the identity and must not be reported
+        entries = permutation.register_bank_rotations(fixture("counter8"))
         self.assertEqual([], entries)
 
 
@@ -513,6 +666,23 @@ class ClassifierTest(unittest.TestCase):
         polynomial = finding_by_id(document, "hal_crypto/lfsr/polynomial")
         self.assertEqual("proven_under_assumptions", polynomial["status"])
         self.assertIn("x^16 + x^15 + x^13 + x^4 + 1", polynomial["title"])
+
+    def test_walkthrough_speck_is_arx_and_classical(self):
+        document = identify(SPECK_EXPORT)
+        validate.validate_document(document)
+        family = finding_by_id(document, "hal_crypto/identify/family")
+        self.assertEqual("arx", family["data"]["family"])
+        self.assertEqual(["arx"], family["data"]["families_present"])
+        self.assertEqual("high", family["data"]["confidence_tier"])
+        style = finding_by_id(document, "hal_crypto/identify/classical-vs-pqc")
+        self.assertEqual("classical-style", style["data"]["style"])
+        round_finding = finding_by_id(document, "hal_crypto/arx/round")
+        self.assertEqual("heuristic", round_finding["status"])
+        # the published rotation set is quoted, the cipher is never claimed
+        text = json.dumps(document)
+        self.assertIn("speck_32", text)
+        for word in ("is SPECK", "is Speck", "implements SPECK", "implements Speck"):
+            self.assertNotIn(word, text)
 
     def test_walkthrough_counter_is_none_detected(self):
         document = identify(COUNTER_EXPORT)

@@ -1,0 +1,32 @@
+{
+  "enable_groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "i264~1_combout",
+      "size": 96
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "run~q",
+      "size": 5
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "1",
+      "size": 3
+    }
+  ],
+  "flip_flops": 104,
+  "q_vectors": {
+    "k": 16,
+    "l0": 16,
+    "l1": 16,
+    "l2": 16,
+    "rnd": 5,
+    "x": 16,
+    "y": 16
+  }
+}

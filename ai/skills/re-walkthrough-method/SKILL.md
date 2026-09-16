@@ -104,6 +104,60 @@ matching census is real corroboration but **not** an equivalence proof --
 two designs can share a census and differ in wiring; it's one more way the
 reconstruction could have been wrong and wasn't, not a proof.
 
+## When the question is "is this cryptography"
+
+Steps 1-8 still run first; `hal_crypto` (see
+[hal-crypto-id](../hal-crypto-id/SKILL.md)) is a *consumer* of steps 4 and 5,
+not a replacement for them. What the crypto case adds:
+
+**A cipher's defining operations do not all survive as objects.** Measured on
+`11_speck_toy`, a real Quartus export of Speck32/64: the add is a carry chain
+and unmissable; the **rotations are not signals at all** (rotating a word is
+free wiring, so the synthesiser keeps no net for it) and had to be read off
+*orderings* -- which register bit lands on carry-chain slice *i*, and which
+single bit of its own bank each register bit's next-state cell reads; and
+**none of the 54 XOR cells is an XOR**, because each shares its ALM with the
+load multiplexer, recovered only by holding one input at a constant. Expect the
+same shape in any loadable core: look for index arithmetic over an ordered cell
+layer, not for a named permuted vector.
+
+**SCCs partition a cipher into its architectural objects, and the partition's
+direction is evidence.** On the same export the four components are exactly
+`{k,l0,l1,l2}` (144 gates), `{x,y}` (80), `{rnd,run,pen}` (14) and `{fin}` (2).
+That the first two are *separate* says the coupling is one-way, and a 64-bit
+state autonomously driving a 32-bit state is a key schedule driving a data path
+-- a hypothesis available before any `lut_mask` is read.
+
+**The level count separates the two families before anything is decoded.**
+`11_speck_toy` (ARX) is 18 levels over 137 cells -- deep and narrow, because a
+16-bit carry ripples. `12_present_sbox` (SPN) is 3 levels over 226 cells -- wide
+and shallow, because sixteen 4-bit S-boxes are sixteen independent functions
+with no carry between them. Run `hal_viz dag` early: ARX-versus-SPN, and
+iterative-versus-unrolled, are both visible in the column profile alone.
+
+**Substitution is recoverable exactly; the permutation around it usually is
+not.** In `12_present_sbox` the 4-bit S-box comes out of the LUT cones as a
+table and matches the published one, while the bit permutation is pure wiring
+that no pass reports -- it had to be read off which cone drives which flip-flop.
+Same lesson as the ARX rotations: **the layer that costs no logic is the layer
+no tool hands you**, in both families. Recover it from index arithmetic over an
+ordered layer, and say so.
+
+**A published constant set or test vector is literature, not netlist.**
+`hal_crypto` reporting the `speck_32` rotation amounts is a statement about four
+numbers found in wiring; an S-box match is a statement about a table, and its
+**tier** (`exact` / `xor_constant` / `bit_permutation`) is part of the claim.
+Neither identifies a cipher, and neither does a matching test vector. State the
+structure, cite the match, keep them apart.
+
+**What survives synthesis is decided by the RTL, not by the algorithm.**
+`12_present_sbox` ships two counterfactual exports of the *same* cipher: drop a
+`keep` attribute and the S-box still extracts but matches nothing in the
+library; move where the registers sit and the substitution layer stops existing
+as cones at all (`none-detected`). Before concluding "this design contains no
+S-box", ask whether the coding style could have dissolved one -- a negative from
+a structural pass is a statement about the netlist you were given.
+
 ## The epistemics this series is actually teaching
 
 - **Structure and behaviour are independent evidence, not a pipeline.**
@@ -121,7 +175,7 @@ reconstruction could have been wrong and wasn't, not a proof.
 
 ## Where things live
 - Examples, teaching order: `examples/agilex3_walkthroughs/
-  {01_blinky_counter..10_crc8_checker}/guide.html` + that directory's
+  {01_blinky_counter..12_present_sbox}/guide.html` + that directory's
   `README.md` ("what it teaches" table). Per walkthrough: `analyze.py`/
   `analysis.py` (structure), `probe.py` (behaviour), `reference.py`/
   `recovered_reference.py` (step 7/8 models), and `check.py` -- the

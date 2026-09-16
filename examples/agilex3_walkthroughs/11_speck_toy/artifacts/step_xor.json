@@ -1,0 +1,63 @@
+{
+  "arities": {
+    "2": 33,
+    "3": 21
+  },
+  "cofactors": {
+    "pen~q=0": 1,
+    "run~q=1": 53
+  },
+  "conditional": 54,
+  "examples": [
+    {
+      "cell": "i264~0",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[14]",
+        "k[0]",
+        "add_0~1_sumout"
+      ]
+    },
+    {
+      "cell": "i264~2",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[15]",
+        "k[1]",
+        "add_0~6_sumout"
+      ]
+    },
+    {
+      "cell": "i264~3",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[0]",
+        "k[2]",
+        "add_0~11_sumout"
+      ]
+    },
+    {
+      "cell": "i264~4",
+      "cofactor": {
+        "net": "run~q",
+        "value": 1
+      },
+      "inputs": [
+        "y[1]",
+        "k[3]",
+        "add_0~16_sumout"
+      ]
+    }
+  ],
+  "standalone": 0,
+  "xor_cells": 54
+}

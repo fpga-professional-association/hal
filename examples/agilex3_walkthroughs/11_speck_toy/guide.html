@@ -1,0 +1,1036 @@
+<title>Agilex 3 RE walkthrough 11 — Speck32/64 ARX block cipher</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 11 — a Speck32/64 block cipher: finding an
+Add-Rotate-XOR round in a netlist that names neither the rotation nor the XOR.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+241 instances: 104 flip-flops, 137 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has done walkthroughs 01–10 — census,
+register banks, SCCs, carry chains, <code>lut_mask</code> algebra — and now wants
+the first design in the series that is actually cryptography. The lesson is not
+"here is how Speck works". It is that a cipher's three defining operations
+survive synthesis in three completely different states, and only one of them
+looks like what you expect.
+<p style="margin-bottom:0"><strong>The rule this page follows:</strong> every
+number, every quoted output and every picture below was produced by the command
+printed above it, and <a href="check.py">check.py</a> re-derives all of them.
+Where a tool got it wrong first, that is shown too — the failures are part of
+the lesson.</p>
+</div>
+
+<div class="note" style="margin:1.2rem 0 2rem"><span class="tag">The one sentence version</span>
+An ARX round is <strong>A</strong>dd, <strong>R</strong>otate, <strong>X</strong>or. In
+this export the add is a dedicated carry chain and impossible to miss; the rotate
+costs no logic at all and therefore <em>does not exist as a signal</em>; and not one
+of the 54 XOR cells is an XOR, because each was packed into an ALM together with the
+multiplexer beside it. Two of the three ingredients had to be recovered from
+<em>orderings</em> and <em>cofactors</em> rather than read off the netlist.
+</div>
+
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul class="tight">
+<li><a href="#design">1. The design (the answer key)</a></li>
+<li><a href="#synth">2. Synthesis, and one refusal</a></li>
+<li><a href="#contact">3. First contact with the netlist</a></li>
+<li><a href="#dag">4. The netlist as a graph</a></li>
+<li><a href="#walk">5. The walk, step by step</a>
+  <ul class="tight">
+    <li><a href="#s1">1 — what each port is</a></li>
+    <li><a href="#s2">2 — find the state</a></li>
+    <li><a href="#s3">3 — the carry chains, and alpha</a></li>
+    <li><a href="#s4">4 — beta, which no wire carries</a></li>
+    <li><a href="#s5">5 — the XOR layer that has no XOR cells</a></li>
+    <li><a href="#s6">6 — how many rounds</a></li>
+    <li><a href="#s7">7 — the key schedule</a></li>
+    <li><a href="#s8">8 — run it</a></li>
+  </ul></li>
+<li><a href="#identify">6. What the crypto identifier says</a></li>
+<li><a href="#rebuild">7. Reconstruction, and what was lost</a></li>
+<li><a href="#further">8. Going further</a></li>
+<li><a href="#repro">9. Reproducing all of it</a></li>
+</ul>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="design">1. The design (the answer key)</h2>
+
+<p>The target is <strong>Speck32/64</strong>, the smallest member of the SPECK
+family (Beaulieu, Shors, Smith, Treatman-Clark, Weeks and Wingers, IACR ePrint
+2013/404): a 32-bit block, a 64-bit key, 22 rounds, encryption only, one round
+per clock cycle. <a href="spec.md">spec.md</a> states the intended behaviour and
+was written before synthesis; <a href="design.v">design.v</a> is the RTL that was
+handed to Quartus. Read them now if you like, then forget them: from
+<a href="#contact">section 3</a> onwards the walk uses <em>only</em> the netlist.</p>
+
+<p>The round function, with the block held as two 16-bit words and
+<code>k</code> the round key:</p>
+
+<pre><code>x &lt;- (ROR(x, 7) + y) mod 2^16  XOR  k
+y &lt;- ROL(y, 2)                 XOR  x     (the *new* x)</code></pre>
+
+<p>and the key schedule, which is the same shape with the round index injected
+where the key would be:</p>
+
+<pre><code>l_new &lt;- (k + ROR(l0, 7)) mod 2^16  XOR  i        (i = 0..20)
+k     &lt;- ROL(k, 2)                  XOR  l_new
+l0, l1, l2 &lt;- l1, l2, l_new</code></pre>
+
+<div class="note"><span class="tag">Why an ARX cipher is the interesting case</span>
+<p>Three operations, three completely different fates on an FPGA:</p>
+<ul class="tight">
+<li><strong>Add</strong> becomes the dedicated carry chain — a run of
+<code>tennm_lcell_comb</code> cells in arithmetic mode wired
+<code>cout&nbsp;-&gt;&nbsp;cin</code>. Unmissable, and walkthroughs 01, 04 and 06
+already taught how to read it.</li>
+<li><strong>Rotate</strong> becomes <em>nothing</em>. A fixed rotation is a
+relabelling of wires: no cell, no <code>lut_mask</code>, no net. It is invisible
+to a gate census and it will not appear in any list of signals.</li>
+<li><strong>Xor</strong> becomes LUT cells — <em>if</em> the synthesiser has no
+better use for the ALM. It does: every XOR here shares its cell with a load
+multiplexer.</li>
+</ul>
+<p style="margin-bottom:0">So two thirds of the round function is not in the
+netlist as an object. That is the whole exercise.</p></div>
+
+<h3>Why this design, and not something bigger</h3>
+<p>The RTL is constrained so the whole post-synthesis netlist lands inside what
+this repository has actually <em>validated</em>: one clock, no vendor IP, no RAM,
+no DSP, no PLL, no instantiated IO buffers. Round keys are computed by a datapath
+rather than stored in a table, which is what keeps a memory block out of it, and
+every operation is a 16-bit add, a rotation or an XOR — a 16&times;16 multiply
+would have gone to a DSP block and straight out of coverage. What is left is
+<code>tennm_lcell_comb</code> and <code>tennm_ff</code>, the two primitives
+<code>plugins/gate_libraries/definitions/AGILEX_TENNM.hgl</code> models.</p>
+
+<!-- ===================================================================== -->
+<h2 id="synth">2. Synthesis, and one refusal</h2>
+
+<p>The flow is the usual one, in a scratch directory holding a copy of
+<code>design.v</code> and the project files from <a href="quartus/">quartus/</a>:</p>
+
+<pre><code>$ quartus_sh -t build.tcl
+$ quartus_syn speck_toy -c speck_toy
+...
+Info (21057): Implemented 270 device resources after synthesis
+    Info (21058): Implemented 99 input pins
+    Info (21059): Implemented 34 output pins
+    Info (21061): Implemented 137 logic cells
+Info: Quartus Prime Synthesis was successful. 0 errors, 1 warning
+
+$ quartus_eda --simulation --format=verilog --tool=questasim \
+      --output_directory=simulation speck_toy -c speck_toy
+Info (204019): Generated file speck_toy.vo in folder ".../simulation/"</code></pre>
+
+<p>Two assignments in <a href="quartus/speck_toy.qsf">speck_toy.qsf</a> are there
+for coverage rather than for the design:
+<code>ALLOW_SYNCH_CTRL_USAGE OFF</code> keeps the load selection out of the
+flip-flop's <code>sload</code>/<code>sclr</code> pins (same reason as walkthrough
+06), and <code>AUTO_SHIFT_REGISTER_RECOGNITION OFF</code> keeps the three-deep
+<code>l0&nbsp;&lt;-&nbsp;l1&nbsp;&lt;-&nbsp;l2</code> buffer out of a memory
+block.</p>
+
+<h4>2.1 the first export was refused, and that was correct</h4>
+
+<p>The first version of the RTL cleared the round counter from the load path.
+That made one next-state function read seven signals, and an ALM in the modelled
+configuration has six data pins. Quartus obliged by using the fracturable
+seven/eight-input mode, and the importer stopped:</p>
+
+<pre><code>$ python tools/hal_agilex import speck_toy.vo -o netlist.hal.v
+import refused: instance i345~4 has inverted connections on datag, datah,
+which do not address the LUT mask and cannot be absorbed</code></pre>
+
+<div class="why"><span class="tag">Read the refusal, don't route around it</span>
+<code>extended_lut&nbsp;"on"</code> with <code>datag</code>/<code>datah</code>
+driven is a real ALM mode and a real thing silicon does — it is simply outside
+the configuration <code>tools/hal_agilex</code> validated, so the importer
+refuses rather than modelling it wrongly. The fix was not to force the tool: it
+was to write the RTL so that no control cone needs a seventh input (a registered
+<code>pen</code> flag, and a round counter that clears itself). The
+<em>coverage constraint shaped the design</em>, which is worth knowing before you
+build a walkthrough target, and the comment in
+<a href="design.v">design.v</a> says so at the point it matters.</div>
+
+<h4>2.2 the export is inside the validated coverage</h4>
+
+<pre><code>$ python tools/hal_agilex --strict inventory speck_toy.vo \
+      -o artifacts/inventory.findings.json
+</code></pre>
+<p>All 241 instances are <code>tennm_ff</code> (104) or
+<code>tennm_lcell_comb</code> (137), each in a configuration the package models:
+status <span class="mono">proven_under_assumptions</span>, in
+<a href="artifacts/inventory.findings.json">artifacts/inventory.findings.json</a>.
+Every flip-flop has <code>sclr</code>, <code>sclr1</code>, <code>sload</code> and
+<code>aload</code> tied to <code>gnd</code>, which is what the assignment above
+bought.</p>
+
+<h4>2.3 the export behaves like the RTL it came from</h4>
+
+<pre><code>$ python tools/hal_agilex behavior speck_toy.vo \
+      --reference reference.py --cycles 2000 \
+      -o artifacts/behavior_design.findings.json</code></pre>
+
+<p>This simulates the <em>exported netlist</em> with the modelled primitive
+semantics and compares all three outputs against
+<a href="reference.py">reference.py</a>, a plain-Python restatement of the RTL,
+every cycle: <span class="mono">proven_bounded</span>, 2000 cycles.</p>
+
+<div class="note"><span class="tag">Where the bound comes from</span>
+2000 is not a round number picked for looks. <code>start</code> is
+pseudo-random every cycle and an encryption is uninterruptible once begun, so a
+2000-cycle run contains <strong>85 accepted starts and 81 complete 23-cycle
+encryptions</strong> on random plaintexts and keys, spends 91% of its cycles
+busy, and takes its two asynchronous clears (cycles 666 and 1333) in the middle
+of an encryption rather than between two. A shorter run would exercise the deep
+rounds thinly; a longer one adds encryptions, not coverage of new behaviour.</div>
+
+<div class="honest"><span class="tag">Read the status, not the vibe</span>
+<span class="mono">proven_bounded</span> means "checked to 2000 cycles", not
+"proved". <a href="#s8">Step 8</a> and section
+<a href="#rebuild">7</a> pair every bound in this walkthrough with a negative
+control, because a green bounded check with nothing beside it says only that
+somebody ran something.</div>
+
+<!-- ===================================================================== -->
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<pre><code>$ export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+$ cd &lt;repo&gt;
+$ GL=plugins/gate_libraries/definitions/AGILEX_TENNM.hgl
+$ EX=examples/agilex3_walkthroughs/11_speck_toy</code></pre>
+
+<h4>How much is there?</h4>
+<pre><code>$ python $EX/analysis.py stats
+{
+  "design_name": "speck_toy",
+  "gate_types": { "tennm_ff": 104, "tennm_lcell_comb": 137 },
+  "instances": 241,
+  "inputs":  [ pt:32, start:1, clk:1, rst_n:1, key:64 ],
+  "outputs": [ ct:32, busy:1, done:1 ],
+  "declared_vectors": { "ct":32, "k":16, "key":64, "l0":16, "l1":16, "l2":16,
+                        "pt":32, "rnd":5, "x":16, "y":16 }
+}</code></pre>
+
+<div class="why"><span class="tag">Reading this</span>
+<p><strong>104 flip-flops is a hard upper bound on the state</strong>, and the
+declared vectors say how it is grouped: six 16-bit words and a 5-bit something,
+96 + 5 = 101 bits, leaving three loose flags. A 32-bit input and a 32-bit output
+of the same width, plus a 64-bit input that is exactly twice that, is the port
+signature of a block cipher with a parallel key — but nothing here says
+<em>cipher</em> yet. A 64-bit-keyed CRC would look the same at this zoom.</p>
+<p style="margin-bottom:0"><strong>137 ALMs for 96 bits of datapath is very
+little logic.</strong> Roughly one and a half cells per state bit means the
+next-state functions are shallow: no S-box, no multiplier, no wide comparator.
+That already rules out a substitution-permutation cipher, which needs a lookup
+table per nibble.</p></div>
+
+<div class="honest"><span class="tag">The names are a gift, and this walkthrough takes it</span>
+Quartus kept <code>x</code>, <code>y</code>, <code>k</code>, <code>l0..l2</code>
+and <code>rnd</code> from the RTL. A hostile flow does not, and walkthroughs 02,
+03 and 10 run their analyses on anonymised copies for exactly that reason.
+<strong>Nothing below <em>uses</em> a name as evidence</strong> — the register
+banks are recovered from <code>q</code>-vector membership, the rotations from
+index arithmetic, the round count from a simulation — but the names do make the
+JSON readable, and walkthrough 16 is where the same job gets done with them
+gone.</div>
+
+<h4>The module tree (always look, even when you expect nothing)</h4>
+<pre><code>$ python tools/hal_viz module_tree "$EX/netlist.hal.v" -g "$GL" \
+      -o "$EX/images/module_tree.svg"</code></pre>
+<figure>
+  <div class="frame">
+    <img src="images/module_tree.svg" alt="Module tree: a single top_module node holding all 243 gates.">
+  </div>
+  <figcaption>One module. Synthesis flattened the design, so there is no
+  hierarchy to tell the datapath from the key schedule — that partition has to be
+  rebuilt, and steps 3 and 7 rebuild it from the two carry chains.</figcaption>
+</figure>
+
+<h4>The gate-level graph</h4>
+<pre><code>$ python tools/hal_viz netlist_graph "$EX/netlist.hal.v" -g "$GL" \
+      --module top_module --show-boundary --const-hub \
+      -o "$EX/images/netlist_graph.svg"
+[hal_viz] wrote images/netlist_graph.dot (243 nodes, 942 edges)</code></pre>
+<figure>
+  <div class="frame">
+    <img src="images/netlist_graph.svg" alt="Gate-level graph of the whole netlist: 243 nodes and 942 edges, an unreadable hairball with two visible regular structures running through it.">
+  </div>
+  <figcaption>243 nodes, 942 edges. The 241 vendor instances plus the
+  <code>HAL_GND</code> and <code>HAL_VCC</code> gates HAL materialises on load.</figcaption>
+</figure>
+
+<div class="why"><span class="tag">What you can and cannot see here</span>
+<p><strong>Can see:</strong> two long regular ladders running through the middle
+of the hairball, and a lot of parallel two- and three-input cells hanging off the
+registers. Regularity at this zoom means "bit-sliced datapath", which is worth
+knowing.</p>
+<p style="margin-bottom:0"><strong>Cannot see:</strong> anything else. At 243
+nodes this drawing is past the size where a human reads a circuit off it, which
+is precisely why the next section levels the same graph instead of staring
+harder at this one. <em>The picture localises, the algebra decides.</em></p></div>
+
+<!-- ===================================================================== -->
+<h2 id="dag">4. The netlist as a graph</h2>
+
+<p>&ldquo;Two long regular ladders&rdquo; is a claim about a <em>graph</em>, so make the
+graph explicit. <strong>Nodes are gates, edges are nets</strong> — one edge per
+driver&nbsp;→&nbsp;sink pair, from the output pin that drives a net to each input pin that
+reads it. That is all a netlist is, and steps 2, 3 and 4 below are graph algorithms
+over it.</p>
+
+<p>It is not acyclic: the cipher state feeds itself every cycle. But in a synchronous
+design every cycle passes through a register, so if you <em>cut</em> every edge that
+lands on a flip-flop pin the cycles all vanish and what is left is a directed acyclic
+graph — the combinational core. A DAG can be topologically levelled: level 0 is
+everything with no remaining predecessor, level <em>n</em> is everything whose deepest
+predecessor is at level <em>n</em>&minus;1. <code>hal_viz dag</code> runs Kahn's
+algorithm and draws each level as a column.</p>
+
+<pre><code>$ python tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" --const-hub \
+      -o "$EX/images/dag.svg" --html</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/dag.svg" alt="Levelled DAG: a tall level-0 column of 104 flip-flops, then 43 cells at level 1, then fifteen columns of exactly six cells each, then a last column of four.">
+  </div>
+  <figcaption>243 nodes, 432 edges, <code>18</code> topological levels, 413 edges cut at a
+  register. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>.</figcaption>
+</figure>
+
+<p>The shape is the entire architecture, and it is readable straight off the column
+sizes:</p>
+<ul class="tight">
+<li><strong>Level 0 is the 104 flip-flops</strong> plus the two constant gates. After
+the cut a register has no combinational predecessor, so it is a source by
+construction.</li>
+<li><strong>Level 1 holds 43 cells</strong>: the two carry-chain heads
+(<code>add_0~1</code> and <code>add_1~1</code>), the shared clock-enable cell, three
+flag cells, the five round-counter cells, and 32 cells that are nothing but load
+multiplexers on two 16-bit banks — everything whose inputs are registers only.</li>
+<li><strong>Levels 2 to 16 hold exactly six cells each.</strong> Six, fifteen times
+over, is not a coincidence: it is one slice of <em>each</em> of two carry chains,
+plus the four cells that consume the previous slice's sum. Two ripple chains
+advancing in lockstep, each with two consumers per bit.</li>
+<li><strong>Level 17 holds the last four consumers</strong> and no chain slice, because
+the chains ran out at level 16.</li>
+</ul>
+
+<div class="why"><span class="tag">What the level count measures</span>
+18 levels on a design with a 22-round schedule is the point: the depth is the
+<em>combinational</em> distance between registers, not the number of rounds. One
+round is one clock, and one clock is at most 16 carry cells plus one consumer plus
+the register — a 16-bit ripple carry and nothing else. An unrolled cipher would put
+every round in the depth and this number would be in the hundreds. <strong>Iterative
+versus unrolled is visible here and nowhere else in this walkthrough.</strong></div>
+
+<h4>The same graph, with values, one clock at a time</h4>
+
+<p>A levelled DAG shows where the logic is; it does not show what runs through it.
+<code>hal_agilex trace</code> records every net of a bounded, seeded window of the same
+simulator the behaviour check uses, and <code>hal_viz clock_step</code> joins that trace
+to the drawing above:</p>
+
+<pre><code>$ python tools/hal_agilex trace "$EX/speck_toy.vo" \
+      --reference "$EX/recovered_reference.py" --cycles 25 \
+      --hold start=1 --hold pt=0x6574694c --hold key=0x1918111009080100 \
+      -o "$EX/artifacts/dag_trace.json"
+$ python tools/hal_viz clock_step "$EX/images/dag.svg" \
+      --trace "$EX/artifacts/dag_trace.json" \
+      -o "$EX/images/dag_interactive.html"</code></pre>
+
+<p><strong><a href="images/dag_interactive.html">images/dag_interactive.html</a></strong>
+is one self-contained page: prev/next, a scrubber, play/pause, nets coloured by value.
+The window is a whole encryption of the published test vector — cycle 0 is the
+asynchronous clear, cycle 1 the load, cycles 2–23 the 22 rounds, and at cycle 24
+<code>done</code> is high and <code>ct</code> reads <code>0xa86842f2</code>. Stepping it
+is the fastest way to <em>see</em> what steps 3–5 argue: the carry ripples left to right
+through one column per level inside a single cycle, and the whole 96-bit state changes
+at once at the register boundary.</p>
+
+<div class="note"><span class="tag">Two deliberate deviations from walkthroughs 01–10</span>
+<p><strong>Constants are drawn as one shared hub</strong>, not as one
+<code>0</code>/<code>1</code> stub per consuming pin. The default spelling is better
+on a small design and it is what the other guides show; here the constant fan-out is
+1514 consuming pins, which turns level 0 into a wall of 1514 circles, the file into
+1.7&nbsp;MB and the Graphviz layout into eight minutes. Both spellings of the same
+graph are one flag apart — drop <code>--const-hub</code> from the command above to see
+the other one, and the header of the emitted <code>.dot</code> then reports 1514
+tie-off stubs and 936 cut edges instead of 413 (the extra 523 are the flip-flops'
+constant control pins, which the hub form draws once each).</p>
+<p style="margin-bottom:0"><strong>Primary inputs are still not nodes.</strong> They
+have no driving gate, so nothing can draw an edge from one: <code>pt</code>,
+<code>key</code>, <code>start</code>, the clock and the reset are all absent, and a
+cell's drawn fan-in is a <em>lower bound</em> on its real fan-in.</p></div>
+
+<!-- ===================================================================== -->
+<h2 id="walk">5. The walk, step by step</h2>
+
+<p>Each step is one command, the output it printed, and the reasoning that turns
+that output into a conclusion. The commands are subcommands of
+<a href="analysis.py">analysis.py</a>, which contains no knowledge of the design:
+the rotation amounts, the word width, the round count and the port roles are all
+derived, and the script fails loudly rather than assuming if the structure does
+not fit.</p>
+
+<div class="step" id="s1">
+<h3><span class="num">1</span> What is each port?</h3>
+<p>Five inputs, three outputs. Which is the clock? You never guess this — you
+look at which <em>pins</em> a net reaches. The gate library says
+<code>tennm_ff.clk</code> is a clock pin, <code>.clrn</code> an asynchronous
+active-low clear and <code>.ena</code> a clock enable, and that is device
+knowledge, not design knowledge.</p>
+<pre><code>$ python $EX/analysis.py registers
+{
+  "flip_flops": 104,
+  "enable_groups": [
+    { "clk": "clk", "clrn": "rst_n", "ena": "i264~1_combout", "size": 96 },
+    { "clk": "clk", "clrn": "rst_n", "ena": "run~q",          "size": 5  },
+    { "clk": "clk", "clrn": "rst_n", "ena": "1",              "size": 3  }
+  ],
+  "q_vectors": { "k":16, "l0":16, "l1":16, "l2":16, "rnd":5, "x":16, "y":16 }
+}</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p><strong>One clock and one asynchronous clear</strong>, both reaching all 104
+flip-flops and nothing else. Single-domain, so there is no CDC problem to chase,
+and the clear is active-low and asynchronous because the <em>primitive</em> says
+so. Two of the five inputs are now pinned down with no ambiguity at all.</p>
+<p><strong>Three enable groups, and they are the architecture.</strong> 96 bits
+move together — that is the six 16-bit words, one object. Five bits move on a
+different enable, and that enable is the <code>q</code> of a single flip-flop,
+which is the signature of a counter gated by a run flag. Three bits have no
+enable at all: free-running flags. A design with one enable group would have told
+you far less.</p>
+<p style="margin-bottom:0">The three remaining inputs (<code>start</code>, 32 bits
+and 64 bits) touch no control pin; they only feed ALM data inputs. They are
+payload. At this point all you are entitled to say is "payload".</p></div>
+</div>
+
+<div class="step" id="s2">
+<h3><span class="num">2</span> Find the state, and cut the design there</h3>
+<p>The <code>q</code> vectors above already give the cut: six 16-bit banks, a
+5-bit counter, three flags. Everything else in the netlist is combinational logic
+<em>between</em> banks, and the rest of the walk is about reading it.</p>
+<p>The independent confirmation comes from a different reader and a different
+graph algorithm — HAL's own:</p>
+<pre><code>$ python $EX/analysis.py hal      # needs a built HAL
+{
+  "gate_library": "AGILEX_TENNM", "gates": 243, "nets": 372, "modules": 1,
+  "elaborated": 137, "refused": [],
+  "components": [
+    { "size": 144, "gate_types": {"tennm_ff": 64, "tennm_lcell_comb": 80},
+      "registers": { "k": 16, "l0": 16, "l1": 16, "l2": 16 } },
+    { "size":  80, "gate_types": {"tennm_ff": 32, "tennm_lcell_comb": 48},
+      "registers": { "x": 16, "y": 16 } },
+    { "size":  14, "gate_types": {"tennm_ff":  7, "tennm_lcell_comb":  7},
+      "registers": { "pen": 1, "rnd": 5, "run": 1 } },
+    { "size":   2, "gate_types": {"tennm_ff":  1, "tennm_lcell_comb":  1},
+      "registers": { "fin": 1 } } ]
+}</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p><strong>Nothing was refused.</strong> Every ALM got a Boolean function
+attached from its <code>lut_mask</code>, and every flip-flop's pin configuration
+is inside the validated coverage. That matters: an ALM outside coverage gets
+<em>no</em> function rather than a plausible-looking wrong one, and every piece
+of algebra below would then be standing on a free variable. A zero here means the
+next five steps are standing on modelled semantics all the way down.</p>
+<p><strong>The four strongly connected components are the four architectural
+objects</strong>, and nobody told the <code>graph_algorithm</code> plugin what
+any of them were. A combinational circuit is a DAG, so every cycle in the gate
+graph is a value feeding its own future; grouping by mutual reachability
+partitions the design for free. Here: 64 registers in one loop, 32 in another, a
+7-bit machine, and a lone flag.</p>
+<p style="margin-bottom:0"><strong>And the split itself is information.</strong>
+The two big components are separate, which can only mean the coupling between
+them is one-way. Work out which way: the 64-register component would have to be
+reachable from the 32-register one for them to merge, and it is not — so
+<strong>the 64-bit object feeds the 32-bit object and never reads it back</strong>.
+A 64-bit state that autonomously drives a 32-bit state is the shape of a key
+schedule driving a data path, and that hypothesis was available here, at step 2,
+before a single <code>lut_mask</code> had been read. Step 7 confirms it from the
+logic.</p></div>
+</div>
+
+<div class="step" id="s3">
+<h3><span class="num">3</span> The carry chains — and alpha falls out of them</h3>
+<p>A carry chain is the one structure you never have to guess at: a net leaving
+<code>tennm_lcell_comb.cout</code> and entering another cell's <code>cin</code>
+is dedicated silicon, not a heuristic. <code>hal_crypto.arith</code> walks them
+and then does not stop at the pattern — it <em>evaluates</em> each chain against
+<code>a + b + cin</code> before calling it an adder.</p>
+<pre><code>$ python $EX/analysis.py chains
+{
+  "chains": 2,
+  "adders": [
+    { "cells": ["add_0~1", ... 16 slices ... , "add_0~76"],
+      "operation": "add", "verified_bits": 15, "carry_in": 0,
+      "checked_vectors": 256, "exhaustive": false,
+      "operands": {
+        "first":  { "vector": "x", "declared_width": 16,
+                    "rotation": { "rotation": 7, "rotate_left_by": 9,
+                                  "bits_observed": 15 } },
+        "second": { "vector": "y", "declared_width": 16, "rotation": null } } },
+    { "cells": ["add_1~1", ... , "add_1~76"],
+      "operation": "add", "verified_bits": 15, "carry_in": 0,
+      "operands": {
+        "first":  { "vector": "k",  "rotation": null },
+        "second": { "vector": "l0", "rotation": { "rotation": 7, ... } } } }
+  ]
+}</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/alpha_slice.svg" alt="Close-up of carry chain slice add_0~41: its data pins read y[8] and x[15], its cin comes from the previous slice and its cout goes to the next.">
+  </div>
+  <figcaption><code>hal_viz netlist_graph --gate add_0~41 --depth 1 --pin-labels</code>.
+  Slice 8 of the data-path chain. Its two data pins read <code>y[8]</code> and
+  <code>x[15]</code>; <code>15 = (8 + 7) mod 16</code>.</figcaption>
+</figure>
+
+<div class="why"><span class="tag">Reasoning — this is where the rotation is</span>
+<p><strong>Two 16-bit adders, verified, not pattern-matched.</strong> Both have a
+carry-in of 0, so neither is a subtractor and neither is an increment. Two
+structurally identical adders side by side, running every cycle, is already a
+strong hint of a datapath and its twin.</p>
+<p><strong>The rotation is the operand order.</strong> Slice <em>i</em> of a
+carry chain computes bit <em>i</em> of the sum, so whatever net arrives at slice
+<em>i</em> is bit <em>i</em> of the operand — and slice <em>i</em> here reads
+<code>x[(i + 7) mod 16]</code>, for every <em>i</em>. That is
+<code>ROR(x, 7)</code> written in wiring. There is no signal called
+<code>x_rot</code> in this netlist and there never was one: rotating a word costs
+nothing, so the synthesiser kept nothing. <strong>The only place alpha exists is
+the order of the pins.</strong></p>
+<p style="margin-bottom:0">Both chains do it, with the same 7 — the data path on
+<code>x</code>, the second chain on <code>l0</code>. The other operand of each
+chain (<code>y</code>, <code>k</code>) is straight wiring.</p></div>
+
+<div class="honest"><span class="tag">15 verified bits, 16 slices</span>
+The chains have sixteen cells but the pass reports fifteen verified sum bits. The
+top slice's generate half is dead — its <code>cout</code> goes nowhere, so
+Quartus zeroed it — and <code>arith</code> classifies operand pairs from
+<em>both</em> mask halves, so it declines to call that slice an adder slice and
+treats it as the trailing carry tap. Its sum bit is real and its operands are
+visible in the export (<code>!y[15] ^ (!x[6])</code>, and
+<code>6 = (15 + 7) mod 16</code>), but the tool does not count it, so neither does
+this page: the rotation below is fitted against the <em>declared</em> 16-bit width
+with 15 of 16 positions observed, and <code>bits_observed</code> says so. Also
+note <code>exhaustive: false</code> — 32 operand bits is too many to enumerate, so
+the addition was checked on 256 seeded vectors, and the finding says
+<span class="mono">heuristic</span> rather than proven.</div>
+</div>
+
+<div class="step" id="s4">
+<h3><span class="num">4</span> Beta, which no wire and no adder carries</h3>
+<p>Speck's second rotation never reaches an adder — it goes straight into an XOR
+— so step 3 cannot see it, and neither can a search for permuted vectors,
+because there is no vector. What there <em>is</em>: bit <em>i</em> of the
+<code>y</code> bank is XORed with bit <em>i&nbsp;&minus;&nbsp;beta</em> of the
+same bank, so <strong>bit <em>i</em>'s next-state cell reads exactly one bit of
+its own bank</strong>, and the index map is the rotation.</p>
+<pre><code>$ python $EX/analysis.py banks
+{ "rotations": [
+    { "source": "k", "destination": "register bank k next-state fan-in",
+      "width": 16, "rotation": 14, "rotate_left_by": 2, "bits_observed": 16 },
+    { "source": "y", "destination": "register bank y next-state fan-in",
+      "width": 16, "rotation": 14, "rotate_left_by": 2, "bits_observed": 16 } ] }</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/beta_cell.svg" alt="Close-up of cell i264~0, the next-state cell of y[0]: among its inputs is exactly one y register, y[14].">
+  </div>
+  <figcaption><code>hal_viz netlist_graph --gate i264~0 --depth 1 --pin-labels</code>.
+  The next-state cell of <code>y[0]</code>. Of the whole <code>y</code> bank it
+  reads exactly one bit — <code>y[14]</code> — and
+  <code>14 = (0 &minus; 2) mod 16</code>.</figcaption>
+</figure>
+
+<div class="why"><span class="tag">Reasoning</span>
+<p><strong>"Exactly one" is what makes this a rotation and not a cone.</strong>
+If bit <em>i</em>'s next state read three bits of its own bank you would have a
+linear feedback function, not a rotation, and the map would not be a function of
+the index. The <code>x</code> bank fails this test — no <code>x</code> register
+reaches an <code>x</code> next-state cell directly, because they all go through
+the carry chain first — and that asymmetry between the two halves of the block is
+itself the ARX round: one half is rotated into an adder, the other is rotated
+into an XOR.</p>
+<p><strong>Two spellings, both reported.</strong> <code>rotation: 14</code> is
+<code>dest[i] = src[(i + 14) mod 16]</code>; <code>rotate_left_by: 2</code> is the
+same wiring described as "rotate the source left by 2". The literature uses both
+and confusing them is an easy way to publish a wrong constant, so the finding
+never picks one.</p>
+<p style="margin-bottom:0"><strong>The key register does it too</strong>, with the
+same 2. Two banks rotated by beta, two chain operands rotated by alpha: whatever
+this design is, it applies the same round function twice.</p></div>
+</div>
+
+<div class="step" id="s5">
+<h3><span class="num">5</span> The XOR layer that contains no XOR cells</h3>
+<p>An ARX round needs an XOR layer on top of the adder. Look for cells whose own
+LUT function is a pure XOR of their inputs and you find <strong>none</strong> —
+not one cell in 137. The layer is there anyway:</p>
+<pre><code>$ python $EX/analysis.py xor
+{
+  "xor_cells": 54, "standalone": 0, "conditional": 54,
+  "cofactors": { "run~q=1": 53, "pen~q=0": 1 },
+  "arities": { "2": 33, "3": 21 },
+  "examples": [
+    { "cell": "i264~0", "inputs": ["y[14]", "k[0]", "add_0~1_sumout"],
+      "cofactor": { "net": "run~q", "value": 1 } }, ... ]
+}</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+<p><strong>Why there are no XOR cells.</strong> The register's next state is
+<code>load ? port_bit : (sum ^ k)</code>. That is four inputs; an ALM has six.
+There is no reason on earth for a synthesiser to spend a second cell on the XOR
+when the multiplexer's cell has room, so it does not, and the resulting function
+is a multiplexer — degree 2, not affine, not an XOR of anything.</p>
+<p><strong>How to get the XOR back.</strong> Hold one input at a constant and
+look again. With <code>run = 1</code> the load path is not selected, and 53 of
+the 54 cells collapse to a pure XOR over the remaining inputs — 33 of them
+two-input, 21 three-input. That is not a fit or a guess: it is the cell's own
+truth table, restricted, and the restriction is exact.</p>
+<p style="margin-bottom:0"><strong>Read the arities.</strong> 33 two-input XORs
+and 21 three-input ones is the round drawn in cell counts:
+<code>sum ^ k</code> is two inputs, and
+<code>ROL(y,2) ^ (sum ^ k)</code> collapsed into one cell is three. The example
+above is exactly that: <code>i264~0</code> XORs <code>y[14]</code>,
+<code>k[0]</code> and the chain's bit-0 sum, which is
+<code>y[0] &lt;- ROL(y,2)[0] ^ x_new[0]</code> with <code>x_new</code> substituted
+in. One cell, the whole second line of the round function.</p></div>
+<div class="honest"><span class="tag">How far this test is allowed to go</span>
+Exactly <strong>one</strong> held input. Freeze enough inputs and almost any
+function turns affine, so "is an XOR under some assignment" is worthless as a
+test if the assignment can be arbitrarily large. One input is the size of the
+thing being undone (a two-way multiplexer has one select), and a conditional XOR
+is counted separately from a standalone one in every finding this produces,
+because it is weaker evidence.</div>
+</div>
+
+<div class="step" id="s6">
+<h3><span class="num">6</span> How many rounds — measured, not counted</h3>
+<p>The round count is not a structural fact you can read off a cell. It is a
+property of the control machine, and the honest way to get it is to run the
+netlist and watch. <a href="analysis.py">analysis.py</a>'s <code>encrypt</code>
+step drives the export as a black box with the modelled primitive semantics:
+assert <code>start</code> for one cycle, then clock until <code>done</code>
+rises, recording the counter each cycle.</p>
+<pre><code>$ python $EX/analysis.py encrypt
+{
+  "cycles_from_accepted_start_to_done": 23,
+  "busy_cycles": 22,
+  "round_counter_range": [0, 21],
+  "rounds": 22,
+  ...
+}</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+One load cycle plus 22 cycles with <code>busy</code> high, and the 5-bit counter
+sweeps 0 through 21 and returns to 0. <strong>22 rounds</strong>, measured. A
+5-bit counter could have gone to 31; the terminal value is a property of the
+comparison cell, and reading it out of the logic would have worked too — but
+running it is cheaper, is independent of every structural claim made so far, and
+cannot be fooled by misreading a mask.</div>
+</div>
+
+<div class="step" id="s7">
+<h3><span class="num">7</span> Which chain is the data path and which is the key schedule</h3>
+<p>Steps 3–5 found two identical round structures. Something has to distinguish
+them, and it is not size or shape — it is what gets XORed in.</p>
+<div class="why"><span class="tag">Reasoning</span>
+<p>Step 2 already gave the direction — <code>{k, l0, l1, l2}</code> is its own
+strongly connected component and <code>{x, y}</code> is another, so the first
+drives the second and never reads it back. This step says <em>why</em> the first
+one is a schedule rather than just another cipher.</p>
+<p>The data-path chain adds <code>ROR(x,7)</code> to <code>y</code> and its XOR
+layer reads the <code>k</code> bank: a round key. The second chain adds
+<code>ROR(l0,7)</code> to <code>k</code>, and <strong>its XOR layer reads the
+round counter on five bits and nothing on the other eleven</strong>. A word that
+is the counter, zero-extended, is a round <em>index</em>, not a key: the eleven
+untouched bits are the tell, because a key would touch all sixteen. That
+asymmetry is the key schedule's fingerprint and it is visible in nothing but the
+fan-in of five cells.</p>
+<p style="margin-bottom:0">The rest of the schedule is the plainest wiring in the
+design: <code>l0</code>'s next state is <code>l1</code> and <code>l1</code>'s is
+<code>l2</code>, bit for bit, through nothing but a load multiplexer — the 32
+cells that made level 1 of the DAG so wide. A three-deep buffer feeding a round
+function, with the fourth word being the live key, is a four-word key schedule.
+64 bits of key, which is what the <code>key</code> port is.</p></div>
+</div>
+
+<div class="step" id="s8">
+<h3><span class="num">8</span> Run it against something published</h3>
+<p>Everything so far is internal: the netlist agreeing with a model derived from
+the netlist. The last step reaches outside. The SPECK paper publishes one test
+vector for Speck32/64, and the recovered round function says this design should
+reproduce it.</p>
+<pre><code>$ python $EX/analysis.py round
+{
+  "word_bits": 16,
+  "alpha_right_rotation": 7,
+  "beta_left_rotation": 2,
+  "rounds": 22,
+  "adders": 2,
+  "xor_cells": 54,
+  "standalone_xor_cells": 0,
+  "round_function": "x &lt;- (ROR(x, 7) + y) mod 2^16  XOR  k ; y &lt;- ROL(y, 2) XOR x",
+  "key_schedule": "l &lt;- (k + ROR(l0, 7)) mod 2^16  XOR  i ; k &lt;- ROL(k, 2) XOR l",
+  "matches_published_vector": true
+}
+
+$ python $EX/analysis.py encrypt
+{ "plaintext":  "0x6574694c",
+  "key":        "0x1918111009080100",
+  "ciphertext": "0xa86842f2",
+  "published_ciphertext": "0xa86842f2",
+  "matches_published_vector": true, ... }</code></pre>
+<div class="why"><span class="tag">Reasoning</span>
+The netlist, driven as a black box, turns the paper's plaintext and key into the
+paper's ciphertext. Nothing structural was used to get that: it is 23 clock
+edges of the exported cells. Together with steps 3–5, two independent methods —
+reading the wiring and running the silicon model — agree, and that agreement is
+the evidence. Either one alone would have been a hypothesis.</div>
+<div class="honest"><span class="tag">What a matching test vector does not prove</span>
+It proves this netlist agrees with Speck32/64 on <em>one</em> input pair. That is
+a very strong hint and a very weak theorem. The bounded model comparison in
+section 7 — 2000 cycles, 81 encryptions on random plaintexts and keys — is the
+stronger statement, and it is still bounded.</div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="identify">6. What the crypto identifier says</h2>
+
+<p>Everything above was done by hand, with general-purpose tools.
+<code>tools/hal_crypto</code> asks the same questions automatically over six
+passes and writes one findings document:</p>
+
+<pre><code>$ python tools/hal_crypto identify $EX/speck_toy.vo -o artifacts/identify.findings.json</code></pre>
+
+<pre><code>hal_crypto/identify/family            heuristic   Structural family: arx
+  "The six passes agree on 'arx'. Families with evidence: arx. Every line of the
+   evidence list below is a structural observation; none of them names an algorithm."
+  confidence_tier: high
+  evidence:
+    - "2 verified adder(s), 4 fixed rotation(s) and 54 XOR cell(s) (0 standalone),
+       wired into a round"
+    - "the rotation amounts include the published set of speck_32"
+
+hal_crypto/identify/classical-vs-pqc  heuristic   Classical / PQC style: classical-style
+  "The structures found (arx) are the ones classical symmetric primitives are built
+   from, and no lattice/ring arithmetic was found. This does NOT rule out
+   post-quantum cryptography: a hash-based or code-based scheme contains neither
+   NTTs nor S-boxes and would come back none-detected here."
+
+hal_crypto/arx/round                  heuristic   Add-Rotate-XOR round structure
+  rotation_families:
+    - name: speck_32   amounts: [7, 2]   word_bits: 16
+      reference: "SPECK-32/64 round rotations alpha=7, beta=2 (Beaulieu et al., 2013)"</code></pre>
+
+<div class="why"><span class="tag">What the verdict is allowed to mean</span>
+<p><strong><code>family: arx</code></strong> means the three ingredients were
+found and found <em>wired to each other</em> — the XOR layer reads the adder's
+sums and the rotations are on the adder's operands. An adder alone is not ARX
+(walkthrough 01's counter comes back <code>none-detected</code>, and the
+<code>counter8</code> fixture exists to keep it that way).</p>
+<p><strong><code>speck_32</code> is a statement about four numbers.</strong> It
+says the rotation amounts found in this wiring include the published SPECK-32/64
+set, alpha 7 and beta 2, at a 16-bit word. It does <em>not</em> say the design is
+SPECK, and the finding never uses that sentence. Any cipher rotating 16-bit words
+by 7 and 2 would match, and the match is only as strong as the library it is
+matched against.</p>
+<p style="margin-bottom:0"><strong><code>classical-style</code> does not rule out
+post-quantum.</strong> It means the structures present are the ones classical
+symmetric primitives are built from. A hash-based signature scheme has neither
+NTTs nor S-boxes and would come back <code>none-detected</code> — that caveat
+ships in the finding text, not just here.</p></div>
+
+<div class="honest"><span class="tag">This export made the tool better, and that is worth saying</span>
+<p>Run against the version of <code>hal_crypto</code> that shipped with issue #77,
+this netlist came back <strong><code>none-detected</code></strong>:</p>
+<pre style="margin:.6rem 0"><code>ARX: no fixed rotation in the wiring between banks;
+     only 0 pure-XOR cell(s); a layer starts at 4</code></pre>
+<p>Both halves of that were correct observations and the wrong conclusion. The
+rotation pass looked for a permuted <em>vector</em> — a named signal carrying the
+rotated word — which is how the hand-built <code>arx_round8</code> fixture spells
+it and how a Quartus export never does. The XOR pass looked for standalone XOR
+cells, which a loadable cipher core does not have. The synthesized fixture had
+been passing for the shape it was built from rather than the shape silicon
+produces.</p>
+<p style="margin-bottom:0">The fix is the two readings this walkthrough used in
+steps 3, 4 and 5 — rotations off the order an ordered cell layer reads a bank,
+XORs under one held input — and each is reported with the weaker provenance it
+has (<code>read_from</code>, <code>conditional</code>). Landing an example that
+breaks the tool <em>is</em> the point of a walkthrough series; see
+<code>tools/hal_crypto/fixtures/GROUND_TRUTH.md</code>, which now carries this
+export as the case the synthesized fixtures cannot make.</p></div>
+
+<!-- ===================================================================== -->
+<h2 id="rebuild">7. Reconstruction, and what was lost</h2>
+
+<p><a href="recovered.v">recovered.v</a> is the RTL written from the netlist
+alone, with every line carrying the observation it came from, and
+<a href="recovered_reference.py">recovered_reference.py</a> is its Python
+restatement. Feeding the second one back at the export closes the loop:</p>
+
+<pre><code>$ python tools/hal_agilex behavior $EX/speck_toy.vo \
+      --reference $EX/recovered_reference.py --cycles 2000 \
+      -o artifacts/behavior_recovered.findings.json
+  -> proven_bounded, 2000 cycles</code></pre>
+
+<h3>The negative controls</h3>
+<p>A green bounded check on its own proves nothing, so both recovered rotation
+constants get moved by one and the check has to catch them:</p>
+
+<table>
+<thead><tr><th>control</th><th>what changed</th><th>result</th></tr></thead>
+<tbody>
+<tr><td><a href="artifacts/behavior_negative_control_alpha8.findings.json">alpha8</a></td>
+    <td><code>ALPHA = 7</code> &rarr; <code>8</code></td>
+    <td><span class="mono">bounded_counterexample</span>, diverges at <strong>cycle 3</strong></td></tr>
+<tr><td><a href="artifacts/behavior_negative_control_beta3.findings.json">beta3</a></td>
+    <td><code>BETA = 2</code> &rarr; <code>3</code></td>
+    <td><span class="mono">bounded_counterexample</span>, diverges at <strong>cycle 3</strong></td></tr>
+</tbody>
+</table>
+
+<div class="why"><span class="tag">Why cycle 3, and why that is good news</span>
+Both controls are caught within three cycles of the first encryption starting,
+because <code>ct</code> is the block register and is driven continuously: a wrong
+rotation changes the state on the very first round and the comparison sees it
+immediately. Contrast walkthrough 08, whose off-by-one clamp survived 200 cycles
+and only failed at 280 — there the wrong behaviour lived in a corner of the state
+space that a short run never reached. <strong>An easily-caught control means the
+observable is good, not that the check is weak</strong>; the thing that would
+worry you is a control that passes.</div>
+
+<h3>Recovered exactly</h3>
+<table>
+<thead><tr><th>Fact</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>Six 16-bit register banks, a 5-bit counter, three flags; one clock, one async active-low clear, three enable groups</td>
+    <td><code>q</code>-vector membership and the flip-flops' own control pins (step 1); the <code>tennm_ff</code> model supplies the clear's polarity and timing</td></tr>
+<tr><td>Two verified 16-bit adders on the dedicated carry chain</td>
+    <td>the <code>cout&nbsp;-&gt;&nbsp;cin</code> walk, then 256 seeded operand vectors evaluated against <code>a + b + cin</code> (step 3)</td></tr>
+<tr><td>alpha = 7, a right rotation</td>
+    <td>slice <em>i</em> of both chains reads bit <code>(i + 7) mod 16</code> of a 16-bit bank (step 3)</td></tr>
+<tr><td>beta = 2, a left rotation</td>
+    <td>bit <em>i</em> of the <code>y</code> and <code>k</code> banks reads bit <code>(i - 2) mod 16</code> of itself (step 4)</td></tr>
+<tr><td>An XOR layer of 54 cells over the sums</td>
+    <td>each cell's own truth table, restricted to <code>run = 1</code> (step 5)</td></tr>
+<tr><td>22 rounds, 23 cycles from an accepted start</td>
+    <td>driving the netlist and watching the counter and the flags (step 6)</td></tr>
+<tr><td>Which chain is the key schedule</td>
+    <td>its XOR layer reads the round counter on five bits and nothing on the other eleven (step 7)</td></tr>
+<tr><td>It really computes Speck32/64</td>
+    <td>the published vector, through the netlist (step 8), plus 2000 cycles against the recovered model with two negative controls (this section)</td></tr>
+</tbody>
+</table>
+
+<h3>Lost for good</h3>
+<table>
+<thead><tr><th>Lost</th><th>Why, and what you can do about it</th></tr></thead>
+<tbody>
+<tr><td><strong>The rotations as objects.</strong> No net, no cell, no
+    <code>lut_mask</code> bit carries <code>ROR(x,7)</code>.</td>
+    <td>They are recoverable only as index arithmetic over an ordered layer, and
+    only because the layer <em>is</em> ordered (a carry chain by its carries, a
+    register bank by its bit indices). Scramble the bit indices — which
+    anonymisation does — and you recover the rotation only up to the unknown bit
+    permutation. That is the honest limit, and walkthrough 16 is where it
+    bites.</td></tr>
+<tr><td><strong>The XOR layer as a layer.</strong> 54 cells, none of them an XOR.</td>
+    <td>Recovered by cofactor, and reported as <code>conditional</code> for the
+    rest of its life. Any tool that reports "54 XOR cells" without that
+    qualifier is telling you something false.</td></tr>
+<tr><td><strong>Every name.</strong> <code>speck_toy</code>, <code>ALPHA</code>,
+    <code>ROUNDS</code>, the port names.</td>
+    <td>Quartus kept most of them here and a hostile flow would not. Nothing in
+    this walk used one as evidence; you name things after what you proved they
+    do.</td></tr>
+<tr><td><strong>Hierarchy.</strong> The export is one flat module.</td>
+    <td>The datapath/key-schedule split was rebuilt from the two chains and what
+    their XOR layers read. That is a reconstruction, not a recovery, and should
+    be labelled as one.</td></tr>
+<tr><td><strong>Coding style.</strong> <code>design.v</code> writes the
+    round with named intermediate wires; <code>recovered.v</code> writes it
+    differently.</td>
+    <td>They synthesise to the same cells. The netlist is an equivalence class
+    and every member of it is an equally correct answer.</td></tr>
+<tr><td><strong>That the design is a cipher at all, as opposed to
+    cipher-shaped.</strong></td>
+    <td>Structure gives you "ARX round, alpha 7, beta 2, 22 rounds". That it is
+    <em>SPECK</em> comes from matching a published constant set and a published
+    test vector — from the literature, not from the netlist. State the
+    structure; cite the match; do not merge the two.</td></tr>
+<tr><td><strong>Any security property.</strong></td>
+    <td>Nothing here is a claim about masking, constant time, fault resistance or
+    key handling. This core presents its key on a parallel port.</td></tr>
+</tbody>
+</table>
+
+<!-- ===================================================================== -->
+<h2 id="further">8. Going further</h2>
+<ul>
+<li><strong>Change a rotation constant and re-run.</strong> Edit
+<code>design.v</code> (<code>ALPHA = 9</code>, say), redo section 2, and watch
+steps 3 and 4 report the new amounts without a single change to the analysis —
+and watch <code>hal_crypto identify</code> stop matching <code>speck_32</code>
+while still saying <code>arx</code>. That is the test of whether a recovery
+script derives things or recognises them.</li>
+<li><strong>Unroll two rounds per cycle</strong> and look at the DAG again. The
+level count should roughly double while the flip-flop count halves the round
+counter's range; iterative-versus-unrolled is exactly the kind of architectural
+fact section 4 is for.</li>
+<li><strong>Break the coverage on purpose.</strong> Put the round key in a small
+ROM instead of computing it. Quartus will infer a memory block, which is outside
+the modelled primitives, and you get to see a coverage gap from the analysis
+side: the block gets no Boolean function, and every cone through it stops with an
+error rather than an invention.</li>
+<li><strong>Try the sibling.</strong> SIMON is the same paper's non-ARX family:
+AND, rotate, XOR, no adder. Every rotation-finding technique here transfers; the
+carry-chain half does not, and <code>hal_crypto</code>'s ARX pass will correctly
+say <code>not-arx</code> with "no carry-chain adder" as the reason.</li>
+<li><strong>Read the findings, not the prose.</strong> Every analysis in this
+repository writes a <code>tools/hal_findings</code> document with an explicit
+status. <a href="artifacts/report.html">artifacts/report.html</a> renders the
+ones this walkthrough produced onto one offline page — that is the format an RE
+result should be delivered in, because it forces every claim to say how strong it
+is.</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 id="repro">9. Reproducing all of it</h2>
+<pre><code># synthesis (needs Quartus Prime Pro 26.1 with Agilex 3 support)
+$ mkdir scratch &amp;&amp; cd scratch
+$ cp ../design.v ../quartus/speck_toy.qpf ../quartus/speck_toy.qsf ../quartus/build.tcl .
+$ quartus_sh -t build.tcl
+$ quartus_syn speck_toy -c speck_toy
+$ quartus_eda --simulation --format=verilog --tool=questasim \
+      --output_directory=simulation speck_toy -c speck_toy
+
+# analysis (needs a built HAL and Graphviz)
+$ export HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib
+$ sh examples/agilex3_walkthroughs/11_speck_toy/run_analysis.sh
+
+# just the assertions -- the first form needs nothing but Python 3
+$ python examples/agilex3_walkthroughs/11_speck_toy/check.py
+$ python examples/agilex3_walkthroughs/11_speck_toy/check.py --with-hal</code></pre>
+
+<p class="meta">Files: <a href="spec.md">spec.md</a> ·
+<a href="design.v">design.v</a> · <a href="recovered.v">recovered.v</a> ·
+<a href="reference.py">reference.py</a> ·
+<a href="recovered_reference.py">recovered_reference.py</a> ·
+<a href="analysis.py">analysis.py</a> · <a href="check.py">check.py</a> ·
+<a href="run_analysis.sh">run_analysis.sh</a> ·
+<a href="speck_toy.vo">speck_toy.vo</a> · <a href="netlist.hal.v">netlist.hal.v</a> ·
+<a href="quartus/">quartus/</a> · <a href="images/">images/</a> ·
+<a href="artifacts/">artifacts/</a></p>

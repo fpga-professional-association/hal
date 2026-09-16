@@ -1,0 +1,56 @@
+{
+  "declared_vectors": {
+    "ct": 32,
+    "k": 16,
+    "key": 64,
+    "l0": 16,
+    "l1": 16,
+    "l2": 16,
+    "pt": 32,
+    "rnd": 5,
+    "x": 16,
+    "y": 16
+  },
+  "design_name": "speck_toy",
+  "gate_types": {
+    "tennm_ff": 104,
+    "tennm_lcell_comb": 137
+  },
+  "inputs": [
+    {
+      "name": "pt",
+      "width": 32
+    },
+    {
+      "name": "start",
+      "width": 1
+    },
+    {
+      "name": "clk",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "width": 1
+    },
+    {
+      "name": "key",
+      "width": 64
+    }
+  ],
+  "instances": 241,
+  "outputs": [
+    {
+      "name": "ct",
+      "width": 32
+    },
+    {
+      "name": "busy",
+      "width": 1
+    },
+    {
+      "name": "done",
+      "width": 1
+    }
+  ]
+}

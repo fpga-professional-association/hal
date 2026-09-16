@@ -115,6 +115,16 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   the circuit. So don't look for a `GND_inst` node in the `.dot` — look for
   `tie0_*`/`tie1_*` (the driving gate is in the stub's tooltip, the count in the
   `.dot` comment header). `--const-hub` restores the old single node.
+- **Per-pin tie-off stubs stop scaling somewhere around 1000 of them.** They are
+  the right default on the sizes walkthroughs 01-10 use (48 gates, 385 stubs).
+  On `11_speck_toy` (241 instances, **1514** constant-driven pins) the default
+  `dag` is a level-0 column of 1514 circles, 1.7 MB of SVG and roughly eight
+  minutes of Graphviz; the same graph with `--const-hub` is 640 KB and five
+  seconds, with the same level count. Check the constant fan-out before
+  rendering a design of that size, and say in the caption which spelling you
+  used — the two disagree on the edge count (413 versus 936 there), because the
+  hub draws a flip-flop's constant control pins once instead of per pin.
+  `12_present_sbox` is the other one, for the same reason at 2292 stubs.
 - Every drawing carries a `cluster_legend` whose node ids all start with
   `legend`. If you parse an emitted `.dot`, filter those out before counting
   gates — `tests/headless_smoke/real_netlist_smoke.py` shows the pattern.
