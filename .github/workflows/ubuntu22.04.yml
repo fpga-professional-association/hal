@@ -41,6 +41,19 @@ jobs:
         shell: bash
         run: bash "$GITHUB_WORKSPACE/tests/headless_smoke/run_walkthrough_checks.sh" nohal
 
+      # The build-free half of the CLI contract suite (issue #50), in the same "no HAL" tier and for
+      # the same reason: a tool whose --help crashes, or that answers a typo with a traceback, is
+      # found in seconds instead of an hour into the job. With the HAL variables cleared the suite
+      # skips exactly the tests that load a netlist through a tool; the full suite, including those,
+      # runs under ctest after the build.
+      - name: CLI contract checks (no HAL)
+        shell: bash
+        run: python3 "$GITHUB_WORKSPACE/tests/cli_contract/test_cli_contract.py"
+        env:
+          HAL_BASE_PATH: ""
+          HAL_PY_PATH: ""
+          PYTHONPATH: ""
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
