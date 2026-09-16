@@ -24,7 +24,228 @@
   ],
   "findings": [
     {
+      "assumptions": [
+        {
+          "description": "Each link is 'this register's next state depends on exactly one bit of kreg', modulo whatever else the cone reads -- a round-key operand, a load path, a mode select. The recovered map is therefore the map the design applies in the operating mode where the source reaches the register, not an unconditional wire permutation. A pure-wire map, when one exists, is reported separately as hal_crypto/permutation/layer, which is the stronger claim.",
+          "id": "one-side-input-per-link",
+          "kind": "structural"
+        },
+        {
+          "description": "76 of the 80 bits link back to kreg; the other 4 read more than one bit of it or none, so they are not claimed. Only a single consistent rotation amount is reported from a partial map -- a general permutation cannot be extrapolated from one.",
+          "id": "partial-coverage",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        },
+        {
+          "description": "The cone walk stops at every vector the export declares that is at least 4 bits wide, so 'kreg' is the layer named in the netlist. A synthesiser that dissolved that vector would leave this map unrecoverable -- which is a fact about the export, not about the design.",
+          "id": "vector-cut",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the next-state functions, each evaluated exhaustively over the cut described below",
+        "unbounded": true
+      },
       "data": {
+        "bits_observed": 76,
+        "complete": false,
+        "destination": "register bank kreg",
+        "evidence_tier": "cone-support",
+        "kind": "rotation",
+        "link_form": "gated",
+        "matches": [],
+        "max_side_inputs": 4,
+        "read_from": "next-state cone support",
+        "rotate_left_by": 61,
+        "rotation": 19,
+        "shared_side_inputs": [
+          "running~q",
+          "start"
+        ],
+        "source": "kreg",
+        "width": 80
+      },
+      "id": "hal_crypto/permutation/cone-support/0",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "present_sbox"
+        ],
+        "description": "register bank kreg",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "76 of the 80 bits of register bank kreg have a next-state cone that reads exactly one bit of kreg, and the index map is a rotation left by 61. The cones were enumerated over their whole input space, so 'reads exactly one bit' is read off the function and not off the wiring -- which is the point: every link here passes through a cell with other operands (at most 4 other net(s) per link, 2 of them shared by every link), so the wiring tier sees nothing at all. This is the weaker claim of the two: it says which bit each register reads, not that the map is the wiring. The links are gated, not pure XORs: the source bit reaches the register in one operating mode of the side inputs, which is what a parallel load or an enable looks like after synthesis.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "register bank kreg reads kreg rotated left by 61, recovered from the next-state cone support"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Each link is 'this register's next state depends on exactly one bit of subs', modulo whatever else the cone reads -- a round-key operand, a load path, a mode select. The recovered map is therefore the map the design applies in the operating mode where the source reaches the register, not an unconditional wire permutation. A pure-wire map, when one exists, is reported separately as hal_crypto/permutation/layer, which is the stronger claim.",
+          "id": "one-side-input-per-link",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        },
+        {
+          "description": "The cone walk stops at every vector the export declares that is at least 4 bits wide, so 'subs' is the layer named in the netlist. A synthesiser that dissolved that vector would leave this map unrecoverable -- which is a fact about the export, not about the design.",
+          "id": "vector-cut",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the next-state functions, each evaluated exhaustively over the cut described below",
+        "unbounded": true
+      },
+      "data": {
+        "bits_observed": 64,
+        "complete": true,
+        "destination": "register bank state",
+        "evidence_tier": "cone-support",
+        "kind": "general",
+        "link_form": "gated",
+        "matches": [
+          {
+            "convention": "src[i] drives dest[P(i)]",
+            "family": "spn",
+            "name": "present_player",
+            "reference": "PRESENT pLayer, P(i) = 16i mod 63 (CHES 2007)"
+          }
+        ],
+        "max_side_inputs": 6,
+        "permutation": [
+          0,
+          4,
+          8,
+          12,
+          16,
+          20,
+          24,
+          28,
+          32,
+          36,
+          40,
+          44,
+          48,
+          52,
+          56,
+          60,
+          1,
+          5,
+          9,
+          13,
+          17,
+          21,
+          25,
+          29,
+          33,
+          37,
+          41,
+          45,
+          49,
+          53,
+          57,
+          61,
+          2,
+          6,
+          10,
+          14,
+          18,
+          22,
+          26,
+          30,
+          34,
+          38,
+          42,
+          46,
+          50,
+          54,
+          58,
+          62,
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31,
+          35,
+          39,
+          43,
+          47,
+          51,
+          55,
+          59,
+          63
+        ],
+        "read_from": "next-state cone support",
+        "shared_side_inputs": [
+          "running~q",
+          "start"
+        ],
+        "source": "subs",
+        "width": 64
+      },
+      "id": "hal_crypto/permutation/cone-support/1",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "present_sbox"
+        ],
+        "description": "register bank state",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "64 of the 64 bits of register bank state have a next-state cone that reads exactly one bit of subs, and the index map is a general permutation. The cones were enumerated over their whole input space, so 'reads exactly one bit' is read off the function and not off the wiring -- which is the point: every link here passes through a cell with other operands (at most 6 other net(s) per link, 2 of them shared by every link), so the wiring tier sees nothing at all. This is the weaker claim of the two: it says which bit each register reads, not that the map is the wiring. It equals the published present_player. The links are gated, not pure XORs: the source bit reaches the register in one operating mode of the side inputs, which is what a parallel load or an enable looks like after synthesis.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "A 64-bit general bit map from subs into register bank state, recovered from the next-state cone support matching present_player"
+    },
+    {
+      "data": {
+        "cone_support_maps": 2,
         "maps_examined": 1
       },
       "id": "hal_crypto/permutation/none",
@@ -44,7 +265,7 @@
         ]
       },
       "status": "unknown",
-      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers.",
+      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers. 2 map(s) were recovered from the next-state cone support instead and are reported separately: the silence here is about wires, not about the design.",
       "tags": [
         "crypto",
         "permutation"
@@ -52,7 +273,7 @@
       "title": "No non-identity bit permutation layer"
     }
   ],
-  "generated_at": "2026-09-15T04:33:52Z",
+  "generated_at": "2026-09-16T22:48:05Z",
   "producer": {
     "name": "hal_crypto.permutation.find_permutations",
     "version": "1.0.0"

@@ -26,16 +26,82 @@
     {
       "data": {
         "adders": [],
+        "conditional_xor_cells": 89,
         "missing": [
           "no carry-chain adder of at least 4 bits",
-          "no fixed rotation in the wiring between banks",
-          "only 0 pure-XOR cell(s); a layer starts at 4"
+          "no fixed rotation, in a named vector or in the order a cell layer reads a register bank"
         ],
         "rotation_on_adder_operand": false,
         "rotations": [],
+        "standalone_xor_cells": 0,
         "verdict": "not-arx",
-        "xor_cells": 0,
-        "xor_layer_nets": [],
+        "xor_cells": 89,
+        "xor_layer_nets": [
+          "i586~0_combout",
+          "i586~2_combout",
+          "i586~3_combout",
+          "i586~4_combout",
+          "Mux_19~0_combout",
+          "i586~5_combout",
+          "Mux_23~0_combout",
+          "i586~6_combout",
+          "Mux_27~0_combout",
+          "i586~7_combout",
+          "Mux_31~0_combout",
+          "i586~8_combout",
+          "Mux_35~0_combout",
+          "i586~9_combout",
+          "Mux_39~0_combout",
+          "i586~10_combout",
+          "Mux_43~0_combout",
+          "i586~11_combout",
+          "Mux_47~0_combout",
+          "i586~12_combout",
+          "Mux_51~0_combout",
+          "i586~13_combout",
+          "Mux_55~0_combout",
+          "i586~14_combout",
+          "Mux_59~0_combout",
+          "i586~15_combout",
+          "Mux_63~0_combout",
+          "i586~16_combout",
+          "i586~17_combout",
+          "i586~18_combout",
+          "i586~19_combout",
+          "i586~20_combout",
+          "i586~21_combout",
+          "i586~22_combout",
+          "i586~23_combout",
+          "i586~24_combout",
+          "i586~25_combout",
+          "i586~26_combout",
+          "i586~27_combout",
+          "i586~28_combout",
+          "i586~29_combout",
+          "i586~30_combout",
+          "i586~31_combout",
+          "i586~32_combout",
+          "i586~33_combout",
+          "i586~34_combout",
+          "i586~35_combout",
+          "i586~36_combout",
+          "i586~37_combout",
+          "i586~38_combout",
+          "i586~39_combout",
+          "i586~40_combout",
+          "i586~41_combout",
+          "i586~42_combout",
+          "i586~43_combout",
+          "i586~44_combout",
+          "i586~45_combout",
+          "i586~46_combout",
+          "i586~47_combout",
+          "i586~48_combout",
+          "i586~49_combout",
+          "i586~50_combout",
+          "i586~51_combout",
+          "i586~52_combout"
+        ],
         "xor_layer_reads_adder_output": false
       },
       "id": "hal_crypto/arx/not-arx",
@@ -55,7 +121,7 @@
         ]
       },
       "status": "unknown",
-      "summary": "ARX needs adders, rotations and an XOR layer together; no carry-chain adder of at least 4 bits; no fixed rotation in the wiring between banks; only 0 pure-XOR cell(s); a layer starts at 4",
+      "summary": "ARX needs adders, rotations and an XOR layer together; no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
       "tags": [
         "arx",
         "crypto"
@@ -67,7 +133,8 @@
       "data": {
         "confidence_tier": "medium",
         "evidence": [
-          "13 bijective non-affine substitution(s) extracted from LUT cones, 0 of them matching the built-in library"
+          "13 bijective non-affine substitution(s) extracted from LUT cones, 0 of them matching the built-in library",
+          "the next-state cone of register bank kreg reads kreg rotated left by 61 (76 of 80 bits link back, each through one cell with other operands)"
         ],
         "style": "classical-style"
       },
@@ -102,7 +169,8 @@
       "data": {
         "confidence_tier": "medium",
         "evidence": [
-          "13 bijective non-affine substitution(s) extracted from LUT cones, 0 of them matching the built-in library"
+          "13 bijective non-affine substitution(s) extracted from LUT cones, 0 of them matching the built-in library",
+          "the next-state cone of register bank kreg reads kreg rotated left by 61 (76 of 80 bits link back, each through one cell with other operands)"
         ],
         "families_present": [
           "spn"
@@ -172,7 +240,85 @@
       "title": "No modular-arithmetic transform"
     },
     {
+      "assumptions": [
+        {
+          "description": "Each link is 'this register's next state depends on exactly one bit of kreg', modulo whatever else the cone reads -- a round-key operand, a load path, a mode select. The recovered map is therefore the map the design applies in the operating mode where the source reaches the register, not an unconditional wire permutation. A pure-wire map, when one exists, is reported separately as hal_crypto/permutation/layer, which is the stronger claim.",
+          "id": "one-side-input-per-link",
+          "kind": "structural"
+        },
+        {
+          "description": "76 of the 80 bits link back to kreg; the other 4 read more than one bit of it or none, so they are not claimed. Only a single consistent rotation amount is reported from a partial map -- a general permutation cannot be extrapolated from one.",
+          "id": "partial-coverage",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        },
+        {
+          "description": "The cone walk stops at every vector the export declares that is at least 4 bits wide, so 'kreg' is the layer named in the netlist. A synthesiser that dissolved that vector would leave this map unrecoverable -- which is a fact about the export, not about the design.",
+          "id": "vector-cut",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the next-state functions, each evaluated exhaustively over the cut described below",
+        "unbounded": true
+      },
       "data": {
+        "bits_observed": 76,
+        "complete": false,
+        "destination": "register bank kreg",
+        "evidence_tier": "cone-support",
+        "kind": "rotation",
+        "link_form": "gated",
+        "matches": [],
+        "max_side_inputs": 4,
+        "read_from": "next-state cone support",
+        "rotate_left_by": 61,
+        "rotation": 19,
+        "shared_side_inputs": [
+          "running~q",
+          "start"
+        ],
+        "source": "kreg",
+        "width": 80
+      },
+      "id": "hal_crypto/permutation/cone-support",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "present_sbox"
+        ],
+        "description": "register bank kreg",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "76 of the 80 bits of register bank kreg have a next-state cone that reads exactly one bit of kreg, and the index map is a rotation left by 61. The cones were enumerated over their whole input space, so 'reads exactly one bit' is read off the function and not off the wiring -- which is the point: every link here passes through a cell with other operands (at most 4 other net(s) per link, 2 of them shared by every link), so the wiring tier sees nothing at all. This is the weaker claim of the two: it says which bit each register reads, not that the map is the wiring. The links are gated, not pure XORs: the source bit reaches the register in one operating mode of the side inputs, which is what a parallel load or an enable looks like after synthesis.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "register bank kreg reads kreg rotated left by 61, recovered from the next-state cone support"
+    },
+    {
+      "data": {
+        "cone_support_maps": 1,
         "maps_examined": 1
       },
       "id": "hal_crypto/permutation/none",
@@ -192,7 +338,7 @@
         ]
       },
       "status": "unknown",
-      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers.",
+      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers. 1 map(s) were recovered from the next-state cone support instead and are reported separately: the silence here is about wires, not about the design.",
       "tags": [
         "crypto",
         "permutation"
@@ -1043,7 +1189,7 @@
       "title": "No shift chain of at least 4 stages"
     }
   ],
-  "generated_at": "2026-09-15T04:33:52Z",
+  "generated_at": "2026-09-16T22:48:05Z",
   "notes": [
     "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
     "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."

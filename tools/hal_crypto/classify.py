@@ -13,7 +13,12 @@ family                  fires when
 ``sponge``              an extracted S-box equals a sponge-family entry
                         (Ascon, Keccak chi) at any match tier
 ``spn``                 at least :data:`MIN_SBOX_INSTANCES` extracted S-boxes,
-                        or one S-box plus a non-identity permutation layer
+                        or one S-box plus a non-identity permutation layer --
+                        either a pure-wire one or one
+                        :func:`hal_crypto.permutation.cone_support_maps` read
+                        through a round-key XOR, as long as it maps one vector
+                        onto a *different* register bank (a bank that reads
+                        itself rotated is a key schedule, not diffusion)
 ``arx``                 :mod:`hal_crypto.arx` returns ``arx-candidate``
 ``lfsr-stream``         a feedback shift register of at least
                         :data:`hal_crypto.shiftreg.MIN_CHAIN_LENGTH` stages
@@ -75,6 +80,12 @@ def run_passes(netlist):
         "sbox": sbox.identify(model_view),
         "shift": shiftreg.find_shift_structures(model_view),
         "permutations": permutations,
+        # Kept in their own list, never merged into the wiring tier's: the ARX
+        # pass reads "permutations" as rotations it may count, and a map that
+        # needed a cone read is not evidence of the same strength.
+        "cone_permutations": permutation.cone_support_maps(
+            model_view, wiring=permutations
+        ),
         "arx": arx.identify(model_view, adders=adders, permutations=permutations),
         "ntt": ntt.identify(model_view, adders=adders),
         "adders": adders,
@@ -112,6 +123,19 @@ def verdict(evidence):
         entry
         for entry in evidence["permutations"]
         if entry["kind"] in ("rotation", "reversal", "general")
+    ]
+    # Layers recovered through one cell per link count towards the family --
+    # a pLayer behind a round-key XOR is still a pLayer -- but they are said
+    # out loud as what they are, in their own evidence line and their own
+    # finding, because the wiring tier proves more.  A bank that reads *itself*
+    # rotated is excluded from the family rule: that is a key schedule or a
+    # shift structure, not the diffusion layer between two substitution layers,
+    # and "one S-box plus a rotating register" is not an SPN.
+    cone_layers = list(evidence.get("cone_permutations", ()))
+    cone_diffusion = [
+        entry
+        for entry in cone_layers
+        if entry["destination"] != "register bank {}".format(entry["source"])
     ]
     sponge_boxes = [
         entry for entry in sboxes if "sponge" in entry["families"]
@@ -163,7 +187,7 @@ def verdict(evidence):
             )
         confidence = _max_confidence(confidence, "high")
 
-    if len(sboxes) >= MIN_SBOX_INSTANCES or (sboxes and layers):
+    if len(sboxes) >= MIN_SBOX_INSTANCES or (sboxes and (layers or cone_diffusion)):
         present.append("spn")
         matched = [entry for entry in sboxes if entry["matches"]]
         evidence_lines.append(
@@ -175,6 +199,8 @@ def verdict(evidence):
                 "{} non-identity bit permutation layer(s) between register "
                 "banks".format(len(layers))
             )
+        for entry in cone_layers:
+            evidence_lines.append(_cone_layer_sentence(entry))
         confidence = _max_confidence(confidence, "high" if matched else "medium")
 
     if evidence["arx"]["verdict"] == "arx-candidate":
@@ -241,7 +267,7 @@ def verdict(evidence):
 
     if family == "none-detected":
         confidence = "high" if _passes_were_conclusive(evidence) else "medium"
-        evidence_lines = _negative_evidence(evidence, plain_chains, absorbing)
+        evidence_lines = _negative_evidence(evidence, plain_chains, absorbing, cone_layers)
         style = "undetermined"
         style_text = (
             "No structure this package recognises as cryptographic was found, so "
@@ -299,6 +325,29 @@ def _mode_sentence(entry):
     )
 
 
+def _cone_layer_sentence(entry):
+    """One evidence line for a map read off the next-state cone support."""
+    names = ", ".join(match["name"] for match in entry["matches"])
+    if entry["kind"] == "rotation":
+        what = "reads {} rotated left by {}".format(
+            entry["source"], entry["rotate_left_by"]
+        )
+    else:
+        what = "is a {}-bit {} permutation of {}".format(
+            entry["width"], entry["kind"], entry["source"]
+        )
+    return (
+        "the next-state cone of {} {} ({} of {} bits link back, each through one "
+        "cell with other operands){}".format(
+            entry["destination"],
+            what,
+            entry["bits_observed"],
+            entry["width"],
+            ", equal to the published {}".format(names) if names else "",
+        )
+    )
+
+
 def _max_confidence(current, candidate):
     order = ("low", "medium", "high")
     return candidate if order.index(candidate) > order.index(current) else current
@@ -309,7 +358,7 @@ def _passes_were_conclusive(evidence):
     return not evidence["sbox"]["rejected"]
 
 
-def _negative_evidence(evidence, plain_chains, absorbing=()):
+def _negative_evidence(evidence, plain_chains, absorbing=(), cone_layers=()):
     lines = [
         "S-box extraction: {} bijective non-affine substitution(s) of 3..8 bits "
         "found in the LUT cones".format(len(evidence["sbox"]["sboxes"])),
@@ -333,6 +382,8 @@ def _negative_evidence(evidence, plain_chains, absorbing=()):
             )
         ),
     ]
+    for entry in cone_layers:
+        lines.append(_cone_layer_sentence(entry))
     if plain_chains:
         lines.append(
             "{} shift chain(s) with no feedback at all, which is a shift register "
@@ -685,10 +736,134 @@ def arx_findings(artifact_id, result):
     ]
 
 
-def permutation_findings(artifact_id, permutations):
+def _cone_permutation_finding(artifact_id, entry, suffix):
+    names = ", ".join(match["name"] for match in entry["matches"])
+    side = entry["shared_side_inputs"]
+    return model.finding(
+        "hal_crypto/permutation/cone-support" + suffix,
+        (
+            "{} reads {} rotated left by {}, recovered from the next-state cone "
+            "support".format(
+                entry["destination"], entry["source"], entry["rotate_left_by"]
+            )
+            if entry["kind"] == "rotation"
+            else "A {}-bit {} bit map from {} into {}, recovered from the "
+            "next-state cone support{}".format(
+                entry["width"],
+                entry["kind"],
+                entry["source"],
+                entry["destination"],
+                " matching {}".format(names) if names else "",
+            )
+        ),
+        model.STATUS_PROVEN_UNDER_ASSUMPTIONS,
+        findings.EXACT_EVALUATION,
+        _scope(artifact_id, description=entry["destination"]),
+        summary=(
+            "{} of the {} bits of {} have a next-state cone that reads exactly one "
+            "bit of {}, and the index map is {}. The cones were enumerated over "
+            "their whole input space, so 'reads exactly one bit' is read off the "
+            "function and not off the wiring -- which is the point: every link "
+            "here passes through a cell with other operands ({}), so the wiring "
+            "tier sees nothing at all. This is the weaker claim of the two: it "
+            "says which bit each register reads, not that the map is the wiring."
+            "{}{}".format(
+                entry["bits_observed"],
+                entry["width"],
+                entry["destination"],
+                entry["source"],
+                "a rotation left by {}".format(entry["rotate_left_by"])
+                if entry["kind"] == "rotation"
+                else "a {} permutation".format(entry["kind"]),
+                "at most {} other net(s) per link{}".format(
+                    entry["max_side_inputs"],
+                    ", {} of them shared by every link".format(len(side))
+                    if side
+                    else "",
+                ),
+                " It equals the published {}.".format(names) if names else "",
+                " Every link is an XOR of the source bit with those operands."
+                if entry["link_form"] == "xor"
+                else " The links are gated, not pure XORs: the source bit reaches "
+                "the register in one operating mode of the side inputs, which is "
+                "what a parallel load or an enable looks like after synthesis.",
+            )
+        ),
+        bounds_dict=model.unbounded(
+            description=(
+                "a statement about the next-state functions, each evaluated "
+                "exhaustively over the cut described below"
+            )
+        ),
+        assumptions=[
+            findings.PRIMITIVE_SEMANTICS_ASSUMPTION,
+            findings.READER_ASSUMPTION,
+            model.assumption(
+                "one-side-input-per-link",
+                "Each link is 'this register's next state depends on exactly one "
+                "bit of {}', modulo whatever else the cone reads -- a round-key "
+                "operand, a load path, a mode select. The recovered map is "
+                "therefore the map the design applies in the operating mode where "
+                "the source reaches the register, not an unconditional wire "
+                "permutation. A pure-wire map, when one exists, is reported "
+                "separately as hal_crypto/permutation/layer, which is the stronger "
+                "claim.".format(entry["source"]),
+                kind="structural",
+            ),
+            model.assumption(
+                "vector-cut",
+                "The cone walk stops at every vector the export declares that is "
+                "at least {} bits wide, so '{}' is the layer named in the netlist. "
+                "A synthesiser that dissolved that vector would leave this map "
+                "unrecoverable -- which is a fact about the export, not about the "
+                "design.".format(permutation.MIN_PERMUTATION_WIDTH, entry["source"]),
+                kind="structural",
+            ),
+        ]
+        + (
+            []
+            if entry["complete"]
+            else [
+                model.assumption(
+                    "partial-coverage",
+                    "{} of the {} bits link back to {}; the other {} read more than "
+                    "one bit of it or none, so they are not claimed. Only a single "
+                    "consistent rotation amount is reported from a partial map -- a "
+                    "general permutation cannot be extrapolated from one.".format(
+                        entry["bits_observed"],
+                        entry["width"],
+                        entry["source"],
+                        entry["width"] - entry["bits_observed"],
+                    ),
+                    kind="structural",
+                )
+            ]
+        ),
+        data=entry,
+        tags=["crypto", "permutation"],
+    )
+
+
+def permutation_findings(artifact_id, permutations, cone_maps=()):
+    """The wiring tier's findings, with the cone-support tier's in front of them.
+
+    The two are separate findings on purpose: one says the map *is* the wiring,
+    the other says which bit each register reads. Never one finding averaging
+    the two.
+    """
+    cone_maps = list(cone_maps)
+    cone_items = [
+        _cone_permutation_finding(
+            artifact_id, entry, "" if len(cone_maps) == 1 else "/{}".format(number)
+        )
+        for number, entry in enumerate(cone_maps)
+    ]
     interesting = [entry for entry in permutations if entry["kind"] != "identity"]
     if not interesting:
-        return [
+        data = {"maps_examined": len(permutations)}
+        if cone_maps:
+            data["cone_support_maps"] = len(cone_maps)
+        return cone_items + [
             model.finding(
                 "hal_crypto/permutation/none",
                 "No non-identity bit permutation layer",
@@ -699,8 +874,17 @@ def permutation_findings(artifact_id, permutations):
                     "Every pure-wire map between two equally wide vectors is the "
                     "identity, so there is no permutation layer to compare against the "
                     "published pLayers."
+                    + (
+                        ""
+                        if not cone_maps
+                        else " {} map(s) were recovered from the next-state cone "
+                        "support instead and are reported separately: the silence "
+                        "here is about wires, not about the design.".format(
+                            len(cone_maps)
+                        )
+                    )
                 ),
-                data={"maps_examined": len(permutations)},
+                data=data,
                 tags=["crypto", "permutation"],
             )
         ]
@@ -738,7 +922,7 @@ def permutation_findings(artifact_id, permutations):
                 tags=["crypto", "permutation"],
             )
         )
-    return items
+    return cone_items + items
 
 
 def ntt_findings(artifact_id, result):
@@ -852,7 +1036,13 @@ def build_document(netlist, artifact, generated_at=None):
     items.extend(verdict_findings(artifact_id, decision))
     items.extend(sbox_findings(artifact_id, evidence["sbox"]))
     items.extend(shift_findings(artifact_id, evidence["shift"]))
-    items.extend(permutation_findings(artifact_id, evidence["permutations"]))
+    items.extend(
+        permutation_findings(
+            artifact_id,
+            evidence["permutations"],
+            cone_maps=evidence.get("cone_permutations", ()),
+        )
+    )
     items.extend(arx_findings(artifact_id, evidence["arx"]))
     items.extend(ntt_findings(artifact_id, evidence["ntt"]))
     return findings.document(

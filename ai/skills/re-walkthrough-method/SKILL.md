@@ -140,13 +140,19 @@ visible in the column profile alone. It is also the cheapest whole-netlist
 picture there is -- at 613 gates the *unlevelled* graph does not render at all,
 because a cyclic graph cannot be layered.
 
-**Substitution is recoverable exactly; the permutation around it usually is
-not.** In `12_present_sbox` the 4-bit S-box comes out of the LUT cones as a
-table and matches the published one, while the bit permutation is pure wiring
-that no pass reports -- it had to be read off which cone drives which flip-flop.
-Same lesson as the ARX rotations: **the layer that costs no logic is the layer
-no tool hands you**, in both families. Recover it from index arithmetic over an
-ordered layer, and say so.
+**Substitution is recoverable exactly; the permutation around it is recoverable
+only through what sits on top of it.** In `12_present_sbox` the 4-bit S-box
+comes out of the LUT cones as a table and matches the published one. The bit
+permutation costs no logic, so it is not a signal -- it is which cell output is
+soldered to which flip-flop input, and the round-key XOR in between means no
+destination bit peels back to a source through wires alone. The recovery is to
+stop asking about wires and ask about *dependence*: which bit of the layer above
+does each flip-flop's next state read? That is
+`hal_crypto permutation`'s cone-support tier now (it returns the pLayer and the
+key rotation by 61 on that export), and it is what the walkthrough did by hand
+first. Same lesson as the ARX rotations: **the layer that costs no logic is the
+layer no wire-level tool hands you** -- recover it from index arithmetic over an
+ordered layer, and say which tier the claim came from.
 
 **A structural test that finds *nothing* is a claim about the netlist you were
 given, and the first thing to suspect is the multiplexer on top.** On

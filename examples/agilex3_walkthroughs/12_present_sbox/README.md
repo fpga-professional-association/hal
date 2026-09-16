@@ -7,7 +7,8 @@ A PRESENT-80 encryption datapath (64-bit block, 80-bit key, 31 rounds, one round
 per clock, key schedule included, encrypt only) synthesized for Agilex 3, and the
 walk back from the export to the cipher: the 4-bit S-box read out of the LUT
 cones and matched against the published table, the bit permutation recovered from
-which cone drives which flip-flop, the key schedule classified bit by bit, the
+which cone drives which flip-flop — by hand, and now by the permutation pass's
+cone-support tier, the key schedule classified bit by bit, the
 round count measured, and the four published test vectors reproduced by
 simulating the netlist itself.
 

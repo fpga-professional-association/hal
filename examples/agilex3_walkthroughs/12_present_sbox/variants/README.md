@@ -12,6 +12,12 @@ it.
 | `present_nokeep.vo` | `../design.v` | the two `/* synthesis keep */` pragmas deleted | `spn`, 13 substitutions extracted, **none** matching the library |
 | `present_textbook.vo` | `design_textbook.v` | the register holds the state *before* the round key is added (and therefore needs a 32nd cycle for the final key addition) | **`none-detected`** |
 
+Neither export yields the pLayer: the map the permutation pass recovers from the
+main export is expressed over the `subs` vector, and without the `keep` pragma —
+or with the register on the other side of the key addition — that vector does not
+exist. Both still yield the key register's rotation left by 61, which depends on
+neither choice.
+
 `../check.py` re-runs `identify` over both and asserts those verdicts, so the
 claim in the guide cannot rot.
 
