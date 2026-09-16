@@ -124,7 +124,20 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   rendering a design of that size, and say in the caption which spelling you
   used — the two disagree on the edge count (413 versus 936 there), because the
   hub draws a flip-flop's constant control pins once instead of per pin.
-  `12_present_sbox` is the other one, for the same reason at 2292 stubs.
+  `12_present_sbox` is the other one, for the same reason at 2292 stubs, and
+  `13_trivium_stream` the third at 4377.
+- **`netlist_graph` and `dag` are not interchangeable at size, and the refusal is
+  not the only limit.** `--max-gates` (400) is a readability guard you can raise;
+  Graphviz is the real one. On `13_trivium_stream` (613 gates, 1884 edges)
+  `netlist_graph` with `--max-gates 700` ran `dot` for **ten minutes without
+  finishing**, because the gate graph is cyclic and `dot` can only be fast on
+  something it can layer; `--engine sfdp` returned in minutes but produced a
+  hairball no gate name is readable in. The *same 613 nodes* through `dag` --
+  where the feedback is cut at every flip-flop, so the graph is layered by
+  construction -- render in seconds. So: `dag` is the whole-netlist view above a
+  few hundred gates, and `netlist_graph` gets scoped (`--gate NAME --depth 1`),
+  which is what `12_present_sbox` and `13_trivium_stream` both do. Check the gate
+  count before pointing `netlist_graph` at a whole module.
 - Every drawing carries a `cluster_legend` whose node ids all start with
   `legend`. If you parse an emitted `.dot`, filter those out before counting
   gates — `tests/headless_smoke/real_netlist_smoke.py` shows the pattern.

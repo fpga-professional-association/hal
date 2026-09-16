@@ -1,0 +1,20 @@
+# Quartus settings for the trivium_stream walkthrough.
+# Same device / family / flow as tools/hal_agilex/fixtures (see its README).
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY trivium_stream
+set_global_assignment -name VERILOG_FILE design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+# Keep the load selection out of the flip-flop's `sload` and `sclr` ports and
+# inside the LUT logic instead.  Both are real tennm_ff ports but they are
+# outside the configuration hal_agilex validated (see tools/hal_agilex,
+# "Coverage"), so an export using them would be reported `unsupported`.  Same
+# assignment, same reason, as walkthroughs 06 and 11.
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF
+
+# Trivium's state is three shift registers of 93, 84 and 111 stages -- precisely
+# the shape Quartus retargets onto a memory block.  A memory block is outside
+# the validated primitive coverage, and the flip-flop chain is also the whole
+# structure this walkthrough is about, so shift-register inference is off.
+set_global_assignment -name AUTO_SHIFT_REGISTER_RECOGNITION OFF

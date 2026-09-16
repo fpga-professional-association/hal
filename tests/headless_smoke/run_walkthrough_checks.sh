@@ -103,6 +103,12 @@ if [[ "${TIER}" == "nohal" ]]; then
     # behaviour run) and still needs nothing but tools/hal_agilex and
     # tools/hal_crypto; ~3 s.
     run 12_present_sbox
+    # 13 is larger still (611 instances) and its checks drive the netlist
+    # through three complete 1152-step warm-ups plus two negative controls and
+    # a trace replay; ~20 s, and still nothing but tools/hal_agilex and
+    # tools/hal_crypto.  --with-hal below adds the hal_py load and the SCC
+    # decomposition.
+    run 13_trivium_stream
 else
     for var in HAL_BASE_PATH HAL_PY_PATH PYTHONPATH; do
         if [[ -z "${!var:-}" ]]; then
@@ -125,6 +131,7 @@ else
     run 06_accumulator_alu --require-hal
     run 08_shift_debouncer --with-hal -o "${SCRATCH}/08_shift_debouncer"
     run 11_speck_toy --with-hal
+    run 13_trivium_stream --with-hal
 fi
 
 # Canary: the checks are supposed to read the committed artifacts, not

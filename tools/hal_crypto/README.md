@@ -17,7 +17,7 @@ chance to be wrong about what the vendor wrote.
 | module | question | positive control | negative control |
 | --- | --- | --- | --- |
 | `sbox.py` | which LUT cones form an *n*-bit bijection, and does it equal a published S-box? | `fixtures/present_sbox_layer.vo` | `fixtures/unknown_sbox_layer.vo`, `fixtures/counter8.vo` |
-| `shiftreg.py` | is a register chain closed by feedback; is the feedback linear (polynomial) or not (ANF); Fibonacci or Galois? | `fixtures/lfsr16_fibonacci.vo`, `fixtures/lfsr16_galois.vo` | `fixtures/nlfsr16.vo`, `fixtures/shift16_plain.vo` |
+| `shiftreg.py` | is a register chain closed by feedback -- by its own stages or by a sibling's; is the feedback linear (polynomial) or not (ANF); Fibonacci or Galois? | `fixtures/lfsr16_fibonacci.vo`, `fixtures/lfsr16_galois.vo`, `fixtures/lfsr16_loadable.vo`, `fixtures/coupled_nlfsr.vo` | `fixtures/nlfsr16.vo`, `fixtures/shift16_plain.vo` |
 | `arx.py` | are adders, fixed rotations and an XOR layer present **and wired together**? | `fixtures/arx_round8.vo` | `fixtures/counter8.vo`, `fixtures/rotate16.vo` |
 | `permutation.py` | which pure-wire bit maps exist, and do they equal a published pLayer or rotation set? | `fixtures/rotate16.vo` | `fixtures/counter8.vo` |
 | `ntt.py` | is there an add/subtract butterfly over the same operands, and what modulus does the constant-operand chain reduce by? | `fixtures/ntt_stage13.vo` | `fixtures/butterfly4.vo` (butterfly, no modulus) |
@@ -98,6 +98,35 @@ numbers the register from the other end, which gives the reciprocal polynomial:
 `x^8 + x^2 + x + 1` — its stated 0x07 generator — as the reciprocal. Both are
 reported, always, with the convention named.
 
+### A shift register in a vendor export may have no visible links, and may not close onto itself
+
+Both were measured on `examples/agilex3_walkthroughs/13_trivium_stream`, a
+Quartus Prime Pro export of Trivium, where the plain reading found **zero**
+chains in a design that is three shift registers:
+
+- **a parallel key/IV load hides every link.** `s[i] <= load ? init[i] :
+  s[i-1]` is a multiplexer, so "this register's next state is exactly another
+  register's output" is false for all 288 stages at once. `shiftreg.py` ranks
+  the external nets by how many next-state functions read them *nonlinearly*,
+  holds the best one or two at each value, and looks again — the same cofactor
+  move `arx.xor_nets` uses, applied to the links instead of the XORs. A
+  structure found that way carries `mode: {"net": "start", "value": 0}` and
+  every finding built from it says the claim holds in that operating mode.
+  A held net can only *add* feedback registers: a structure that is merely an
+  open chain under a held select is dropped, because a register bank that
+  becomes a shift chain once its load select is held is just a loadable
+  register bank, which is what most register banks are.
+- **the feedback may close through a sibling.** Trivium, Grain and the rest of
+  the hardware stream ciphers are *coupled* registers: no segment's feedback is
+  a function of its own stages alone. Every chain is therefore found before any
+  of them is classified, and a head that reads stages of another chain is
+  reported `coupled: true`, with `coupled_chains`, the foreign taps named one by
+  one, and variables written `s<chain>[<stage>]` — because `s[65]` means two
+  different flip-flops once two registers are in play. A coupled register has
+  **no feedback polynomial**: a polynomial describes a recurrence over one
+  register's own history, so `polynomial` is `None` there and the ANF is the
+  whole report.
+
 ### An ARX round in a vendor export names neither its R nor its X
 
 Both were measured on `examples/agilex3_walkthroughs/11_speck_toy`, a Quartus
@@ -141,13 +170,16 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-76 tests, no HAL, ~5 s. Registered with ctest as
+95 tests, no HAL, ~10 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
 specification states, `01_blinky_counter` must classify `none-detected`, and
 `11_speck_toy` must classify `arx` with the published SPECK-32/64 rotation set
-quoted and no claim that the design *is* SPECK.
+quoted and no claim that the design *is* SPECK, and `13_trivium_stream` must
+classify `lfsr-stream` as three coupled NLFSRs of 93, 84 and 111 stages with the
+published Trivium feedback functions recovered and no polynomial claimed for any
+of them.
 
 `elaborate` is the one subcommand that loads a netlist in HAL's own process, so
 it also has a case in `tests/headless_smoke/tool_cli_plugin_load_smoke.py`,

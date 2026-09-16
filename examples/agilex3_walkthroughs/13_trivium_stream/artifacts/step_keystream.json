@@ -1,0 +1,48 @@
+{
+  "all_match": true,
+  "headline": {
+    "cycles_from_accepted_start_to_valid": 1153,
+    "iv": "00000000000000000000",
+    "key": "00000000000000000000",
+    "keystream": "FBE0BF265859051B",
+    "matches_published_vector": true,
+    "published": "FBE0BF265859051B",
+    "vector": "Set 2, #0",
+    "warmup_steps": 1152
+  },
+  "vectors": [
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "80000000000000000000",
+      "keystream": "38EB86FF730D7A9C",
+      "matches_published_vector": true,
+      "published": "38EB86FF730D7A9C",
+      "vector": "Set 1, #0",
+      "warmup_steps": 1152
+    },
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "00000000000000000000",
+      "keystream": "FBE0BF265859051B",
+      "matches_published_vector": true,
+      "published": "FBE0BF265859051B",
+      "vector": "Set 2, #0",
+      "warmup_steps": 1152
+    },
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "00010203040506070809",
+      "keystream": "D2A8740BBA6FD906",
+      "matches_published_vector": true,
+      "published": "D2A8740BBA6FD906",
+      "vector": "Set 3, #0",
+      "warmup_steps": 1152
+    }
+  ],
+  "warmup_steps": [
+    1152
+  ]
+}

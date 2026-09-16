@@ -1,0 +1,74 @@
+{
+  "chains": 3,
+  "mode_candidates": [
+    "start"
+  ],
+  "plain_shift_links_without_holding_anything": 0,
+  "registers": 301,
+  "segments": [
+    {
+      "autonomous": true,
+      "chain": 0,
+      "coupled": true,
+      "coupled_chains": [
+        1
+      ],
+      "feedback_anf": "s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] & s1[109])",
+      "feedback_degree": 2,
+      "head": "s[0]",
+      "kind": "nlfsr",
+      "length": 93,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        68
+      ],
+      "tail": "s[92]"
+    },
+    {
+      "autonomous": true,
+      "chain": 1,
+      "coupled": true,
+      "coupled_chains": [
+        2
+      ],
+      "feedback_anf": "s1[86] ^ s2[68] ^ s2[83] ^ (s2[81] & s2[82])",
+      "feedback_degree": 2,
+      "head": "s[177]",
+      "kind": "nlfsr",
+      "length": 111,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        86
+      ],
+      "tail": "s[287]"
+    },
+    {
+      "autonomous": true,
+      "chain": 2,
+      "coupled": true,
+      "coupled_chains": [
+        0
+      ],
+      "feedback_anf": "s0[65] ^ s0[92] ^ s2[77] ^ (s0[90] & s0[91])",
+      "feedback_degree": 2,
+      "head": "s[93]",
+      "kind": "nlfsr",
+      "length": 84,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        77
+      ],
+      "tail": "s[176]"
+    }
+  ],
+  "total_stages": 288
+}

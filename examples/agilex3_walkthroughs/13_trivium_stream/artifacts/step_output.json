@@ -1,0 +1,39 @@
+{
+  "also_a_feedback_tap": [
+    65,
+    92,
+    161,
+    176,
+    242,
+    287
+  ],
+  "arity": 6,
+  "cell_inputs": [
+    "s[161]",
+    "s[176]",
+    "s[242]",
+    "s[287]",
+    "s[65]",
+    "s[92]"
+  ],
+  "constant": 0,
+  "is_pure_xor": true,
+  "not_a_feedback_tap": [],
+  "reads_any_and_term_input": [],
+  "sources": [
+    65,
+    92,
+    161,
+    176,
+    242,
+    287
+  ],
+  "sources_spec": [
+    66,
+    93,
+    162,
+    177,
+    243,
+    288
+  ]
+}

@@ -1,0 +1,123 @@
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/w13/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.06 seconds.
+[netlist_parser] [info] instantiating '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist_parser] [info] instantiated '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v' in 0.24 seconds.
+[ok  ] the export is fully covered
+[ok  ] coverage finding is proven_under_assumptions -- proven_under_assumptions
+[ok  ] 301 flip-flops and 310 ALMs, nothing else -- {'tennm_ff': 301, 'tennm_lcell_comb': 310}
+[ok  ] the committed findings hash the committed export -- byte-for-byte
+[ok  ] 611 instances: 301 tennm_ff + 310 tennm_lcell_comb -- {'tennm_ff': 301, 'tennm_lcell_comb': 310}
+[ok  ] the boundary is clk/rst_n/start/key/iv -> ks/ks_valid/busy -- [{'name': 'key', 'width': 80}, {'name': 'start', 'width': 1}, {'name': 'clk', 'width': 1}, {'name': 'rst_n', 'width': 1}, {'name': 'iv', 'width': 80}, {'name': 'ks', 'width': 1}, {'name': 'ks_valid', 'width': 1}, {'name': 'busy', 'width': 1}]
+[ok  ] a 288-bit state vector, a 6-bit and a 5-bit counter -- {'done~q': 1, 'hi': 5, 'lo': 6, 's': 288, 'warm~q': 1}
+[ok  ] one clock, one async clear, and the enable split is 296 / 5 -- [(296, '1'), (5, 'i638~1_combout')]
+[ok  ] not one of the 301 registers is a plain shift link -- 0 links
+[ok  ] the only mode candidate is the load select -- ['start']
+[ok  ] three segments of 93/84/111 stages, 288 bits in all -- [93, 111, 84]
+[ok  ] every segment is a coupled, autonomous NLFSR seen with start = 0 -- [('nlfsr', True, {'net': 'start', 'value': 0}), ('nlfsr', True, {'net': 'start', 'value': 0}), ('nlfsr', True, {'net': 'start', 'value': 0})]
+[ok  ] the three segments form a ring, each reading exactly one other -- [(0, [1]), (1, [2]), (2, [0])]
+[ok  ] the three recovered feedbacks are the published Trivium ones -- ['s162 + s177 + s264 + s175 * s176', 's171 + s66 + s93 + s91 * s92', 's243 + s288 + s69 + s286 * s287']
+[ok  ] each has degree 2: exactly one AND term, three of them in all -- degrees=[2] and_terms=3
+[ok  ] every AND is over two adjacent stages -- [[['s[285]', 's[286]']], [['s[174]', 's[175]']], [['s[90]', 's[91]']]]
+[ok  ] the output cell is a pure XOR of six state bits -- [66, 93, 162, 177, 243, 288]
+[ok  ] all six are s66/s93/s162/s177/s243/s288 -- [66, 93, 162, 177, 243, 288]
+[ok  ] every one of them is a linear feedback tap and none is an AND input -- []
+[ok  ] the load puts the key at s1..s80 and the iv at s94..s173 -- [{'port': 'iv', 'bits': 80, 'state_range': [93, 172], 'port_range': [0, 79], 'identity_offset': 93}, {'port': 'key', 'bits': 80, 'state_range': [0, 79], 'port_range': [0, 79], 'identity_offset': 0}]
+[ok  ] and three ones at s286/s287/s288, with 125 zeros in two runs -- [286, 287, 288] [{'from': 80, 'to': 92, 'length': 13}, {'from': 173, 'to': 284, 'length': 112}]
+[ok  ] two terminal-count cells with moduli 64 and 18 -- [{'cell': 'lo_last', 'counter': 'lo', 'width': 6, 'fires_on': 63, 'modulus': 64}, {'cell': 'hi_last', 'counter': 'hi', 'width': 5, 'fires_on': 17, 'modulus': 18}]
+[ok  ] their product is 1152 = 4 x 288 state bits -- 1152 steps
+[ok  ] the guide states the same warm-up
+[ok  ] the netlist reproduces all 3 published eSTREAM vectors -- [('Set 1, #0', '38EB86FF730D7A9C'), ('Set 2, #0', 'FBE0BF265859051B'), ('Set 3, #0', 'D2A8740BBA6FD906')]
+[ok  ] each takes 1153 cycles from an accepted start and 1152 warm-up steps -- [1152]
+[ok  ] the guide quotes the headline keystream -- FBE0BF265859051B
+[ok  ] the netlist matches the design.v model for 3600 cycles -- behavior_design.findings.json
+[ok  ] the netlist matches the recovered.v model for 3600 cycles -- behavior_recovered.findings.json
+[ok  ] the committed 'moved tap' negative control is a counterexample -- behavior_negative_control_tap.findings.json
+[ok  ] the committed 'AND replaced by XOR' negative control is a counterexample -- behavior_negative_control_linear.findings.json
+[ok  ] a reference with one feedback tap moved by one stage is still caught -- diverged at cycle 71
+[ok  ] ... and not immediately: the wrong bit has to shift to the output -- cycle 71
+[ok  ] the guide quotes the divergence cycle it actually gets -- cycle 71
+[ok  ] a reference with the AND terms replaced by XORs is still caught -- diverged at cycle 71
+[ok  ] ... and not immediately: the wrong bit has to shift to the output -- cycle 71
+[ok  ] the guide quotes the divergence cycle it actually gets -- cycle 71
+[ok  ] the committed verdict is family lfsr-stream, classical-style -- lfsr-stream / classical-style
+[ok  ] re-running the classifier still says lfsr-stream / classical-style -- lfsr-stream / classical-style / high
+[ok  ] three NLFSRs, no LFSR: every feedback has a degree-2 term -- [('nlfsr', 2), ('nlfsr', 2), ('nlfsr', 2)]
+[ok  ] none of them carries a feedback polynomial
+[ok  ] the guide quotes the verdict and the walkthrough 05 contrast
+[ok  ] reference.py reproduces Set 1, #0 in 1153 cycles -- 38EB86FF730D7A9C after 1153 cycles
+[ok  ] reference.py reproduces Set 2, #0 in 1153 cycles -- FBE0BF265859051B after 1153 cycles
+[ok  ] reference.py reproduces Set 3, #0 in 1153 cycles -- D2A8740BBA6FD906 after 1153 cycles
+[ok  ] recovered_reference.py reproduces Set 1, #0 in 1153 cycles -- 38EB86FF730D7A9C after 1153 cycles
+[ok  ] recovered_reference.py reproduces Set 2, #0 in 1153 cycles -- FBE0BF265859051B after 1153 cycles
+[ok  ] recovered_reference.py reproduces Set 3, #0 in 1153 cycles -- D2A8740BBA6FD906 after 1153 cycles
+[ok  ] images/dag.dot exists
+[ok  ] the levelled DAG is 3 levels deep -- levels=3
+[ok  ] guide.html quotes the same level count
+[ok  ] artifacts/dag_trace.json exists
+[ok  ] images/dag_interactive.html exists
+[ok  ] the committed trace reproduces from the committed .vo
+[ok  ] the window contains exactly the cycle the warm-up ends on -- 32 frames, ks_valid high at [1154]
+[ok  ] and on that cycle ks carries z1 of the all-zero-key vector -- ks=[1]
+[ok  ] the page embeds every recorded cycle -- 32 of 32
+[ok  ] the page is self-contained: no external request
+[ok  ] guide.html links the interactive page
+[ok  ] netlist.hal.v loads with AGILEX_TENNM -- AGILEX_TENNM
+[ok  ] HAL sees the same 611 instances plus its two constant gates -- 613 gates {'HAL_GND': 1, 'HAL_VCC': 1, 'tennm_ff': 301, 'tennm_lcell_comb': 310}
+[ok  ] every ALM got semantics, none refused -- elaborated=310 refused=0
+[ok  ] the netlist is flat: one module -- modules=1
+[ok  ] the SCC decomposition sees one machine, not three -- [{'s': 288}, {'hi': 5, 'lo': 6, 'warm': 1}, {'done': 1}]
+[ok  ] the guide says the chain walk is what cuts that component into three
+
+all checks passed

@@ -69,6 +69,9 @@ CRC_EXPORT = os.path.join(
     WALKTHROUGHS, "10_crc8_checker", "netlist", "crc8_checker.vo"
 )
 SPECK_EXPORT = os.path.join(WALKTHROUGHS, "11_speck_toy", "speck_toy.vo")
+TRIVIUM_EXPORT = os.path.join(
+    WALKTHROUGHS, "13_trivium_stream", "trivium_stream.vo"
+)
 
 _MODEL_CACHE = {}
 
@@ -405,6 +408,245 @@ class ShiftRegisterPassTest(unittest.TestCase):
     def test_period_of_a_primitive_polynomial_is_maximal(self):
         self.assertEqual(65535, shiftreg.lfsr_period(16, [3, 12, 14, 15]))
         self.assertEqual(15, shiftreg.lfsr_period(4, [2, 3]))
+
+
+class LoadableChainTest(unittest.TestCase):
+    """A parallel load turns every shift link into a multiplexer."""
+
+    def test_a_loadable_lfsr_is_invisible_until_the_select_is_held(self):
+        model = fixture("lfsr16_loadable")
+        updates = shiftreg.register_updates(model)
+        self.assertEqual(
+            [], [name for name, u in updates.items() if u.single_register_link()]
+        )
+
+    def test_the_mode_candidate_is_the_load_select_not_a_seed_bit(self):
+        model = fixture("lfsr16_loadable")
+        candidates = shiftreg.mode_candidates(shiftreg.register_updates(model))
+        self.assertEqual(["load"], candidates)
+
+    def test_holding_the_select_recovers_the_identical_lfsr(self):
+        loadable = shiftreg.find_shift_structures(fixture("lfsr16_loadable"))
+        plain = shiftreg.find_shift_structures(fixture("lfsr16_fibonacci"))
+        self.assertEqual(1, len(loadable))
+        entry = loadable[0]
+        self.assertEqual("lfsr", entry["kind"])
+        self.assertEqual({"net": "load", "value": 0}, entry["mode"])
+        for key in ("taps", "polynomial", "period", "maximal_length", "length"):
+            self.assertEqual(plain[0][key], entry[key], key)
+
+    def test_an_unheld_structure_carries_no_mode(self):
+        self.assertIsNone(
+            shiftreg.find_shift_structures(fixture("lfsr16_fibonacci"))[0]["mode"]
+        )
+
+    def test_holding_a_select_never_manufactures_an_open_chain(self):
+        """12_present_sbox is loadable register banks and no feedback anywhere.
+
+        Its four banks *do* become shift chains with ``start`` held at 0, and
+        reporting them would make every parallel-load register file in every
+        design a finding.  Only a feedback register is worth the extra
+        assumption, so nothing comes back.
+        """
+        export = os.path.join(WALKTHROUGHS, "12_present_sbox", "present_sbox.vo")
+        self.assertEqual([], shiftreg.find_shift_structures(load(export)))
+
+    def test_the_mode_is_reported_in_the_finding_text(self):
+        document = identify(os.path.join(FIXTURES, "lfsr16_loadable.vo"))
+        entry = finding_by_id(document, "hal_crypto/lfsr/polynomial")
+        self.assertEqual({"net": "load", "value": 0}, entry["data"]["mode"])
+        self.assertIn("load held at 0", entry["summary"])
+
+
+def _coupled_linear_verilog(lengths=(8, 10)):
+    """Two chains closed through each other by a *linear* feedback.
+
+    The same shape as the ``coupled_nlfsr`` fixture with the AND term dropped,
+    assembled with the fixture generator and handed straight to the shared
+    reader, so it goes through exactly the path a committed fixture would.
+    """
+    first, second = lengths
+    builder = synth.Builder("coupled_linear")
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("output", "dout")
+    builder.wire("a", first)
+    builder.wire("b", second)
+    builder.wire("head_a")
+    builder.wire("head_b")
+
+    def parity(values):
+        result = 0
+        for value in values:
+            result ^= value
+        return result
+
+    builder.function("fa", "head_a", ["a[5]", "b[9]", "b[7]"], parity)
+    builder.function("fb", "head_b", ["b[6]", "a[7]", "a[5]"], parity)
+    for index in range(first):
+        data = "head_a" if index == 0 else "a[{}]".format(index - 1)
+        builder.register("a_{}".format(index), data, "a[{}]".format(index), clear="rst_n")
+    for index in range(second):
+        data = "head_b" if index == 0 else "b[{}]".format(index - 1)
+        builder.register("b_{}".format(index), data, "b[{}]".format(index), clear="rst_n")
+    builder.assign("dout", "a[{}]".format(first - 1))
+    return builder.dumps()
+
+
+class CoupledRegisterTest(unittest.TestCase):
+    """Trivium/Grain-style registers close through a sibling, not onto themselves."""
+
+    def test_two_chains_closed_through_each_other_are_both_nlfsrs(self):
+        structures = shiftreg.find_shift_structures(fixture("coupled_nlfsr"))
+        self.assertEqual(2, len(structures))
+        self.assertEqual(["nlfsr", "nlfsr"], [e["kind"] for e in structures])
+        self.assertEqual([8, 10], [e["length"] for e in structures])
+        self.assertTrue(all(e["coupled"] for e in structures))
+        self.assertEqual([1], structures[0]["coupled_chains"])
+        self.assertEqual([0], structures[1]["coupled_chains"])
+
+    def test_a_coupled_feedback_names_the_chain_of_every_variable(self):
+        first = shiftreg.find_shift_structures(fixture("coupled_nlfsr"))[0]
+        self.assertEqual("s0[5] ^ s1[9] ^ (s1[7] & s1[8])", first["feedback_anf"])
+        self.assertEqual([5], first["taps"])
+        self.assertEqual(
+            [("b[7]", 1, 7), ("b[8]", 1, 8), ("b[9]", 1, 9)],
+            [
+                (tap["register"], tap["chain"], tap["stage"])
+                for tap in first["coupled_taps"]
+            ],
+        )
+
+    def test_a_self_contained_chain_keeps_the_unqualified_spelling(self):
+        entry = shiftreg.find_shift_structures(fixture("nlfsr16"))[0]
+        self.assertFalse(entry["coupled"])
+        self.assertNotIn("s0[", entry["feedback_anf"])
+        self.assertIn("s[", entry["feedback_anf"])
+
+    def test_a_coupled_nlfsr_reports_no_polynomial_and_no_period(self):
+        for entry in shiftreg.find_shift_structures(fixture("coupled_nlfsr")):
+            self.assertNotIn("polynomial", entry)
+            self.assertNotIn("period", entry)
+            self.assertTrue(entry["coupled_taps"])
+
+    def test_a_coupled_but_linear_pair_is_an_lfsr_with_polynomial_None(self):
+        """The one branch no committed fixture reaches: coupled *and* linear.
+
+        ``coupled_nlfsr`` is nonlinear by construction, so "an LFSR that has no
+        polynomial because it reads a sibling" would otherwise be unexercised.
+        Built here instead of committed as a fourteenth fixture because it
+        exists to cover a branch, not to be a shape anyone analyses.
+        """
+        model = NetlistModel(vo_netlist.parse_text(_coupled_linear_verilog()))
+        structures = shiftreg.find_shift_structures(model)
+        self.assertEqual(["lfsr", "lfsr"], [e["kind"] for e in structures])
+        for entry in structures:
+            self.assertTrue(entry["coupled"])
+            self.assertIsNone(entry["polynomial"])
+            self.assertIsNone(entry["polynomial_reciprocal"])
+            self.assertNotIn("period", entry)
+            self.assertIn("has none", entry["polynomial_convention"])
+        self.assertEqual(
+            ["s0[5] ^ s1[7] ^ s1[9]", "s0[5] ^ s0[7] ^ s1[6]"],
+            [entry["feedback_anf"] for entry in structures],
+        )
+
+    def test_the_findings_document_survives_a_missing_polynomial(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "coupled_linear.vo")
+            with open(path, "w", newline="\n") as handle:
+                handle.write(_coupled_linear_verilog())
+            netlist = vo_netlist.parse_file(path)
+            artifact = findings.artifact_for(netlist, path)
+        document = classify.build_document(netlist, artifact)
+        validate.validate_document(document)
+        entry = finding_by_id(document, "hal_crypto/lfsr/polynomial/0")
+        self.assertIn("over coupled chain(s) 1", entry["title"])
+        self.assertIsNone(entry["data"]["polynomial"])
+
+    def test_the_pair_is_a_keystream_generator_family(self):
+        document = identify(os.path.join(FIXTURES, "coupled_nlfsr.vo"))
+        family = finding_by_id(document, "hal_crypto/identify/family")
+        self.assertEqual("lfsr-stream", family["data"]["family"])
+        entry = finding_by_id(document, "hal_crypto/nlfsr/feedback/0")
+        self.assertIn("coupled to chain(s) 1", entry["title"])
+        self.assertIn("closed through a sibling", entry["summary"])
+
+
+class TriviumExportTest(unittest.TestCase):
+    """13_trivium_stream: both shapes above, in one real Quartus export.
+
+    Every number here is stated in that walkthrough's ``spec.md`` in the
+    cipher's own 1-based numbering; the export's ``s[i]`` is spec bit
+    ``s(i+1)``, and stage *k* of a segment is the head plus *k*.
+    """
+
+    def structures(self):
+        return shiftreg.find_shift_structures(load(TRIVIUM_EXPORT))
+
+    def test_the_three_segments_are_93_84_and_111_stages(self):
+        by_head = {e["head"]: e for e in self.structures()}
+        self.assertEqual(
+            {"s[0]": 93, "s[93]": 84, "s[177]": 111},
+            {head: entry["length"] for head, entry in by_head.items()},
+        )
+        self.assertEqual(288, sum(entry["length"] for entry in by_head.values()))
+
+    def test_every_segment_is_a_coupled_nlfsr_of_degree_two(self):
+        for entry in self.structures():
+            self.assertEqual("nlfsr", entry["kind"])
+            self.assertTrue(entry["coupled"])
+            self.assertEqual(2, entry["feedback_degree"])
+            self.assertEqual(1, len(entry["nonlinear_terms"]))
+            self.assertEqual({"net": "start", "value": 0}, entry["mode"])
+
+    def test_the_recovered_feedback_is_the_published_trivium_one(self):
+        by_head = {e["head"]: e for e in self.structures()}
+        chain_of = {e["head"]: e["chain"] for e in self.structures()}
+        a, b, c = chain_of["s[0]"], chain_of["s[93]"], chain_of["s[177]"]
+        # t3 = s243 ^ s288 ^ (s286 & s287) ^ s69, driving the head of segment A;
+        # s243/s286/s287/s288 are stages 65/108/109/110 of segment C and s69 is
+        # stage 68 of A itself.
+        self.assertEqual(
+            "s{a}[68] ^ s{c}[110] ^ s{c}[65] ^ (s{c}[108] & s{c}[109])".format(
+                a=a, c=c
+            ),
+            by_head["s[0]"]["feedback_anf"],
+        )
+        # t1 = s66 ^ s93 ^ (s91 & s92) ^ s171 -> head of B
+        self.assertEqual(
+            "s{a}[65] ^ s{a}[92] ^ s{b}[77] ^ (s{a}[90] & s{a}[91])".format(a=a, b=b),
+            by_head["s[93]"]["feedback_anf"],
+        )
+        # t2 = s162 ^ s177 ^ (s175 & s176) ^ s264 -> head of C
+        self.assertEqual(
+            "s{c}[86] ^ s{b}[68] ^ s{b}[83] ^ (s{b}[81] & s{b}[82])".format(b=b, c=c),
+            by_head["s[177]"]["feedback_anf"],
+        )
+
+    def test_each_segment_reads_one_stage_of_itself_and_four_of_a_sibling(self):
+        for entry in self.structures():
+            self.assertEqual(1, len(entry["taps"]))
+            self.assertEqual(4, len(entry["coupled_taps"]))
+            self.assertEqual(1, len(entry["coupled_chains"]))
+
+    def test_the_export_is_a_classical_style_keystream_generator(self):
+        netlist = vo_netlist.parse_file(TRIVIUM_EXPORT)
+        decision = classify.verdict(classify.run_passes(netlist))
+        self.assertEqual("lfsr-stream", decision["family"])
+        self.assertEqual("classical-style", decision["style"])
+        self.assertEqual("high", decision["confidence"])
+
+    def test_without_the_and_terms_it_would_have_been_an_lfsr(self):
+        """The one structural fact that separates Trivium from walkthrough 05."""
+        lfsr = shiftreg.find_shift_structures(load(LFSR_EXPORT))[0]
+        self.assertEqual("lfsr", lfsr["kind"])
+        self.assertIsNotNone(lfsr["polynomial"])
+        for entry in self.structures():
+            self.assertEqual("nlfsr", entry["kind"])
+            self.assertNotIn("polynomial", entry)
 
 
 # ---------------------------------------------------------------------------

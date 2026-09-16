@@ -1,0 +1,569 @@
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/w13/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.07 seconds.
+[netlist_parser] [info] instantiating '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist_parser] [info] instantiated '/w13/examples/agilex3_walkthroughs/13_trivium_stream/netlist.hal.v' in 0.24 seconds.
+== stats
+{
+  "declared_vectors": {
+    "hi": 5,
+    "iv": 80,
+    "key": 80,
+    "lo": 6,
+    "s": 288
+  },
+  "design_name": "trivium_stream",
+  "gate_types": {
+    "tennm_ff": 301,
+    "tennm_lcell_comb": 310
+  },
+  "inputs": [
+    {
+      "name": "key",
+      "width": 80
+    },
+    {
+      "name": "start",
+      "width": 1
+    },
+    {
+      "name": "clk",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "width": 1
+    },
+    {
+      "name": "iv",
+      "width": 80
+    }
+  ],
+  "instances": 611,
+  "outputs": [
+    {
+      "name": "ks",
+      "width": 1
+    },
+    {
+      "name": "ks_valid",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "width": 1
+    }
+  ]
+}
+
+== registers
+{
+  "enable_groups": [
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "1",
+      "size": 296
+    },
+    {
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "i638~1_combout",
+      "size": 5
+    }
+  ],
+  "flip_flops": 301,
+  "q_vectors": {
+    "done~q": 1,
+    "hi": 5,
+    "lo": 6,
+    "s": 288,
+    "warm~q": 1
+  }
+}
+
+== chains
+{
+  "chains": 3,
+  "mode_candidates": [
+    "start"
+  ],
+  "plain_shift_links_without_holding_anything": 0,
+  "registers": 301,
+  "segments": [
+    {
+      "autonomous": true,
+      "chain": 0,
+      "coupled": true,
+      "coupled_chains": [
+        1
+      ],
+      "feedback_anf": "s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] & s1[109])",
+      "feedback_degree": 2,
+      "head": "s[0]",
+      "kind": "nlfsr",
+      "length": 93,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        68
+      ],
+      "tail": "s[92]"
+    },
+    {
+      "autonomous": true,
+      "chain": 1,
+      "coupled": true,
+      "coupled_chains": [
+        2
+      ],
+      "feedback_anf": "s1[86] ^ s2[68] ^ s2[83] ^ (s2[81] & s2[82])",
+      "feedback_degree": 2,
+      "head": "s[177]",
+      "kind": "nlfsr",
+      "length": 111,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        86
+      ],
+      "tail": "s[287]"
+    },
+    {
+      "autonomous": true,
+      "chain": 2,
+      "coupled": true,
+      "coupled_chains": [
+        0
+      ],
+      "feedback_anf": "s0[65] ^ s0[92] ^ s2[77] ^ (s0[90] & s0[91])",
+      "feedback_degree": 2,
+      "head": "s[93]",
+      "kind": "nlfsr",
+      "length": 84,
+      "mode": {
+        "net": "start",
+        "value": 0
+      },
+      "own_taps": [
+        77
+      ],
+      "tail": "s[176]"
+    }
+  ],
+  "total_stages": 288
+}
+
+== feedback
+{
+  "and_terms": 3,
+  "degrees": [
+    2
+  ],
+  "segment_lengths": [
+    93,
+    111,
+    84
+  ],
+  "segments": [
+    {
+      "algebraic_degree": 2,
+      "base": 0,
+      "chain": 0,
+      "constant_term": 0,
+      "equation_spec": "s243 + s288 + s69 + s286 * s287",
+      "head": "s[0]",
+      "length": 93,
+      "linear_terms": [
+        "s[242]",
+        "s[287]",
+        "s[68]"
+      ],
+      "product_terms": [
+        [
+          "s[285]",
+          "s[286]"
+        ]
+      ],
+      "sources": [
+        "s[242]",
+        "s[285]",
+        "s[286]",
+        "s[287]",
+        "s[68]"
+      ],
+      "sources_spec": [
+        69,
+        243,
+        286,
+        287,
+        288
+      ]
+    },
+    {
+      "algebraic_degree": 2,
+      "base": 177,
+      "chain": 1,
+      "constant_term": 0,
+      "equation_spec": "s162 + s177 + s264 + s175 * s176",
+      "head": "s[177]",
+      "length": 111,
+      "linear_terms": [
+        "s[161]",
+        "s[176]",
+        "s[263]"
+      ],
+      "product_terms": [
+        [
+          "s[174]",
+          "s[175]"
+        ]
+      ],
+      "sources": [
+        "s[161]",
+        "s[174]",
+        "s[175]",
+        "s[176]",
+        "s[263]"
+      ],
+      "sources_spec": [
+        162,
+        175,
+        176,
+        177,
+        264
+      ]
+    },
+    {
+      "algebraic_degree": 2,
+      "base": 93,
+      "chain": 2,
+      "constant_term": 0,
+      "equation_spec": "s171 + s66 + s93 + s91 * s92",
+      "head": "s[93]",
+      "length": 84,
+      "linear_terms": [
+        "s[170]",
+        "s[65]",
+        "s[92]"
+      ],
+      "product_terms": [
+        [
+          "s[90]",
+          "s[91]"
+        ]
+      ],
+      "sources": [
+        "s[170]",
+        "s[65]",
+        "s[90]",
+        "s[91]",
+        "s[92]"
+      ],
+      "sources_spec": [
+        66,
+        91,
+        92,
+        93,
+        171
+      ]
+    }
+  ],
+  "state_bits": 288
+}
+
+== output
+{
+  "also_a_feedback_tap": [
+    65,
+    92,
+    161,
+    176,
+    242,
+    287
+  ],
+  "arity": 6,
+  "cell_inputs": [
+    "s[161]",
+    "s[176]",
+    "s[242]",
+    "s[287]",
+    "s[65]",
+    "s[92]"
+  ],
+  "constant": 0,
+  "is_pure_xor": true,
+  "not_a_feedback_tap": [],
+  "reads_any_and_term_input": [],
+  "sources": [
+    65,
+    92,
+    161,
+    176,
+    242,
+    287
+  ],
+  "sources_spec": [
+    66,
+    93,
+    162,
+    177,
+    243,
+    288
+  ]
+}
+
+== load
+{
+  "fields": [
+    {
+      "bits": 80,
+      "identity_offset": 93,
+      "port": "iv",
+      "port_range": [
+        0,
+        79
+      ],
+      "state_range": [
+        93,
+        172
+      ]
+    },
+    {
+      "bits": 80,
+      "identity_offset": 0,
+      "port": "key",
+      "port_range": [
+        0,
+        79
+      ],
+      "state_range": [
+        0,
+        79
+      ]
+    }
+  ],
+  "load_mode": {
+    "start": 1,
+    "warm~q": 0
+  },
+  "ones_at": [
+    285,
+    286,
+    287
+  ],
+  "ones_at_spec": [
+    286,
+    287,
+    288
+  ],
+  "stages": 288,
+  "zero_bits": 125,
+  "zero_runs": [
+    {
+      "from": 80,
+      "length": 13,
+      "to": 92
+    },
+    {
+      "from": 173,
+      "length": 112,
+      "to": 284
+    }
+  ]
+}
+
+== warmup
+{
+  "moduli": [
+    64,
+    18
+  ],
+  "state_bits": 288,
+  "steps_per_state_bit": 4,
+  "terminal_count_cells": [
+    {
+      "cell": "lo_last",
+      "counter": "lo",
+      "fires_on": 63,
+      "modulus": 64,
+      "width": 6
+    },
+    {
+      "cell": "hi_last",
+      "counter": "hi",
+      "fires_on": 17,
+      "modulus": 18,
+      "width": 5
+    }
+  ],
+  "warmup_steps": 1152
+}
+
+== keystream
+{
+  "all_match": true,
+  "headline": {
+    "cycles_from_accepted_start_to_valid": 1153,
+    "iv": "00000000000000000000",
+    "key": "00000000000000000000",
+    "keystream": "FBE0BF265859051B",
+    "matches_published_vector": true,
+    "published": "FBE0BF265859051B",
+    "vector": "Set 2, #0",
+    "warmup_steps": 1152
+  },
+  "vectors": [
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "80000000000000000000",
+      "keystream": "38EB86FF730D7A9C",
+      "matches_published_vector": true,
+      "published": "38EB86FF730D7A9C",
+      "vector": "Set 1, #0",
+      "warmup_steps": 1152
+    },
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "00000000000000000000",
+      "keystream": "FBE0BF265859051B",
+      "matches_published_vector": true,
+      "published": "FBE0BF265859051B",
+      "vector": "Set 2, #0",
+      "warmup_steps": 1152
+    },
+    {
+      "cycles_from_accepted_start_to_valid": 1153,
+      "iv": "00000000000000000000",
+      "key": "00010203040506070809",
+      "keystream": "D2A8740BBA6FD906",
+      "matches_published_vector": true,
+      "published": "D2A8740BBA6FD906",
+      "vector": "Set 3, #0",
+      "warmup_steps": 1152
+    }
+  ],
+  "warmup_steps": [
+    1152
+  ]
+}
+
+== hal
+{
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 288,
+        "tennm_lcell_comb": 291
+      },
+      "registers": {
+        "s": 288
+      },
+      "size": 579
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 12,
+        "tennm_lcell_comb": 17
+      },
+      "registers": {
+        "hi": 5,
+        "lo": 6,
+        "warm": 1
+      },
+      "size": 29
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "registers": {
+        "done": 1
+      },
+      "size": 2
+    }
+  ],
+  "edges": 5347,
+  "elaborated": 310,
+  "gate_library": "AGILEX_TENNM",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 301,
+    "tennm_lcell_comb": 310
+  },
+  "gates": 613,
+  "largest_component": {
+    "gate_types": {
+      "tennm_ff": 288,
+      "tennm_lcell_comb": 291
+    },
+    "registers": {
+      "s": 288
+    },
+    "size": 579
+  },
+  "modules": 1,
+  "nets": 776,
+  "refused": [],
+  "vertices": 613
+}
+

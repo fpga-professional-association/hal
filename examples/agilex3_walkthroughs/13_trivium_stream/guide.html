@@ -1,0 +1,824 @@
+<title>Agilex 3 RE walkthrough 13 &mdash; Trivium stream cipher</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 13 — a Trivium keystream generator: finding three
+coupled nonlinear feedback shift registers in a netlist that, read the obvious
+way, contains no shift register at all.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+611 instances: 301 flip-flops, 310 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has done walkthrough
+<a href="../05_lfsr_prng/guide.html">05</a> — a 16-bit LFSR, its taps, its
+polynomial, its period — and wants to know what changes when the same skeleton
+becomes a cipher. The short answer is <em>one AND term per feedback function</em>,
+and almost everything in this guide is a consequence of that one change: the
+polynomial disappears, the period stops being computable, the three registers
+stop being independent, and the classifier that sailed through walkthrough 05
+returns <code>none-detected</code>.
+<p style="margin-bottom:0">Walkthrough <a href="../11_speck_toy/guide.html">11</a>
+is the other prerequisite, for one habit: when a structural test finds nothing in
+a vendor export, ask what the synthesiser packed on top of the thing you were
+looking for.</p>
+</div>
+
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ol>
+<li><a href="#design">The design (the answer key)</a></li>
+<li><a href="#synth">Synthesis, and the six-input ceiling</a></li>
+<li><a href="#contact">First contact with the netlist</a></li>
+<li><a href="#dag">The netlist as a graph</a></li>
+<li><a href="#walk">The walk, step by step</a></li>
+<li><a href="#identify">What the crypto identifier says — twice</a></li>
+<li><a href="#rebuild">Reconstruction, and the negative controls</a></li>
+<li><a href="#further">Going further</a></li>
+<li><a href="#repro">Reproducing all of it</a></li>
+</ol>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="design">1. The design (the answer key)</h2>
+
+<p>The design under the netlist is <strong>Trivium</strong> (De Cannière and
+Preneel, ISC 2006; eSTREAM portfolio, ISO/IEC 29192-3): an 80-bit key, an 80-bit
+IV, <strong>288 bits of state</strong>, one keystream bit per clock cycle, and a
+1152-cycle warm-up before the first usable bit. The full specification this
+walkthrough is checked against is in <a href="spec.md"><code>spec.md</code></a>,
+which was written before the RTL was synthesised. In the cipher's own 1-based
+numbering, one cycle is:</p>
+
+<pre><code>t1 = s66  + s93                 s1..s93    &lt;- (t3, s1..s92)     93 stages
+t2 = s162 + s177                s94..s177  &lt;- (t1, s94..s176)   84 stages
+t3 = s243 + s288                s178..s288 &lt;- (t2, s178..s287)  111 stages
+
+z  = t1 + t2 + t3               &lt;- the keystream bit
+
+t1 = t1 + s91*s92  + s171       t2 = t2 + s175*s176 + s264
+t3 = t3 + s286*s287 + s69</code></pre>
+
+<p>Read that against walkthrough 05 and three differences matter:</p>
+<ul class="tight">
+<li><strong>Three registers, not one</strong>, of unequal length, and none of
+them closes onto itself: A's feedback reads C, B's reads A, C's reads B. The
+state is 288 bits; no <em>segment</em> has a state of its own.</li>
+<li><strong>One product per feedback.</strong> <code>s91*s92</code> is an AND of
+two adjacent stages. That single degree-2 term means the next-state map is not
+linear, so there is no feedback polynomial, no characteristic polynomial and no
+period to compute.</li>
+<li><strong>The output function is the linear part.</strong> <code>z</code> is
+the XOR of the six stages the feedbacks read <em>before</em> their AND terms are
+added, and it touches none of the six bits that go into an AND.</li>
+</ul>
+
+<div class="why"><span class="tag">Why this design and not something bigger</span>
+Trivium is the smallest thing that is honestly a modern hardware stream cipher:
+one bit per cycle, no S-box, no arithmetic, no memory. Everything in the netlist
+is a flip-flop, a two-input multiplexer or a five-input LUT — so when a
+structural pass finds nothing, it cannot be blamed on the design being exotic.
+It is also, at 611 instances, the largest export in the series, which is where
+the drawings start to fight back (section 4).</div>
+
+<!-- ===================================================================== -->
+<h2 id="synth">2. Synthesis, and the six-input ceiling</h2>
+
+<p>Same flow as every walkthrough in this series: <code>quartus_syn</code>, then
+<code>quartus_eda</code> for a post-synthesis Verilog export, and nothing after
+that — no fitter, no I/O buffers, no PLL. The export is checked against the
+validated primitive coverage before anything else is done with it:</p>
+
+<pre><code>$ python tools/hal_agilex --strict inventory "$EX/trivium_stream.vo"
+All 611 instances are tennm_ff or tennm_lcell_comb, each in a configuration
+this package models and has validated against the vendor export.
+  tennm_ff            301
+  tennm_lcell_comb    310</code></pre>
+
+<p>301 flip-flops for 288 state bits plus an 11-bit warm-up counter and two
+flags; 310 ALMs, which is one per state bit plus twenty-two. Clean — but it took
+two QSF assignments and one RTL attribute to be clean, and all three are worth
+stating because each is a place where the *tool's* limits shaped the design:</p>
+
+<table>
+<tr><th>decision</th><th>without it</th></tr>
+<tr><td><code>AUTO_SHIFT_REGISTER_RECOGNITION OFF</code></td>
+<td>93-, 84- and 111-stage shift registers are exactly what Quartus retargets
+onto a memory block. A memory block is outside the validated coverage — and it
+would also delete the entire structure this walkthrough is about.</td></tr>
+<tr><td><code>ALLOW_SYNCH_CTRL_USAGE OFF</code></td>
+<td>the load select lands on the flip-flop's <code>sload</code> pin, which is a
+real <code>tennm_ff</code> port outside the configuration
+<code>tools/hal_agilex</code> validated, so the export is reported
+<code>unsupported</code>. Same assignment, same reason, as walkthroughs 06 and
+11.</td></tr>
+<tr><td><code>/* synthesis keep */</code> on the three feedback wires</td>
+<td><code>load ? K1 : t3</code> flattens into one cone of <strong>seven</strong>
+inputs, and seven inputs needs the ALM's fracturable seven/eight-input mode
+(<code>extended_lut "on"</code>) — also outside coverage. Kept, it is a
+five-input feedback cell feeding a three-input multiplexer, both inside.</td></tr>
+</table>
+
+<div class="honest"><span class="tag">Say this out loud</span>
+The RTL was written knowing where the ALM ceiling is. That is not cheating —
+every real design is written against its target's limits — but it does mean the
+netlist is friendlier than an arbitrary one, and the guide would be dishonest to
+present the six-input feedback cells as a happy accident. Walkthrough 11 hit the
+same ceiling and reshaped its RTL the same way; walkthrough 12 ships a
+counterfactual export showing what happens when you drop a <code>keep</code>.</div>
+
+<!-- ===================================================================== -->
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<p>Census, boundary, register banks — the standard opening moves. Nothing here
+knows what the design is.</p>
+
+<pre><code>$ python examples/agilex3_walkthroughs/13_trivium_stream/analysis.py stats
+  611 instances: 301 tennm_ff, 310 tennm_lcell_comb
+  in : clk, rst_n, start, key[79:0], iv[79:0]
+  out: ks, ks_valid, busy
+
+$ ... analysis.py registers
+  q vectors : s[287:0], lo[5:0], hi[4:0], warm, done
+  groups    : 296 registers on (clk, rst_n, ena=1)
+              5 registers on (clk, rst_n, ena=i638~1_combout)</code></pre>
+
+<p>Read what that does and does not give you. <strong>One 288-bit register</strong>
+and two small ones is a very large state for a design with three output bits —
+a 288-bit datapath that never leaves the chip is either a cipher, a scrambler or
+a very strange counter. The enable grouping, which in walkthroughs 02 and 06 is
+the main structural lever, says almost nothing here: 296 of 301 registers are in
+one bucket. The five that are not turn out to be the high half of a counter
+(section 5, step 7), and that is a synthesis decision, not design intent.</p>
+
+<div class="note"><span class="tag">Names</span>
+This export keeps its RTL names — <code>s[0..287]</code>, <code>lo</code>,
+<code>hi</code>, <code>warm</code>, <code>done</code> — as walkthroughs 11 and 12
+do, because the point being taught is structural recovery, not de-anonymisation.
+Walkthroughs 02, 03 and 10 ship blinded netlists for that. Nothing in
+<code>analysis.py</code> reads a name for meaning: the segment lengths, the taps,
+the load pattern and the warm-up length are all derived from wiring and cone
+algebra, and a name only ever gets used to <em>print</em> a result.</div>
+
+<!-- ===================================================================== -->
+<h2 id="dag">4. The netlist as a graph</h2>
+
+<p><strong>Nodes are gates, edges are nets</strong> — one edge per
+driver&nbsp;→&nbsp;sink pair. The graph is not acyclic: the cipher state feeds
+itself every cycle. But every cycle passes through a register, so cutting every
+edge that lands on a flip-flop pin leaves a directed acyclic graph — the
+combinational core — which can be topologically levelled, level 0 on the left.
+<code>hal_viz dag</code> runs Kahn's algorithm and draws each level as a
+column.</p>
+
+<pre><code>$ python tools/hal_viz dag "$EX/netlist.hal.v" -g "$GL" --const-hub --max-gates 700 \
+      -o "$EX/images/dag.svg" --html</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/dag.svg" alt="Levelled DAG: a tall level-0 column of 301 flip-flops, a second column of 301 cells, and a last column of nine.">
+  </div>
+  <figcaption>613 nodes, 1884 edges, <code>3</code> topological levels, 908 edges
+  cut at a register. The standalone page with a legend and these counts is
+  <a href="images/dag.html">images/dag.html</a>; the DOT source is
+  <a href="images/dag.dot">images/dag.dot</a>.</figcaption>
+</figure>
+
+<p>Three columns, and the architecture is readable straight off their sizes:</p>
+<ul class="tight">
+<li><strong>Level 0: 303</strong> — the 301 flip-flops plus the two constant
+nodes. After the cut a register has no combinational predecessor, so it is a
+source by construction.</li>
+<li><strong>Level 1: 301 cells</strong> — everything whose inputs are registers
+and ports only. That is 285 plain shift multiplexers, the three feedback cells,
+the cell that drives <code>ks</code>, the two terminal-count tests
+(<code>lo_last</code>, <code>hi_last</code>) and ten counter cells, two of which
+are carry-chain slices.</li>
+<li><strong>Level 2: 9 cells</strong> — the three segment-head multiplexers,
+which are the only ones that have to wait for a feedback cell; four more counter
+cells, one of them the <code>hi</code> bank's clock enable; and the two flag
+cells.</li>
+</ul>
+
+<div class="why"><span class="tag">What the level count measures</span>
+<strong>Three levels</strong> on a cipher that runs 1152 warm-up steps before it
+says anything. Compare the series: 11_speck_toy is 18 levels over 137 cells,
+because a 16-bit carry has to ripple; 12_present_sbox is 3 levels over 226,
+because sixteen S-boxes are sixteen independent functions. This one is 3 levels
+over 310, and the reason is different again: <em>one Trivium step is one LUT
+deep.</em> All the time in this design is schedule, not logic — which is exactly
+what a bit-serial stream cipher is for. Depth tells you about one clock; it never
+tells you how many clocks there are.</div>
+
+<div class="honest"><span class="tag">Where the pictures stop working</span>
+<p>At 613 gates the <em>unlevelled</em> whole-netlist drawing is not a diagram.
+<code>dot</code> did not finish it in ten minutes — the graph is cyclic, so it
+cannot be layered and the layout falls back on general placement — and
+<code>--engine sfdp</code> returns a hairball you cannot read a gate name off.
+This walkthrough therefore scopes <a href="images/netlist_graph.svg">its gate
+graph</a> to one stage's neighbourhood, the way walkthrough 12 does, and leaves
+the whole-netlist view to the levelled DAG. That the same 613 nodes level in
+seconds is the strongest argument for the levelled view in the series so far.</p>
+<p style="margin-bottom:0"><strong>Constants are one shared hub</strong>, not one
+<code>0</code>/<code>1</code> stub per consuming pin as in walkthroughs 01–10.
+The constant fan-out here is 4377 consuming pins — 301 flip-flops with five tied
+control pins each, plus every ALM's unused data inputs. Drop
+<code>--const-hub</code> to render the other spelling; the level count is
+identical and the edge count is not, because the hub draws a flip-flop's tied
+control pins once instead of five times.</p></div>
+
+<h4>The same graph, with values, one clock at a time</h4>
+
+<p>A levelled DAG shows where the logic is; it does not show what runs through
+it. <code>hal_agilex trace</code> records every net of a bounded, seeded window
+of the same simulator the behaviour check uses, and <code>hal_viz clock_step</code>
+paints that trace onto the drawing above:</p>
+
+<pre><code>$ python tools/hal_agilex trace "$EX/trivium_stream.vo" \
+      --reference "$EX/recovered_reference.py" --cycles 32 --skip 1140 \
+      --hold start=1 --hold key=0 --hold iv=0 \
+      -o "$EX/artifacts/dag_trace.json"
+$ python tools/hal_viz clock_step "$EX/images/dag.svg" \
+      --trace "$EX/artifacts/dag_trace.json" \
+      -o "$EX/images/dag_interactive.html"</code></pre>
+
+<p><strong><a href="images/dag_interactive.html">images/dag_interactive.html</a></strong>
+is one self-contained page: prev/next, a scrubber, play/pause, nets coloured by
+value. The window is the <em>end</em> of a warm-up rather than its start —
+<code>--skip 1140</code> walks the same run forward without recording, so these
+32 frames are a window of one 1152-step warm-up, not a second short run. Frame
+1154 is the moment the counter reaches 63/17: <code>busy</code> falls,
+<code>ks_valid</code> rises, and <code>ks</code> carries <code>z1</code> of the
+published all-zero-key vector. One frame later <code>start</code> — held high
+throughout — is finally accepted again and the whole state reloads, which is the
+"<code>start</code> is ignored while busy" rule happening in front of you.</p>
+
+<!-- ===================================================================== -->
+<h2 id="walk">5. The walk, step by step</h2>
+
+<p>Every step below reads only the export. None of them looks at
+<code>design.v</code>, <code>spec.md</code> or the reference models, and each is
+one function in <a href="analysis.py"><code>analysis.py</code></a> whose output
+<a href="check.py"><code>check.py</code></a> re-asserts.</p>
+
+<div class="step" id="s1">
+<h3><span class="num">1</span> What is each port?</h3>
+<p><code>clk</code> reaches every flip-flop's clock pin and nothing else;
+<code>rst_n</code> reaches every <code>clrn</code> and nothing else. That is one
+clock domain and one asynchronous, active-low clear, read off the
+<em>primitive</em> rather than guessed. <code>key</code> and <code>iv</code> are
+80 bits each and reach only flip-flop data cones — they are captured, never
+observed. <code>start</code> reaches <strong>every one of the 288 state
+stages</strong>, which already says it is a control input and not data.</p>
+</div>
+
+<div class="step" id="s2">
+<h3><span class="num">2</span> The shift chains that are not there</h3>
+<p>A shift chain is the cheapest structure in the book: register <em>i</em>'s
+data input is register <em>i</em>&minus;1's output, through buffers and inverters
+only. Run that test here and the answer is <strong>zero</strong>.</p>
+<pre><code>$ ... analysis.py chains
+  registers                                      : 301
+  plain_shift_links_without_holding_anything     : 0</code></pre>
+<p>Not "a few", not "some": not one register in a design that is three shift
+registers. The reason is the same shape walkthrough 11 hit with its XOR layer.
+Every stage's next state is</p>
+<pre><code>s[i] &lt;= load ? init[i] : s[i-1]</code></pre>
+<p>which is a multiplexer, and a multiplexer is not "exactly one register's
+output". A parallel key/IV load — which every keyed generator has — hides all 288
+links at once.</p>
+<p>The fix is walkthrough 11's fix, applied to links instead of XORs:
+<strong>hold one input at one constant and look again.</strong> The net is not
+guessed. <code>hal_crypto.shiftreg</code> ranks the external nets by how many
+next-state functions read them <em>nonlinearly</em> — a load select is read by a
+whole bank, a data bit by one register — and tries the top candidates at both
+values:</p>
+<pre><code>  mode_candidates : ['start']
+  ... with start held at 0:
+  chains          : 3
+  total_stages    : 288</code></pre>
+<div class="honest"><span class="tag">This is a weaker claim, and it says so</span>
+"These registers form a shift chain" and "these registers form a shift chain
+<em>while <code>start</code> is low</em>" are different statements. Every
+structure found this way carries
+<code>mode: {"net": "start", "value": 0}</code>, and every finding built from it
+repeats the condition in its summary. Holding an input is also strictly limited:
+one net, and the result is kept only if it is a <em>feedback</em> register. A
+bank that merely becomes an open chain once its load select is held is a loadable
+register bank, which is what most register banks are, and reporting it would turn
+every design into a finding.</div>
+</div>
+
+<div class="step" id="s3">
+<h3><span class="num">3</span> Three segments, coupled in a ring</h3>
+<p>With <code>start</code> held, the chain walk returns three chains and they
+account for all 288 stages:</p>
+<table>
+<tr><th>chain</th><th>head → tail</th><th>stages</th><th>own taps</th><th>feedback reads chain</th></tr>
+<tr><td>0</td><td><code>s[0]</code> → <code>s[92]</code></td><td>93</td><td>1</td><td>1</td></tr>
+<tr><td>1</td><td><code>s[177]</code> → <code>s[287]</code></td><td>111</td><td>1</td><td>2</td></tr>
+<tr><td>2</td><td><code>s[93]</code> → <code>s[176]</code></td><td>84</td><td>1</td><td>0</td></tr>
+</table>
+<p>Each head's feedback reads <strong>one</strong> stage of its own chain and
+<strong>four</strong> stages of exactly one other, and the "other" relation is a
+3-cycle: 0→1→2→0. That is the defining shape of a modern hardware stream cipher
+— Trivium, Grain, Bivium are all coupled registers — and it is why the obvious
+reading fails a second time. A chain whose head reads a register that is not one
+of its own stages looks <em>open</em>, and an open chain is not evidence of
+anything. The pass now finds every chain before classifying any of them, so a
+foreign tap can be resolved against a sibling instead of ending the analysis:</p>
+<pre><code>  kind            : nlfsr
+  coupled         : true
+  coupled_chains  : [1]
+  feedback_anf    : s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] &amp; s1[109])</code></pre>
+<div class="why"><span class="tag">Why the variables are qualified</span>
+<code>s[65]</code> means two different flip-flops once two registers are in play,
+so a coupled feedback is written <code>s&lt;chain&gt;[&lt;stage&gt;]</code>. A
+self-contained chain — walkthrough 05's, or the <code>nlfsr16</code> fixture —
+keeps the plain <code>s[i]</code> spelling, so nothing about the existing output
+changed.</div>
+<div class="note"><span class="tag">And a polynomial is not reported</span>
+Not even if the feedback had been linear. A feedback polynomial describes a
+recurrence over <em>one</em> register's own history; a register that reads its
+neighbour has none, and the honest report is the algebraic normal form. The
+finding's <code>polynomial</code> field is <code>null</code> and its
+<code>polynomial_convention</code> field says why — a missing polynomial here is
+a result, not a failure.</div>
+</div>
+
+<div class="step" id="s4">
+<h3><span class="num">4</span> The feedback functions, and the three AND gates</h3>
+<p>Each head's cone is five register bits wide, so it is enumerated
+exhaustively — 32 rows — and the algebraic normal form that comes back is the
+feedback, not a fit. Translated into the cipher's 1-based numbering:</p>
+<pre><code>$ ... analysis.py feedback
+  head s[0]   (93 stages)  : s243 + s288 + s69  + s286 * s287
+  head s[177] (111 stages) : s162 + s177 + s264 + s175 * s176
+  head s[93]  (84 stages)  : s171 + s66  + s93  + s91  * s92
+  degrees   : [2]
+  and_terms : 3</code></pre>
+<p>Three degree-2 terms, one per segment, and every one of them is a product of
+two <strong>adjacent</strong> stages. That is the whole nonlinearity of the
+cipher: 288 state bits, 310 cells, and three AND operations.</p>
+<div class="honest"><span class="tag">There is no AND gate</span>
+Look for one in the netlist and you will not find it.
+<a href="images/feedback_cell.svg">The close-up of <code>t3</code></a> is a single
+<code>tennm_lcell_comb</code> with five state bits on
+<code>dataa..datae</code> — the product lives in that cell's 64-bit
+<code>lut_mask</code>, mixed in with the three XORs it shares the cone with, and
+it is recoverable only by evaluating the function, never by looking at gate
+types. Same lesson as walkthrough 11's rotations and walkthrough 12's pLayer,
+from the other direction: <strong>an operation that costs less than a cell does
+not get a cell.</strong>
+</div>
+<div class="why"><span class="tag">This is the LFSR contrast, concretely</span>
+Delete those three products and every ANF above becomes an XOR of taps. The pass
+would then report <code>kind: lfsr</code>; with self-contained chains it would
+also report a polynomial and a period, exactly as it does for walkthrough 05's
+<code>x^16 + x^15 + x^13 + x^4 + 1</code>, period 65535. Section 7 runs that
+counterfactual as a negative control and the netlist rejects it.
+<strong>Linear versus nonlinear is not a label on the design; it is a property of
+a truth table you can compute.</strong></div>
+</div>
+
+<div class="step" id="s5">
+<h3><span class="num">5</span> The output function</h3>
+<p>One cell drives <code>ks</code>. Its cone is six register bits and the
+function is a pure XOR of all six:</p>
+<pre><code>$ ... analysis.py output
+  cell_inputs   : s[65] s[92] s[161] s[176] s[242] s[287]
+  is_pure_xor   : true
+  sources_spec  : 66, 93, 162, 177, 243, 288
+  also_a_feedback_tap      : all six
+  reads_any_and_term_input : none</code></pre>
+<p>Those six are precisely the linear taps the three feedbacks share — two per
+segment — and not one of the six bits that feed an AND appears here. So the
+output function is <em>the linear part of the feedback with the nonlinearity left
+out</em>. That is a real design statement recovered from two cone evaluations,
+and it is the sentence a report should contain instead of "it looks like
+Trivium".</p>
+<figure>
+  <div class="frame">
+    <img src="images/keystream_cell.svg" alt="Close-up of the cell driving ks: six flip-flop outputs into one ALM, one output to the ks port.">
+  </div>
+  <figcaption>The whole output function: six of 288 state bits, one ALM. Six is
+  also the ALM's data-input width, which is why the design can afford this
+  spelling and a wider output function would have cost a second cell.</figcaption>
+</figure>
+</div>
+
+<div class="step" id="s6">
+<h3><span class="num">6</span> The load pattern</h3>
+<p>Step 2 held <code>start</code> at 0 to see the shift. Hold the
+<em>complementary</em> assignment and the same 288 cones give the initial state.
+The assignment is found, not assumed: for one ordinary stage the pass enumerates
+every assignment of the cone's control inputs and keeps the one under which the
+next state stops depending on the stage before it.</p>
+<pre><code>$ ... analysis.py load
+  load_mode : {"start": 1, "warm~q": 0}
+  key -> s[0..79]    (identity, offset 0)
+  iv  -> s[93..172]  (identity, offset 93)
+  ones at s[285], s[286], s[287]
+  zeros: 13 bits at s[80..92], 112 bits at s[173..284]</code></pre>
+<p>In the cipher's numbering that is <code>K1..K80</code> into
+<code>s1..s80</code>, <code>IV1..IV80</code> into <code>s94..s173</code>, three
+ones at the very top of the third segment and zeros everywhere else — the
+published loading rule, recovered from 288 truth tables. The three ones matter
+structurally as well as historically: they are the only asymmetry in an otherwise
+all-zero tail, and they are what stops the all-zero state from being a fixed
+point.</p>
+<div class="note"><span class="tag">A second control net, for free</span>
+<code>load_mode</code> came back with two entries, not one: <code>start = 1</code>
+<em>and</em> <code>warm~q = 0</code>. Nothing asked for that. It is the enumeration
+reporting that the load is gated by a register as well as by a port — which is
+the "<code>start</code> is ignored while busy" rule, found before anything was
+simulated.</div>
+</div>
+
+<div class="step" id="s7">
+<h3><span class="num">7</span> How long is the warm-up? Two counters, one product</h3>
+<p>A cell whose cone reads nothing but the bits of one register vector and is
+true for exactly one of them is a terminal-count test, and the value it fires on
+plus one is that counter's modulus. There are two:</p>
+<pre><code>$ ... analysis.py warmup
+  lo_last : counter lo, 6 bits, fires on 63  -> modulus 64
+  hi_last : counter hi, 5 bits, fires on 17  -> modulus 18
+  warmup_steps        : 1152
+  state_bits          : 288
+  steps_per_state_bit : 4</code></pre>
+<p>64 &times; 18 = <strong>1152</strong>, and 1152 / 288 = <strong>4</strong>.
+The second number is the interesting one: a warm-up that is an exact multiple of
+the state size is a designer saying "run until every bit has been through the
+feedback four times", and 4 &times; 288 is the number the Trivium specification
+gives.</p>
+<div class="why"><span class="tag">Why the counter is split at all</span>
+1152 needs eleven bits, and <code>count == 1151</code> is an eleven-input
+function. An ALM inside the validated primitive coverage reads six. So the RTL
+counts 64 &times; 18 — a six-input test and a five-input one — and recovering the
+warm-up length means recovering <em>two</em> moduli and multiplying them. That is
+also why five of the 301 registers sit in their own enable group: Quartus gave
+the <code>hi</code> counter a clock enable instead of a multiplexer, which is a
+packing decision, not design intent, and step 2's grouping could not have known
+that.</div>
+</div>
+
+<div class="step" id="s8">
+<h3><span class="num">8</span> Run it against something published</h3>
+<p>Steps 2–7 are structure. This step never reads their output: it drives the
+exported netlist as a black box with vectors from the eSTREAM Trivium test-vector
+file and looks at what comes out.</p>
+<pre><code>$ ... analysis.py keystream
+  Set 1, #0  key 80000000000000000000  iv 0...0 -> 38EB86FF730D7A9C  (published: same)
+  Set 2, #0  key 00000000000000000000  iv 0...0 -> FBE0BF265859051B  (published: same)
+  Set 3, #0  key 00010203040506070809  iv 0...0 -> D2A8740BBA6FD906  (published: same)
+  cycles_from_accepted_start_to_valid : 1153
+  warmup_steps                        : 1152</code></pre>
+<p>1153 = one load cycle plus the 1152 steps step 7 predicted from two comparator
+constants. Two independent methods agreeing is the evidence; either alone is a
+hypothesis.</p>
+<div class="honest"><span class="tag">A byte string is not a bit index</span>
+The published file prints keys and keystreams as bytes, and mapping those onto
+<code>K1..K80</code> and <code>z1, z2, ...</code> takes a convention that has to
+be stated rather than assumed. <code>z1</code> is the <em>least</em> significant
+bit of the first keystream byte; <code>K1</code> is the <em>most</em> significant
+bit of the <em>last</em> printed key byte. <a href="spec.md"><code>spec.md</code></a>
+states both and <code>analysis.port_word</code> is the whole of it. The vector the
+walkthrough leans on is Set 2 — key and IV both zero — precisely because for it
+neither convention can matter; Sets 1 and 3 are what pin the key convention down.
+A test vector that reproduces is evidence about the netlist <em>and</em> about
+your byte order, and the two are worth separating.</div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="identify">6. What the crypto identifier says — twice</h2>
+
+<p><code>hal_crypto identify</code> runs six structural passes and aggregates
+them into a family verdict and a classical/PQC verdict. Run against this export
+when the walkthrough was first built, it said:</p>
+
+<pre><code>Structural family: none-detected
+  S-box extraction: 0 bijective non-affine substitution(s) ...
+  shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a
+                   feedback function
+  ARX: no carry-chain adder of at least 4 bits; no fixed rotation ...
+Classical / PQC style: undetermined</code></pre>
+
+<p>Zero chains in a design that is three shift registers. That is a real gap in
+the tool, not a problem with the example, and it is two gaps rather than one:
+the load multiplexer of step 2 and the coupling of step 3. Both were fixed
+alongside this walkthrough — the operating-mode cofactor and the
+found-before-classified restructure described in those steps — with two new
+synthesized fixtures, <code>lfsr16_loadable</code> and <code>coupled_nlfsr</code>,
+that make each case on its own so the fix does not depend on this example. Every
+pre-existing fixture verdict and every other walkthrough's verdict is
+byte-identical before and after. With the fix:</p>
+
+<pre><code>$ python tools/hal_crypto identify "$EX/trivium_stream.vo"
+Structural family: lfsr-stream   (confidence tier: high)
+  a 93-stage NLFSR with feedback ANF s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] &amp; s1[109])
+        (coupled to chain(s) 1), while start = 0
+  a 111-stage NLFSR with feedback ANF s1[86] ^ s2[68] ^ s2[83] ^ (s2[81] &amp; s2[82])
+        (coupled to chain(s) 2), while start = 0
+  a 84-stage NLFSR with feedback ANF s0[65] ^ s0[92] ^ s2[77] ^ (s0[90] &amp; s0[91])
+        (coupled to chain(s) 0), while start = 0
+Classical / PQC style: classical-style</code></pre>
+
+<h4>Read the verdict as narrowly as it is written</h4>
+<table>
+<tr><th>it says</th><th>it does not say</th></tr>
+<tr><td><code>lfsr-stream</code>: an autonomous feedback shift register of at
+least four stages is present</td>
+<td>that the design is Trivium. Nothing in the six passes contains the word. The
+match to the published feedback functions in step 4 is a statement about three
+equations, made by a human reading <code>analysis.py</code>'s output against
+literature.</td></tr>
+<tr><td><code>classical-style</code>: the structures found are the ones classical
+symmetric primitives are built from, and no lattice/ring arithmetic was found</td>
+<td>that the design is not post-quantum. A hash-based or code-based scheme
+contains neither NTTs nor S-boxes and would come back
+<code>none-detected</code>. That caveat travels in the finding text.</td></tr>
+<tr><td>three <code>nlfsr</code> structures, feedback degree 2</td>
+<td>a period, a polynomial, or a claim about the sequence. The pass computes a
+period only for a linear, self-contained register; here it reports neither, and
+the absence is the finding.</td></tr>
+</table>
+
+<div class="why"><span class="tag">Walkthrough 05, side by side</span>
+<table>
+<tr><th></th><th>05_lfsr_prng</th><th>13_trivium_stream</th></tr>
+<tr><td>family</td><td><code>lfsr-stream</code></td><td><code>lfsr-stream</code></td></tr>
+<tr><td>kind</td><td><code>lfsr</code></td><td><code>nlfsr</code> &times; 3</td></tr>
+<tr><td>stages</td><td>16</td><td>93 + 84 + 111</td></tr>
+<tr><td>feedback</td><td><code>s[12]^s[14]^s[15]^s[3]</code></td><td><code>s0[68]^s1[110]^s1[65]^(s1[108]&amp;s1[109])</code></td></tr>
+<tr><td>degree</td><td>1</td><td>2</td></tr>
+<tr><td>polynomial</td><td><code>x^16+x^15+x^13+x^4+1</code></td><td><em>none — and none exists</em></td></tr>
+<tr><td>period</td><td>65535, maximal</td><td><em>not computed, not computable this way</em></td></tr>
+<tr><td>coupled</td><td>no</td><td>yes, in a 3-ring</td></tr>
+<tr><td>visible without holding a net</td><td>yes</td><td>no</td></tr>
+</table>
+<p style="margin-bottom:0">Same family, same pass, same verdict word — and an
+entirely different object. <strong>The family verdict is where the analysis
+starts, not where it ends.</strong></p>
+</div>
+
+<h4>One more thing the SCC decomposition says, and the chain walk does not</h4>
+<p>The <code>--with-hal</code> tier loads <code>netlist.hal.v</code> through
+<code>hal_py</code> and asks the <code>graph_algorithm</code> plugin for
+strongly connected components — a second reader, a second gate model, a third
+algorithm. It returns <strong>one</strong> component containing all 288 state
+registers, not three.</p>
+<p>Both answers are right. Everything in a ring is mutually reachable, so the
+SCC decomposition cannot see a boundary that is not there: as a state machine
+this is one 288-bit object and no segment has an independent existence. The
+93/84/111 split is a statement about the <em>shift links</em>, which is a
+different question. Walkthrough 11's SCCs split its key schedule from its data
+path because that coupling is one-way; here the coupling is a cycle, and the
+same tool correctly declines to split anything. <strong>Disagreement between two
+structural methods is information about the design, not a bug in one of
+them.</strong></p>
+
+<!-- ===================================================================== -->
+<h2 id="rebuild">7. Reconstruction, and the negative controls</h2>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the design written back
+out from steps 2–8 and nothing else; every constant in it carries a comment
+naming the step that produced it.
+<a href="recovered_reference.py"><code>recovered_reference.py</code></a> is the
+same model in Python, and it is what the netlist is checked against:</p>
+
+<pre><code>$ python tools/hal_agilex behavior "$EX/trivium_stream.vo" \
+      --reference "$EX/recovered_reference.py" --cycles 3600
+hal_agilex/behavior/reference-equivalence : proven_bounded (3600 cycles)</code></pre>
+
+<h3>The negative controls</h3>
+<p>A green bounded check means nothing on its own, so two deliberately wrong
+copies of the recovered model are run the same way and <em>must</em> be caught:</p>
+<table>
+<tr><th>control</th><th>what it changes</th><th>result</th></tr>
+<tr><td><code>T3_TAPS = (242, 287, 69)</code></td>
+<td>one feedback tap moved one stage: <code>s69</code> becomes
+<code>s70</code></td>
+<td><code>bounded_counterexample</code>, first mismatch at cycle
+<strong>71</strong></td></tr>
+<tr><td><code>NONLINEAR = 0</code></td>
+<td>every <code>&amp;</code> in the three feedbacks becomes <code>^</code> — the
+cipher becomes a coupled <em>linear</em> feedback register</td>
+<td><code>bounded_counterexample</code>, first mismatch at cycle
+<strong>71</strong></td></tr>
+</table>
+<p>Cycle 71, not cycle 1, and the number is the point. A wrong bit enters at a
+segment head and has to shift 65 stages before the output function reads it —
+the first six cycles of a wrong Trivium are indistinguishable from a right one on
+the only bit the design exposes. <code>check.py</code> asserts both that the
+controls are caught and that they are not caught immediately, because a
+negative control whose divergence latency you have not measured is a negative
+control you do not understand.</p>
+<div class="honest"><span class="tag">The first bound chosen for these was too short</span>
+<code>check.py</code> re-runs both controls live, and the obvious 200-cycle bound
+made both of them pass clean. Not because the model was right: because
+<code>hal_agilex behavior</code> asserts its asynchronous clear at
+<code>cycles/3</code>, which for a 200-cycle run is cycle 66 — five cycles before
+the divergence, wiping the state that carried it. The controls run for 400 cycles
+now. This is walkthrough 08's lesson arriving from a new direction: a bounded
+check can miss a wrong answer because of <em>where the stimulus went</em>, not
+only because of how long it ran, and the only way to find that out is to run a
+control you know is wrong.</div>
+<div class="honest"><span class="tag">What the bounded check does not reach</span>
+The 3600-cycle run drives <code>start</code> pseudo-randomly, and a warm-up is
+uninterruptible once begun, so it contains six accepted loads and three complete
+1152-step warm-ups — but <code>ks_valid</code> is high for only <strong>six of
+3600 cycles</strong>, because a random <code>start</code> reloads the core the
+moment it goes idle. Almost the entire bound is spent checking warm-up steps.
+Shorter runs never complete a warm-up at all. The keystream phase is exercised by
+step 8's published-vector runs instead, and saying which check covers which part
+of the state space is more useful than quoting a bigger cycle count.</div>
+
+<h3>Recovered exactly</h3>
+<ul class="tight">
+<li>the three segment lengths, their order, and which chain feeds which;</li>
+<li>all six linear taps and all three products, as equations, exhaustively;</li>
+<li>the output function, including that it reads no AND input;</li>
+<li>the load pattern, all 288 stages of it, including the three ones;</li>
+<li>the warm-up length, as two moduli and a product;</li>
+<li>the "<code>start</code> ignored while busy" rule, from the load cofactor.</li>
+</ul>
+
+<h3>Lost for good</h3>
+<ul class="tight">
+<li><strong>The name.</strong> Nothing in the netlist says "Trivium". The match
+is between three recovered equations and a published specification, and it is a
+human making it.</li>
+<li><strong>The distinction between key and IV.</strong> Structurally
+<code>key</code> and <code>iv</code> are two 80-bit ports loaded into two
+different places; that one is secret and the other is not is a protocol fact with
+no gate to live in.</li>
+<li><strong>Whether <code>hi</code>'s clock enable was intended.</strong> It is a
+Quartus packing choice. The recovered RTL writes it as an <code>if</code> and
+re-synthesises to the same thing, but the export cannot tell you which spelling
+was written.</li>
+<li><strong>The zero runs' internal structure.</strong> The specification says 13
+zeros after the key, then the IV, then 4 zeros, then 108 zeros, then three ones.
+The netlist shows 13 zeros and one run of 112, because 4 + 108 is 112 and nothing
+in the wiring separates them.</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 id="further">8. Going further</h2>
+<ul class="tight">
+<li><strong>Break the ring.</strong> Re-synthesise with one segment's feedback
+reading only its own stages and watch the pass report an <code>lfsr</code> or
+<code>nlfsr</code> with <code>coupled: false</code> — and, if you also drop the
+AND, a polynomial and a period.</li>
+<li><strong>Remove the <code>keep</code></strong> from the three feedback wires
+and see the export fail <code>inventory --strict</code> on
+<code>extended_lut "on"</code>. Walkthrough 12 ships the analogous counterfactual
+as a committed variant; here it is a coverage failure rather than a quieter
+one.</li>
+<li><strong>Unroll it.</strong> The standard 64-bit-wide Trivium is the same
+cipher with 64 copies of the feedback logic. Predict what that does to the level
+count in section 4 before you build it, then check.</li>
+<li><strong>Blind it.</strong> Run the netlist through the anonymiser of
+walkthroughs 02/03/10 and redo steps 2–7 with no names. Nothing in
+<code>analysis.py</code> reads a name for meaning, so all of it should still
+work — which is the claim, and worth testing rather than trusting.</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 id="repro">9. Reproducing all of it</h2>
+
+<p>Synthesis, on Windows with Quartus Prime Pro 26.1:</p>
+<pre><code>mkdir scratch &amp;&amp; cd scratch
+cp ../design.v ../quartus/trivium_stream.qpf ../quartus/trivium_stream.qsf \
+   ../quartus/build.tcl .
+quartus_sh -t build.tcl
+quartus_syn trivium_stream -c trivium_stream
+quartus_eda --simulation --format=verilog --tool=questasim \
+            --output_directory=simulation trivium_stream -c trivium_stream</code></pre>
+
+<p>Everything else, on Linux with a built HAL and Graphviz — every command this
+guide shows, in the order it shows them:</p>
+<pre><code>export HAL_BASE_PATH=&lt;build&gt; HAL_PY_PATH=&lt;build&gt;/lib PYTHONPATH=&lt;build&gt;/lib
+sh examples/agilex3_walkthroughs/13_trivium_stream/run_analysis.sh</code></pre>
+
+<p>And the check that every number above is still true:</p>
+<pre><code>python3 examples/agilex3_walkthroughs/13_trivium_stream/check.py            # no HAL needed
+python3 examples/agilex3_walkthroughs/13_trivium_stream/check.py --with-hal # + the hal_py tier</code></pre>
+
+<p>The first tier needs nothing but a Python 3 interpreter, because
+<code>tools/hal_agilex</code> and <code>tools/hal_crypto</code> are HAL-free by
+design; the second adds the <code>hal_py</code> load and the SCC decomposition of
+section 6. Both are run in CI by
+<code>tests/headless_smoke/run_walkthrough_checks.sh</code>.</p>
+
+<hr>
+<p class="kbd">Every number on this page is produced by
+<a href="analysis.py"><code>analysis.py</code></a> or by a
+<code>tools/hal_*</code> command shown beside it, and re-asserted by
+<a href="check.py"><code>check.py</code></a>. If a tool change makes one of them
+false, that check fails.</p>
