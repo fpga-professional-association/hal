@@ -25,6 +25,16 @@ The *bit order* of the extracted box is the pass's own choice (sources and
 outputs sorted by net name), which is why an exact table match is the exception
 and a bit-permutation match is the norm.  The tier is carried through to the
 finding text; see :func:`hal_crypto.boolfunc.match_sbox`.
+
+"Read the same *n* sources" has to mean *between them*, not *each*.  Every
+output bit of an AES or PRESENT S-box reads every input bit, so keying the
+search on the support of one net finds those; a Keccak or Ascon chi row does
+not, because ``y_i = x_i ^ (~x_{i+1} & x_{i+2})`` reads **three** of five, and a
+five-lane row is then five cones that cover five sources without any one cone
+covering them all.  Candidate supports therefore come from two places: the
+support of some single net, and the source set of a connected component of the
+net/source graph.  The second is what finds chi -- see
+:func:`cluster_supports`.
 """
 
 import itertools
@@ -37,6 +47,7 @@ __all__ = [
     "MAX_SBOX_BITS",
     "MAX_GROUP_COMBINATIONS",
     "candidate_groups",
+    "cluster_supports",
     "extract_sboxes",
     "match_library",
 ]
@@ -90,14 +101,110 @@ def _combinational_nets(model):
     return results, skipped
 
 
+def cluster_supports(nets, by_source):
+    """Candidate source sets grown from one cone by tightest coupling.
+
+    A candidate support has to be a set of sources some group of cones covers.
+    The cheap way to name one is "the support of a single cone", and that is
+    what :func:`candidate_groups` tries first -- but it only ever names a set
+    every member of the group reads in full.  A substitution whose output bits
+    read a *subset* each is invisible to it: Keccak chi is the published case,
+    with five outputs over five sources and three sources per output, and the
+    same shape appears in Ascon and in any other chi-like row map.
+
+    So grow one instead.  Seed the set with a cone's support and repeatedly add
+    the neighbouring cone that brings the **fewest new sources**, until the
+    cones lying wholly inside the set are at least as many as the sources, or
+    the set would grow past :data:`MAX_SBOX_BITS`.
+
+    Growing by fewest-new-sources rather than by any neighbour is the whole
+    trick, and it is the same observation the rest of this package keeps
+    making: a substitution layer is cones that share their sources tightly,
+    while the multiplexer layer on top of it is cones that each drag in a
+    control net and one data bit of their own.  Following every neighbour
+    merges the two and loses both -- on a real Keccak export it turns forty
+    five-source clusters into one cluster of everything.  Following the
+    cheapest one walks along the substitution and stops at the multiplexers.
+
+    The growth is deterministic (ties broken by net name), bounded by
+    ``MAX_SBOX_BITS`` steps per seed, and produces *candidates* only: whether a
+    set really carries an ``n``-to-``n`` map is still decided by
+    :func:`_groups_for_support` and the bijectivity and affineness filters.
+    Returned sorted by ``(size, sorted names)``.
+    """
+    results = set()
+    for seed in sorted(nets):
+        support = set(nets[seed].inputs)
+        for _ in range(MAX_SBOX_BITS):
+            inside = [
+                key
+                for key in _reachable(support, by_source)
+                if set(nets[key].inputs) <= support
+            ]
+            if len(inside) >= len(support):
+                if MIN_SBOX_BITS <= len(support) <= MAX_SBOX_BITS:
+                    results.add(frozenset(support))
+                break
+            best = None
+            for key in _reachable(support, by_source):
+                extra = set(nets[key].inputs) - support
+                if not extra or len(support) + len(extra) > MAX_SBOX_BITS:
+                    continue
+                if best is None or (len(extra), key) < (len(best[0]), best[1]):
+                    best = (extra, key)
+            if best is None:
+                break
+            support |= best[0]
+    return sorted(results, key=lambda item: (len(item), sorted(item)))
+
+
+def _reachable(support, by_source):
+    """Every cone that reads at least one source in *support*, sorted."""
+    keys = set()
+    for name in support:
+        keys |= by_source.get(name, set())
+    return sorted(keys)
+
+
+def _groups_for_support(support, nets, by_source):
+    """Every ``len(support)``-subset of the cones inside *support* that covers it."""
+    bits = len(support)
+    if bits < MIN_SBOX_BITS or bits > MAX_SBOX_BITS:
+        return []
+    reachable = set()
+    for name in support:
+        reachable |= by_source.get(name, set())
+    pool = sorted(key for key in reachable if set(nets[key].inputs) <= support)
+    if len(pool) < bits:
+        return []
+    if len(pool) == bits:
+        return [(sorted(support), pool)]
+    combinations = list(itertools.combinations(pool, bits))
+    if len(combinations) > MAX_GROUP_COMBINATIONS:
+        return []
+    groups = []
+    for combination in combinations:
+        union = set()
+        for key in combination:
+            union.update(nets[key].inputs)
+        if union == set(support):
+            groups.append((sorted(support), list(combination)))
+    return groups
+
+
 def candidate_groups(model):
     """Groups of ``n`` nets that together read exactly ``n`` sources.
 
-    The candidate supports are the supports the netlist actually contains, and
-    the pool for each one is found through a source-to-net index rather than by
-    rescanning every net: on a large design the naive version is quadratic in
-    the number of combinational nets, and an S-box pass that takes minutes on a
-    real netlist is a pass nobody runs.
+    The candidate supports are the supports the netlist actually contains plus
+    the source sets of :func:`cluster_supports`, and the pool for each one is
+    found through a source-to-net index rather than by rescanning every net: on
+    a large design the naive version is quadratic in the number of
+    combinational nets, and an S-box pass that takes minutes on a real netlist
+    is a pass nobody runs.
+
+    Single-net supports are tried first and in their own order, so adding the
+    cluster supports can only *append* groups: a netlist whose S-boxes were
+    already found reports them in the same order as before.
     """
     nets, skipped = _combinational_nets(model)
     by_source = {}
@@ -110,27 +217,11 @@ def candidate_groups(model):
 
     groups = []
     for support in sorted(by_support, key=lambda item: (len(item), sorted(item))):
-        bits = len(support)
-        if bits < MIN_SBOX_BITS or bits > MAX_SBOX_BITS:
+        groups.extend(_groups_for_support(support, nets, by_source))
+    for support in cluster_supports(nets, by_source):
+        if support in by_support:
             continue
-        reachable = set()
-        for name in support:
-            reachable |= by_source.get(name, set())
-        pool = sorted(key for key in reachable if set(nets[key].inputs) <= support)
-        if len(pool) < bits:
-            continue
-        if len(pool) == bits:
-            groups.append((sorted(support), pool))
-            continue
-        combinations = list(itertools.combinations(pool, bits))
-        if len(combinations) > MAX_GROUP_COMBINATIONS:
-            continue
-        for combination in combinations:
-            union = set()
-            for key in combination:
-                union.update(nets[key].inputs)
-            if union == set(support):
-                groups.append((sorted(support), list(combination)))
+        groups.extend(_groups_for_support(support, nets, by_source))
     return groups, nets, skipped
 
 

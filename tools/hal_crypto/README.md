@@ -16,7 +16,7 @@ chance to be wrong about what the vendor wrote.
 
 | module | question | positive control | negative control |
 | --- | --- | --- | --- |
-| `sbox.py` | which LUT cones form an *n*-bit bijection, and does it equal a published S-box? | `fixtures/present_sbox_layer.vo` | `fixtures/unknown_sbox_layer.vo`, `fixtures/counter8.vo` |
+| `sbox.py` | which LUT cones form an *n*-bit bijection — whether each output reads every input (PRESENT, AES) or a subset of them (Keccak/Ascon `chi`) — and does it equal a published S-box? | `fixtures/present_sbox_layer.vo`, `fixtures/keccak_chi_layer.vo` | `fixtures/unknown_sbox_layer.vo`, `fixtures/counter8.vo` |
 | `shiftreg.py` | is a register chain closed by feedback -- by its own stages or by a sibling's; is the feedback linear (polynomial) or not (ANF); Fibonacci or Galois? | `fixtures/lfsr16_fibonacci.vo`, `fixtures/lfsr16_galois.vo`, `fixtures/lfsr16_loadable.vo`, `fixtures/coupled_nlfsr.vo` | `fixtures/nlfsr16.vo`, `fixtures/shift16_plain.vo` |
 | `arx.py` | are adders, fixed rotations and an XOR layer present **and wired together**? | `fixtures/arx_round8.vo` | `fixtures/counter8.vo`, `fixtures/rotate16.vo` |
 | `permutation.py` | which pure-wire bit maps exist, and do they equal a published pLayer or rotation set? and which maps survive one cell per link? | `fixtures/rotate16.vo` (wiring), `fixtures/spn_round16.vo` (cone support) | `fixtures/counter8.vo`, `fixtures/mux_bank16.vo` |
@@ -71,6 +71,13 @@ The wording discipline is the point of the package, not a decoration on it.
   `classical-style` does not rule out post-quantum cryptography: a hash-based
   or code-based scheme contains neither NTTs nor S-boxes and lands in
   `none-detected`.
+* **A sponge is not placed on the axis at all.** `sponge` is the one family
+  whose style verdict is `undetermined`, with the finding at `unknown` status
+  and no confidence number: SHA-3 and SHAKE are classical hashing, and the same
+  SHAKE is the extendable-output function inside ML-KEM and ML-DSA and the
+  whole of SPHINCS+. The *family* verdict is still `high` confidence — "this is
+  a sponge" is a strong structural claim and "therefore it is classical" is not
+  a claim. What decides the axis is the arithmetic around the sponge.
 * **`none-detected` is a first-class outcome**, emitted with a per-pass list of
   what each pass looked for and did not find, so the negative can be argued
   with instead of shrugged at.
@@ -207,7 +214,7 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-109 tests, no HAL, ~14 s. Registered with ctest as
+115 tests, no HAL, ~16 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
@@ -218,7 +225,28 @@ classify `lfsr-stream` as three coupled NLFSRs of 93, 84 and 111 stages with the
 published Trivium feedback functions recovered and no polynomial claimed for any
 of them, and `12_present_sbox` must yield the PRESENT pLayer and the key
 register's rotation by 61 from the cone support, with its `variants/` exports
-showing what a different register placement costs.
+showing what a different register placement costs. `14_keccak_toy` adds the pair
+that makes the coverage limit explicit:
+`keccak_toy.vo` must classify `none-detected` at `medium` confidence, because
+chi reads the register bank through theta and 400 cones are too wide to
+enumerate, and `keccak_retimed.vo` — the same permutation with the register
+moved half a round — must classify `sponge` at `high` with forty `keccak_chi_5`
+matches and style `undetermined`.
+
+### An S-box whose output bits read a *subset* of the inputs
+
+Every published S-box in `known.py` except the `chi` family has output bits that
+read *every* input bit, which is why the extraction can key its search on the
+support of a single cone. `chi` does not: `y_i = x_i ^ (~x_{i+1} & x_{i+2})`
+reads three of five, so a five-lane row is five cones covering five sources with
+no cone covering them all. `sbox.cluster_supports` names those candidate
+supports by growing a set from one cone, each time adding the neighbouring cone
+that brings the **fewest new sources**. Following *any* neighbour instead merges
+the substitution layer with the parallel-load multiplexers above it — on a real
+Keccak export that turns forty five-source clusters into one cluster of
+everything — so the "cheapest" qualifier is the whole of the rule.
+`fixtures/keccak_chi_layer.vo` is the minimal case, and
+`fixtures/GROUND_TRUTH.md` states what must come out of it.
 
 `elaborate` is the one subcommand that loads a netlist in HAL's own process, so
 it also has a case in `tests/headless_smoke/tool_cli_plugin_load_smoke.py`,

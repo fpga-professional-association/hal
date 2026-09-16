@@ -23,6 +23,7 @@ fails the check.
 | --- | --- | --- | --- | --- |
 | `present_sbox_layer.vo` | two 4-bit PRESENT S-boxes between register banks | positive: S-box extraction **and** an exact library match | `spn` | `classical-style` |
 | `unknown_sbox_layer.vo` | the same shape with a fixed 4-bit bijection that is in no library | negative for *matching*: the box is extracted, nothing matches it | `spn` | `classical-style` |
+| `keccak_chi_layer.vo` | two Keccak chi rows of five lanes, behind a parallel `load ? seed : chi` | positive for the *cluster* search: each output reads three of five sources, so no single cone's support names the box | `sponge` | `undetermined` |
 | `lfsr16_fibonacci.vo` | 16-stage Fibonacci LFSR, taps 3/12/14/15 | positive: `x^16 + x^15 + x^13 + x^4 + 1`, maximal length | `lfsr-stream` | `classical-style` |
 | `lfsr16_galois.vo` | 16-stage Galois LFSR, injections at 1/3/12 | positive: Galois form, same characteristic polynomial as above | `lfsr-stream` | `classical-style` |
 | `nlfsr16.vo` | the Fibonacci taps with an AND term in the feedback | negative for *linear* feedback: an ANF, no polynomial | `lfsr-stream` | `classical-style` |
@@ -51,6 +52,29 @@ nothing in the library at the `exact`, `xor_constant` or `bit_permutation`
 tier. The family is still `spn` — two extracted substitutions are a
 substitution layer whether or not anyone has published them — and the finding
 is `heuristic`, not `proven_under_assumptions`.
+
+**`keccak_chi_layer.vo`** — two groups of five cones, over `state[0..4]` and
+`state[5..9]`. Each group's extracted table equals `keccak_chi_5` at the
+**`exact`** tier: `y_i = x_i ^ (~x_{i+1} & x_{i+2})` over a five-lane row, FIPS
+202 section 3.2.4. Algebraic degree 2, differential uniformity 8.
+
+Two things are being asserted here and neither is about chi itself. The first
+is that a substitution whose output bits read a *subset* of the inputs is found
+at all: keying the search on the support of one cone -- which is enough for
+PRESENT, AES and every other S-box whose output bits read every input bit --
+finds **nothing** here, because no cone reads more than three of the five
+sources. The second is that the parallel load on top does not hide it. Those
+ten multiplexer cells read the same registers while each dragging in `load` and
+one `seed` bit, so a cluster search that follows any neighbour merges the two
+rows and the load path into one twelve-source blob and reports nothing;
+following the neighbour that adds the *fewest* new sources walks along the chi
+row and stops at the multiplexers. `hal_crypto.sbox.cluster_supports` is that
+rule, and this fixture is the case that fails without it.
+
+The style verdict is `undetermined`, not `classical-style`, and that is the
+point of the family being separate: the same permutation is SHA-3 and is the
+SHAKE inside ML-KEM, ML-DSA and SPHINCS+, so a sponge on its own places a
+design on neither side of the axis.
 
 **`lfsr16_fibonacci.vo` / `lfsr16_galois.vo`** — both come out as
 `x^16 + x^15 + x^13 + x^4 + 1`, period 65535, maximal. The Galois one is
