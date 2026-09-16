@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boolean Function &mdash; hal_py v4.5.0-209-g9db95465a documentation</title>
+  <title>Boolean Function &mdash; hal_py v4.5.0-210-g2c151a1cd documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
@@ -27,7 +27,7 @@
             <a href="index.html" class="icon icon-home"> hal_py
           </a>
               <div class="version">
-                v4.5.0-209-g9db95465a
+                v4.5.0-210-g2c151a1cd
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -2464,22 +2464,45 @@ The operation is applied to all instances of the variable in the function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="hal_py.BooleanFunction.to_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#hal_py.BooleanFunction.Value" title="hal_py.BooleanFunction.Value"><span class="pre">hal_py.BooleanFunction.Value</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hal_py.BooleanFunction.to_string" title="Permalink to this definition"></a></dt>
-<dd><p>Convert the given bit-vector to its string representation in the given base.</p>
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hal_py.BooleanFunction.to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic">
+<li><p>to_string(self: List[hal_py.BooleanFunction.Value], base: int = 2) -&gt; Optional[str]</p>
+<blockquote>
+<div><p>Convert the given bit-vector to its string representation in the given base.</p>
+<p>This overload is called on the class, i.e., <code class="docutils literal notranslate"><span class="pre">hal_py.BooleanFunction.to_string(value,</span> <span class="pre">base)</span></code>, with the
+bit-vector as its first (positional) argument. Called on an instance, <code class="docutils literal notranslate"><span class="pre">f.to_string()</span></code> returns the
+string representation of the Boolean function <code class="docutils literal notranslate"><span class="pre">f</span></code> itself.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="#hal_py.BooleanFunction.Value" title="hal_py.BooleanFunction.Value"><em>hal_py.BooleanFunction.Value</em></a><em>]</em>) – The value as a bit-vector.</p></li>
-<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The base that the values should be converted to. Valid values are 2 (default), 8, 10, and 16.</p></li>
-</ul>
+<dt class="field-odd">param list[hal_py.BooleanFunction.Value] value</dt>
+<dd class="field-odd"><p>The value as a bit-vector.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A string representing the values in the given base on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+<dt class="field-even">param int base</dt>
+<dd class="field-even"><p>The base that the values should be converted to. Valid values are 2 (default), 8, 10, and 16.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a> or <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)">None</a></p>
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p>A string representing the values in the given base on success, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p>str or None</p>
 </dd>
 </dl>
+</div></blockquote>
+</li>
+<li><p>to_string(self: hal_py.BooleanFunction) -&gt; str</p>
+<blockquote>
+<div><p>Translates the Boolean function into its string representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p>The Boolean function as a string.</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</div></blockquote>
+</li>
+</ol>
 </dd></dl>
 
 <dl class="py method">

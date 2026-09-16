@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-209-g9db95465a</span>
+   &#160;<span id="projectnumber">v4.5.0-210-g2c151a1cd</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -167,75 +167,85 @@ $(document).ready(function(){initNavTree('parser__liberty_8cpp_source.html','');
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> VariableRule      = x3::lexeme[(x3::char_(<span class="stringliteral">&quot;a-zA-Z&quot;</span>) &gt;&gt; *x3::char_(<span class="stringliteral">&quot;a-zA-Z0-9_&quot;</span>))][VariableAction];</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> VariableIndexRule = x3::lexeme[(x3::char_(<span class="stringliteral">&quot;a-zA-Z&quot;</span>) &gt;&gt; *x3::char_(<span class="stringliteral">&quot;a-zA-Z0-9_&quot;</span>) &gt;&gt; x3::char_(<span class="stringliteral">&quot;(&quot;</span>) &gt;&gt; x3::int_ &gt;&gt; x3::char_(<span class="stringliteral">&quot;)&quot;</span>))][VariableIndexAction];</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> ConstantRule      = x3::lexeme[x3::char_(<span class="stringliteral">&quot;0-1&quot;</span>)][ConstantAction];</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;            <span class="keyword">auto</span> iter     = expression.begin();</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> ok = x3::phrase_parse(iter,</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                                             expression.end(),</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                                             <span class="comment">// (3) Parsing Expression Grammar</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment"></span>                                             +(AndRule | ImplicitAndRule | NotRule | NotSuffixRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantRule | BracketOpenRule</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                                               | BracketCloseRule),</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                                             <span class="comment">// we use an invalid a.k.a. non-printable ASCII character in order</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                                             <span class="comment">// to prevent the skipping of space characters as they are defined</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;                                             <span class="comment">// as an and operation</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                                             x3::char_(0x00));</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;            <span class="keywordflow">if</span> (!ok || (iter != expression.end()))</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;            {</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a>(<span class="stringliteral">&quot;could not to parse Boolean function &#39;&quot;</span> + expression + <span class="stringliteral">&quot;&#39;: &quot;</span> + std::string(iter, expression.end()));</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;            }</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;            <span class="comment">// (4) Filter implicit AND operations</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;            <span class="comment">// In the liberty grammar whitespace denotes an AND operation, i.e.,</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            <span class="comment">// &#39;A B&#39; is &#39;A &amp; B&#39;. Whitespace that surrounds another operator or a</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="comment">// bracket does not denote an operation, though, which is why &#39;A * B&#39;</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            <span class="comment">// or &#39;(A) + B&#39; would otherwise produce a sequence of two operators</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            <span class="comment">// and hence fail to translate. Such an implicit AND is therefore only</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            <span class="comment">// kept if it actually connects the end of an operand to the beginning</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            <span class="comment">// of another one.</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> is_operand_end = [](<span class="keyword">const</span> <a class="code" href="structhal_1_1_boolean_function_parser_1_1_token.html">Token</a>&amp; token) {</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;                <span class="keywordflow">return</span> token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a47c14840d8e15331fa420b9b2f757cd9">TokenType::Variable</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55acb17869fe51048b5a5c4c6106551a255">TokenType::Constant</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55aa53f1dc878e492c1d5054669936229a4">TokenType::BracketClose</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a3981ab79a6087525c5375aac5cf4a662">TokenType::NotSuffix</a>);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;            };</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> is_operand_begin = [](<span class="keyword">const</span> <a class="code" href="structhal_1_1_boolean_function_parser_1_1_token.html">Token</a>&amp; token) {</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;                <span class="keywordflow">return</span> token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a47c14840d8e15331fa420b9b2f757cd9">TokenType::Variable</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55acb17869fe51048b5a5c4c6106551a255">TokenType::Constant</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a144330dfe27435d5a290af3833f59fcd">TokenType::BracketOpen</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55aa74c05d080620f087c4e523977230666">TokenType::Not</a>);</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;            };</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160; </div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;            <span class="comment">// (4.1) collapse runs of whitespace into a single implicit AND token</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;            std::vector&lt;std::pair&lt;Token, bool&gt;&gt; annotated;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;            annotated.reserve(tokens.size());</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;            <span class="keywordflow">for</span> (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> i = 0; i &lt; (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)tokens.size(); i++)</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;            {</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                <span class="keyword">const</span> <span class="keywordtype">bool</span> is_implicit = (implicit_and_indices.find(i) != implicit_and_indices.end());</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                <span class="keywordflow">if</span> (is_implicit &amp;&amp; !annotated.empty() &amp;&amp; annotated.back().second)</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                {</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;                    <span class="keywordflow">continue</span>;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;                }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;                annotated.emplace_back(tokens.at(i), is_implicit);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="comment">// (4.2) drop implicit AND tokens that do not connect two operands</span></div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;            std::vector&lt;Token&gt; filtered;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;            filtered.reserve(annotated.size());</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;            <span class="keywordflow">for</span> (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> i = 0; i &lt; (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)annotated.size(); i++)</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;            {</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                <span class="keywordflow">if</span> (annotated.at(i).second)</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                {</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                    <span class="keywordflow">if</span> ((i == 0) || ((i + 1) &gt;= (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)annotated.size()))</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;                    {</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                        <span class="keywordflow">continue</span>;</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;                    }</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;                    <span class="keywordflow">if</span> (!is_operand_end(annotated.at(i - 1).first) || !is_operand_begin(annotated.at(i + 1).first))</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                    {</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;                        <span class="keywordflow">continue</span>;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                    }</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                }</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                filtered.emplace_back(annotated.at(i).first);</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;            }</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160; </div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a>(filtered);</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        }</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    }    <span class="comment">// namespace BooleanFunctionParser</span></div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;}    <span class="comment">// namespace hal</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            <span class="comment">// # Developer Note</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;            <span class="comment">// The &#39;0b0&#39;/&#39;0b1&#39; spelling of a constant is part of the documented</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            <span class="comment">// syntax of `BooleanFunction::from_string` and is hence accepted by</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            <span class="comment">// this grammar as well. Without it the two documented spellings</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;            <span class="comment">// &#39;whitespace means AND&#39; and &#39;0b0/0b1&#39; would be mutually exclusive,</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;            <span class="comment">// since only this grammar knows the former and only the standard</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;            <span class="comment">// grammar knew the latter, see issue #62. The rule has to be tried</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;            <span class="comment">// before `ConstantRule` so that the &#39;0&#39; of a &#39;0b0&#39; is not consumed</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;            <span class="comment">// on its own.</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> ConstantPrefixRule = x3::lexeme[x3::lit(<span class="stringliteral">&quot;0b&quot;</span>) &gt;&gt; x3::char_(<span class="stringliteral">&quot;0-1&quot;</span>)[ConstantAction]];</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            <span class="keyword">auto</span> iter     = expression.begin();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> ok = x3::phrase_parse(iter,</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                                             expression.end(),</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                                             <span class="comment">// (3) Parsing Expression Grammar</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment"></span>                                             +(AndRule | ImplicitAndRule | NotRule | NotSuffixRule | OrRule | XorRule | VariableIndexRule | VariableRule | ConstantPrefixRule | ConstantRule</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                                               | BracketOpenRule | BracketCloseRule),</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                                             <span class="comment">// we use an invalid a.k.a. non-printable ASCII character in order</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                                             <span class="comment">// to prevent the skipping of space characters as they are defined</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                                             <span class="comment">// as an and operation</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                                             x3::char_(0x00));</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            <span class="keywordflow">if</span> (!ok || (iter != expression.end()))</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            {</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a>(<span class="stringliteral">&quot;could not to parse Boolean function &#39;&quot;</span> + expression + <span class="stringliteral">&quot;&#39;: &quot;</span> + std::string(iter, expression.end()));</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            }</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;            <span class="comment">// (4) Filter implicit AND operations</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            <span class="comment">// In the liberty grammar whitespace denotes an AND operation, i.e.,</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;            <span class="comment">// &#39;A B&#39; is &#39;A &amp; B&#39;. Whitespace that surrounds another operator or a</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;            <span class="comment">// bracket does not denote an operation, though, which is why &#39;A * B&#39;</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;            <span class="comment">// or &#39;(A) + B&#39; would otherwise produce a sequence of two operators</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;            <span class="comment">// and hence fail to translate. Such an implicit AND is therefore only</span></div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;            <span class="comment">// kept if it actually connects the end of an operand to the beginning</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;            <span class="comment">// of another one.</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> is_operand_end = [](<span class="keyword">const</span> <a class="code" href="structhal_1_1_boolean_function_parser_1_1_token.html">Token</a>&amp; token) {</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                <span class="keywordflow">return</span> token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a47c14840d8e15331fa420b9b2f757cd9">TokenType::Variable</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55acb17869fe51048b5a5c4c6106551a255">TokenType::Constant</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55aa53f1dc878e492c1d5054669936229a4">TokenType::BracketClose</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a3981ab79a6087525c5375aac5cf4a662">TokenType::NotSuffix</a>);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;            };</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> is_operand_begin = [](<span class="keyword">const</span> <a class="code" href="structhal_1_1_boolean_function_parser_1_1_token.html">Token</a>&amp; token) {</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;                <span class="keywordflow">return</span> token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a47c14840d8e15331fa420b9b2f757cd9">TokenType::Variable</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55acb17869fe51048b5a5c4c6106551a255">TokenType::Constant</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55a144330dfe27435d5a290af3833f59fcd">TokenType::BracketOpen</a>) || token.is(<a class="code" href="namespacehal_1_1_boolean_function_parser.html#ab7792aeb2f619d1832ed2115e3780b55aa74c05d080620f087c4e523977230666">TokenType::Not</a>);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;            };</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;            <span class="comment">// (4.1) collapse runs of whitespace into a single implicit AND token</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;            std::vector&lt;std::pair&lt;Token, bool&gt;&gt; annotated;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            annotated.reserve(tokens.size());</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;            <span class="keywordflow">for</span> (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> i = 0; i &lt; (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)tokens.size(); i++)</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;            {</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;                <span class="keyword">const</span> <span class="keywordtype">bool</span> is_implicit = (implicit_and_indices.find(i) != implicit_and_indices.end());</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;                <span class="keywordflow">if</span> (is_implicit &amp;&amp; !annotated.empty() &amp;&amp; annotated.back().second)</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                {</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                    <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                }</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                annotated.emplace_back(tokens.at(i), is_implicit);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;            }</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;            <span class="comment">// (4.2) drop implicit AND tokens that do not connect two operands</span></div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;            std::vector&lt;Token&gt; filtered;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;            filtered.reserve(annotated.size());</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;            <span class="keywordflow">for</span> (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> i = 0; i &lt; (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)annotated.size(); i++)</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;            {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;                <span class="keywordflow">if</span> (annotated.at(i).second)</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;                {</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;                    <span class="keywordflow">if</span> ((i == 0) || ((i + 1) &gt;= (<a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a>)annotated.size()))</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;                    {</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;                        <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                    }</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                    <span class="keywordflow">if</span> (!is_operand_end(annotated.at(i - 1).first) || !is_operand_begin(annotated.at(i + 1).first))</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                    {</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;                        <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;                    }</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;                }</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;                filtered.emplace_back(annotated.at(i).first);</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;            }</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160; </div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a>(filtered);</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        }</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    }    <span class="comment">// namespace BooleanFunctionParser</span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;}    <span class="comment">// namespace hal</span></div>
 <div class="ttc" id="aboolean__function_8h_html"><div class="ttname"><a href="boolean__function_8h.html">boolean_function.h</a></div></div>
 <div class="ttc" id="aclasshal_1_1_result_html"><div class="ttname"><a href="classhal_1_1_result.html">hal::Result</a></div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00070">result.h:71</a></div></div>
 <div class="ttc" id="adefines_8h_html_a1af9f95651e921615e75917a6dd1b574"><div class="ttname"><a href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a></div><div class="ttdeci">uint64_t u64</div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00042">defines.h:42</a></div></div>
