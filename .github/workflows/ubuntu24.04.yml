@@ -40,6 +40,19 @@ jobs:
         shell: bash
         run: bash "$GITHUB_WORKSPACE/tests/headless_smoke/run_walkthrough_checks.sh" nohal
 
+      # The build-free half of the CLI contract suite (issue #50), in the same "no HAL" tier and for
+      # the same reason: a tool whose --help crashes, or that answers a typo with a traceback, is
+      # found in seconds instead of an hour into the job. With the HAL variables cleared the suite
+      # skips exactly the tests that load a netlist through a tool; the full suite, including those,
+      # runs under ctest after the build (tests/cli_contract/CMakeLists.txt).
+      - name: CLI contract checks (no HAL)
+        shell: bash
+        run: python3 "$GITHUB_WORKSPACE/tests/cli_contract/test_cli_contract.py"
+        env:
+          HAL_BASE_PATH: ""
+          HAL_PY_PATH: ""
+          PYTHONPATH: ""
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -76,13 +89,19 @@ jobs:
         # Note the current convention is to use the -S and -B options here to specify source
         # and build directories, but this is only available with CMake 3.13 and higher.
         # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+        #
+        # BUILD_FUZZ_TESTS is ON here and nowhere else. The two seeded harnesses in tests/fuzz run
+        # their fixed 25 seeds in 14 seconds together, so the ctest step below covers them on every
+        # push -- on this platform, where they are known to be green, rather than on the four that
+        # have never run them. Issue #51's nightly is what widens that to a seed matrix and a fresh
+        # random seed; see tests/fuzz/CMakeLists.txt.
         run: |
           mkdir -p build/doc
           cd build
           export BUILD_TYPE=Debug
           cp $GITHUB_WORKSPACE/documentation/index.html doc/
           $GITHUB_WORKSPACE/tools/genversion.py $GITHUB_WORKSPACE
-          cmake -G Ninja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON -DBUILD_DOCUMENTATION=ON -DPACKAGE_DEB=OFF -DCMAKE_INSTALL_PREFIX=/usr/
+          cmake -G Ninja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DBUILD_FUZZ_TESTS=ON -DBUILD_COVERAGE=ON -DBUILD_DOCUMENTATION=ON -DPACKAGE_DEB=OFF -DCMAKE_INSTALL_PREFIX=/usr/
         env:
           CCACHE_DIR: ${{runner.workspace}}/.ccache
           CCACHE_COMPRESS: true
