@@ -105,7 +105,7 @@ focus_list = []
 do_ignore = False
 do_focus = False
 merge_components = False
-for i in xrange(1, len(sys.argv)):
+for i in range(1, len(sys.argv)):
     if sys.argv[i] == "-i" or sys.argv[i] == "-ignore":
         do_ignore = True
         do_focus = False

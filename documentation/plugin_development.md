@@ -297,7 +297,7 @@ the two disagree.
 Four questions, four separate answers:
 
 ```bash
-python3 tools/hal_capabilities list --build-dir <build> --probe --netlist <netlist>
+python3 tools/hal_capabilities --build-dir <build> list --probe --netlist <netlist>
 ```
 
 ```
