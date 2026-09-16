@@ -1148,19 +1148,19 @@ class SolveHelpersTest(unittest.TestCase):
 
 
 class ProposeRankErgonomicsTest(unittest.TestCase):
-    """The API shape issue #56 is about, written down before it changes.
+    """The API shape issue #56 is about, written down before it changed.
 
     ``candidates.propose(graph)`` returns ``(candidates, notes)`` while
     ``candidates.rank(candidates)`` takes the bare list.  02_traffic_fsm's
     author passed the tuple straight through and got an ``AttributeError``
-    from inside a sort key -- an error that names neither the mistake nor the
-    fix.  #56 asks for either a small result object or a ``TypeError`` that
+    from inside a sort key -- an error that named neither the mistake nor the
+    fix.  #56 asked for either a small result object or a ``TypeError`` that
     says what to do, plus module-docstring examples using the real attribute
     names (``sources``/``gate_ids``, not ``origins``/``members``).
 
-    The passing tests below pin today's contract so that whichever of those
-    two shapes lands, the change is visible here rather than in a walkthrough
-    six months later.  The expected failure is the error message #56 wants.
+    The shape stayed as it was and ``rank()`` grew the ``TypeError``; the
+    tests below pin both halves, so a later move to a result object is visible
+    here rather than in a walkthrough six months later.
     """
 
     def setUp(self):
@@ -1206,11 +1206,10 @@ class ProposeRankErgonomicsTest(unittest.TestCase):
         self.assertFalse(hasattr(candidate, "members"))
         self.assertEqual(candidate.origin, "heuristic")
 
-    @unittest.expectedFailure
     def test_rank_rejects_the_propose_tuple_with_an_actionable_error(self):
-        # #56: today this raises ``AttributeError: 'list' object has no
-        # attribute 'score'`` from the sort key inside rank(), which says
-        # nothing about propose() returning two values.
+        # #56, implemented: rank() used to raise ``AttributeError: 'list'
+        # object has no attribute 'score'`` from inside its sort key, which
+        # says nothing about propose() returning two values.
         with self.assertRaises(TypeError) as raised:
             candidates.rank(self.result)
         message = str(raised.exception)

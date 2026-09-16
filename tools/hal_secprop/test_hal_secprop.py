@@ -828,12 +828,30 @@ class CliTest(unittest.TestCase):
         self.assertEqual(code, cli.EXIT_OK)
         self.assertIn("every policy signal exists", printed)
 
-    def test_cones_and_properties_and_exclusions_run(self):
+    def test_cones_prints_the_report_on_stdout(self):
+        code, printed = self.run_cli(["cones", policy_path("ok"), "--source", "offline"])
+        self.assertEqual(code, cli.EXIT_OK)
+        self.assertIn("CANDIDATE", printed)
+
+    def test_cones_json_is_exclusive(self):
+        """Issue #66: with --json, stdout is the document and nothing else.
+
+        The prose moves to stderr in full -- it is not dropped -- so a reader
+        still gets the "these are CANDIDATE paths" caveat, and a consumer can
+        do ``json.loads`` of the whole stream.
+        """
         code, printed = self.run_cli(
             ["cones", policy_path("ok"), "--source", "offline", "--json"]
         )
         self.assertEqual(code, cli.EXIT_OK)
-        self.assertIn("CANDIDATE", printed)
+        document = json.loads(printed)
+        self.assertEqual(sorted(document), ["cones", "summary"])
+        self.assertIn("SECRET", document["cones"])
+        self.assertNotIn("CANDIDATE", printed)
+        self.assertIn("CANDIDATE", self.errors)
+        self.assertIn("register bit(s) are in the fan-in", self.errors)
+
+    def test_properties_and_exclusions_run(self):
         self.assertEqual(self.run_cli(["properties", policy_path("ok")])[0], cli.EXIT_OK)
         self.assertEqual(self.run_cli(["exclusions"])[0], cli.EXIT_OK)
 

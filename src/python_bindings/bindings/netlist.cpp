@@ -218,6 +218,24 @@ namespace hal
             :rtype: hal_py.Gate or None
         )");
 
+        py_netlist.def("get_gate_by_name", &Netlist::get_gate_by_name, py::arg("name"), borrowed(), R"(
+            Get the gate specified by the given name.
+            The name is matched exactly, no wildcards and no partial matches.
+
+            :param str name: The name of the gate.
+            :returns: The gate if exactly one gate carries that name, ``None`` otherwise (no match, or an ambiguous name shared by multiple gates).
+            :rtype: hal_py.Gate or None
+        )");
+
+        py_netlist.def("get_gates_by_name", &Netlist::get_gates_by_name, py::arg("name"), borrowed(), R"(
+            Get all gates carrying the given name.
+            The name is matched exactly, no wildcards and no partial matches.
+
+            :param str name: The name of the gates.
+            :returns: A list of gates, empty if no gate carries that name.
+            :rtype: list[hal_py.Gate]
+        )");
+
         py_netlist.def_property_readonly("gates", py::cpp_function(py::overload_cast<>(&Netlist::get_gates, py::const_), py::is_method(py_netlist), borrowed()), R"(
             All gates contained within the netlist.
 
@@ -388,6 +406,24 @@ namespace hal
             :param int net_id: The unique ID of the net.
             :returns: The net on success, ``None`` otherwise.
             :rtype: hal_py.Net or None
+        )");
+
+        py_netlist.def("get_net_by_name", &Netlist::get_net_by_name, py::arg("name"), borrowed(), R"(
+            Get the net specified by the given name.
+            The name is matched exactly, no wildcards and no partial matches.
+
+            :param str name: The name of the net.
+            :returns: The net if exactly one net carries that name, ``None`` otherwise (no match, or an ambiguous name shared by multiple nets).
+            :rtype: hal_py.Net or None
+        )");
+
+        py_netlist.def("get_nets_by_name", &Netlist::get_nets_by_name, py::arg("name"), borrowed(), R"(
+            Get all nets carrying the given name.
+            The name is matched exactly, no wildcards and no partial matches.
+
+            :param str name: The name of the nets.
+            :returns: A list of nets, empty if no net carries that name.
+            :rtype: list[hal_py.Net]
         )");
 
         py_netlist.def_property_readonly("nets", py::cpp_function(py::overload_cast<>(&Netlist::get_nets, py::const_), py::is_method(py_netlist), borrowed()), R"(

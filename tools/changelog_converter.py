@@ -8,6 +8,48 @@ from enum import Enum
 import datetime
 import copy
 
+PROGRAM = os.path.basename(__file__)
+
+
+def fail(message, status=2):
+    """Print an error naming what went wrong and leave with a nonzero status.
+
+    Issue #67: ``changelog_converter.py garbage-input`` used to read the word
+    ``garbage-input`` as the *contents* of a changelog, find no release entry in
+    it, print "Skipping write out. No output produced!" and exit 0.  A packaging
+    script that shells out to this converter cannot tell that apart from a
+    successful conversion, so a missing or unusable input has to be an error.
+    """
+    print("{}: error: {}".format(PROGRAM, message), file=sys.stderr)
+    sys.exit(status)
+
+
+def read_input(args):
+    """The changelog text to convert, or a nonzero exit naming the missing path."""
+    if args.input_file:
+        if not path.isfile(args.input_file):
+            fail("input file does not exist: {}".format(args.input_file))
+        with open(args.input_file, 'r') as f:
+            return f.read()
+
+    if not args.input:
+        fail(
+            "no input: give the changelog contents as the positional argument, "
+            "or a file with -i/--input-file"
+        )
+
+    # The positional argument is documented as the changelog *contents*, and it
+    # is routinely handed a filename instead.  A changelog is never a single
+    # line, so a one-line positional is a path: read it if it exists, and name
+    # it if it does not, rather than converting it to nothing and exiting 0.
+    if "\n" not in args.input.strip():
+        if path.isfile(args.input):
+            with open(args.input, 'r') as f:
+                return f.read()
+        fail("input file does not exist: {}".format(args.input))
+
+    return args.input
+
 class release_info:
 
     def __init__(self):
@@ -61,6 +103,9 @@ def parse_markdown(input, release = 'bionic'):
 def to_debian(input, release = 'bionic', for_ppa_debian_dir = False, ppa_version = "ppa1"):
     entries = parse_markdown(input, release)
 
+    if for_ppa_debian_dir and not entries:
+        fail("no release entry found in the input; cannot build a PPA debian/changelog", status=1)
+
     if for_ppa_debian_dir:
         last_entry = entries[0]
         new_entry = copy.deepcopy(last_entry)
@@ -91,6 +136,8 @@ def to_debian(input, release = 'bionic', for_ppa_debian_dir = False, ppa_version
 
 def print_last_entry_info(input, release = 'bionic'):
     entries = parse_markdown(input, release)
+    if not entries:
+        fail("no release entry found in the input; nothing to report", status=1)
     ret_val = []
     entry = entries[0]
     ret_val.append("CHANGELOG_LAST_VERSION: {}.{}.{}".format(entry.major, entry.minor, entry.patch))
@@ -171,12 +218,7 @@ if __name__ == '__main__':
     parser.add_argument('--for-ppa-debian-dir', action='store_true')
     parser.add_argument('-p', '--just-print', action='store_true', help="Just print! Do not write to file!")
     args = parser.parse_args()
-    input = ""
-    if args.input_file:
-        with open(args.input_file, 'r') as f:
-            input = f.read()
-    else:
-        input = args.input
+    input = read_input(args)
 
     result = ""
     if args.last_message:
@@ -188,6 +230,14 @@ if __name__ == '__main__':
     elif args.to == 'debian':
         result = to_debian(input, args.release, args.for_ppa_debian_dir, args.ppa_version)
 
+    if not result:
+        fail(
+            "no release entry found in {}; nothing to convert to {}".format(
+                args.input_file if args.input_file else "the given input", args.to
+            ),
+            status=1,
+        )
+
     if args.just_print:
         print(result)
         exit(0)
@@ -197,14 +247,12 @@ if __name__ == '__main__':
         if path.exists(output_filename) and not args.force_write:
             print("Cannot overwrite existing file!", file=sys.stderr)
             exit(-1)
-    if result:
-        if output_filename != '':
-            with open(output_filename, 'w+') as f:
-                f.write(result)
-        else:
-            print(result)
+
+    if output_filename != '':
+        with open(output_filename, 'w+') as f:
+            f.write(result)
     else:
-        print("Skipping write out. No output produced!")
+        print(result)
 
 
 
