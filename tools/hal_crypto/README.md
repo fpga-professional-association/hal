@@ -170,7 +170,7 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-93 tests, no HAL, ~10 s. Registered with ctest as
+95 tests, no HAL, ~10 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own

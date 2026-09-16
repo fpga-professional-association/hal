@@ -458,6 +458,41 @@ class LoadableChainTest(unittest.TestCase):
         self.assertIn("load held at 0", entry["summary"])
 
 
+def _coupled_linear_verilog(lengths=(8, 10)):
+    """Two chains closed through each other by a *linear* feedback.
+
+    The same shape as the ``coupled_nlfsr`` fixture with the AND term dropped,
+    assembled with the fixture generator and handed straight to the shared
+    reader, so it goes through exactly the path a committed fixture would.
+    """
+    first, second = lengths
+    builder = synth.Builder("coupled_linear")
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("output", "dout")
+    builder.wire("a", first)
+    builder.wire("b", second)
+    builder.wire("head_a")
+    builder.wire("head_b")
+
+    def parity(values):
+        result = 0
+        for value in values:
+            result ^= value
+        return result
+
+    builder.function("fa", "head_a", ["a[5]", "b[9]", "b[7]"], parity)
+    builder.function("fb", "head_b", ["b[6]", "a[7]", "a[5]"], parity)
+    for index in range(first):
+        data = "head_a" if index == 0 else "a[{}]".format(index - 1)
+        builder.register("a_{}".format(index), data, "a[{}]".format(index), clear="rst_n")
+    for index in range(second):
+        data = "head_b" if index == 0 else "b[{}]".format(index - 1)
+        builder.register("b_{}".format(index), data, "b[{}]".format(index), clear="rst_n")
+    builder.assign("dout", "a[{}]".format(first - 1))
+    return builder.dumps()
+
+
 class CoupledRegisterTest(unittest.TestCase):
     """Trivium/Grain-style registers close through a sibling, not onto themselves."""
 
@@ -488,13 +523,48 @@ class CoupledRegisterTest(unittest.TestCase):
         self.assertNotIn("s0[", entry["feedback_anf"])
         self.assertIn("s[", entry["feedback_anf"])
 
-    def test_a_coupled_register_has_no_polynomial_of_its_own(self):
-        """Even when the feedback is linear: the recurrence is not over one register."""
-        model = fixture("coupled_nlfsr")
-        updates = shiftreg.register_updates(model)
-        for entry in shiftreg.find_shift_structures(model):
+    def test_a_coupled_nlfsr_reports_no_polynomial_and_no_period(self):
+        for entry in shiftreg.find_shift_structures(fixture("coupled_nlfsr")):
+            self.assertNotIn("polynomial", entry)
             self.assertNotIn("period", entry)
-        self.assertTrue(updates)  # the fixture parsed
+            self.assertTrue(entry["coupled_taps"])
+
+    def test_a_coupled_but_linear_pair_is_an_lfsr_with_polynomial_None(self):
+        """The one branch no committed fixture reaches: coupled *and* linear.
+
+        ``coupled_nlfsr`` is nonlinear by construction, so "an LFSR that has no
+        polynomial because it reads a sibling" would otherwise be unexercised.
+        Built here instead of committed as a fourteenth fixture because it
+        exists to cover a branch, not to be a shape anyone analyses.
+        """
+        model = NetlistModel(vo_netlist.parse_text(_coupled_linear_verilog()))
+        structures = shiftreg.find_shift_structures(model)
+        self.assertEqual(["lfsr", "lfsr"], [e["kind"] for e in structures])
+        for entry in structures:
+            self.assertTrue(entry["coupled"])
+            self.assertIsNone(entry["polynomial"])
+            self.assertIsNone(entry["polynomial_reciprocal"])
+            self.assertNotIn("period", entry)
+            self.assertIn("has none", entry["polynomial_convention"])
+        self.assertEqual(
+            ["s0[5] ^ s1[7] ^ s1[9]", "s0[5] ^ s0[7] ^ s1[6]"],
+            [entry["feedback_anf"] for entry in structures],
+        )
+
+    def test_the_findings_document_survives_a_missing_polynomial(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "coupled_linear.vo")
+            with open(path, "w", newline="\n") as handle:
+                handle.write(_coupled_linear_verilog())
+            netlist = vo_netlist.parse_file(path)
+            artifact = findings.artifact_for(netlist, path)
+        document = classify.build_document(netlist, artifact)
+        validate.validate_document(document)
+        entry = finding_by_id(document, "hal_crypto/lfsr/polynomial/0")
+        self.assertIn("over coupled chain(s) 1", entry["title"])
+        self.assertIsNone(entry["data"]["polynomial"])
 
     def test_the_pair_is_a_keystream_generator_family(self):
         document = identify(os.path.join(FIXTURES, "coupled_nlfsr.vo"))
