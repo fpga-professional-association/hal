@@ -1,0 +1,11 @@
+{
+  "beta_is_the_other_neighbour": true,
+  "cone_width_histogram": {
+    "11": 200
+  },
+  "inputs_per_cell": "1 flip-flop + 2 parity nets",
+  "reading": "each theta cell is s ^ C[column-1][same bit] ^ C[column+1][one bit lower]: the unrotated parity neighbour fixes the bit index and steps the column, the rotated one steps both",
+  "rotated_neighbour_composed_with_it_is_an_eight_cycle": true,
+  "theta_cells": 200,
+  "unrotated_neighbour_is_a_five_cycle": true
+}

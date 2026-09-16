@@ -125,7 +125,7 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   used — the two disagree on the edge count (413 versus 936 there), because the
   hub draws a flip-flop's constant control pins once instead of per pin.
   `12_present_sbox` is the other one, for the same reason at 2292 stubs, and
-  `13_trivium_stream` the third at 4377.
+  `13_trivium_stream` the third at 4377 and `14_keccak_toy` the fourth at 5979.
 - **`netlist_graph` and `dag` are not interchangeable at size, and the refusal is
   not the only limit.** `--max-gates` (400) is a readability guard you can raise;
   Graphviz is the real one. On `13_trivium_stream` (613 gates, 1884 edges)
@@ -136,7 +136,8 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   where the feedback is cut at every flip-flop, so the graph is layered by
   construction -- render in seconds. So: `dag` is the whole-netlist view above a
   few hundred gates, and `netlist_graph` gets scoped (`--gate NAME --depth 1`),
-  which is what `12_present_sbox` and `13_trivium_stream` both do. Check the gate
+  which is what `12_present_sbox`, `13_trivium_stream` and `14_keccak_toy` all
+  do. Check the gate
   count before pointing `netlist_graph` at a whole module.
 - Every drawing carries a `cluster_legend` whose node ids all start with
   `legend`. If you parse an emitted `.dot`, filter those out before counting
@@ -179,7 +180,7 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
 - Real usage in context: every `examples/agilex3_walkthroughs/*/run_analysis*.sh`
   and `run_all.sh` runs `module_tree` + `netlist_graph` first, then `dag` and
   `clock_step`, then `dataflow`/`clock_tree`, then `report` last over the
-  walkthrough's `artifacts/*.findings.json`. All eight walkthroughs ship
+  walkthrough's `artifacts/*.findings.json`. Every walkthrough ships
   `images/dag_interactive.html` and the `artifacts/dag_trace.json` it was
   built from; each `check.py` re-runs the exporter and requires the committed
   trace back unchanged.

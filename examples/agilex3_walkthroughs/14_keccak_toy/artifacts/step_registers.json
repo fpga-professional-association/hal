@@ -1,0 +1,31 @@
+{
+  "enable_groups": [
+    {
+      "banks": [
+        "s"
+      ],
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "i1983~1_combout",
+      "size": 200
+    },
+    {
+      "banks": [
+        "fin",
+        "rnd",
+        "run"
+      ],
+      "clk": "clk",
+      "clrn": "rst_n",
+      "ena": "1",
+      "size": 7
+    }
+  ],
+  "flip_flops": 207,
+  "q_vectors": {
+    "fin~q": 1,
+    "rnd": 5,
+    "run~q": 1,
+    "s": 200
+  }
+}

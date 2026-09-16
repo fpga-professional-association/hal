@@ -1,0 +1,358 @@
+{
+  "analysis": {
+    "entry_point": "hal_crypto.classify.build_document",
+    "plugin": {
+      "name": "hal_crypto",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "keccak_toy",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "keccak_toy",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 866,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/14_keccak_toy/keccak_toy.vo",
+      "sha256": "e6dd82678d660c6ed9ccca1079df7ba6f4f5d8164126cfa1951a9c309f7d7f09",
+      "size_bytes": 354826
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "adders": [],
+        "conditional_xor_cells": 210,
+        "missing": [
+          "no carry-chain adder of at least 4 bits",
+          "no fixed rotation, in a named vector or in the order a cell layer reads a register bank"
+        ],
+        "rotation_on_adder_operand": false,
+        "rotations": [],
+        "standalone_xor_cells": 240,
+        "verdict": "not-arx",
+        "xor_cells": 450,
+        "xor_layer_nets": [
+          "i1983~0_combout",
+          "i1983~2_combout",
+          "i1983~3_combout",
+          "i1983~4_combout",
+          "i1983~5_combout",
+          "i1983~6_combout",
+          "i1983~7_combout",
+          "i1983~8_combout",
+          "chi[0]",
+          "chi[1]",
+          "chi[2]",
+          "chi[3]",
+          "chi[4]",
+          "chi[5]",
+          "chi[6]",
+          "chi[7]",
+          "chi[8]",
+          "chi[9]",
+          "chi[10]",
+          "chi[11]",
+          "chi[12]",
+          "chi[13]",
+          "chi[14]",
+          "chi[15]",
+          "chi[16]",
+          "chi[17]",
+          "chi[18]",
+          "chi[19]",
+          "chi[20]",
+          "chi[21]",
+          "chi[22]",
+          "chi[23]",
+          "chi[24]",
+          "chi[25]",
+          "chi[26]",
+          "chi[27]",
+          "chi[28]",
+          "chi[29]",
+          "chi[30]",
+          "chi[31]",
+          "chi[32]",
+          "chi[33]",
+          "chi[34]",
+          "chi[35]",
+          "chi[36]",
+          "chi[37]",
+          "chi[38]",
+          "chi[39]",
+          "chi[40]",
+          "chi[41]",
+          "chi[42]",
+          "chi[43]",
+          "chi[44]",
+          "chi[45]",
+          "chi[46]",
+          "chi[47]",
+          "chi[48]",
+          "chi[49]",
+          "chi[50]",
+          "chi[51]",
+          "chi[52]",
+          "chi[53]",
+          "chi[54]",
+          "chi[55]"
+        ],
+        "xor_layer_reads_adder_output": false
+      },
+      "id": "hal_crypto/arx/not-arx",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "ARX needs adders, rotations and an XOR layer together; no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+      "tags": [
+        "arx",
+        "crypto"
+      ],
+      "title": "No ARX round structure"
+    },
+    {
+      "data": {
+        "confidence_tier": "medium",
+        "evidence": [
+          "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+          "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+          "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+          "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+          "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+        ],
+        "style": "undetermined"
+      },
+      "id": "hal_crypto/identify/classical-vs-pqc",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "description": "the whole netlist",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography.",
+      "tags": [
+        "crypto",
+        "identify",
+        "pqc"
+      ],
+      "title": "Classical / PQC style: undetermined"
+    },
+    {
+      "data": {
+        "confidence_tier": "medium",
+        "evidence": [
+          "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+          "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+          "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+          "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+          "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+        ],
+        "families_present": [],
+        "family": "none-detected"
+      },
+      "id": "hal_crypto/identify/family",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "description": "the whole netlist",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "The six passes agree on 'none-detected'. Families with evidence: none. Every line of the evidence list below is a structural observation; none of them names an algorithm.",
+      "tags": [
+        "crypto",
+        "identify"
+      ],
+      "title": "Structural family: none-detected"
+    },
+    {
+      "data": {
+        "butterflies": [],
+        "butterfly_count": 0,
+        "missing": [
+          "no add/subtract pair over the same operand registers",
+          "no carry chain with a constant operand, so no modulus to read"
+        ],
+        "modulus_candidates": [],
+        "named_moduli": [],
+        "stage_depth": 0,
+        "verdict": "no-modular-transform"
+      },
+      "id": "hal_crypto/ntt/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "A butterfly needs an add and a subtract over the same operands, and a modulus needs a constant operand; no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+      "tags": [
+        "crypto",
+        "ntt"
+      ],
+      "title": "No modular-arithmetic transform"
+    },
+    {
+      "data": {
+        "maps_examined": 1
+      },
+      "id": "hal_crypto/permutation/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "No non-identity bit permutation layer"
+    },
+    {
+      "data": {
+        "rejected": [
+          {
+            "outputs": [],
+            "reason": "400 combinational net(s) read more than 12 sources, so their cones were not enumerated; an S-box hidden behind that much fan-in would not have been found",
+            "sources": []
+          },
+          {
+            "outputs": [
+              "last~combout",
+              "rc_lut[0]",
+              "rc_lut[1]",
+              "rc_lut[3]",
+              "rc_lut[7]"
+            ],
+            "reason": "the 5-bit map collides, so it is not a substitution",
+            "sources": [
+              "rnd[0]",
+              "rnd[1]",
+              "rnd[2]",
+              "rnd[3]",
+              "rnd[4]"
+            ]
+          }
+        ]
+      },
+      "id": "hal_crypto/sbox/none",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "No group of 3..8 combinational cones over the same 3..8 sources forms a bijection that is not affine. 2 group(s) were formed and rejected.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "No substitution box found"
+    },
+    {
+      "id": "hal_crypto/shift-register/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_toy"
+        ],
+        "gate_types": [
+          "tennm_ff"
+        ]
+      },
+      "status": "unknown",
+      "summary": "No run of registers wired q-to-d through buffers or inverters reaches 4 stages, so there is no shift register to classify.",
+      "tags": [
+        "crypto",
+        "lfsr"
+      ],
+      "title": "No shift chain of at least 4 stages"
+    }
+  ],
+  "generated_at": "2026-09-16T23:13:02Z",
+  "notes": [
+    "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
+    "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."
+  ],
+  "producer": {
+    "name": "hal_crypto.classify",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

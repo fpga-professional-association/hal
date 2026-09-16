@@ -1,0 +1,52 @@
+{
+  "bit_origin_gauge": {
+    "direction": -1,
+    "measured_varying_positions": [
+      0,
+      1,
+      5,
+      7
+    ],
+    "note": "the netlist fixes which four of the eight positions iota ever touches; the publication fixes which rotation of that pattern is bit zero, and exactly one of the sixteen (direction, origin) choices reproduces it",
+    "origin": 0
+  },
+  "iota_lane_spec": [
+    0,
+    0
+  ],
+  "matches_published": true,
+  "nonzero_bit_positions_spec": [
+    0,
+    1,
+    3,
+    7
+  ],
+  "of_those_constant_zero": 4,
+  "published_rc_hex": "01 82 8A 00 8B 01 81 09 8A 88 09 0A 8B 8B 89 03 02 80",
+  "recovered_rc": [
+    1,
+    130,
+    138,
+    0,
+    139,
+    1,
+    129,
+    9,
+    138,
+    136,
+    9,
+    10,
+    139,
+    139,
+    137,
+    3,
+    2,
+    128
+  ],
+  "recovered_rc_hex": "01 82 8A 00 8B 01 81 09 8A 88 09 0A 8B 8B 89 03 02 80",
+  "round_constant_cells": 8,
+  "rounds_with_no_iota_at_all": [
+    3
+  ],
+  "state_bits_touched": 8
+}

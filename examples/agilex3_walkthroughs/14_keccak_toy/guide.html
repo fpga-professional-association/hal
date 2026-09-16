@@ -1,0 +1,891 @@
+<title>Agilex 3 RE walkthrough 14 &mdash; Keccak-f[200] sponge permutation</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 14 &mdash; Keccak-f[200]: recovering a 5&nbsp;&times;&nbsp;5
+grid, twenty-five rotation offsets that are not signals, a 5-bit substitution
+repeated forty times, and the one verdict in this series that is honestly
+<code>undetermined</code>.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+866 instances: 207 flip-flops, 659 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has done walkthrough
+<a href="../12_present_sbox/guide.html">12</a> &mdash; an S-box read out of LUT
+cones and matched to a published table, and a bit permutation no pass could see
+&mdash; and wants both halves of that again on something bigger, where the
+permutation is <em>most</em> of the round. Walkthrough
+<a href="../11_speck_toy/guide.html">11</a> is the other prerequisite, for the
+habit it teaches: a layer that costs no logic leaves no net behind, so you
+recover it from index arithmetic over an ordered cell layer or you do not
+recover it at all.
+<p style="margin-bottom:0">What is new here is the ending. Walkthroughs 11, 12
+and 13 all finish with <code>classical-style</code>, and in each case that is
+right. This one finishes with <strong>undetermined</strong>, and that is also
+right: a sponge permutation is SHA-3, and it is equally the extendable-output
+function inside ML-KEM, ML-DSA and SPHINCS+. Section 7 is about getting a tool
+to say so instead of guessing.</p>
+</div>
+
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ol>
+<li><a href="#design">The design (the answer key)</a></li>
+<li><a href="#synth">Synthesis, and the six-input ceiling</a></li>
+<li><a href="#contact">First contact with the netlist</a></li>
+<li><a href="#dag">The netlist as a graph</a></li>
+<li><a href="#walk">The walk, step by step</a></li>
+<li><a href="#identify">What the crypto identifier says &mdash; twice</a></li>
+<li><a href="#axis">Classical or post-quantum? Neither.</a></li>
+<li><a href="#rebuild">Reconstruction, and the negative controls</a></li>
+<li><a href="#further">Going further</a></li>
+<li><a href="#repro">Reproducing all of it</a></li>
+</ol>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="design">1. The design (the answer key)</h2>
+
+<p><a href="design.v"><code>design.v</code></a> implements <strong>Keccak-f[200]</strong>,
+the smallest member of the Keccak-f permutation family (Bertoni, Daemen, Peeters
+and Van Assche, <em>The Keccak reference</em> 3.0, 2011; the same construction at
+width 1600 is <code>KECCAK-p[1600,24]</code> in NIST FIPS&nbsp;202). Two hundred
+bits of state as a 5&nbsp;&times;&nbsp;5 array of 8-bit lanes, eighteen rounds,
+one round per clock cycle. <a href="spec.md"><code>spec.md</code></a> was written
+before the RTL and is the thing the recovered result is finally checked against.</p>
+
+<p>One round is five steps, and only two of them cost any logic:</p>
+
+<pre><code>theta:  C[x]    = A[x][0] ^ A[x][1] ^ A[x][2] ^ A[x][3] ^ A[x][4]
+        D[x]    = C[x-1] ^ ROTL(C[x+1], 1)
+        A[x][y] = A[x][y] ^ D[x]
+
+rho:    A[x][y] = ROTL(A[x][y], r[x][y])        &lt;- pure wiring
+pi:     B[y][2x+3y] = A[x][y]                   &lt;- pure wiring
+
+chi:    A[x][y] = B[x][y] ^ (~B[x+1][y] &amp; B[x+2][y])
+
+iota:   A[0][0] = A[0][0] ^ RC[round]</code></pre>
+
+<ul class="tight">
+<li><strong>theta</strong> reduces each of the five columns to one 8-bit parity
+lane and feeds it back into two other columns, one of them rotated by a single
+bit. Forty 5-input XORs, then two hundred 3-input XORs.</li>
+<li><strong>rho</strong> and <strong>pi</strong> rotate each lane by its own
+fixed offset and relabel which lane it is. Both are renaming. After synthesis
+there is no net, no cell and no vector that says &ldquo;rotate by five&rdquo;.</li>
+<li><strong>chi</strong> is a 5-bit substitution on every row of the state,
+applied bit-slice by bit-slice: five rows times eight bit positions is
+<strong>forty</strong> instances of the same 5-bit S-box. It is the only step
+that is not linear over GF(2).</li>
+<li><strong>iota</strong> XORs a round constant into lane <code>(0,0)</code>.
+At this lane width the constants are nonzero in only four bit positions.</li>
+</ul>
+
+<p>The port is the 25-byte state string in the sponge literature's own order:
+lane <code>(x,y)</code> is byte <code>x + 5y</code>, bit <code>z</code> is bit
+<code>8(x + 5y) + z</code>. There is no sponge here: no absorbing, no padding,
+no rate/capacity split. The permutation is the part with structure in it, and it
+is what the guide recovers.</p>
+
+<div class="why"><span class="tag">Why width 200 and not 1600</span>
+Same five steps, same rho offsets modulo the lane width, same round-constant
+LFSR as SHA-3 &mdash; at 200 bits instead of 1600, which is a netlist small
+enough to read end to end. The lane width falls from 64 to 8, so the offsets
+reduce mod 8 and three of the twenty-five become zero. That is not a
+simplification the recovery gets to assume; it is a complication it has to
+survive.
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="synth">2. Synthesis, and the six-input ceiling</h2>
+
+<p>Quartus Prime Pro 26.1, <code>quartus_syn</code> then
+<code>quartus_eda</code>, device <code>A3CW135BM16AE6S</code>, no fitting. The
+result is <a href="keccak_toy.vo"><code>keccak_toy.vo</code></a>, and the first
+thing to ask of any export in this series is whether it is inside the primitive
+coverage <code>tools/hal_agilex</code> validated:</p>
+
+<pre><code>python3 tools/hal_agilex --strict inventory \
+    examples/agilex3_walkthroughs/14_keccak_toy/keccak_toy.vo</code></pre>
+
+<p><code>hal_agilex/inventory/fully-covered</code>,
+<code>proven_under_assumptions</code>, histogram
+<code>{tennm_ff: 207, tennm_lcell_comb: 659}</code> &mdash; two primitive types,
+nothing else. No memory block, no DSP, no PLL, no I/O buffer.</p>
+
+<div class="honest"><span class="tag">The first attempt was not clean</span>
+The very first synthesis produced <strong>one</strong> out-of-coverage instance:
+<code>i1988~4</code>, the round counter's top bit, reported
+<code>extended_lut='on': the fracturable 7-input mode is not modelled</code>. Its
+next state is <code>load ? 0 : rnd+1</code>, and with <code>load = start &amp; ~run</code>
+inlined that is a seven-input cone &mdash; <code>start</code>, <code>run</code>
+and all five counter bits &mdash; one past what a normal-mode ALM reads. The fix
+is a <code>/* synthesis keep */</code> on <code>load</code>, which makes it one
+cell that 201 registers share and drops the counter's top bit back to six
+inputs. The keeps on <code>cpar</code>, <code>theta</code> and <code>chi</code>
+are there for the same reason: unkept, a chi cell fuses with its load
+multiplexer into a seven-input cone. Walkthrough
+<a href="../13_trivium_stream/guide.html">13</a> hit this wall too, and the
+lesson generalises: <em>on this device the RE-friendly coding style and the
+in-coverage coding style are the same style</em>, and it is worth saying which
+one you were aiming at.
+</div>
+
+<p>One keep has a second, more useful effect. Four of the eight bits of the
+round constant are zero in every round, so Quartus reports four of the
+<code>rc_lut</code> cells as redundant logic &mdash; and keeps them anyway. The
+export therefore contains <strong>eight</strong> round-constant cells, four of
+which compute a constant, which is how section 5 gets to read
+<code>RC[i]</code> in all eight bit positions instead of four.</p>
+
+<!-- ===================================================================== -->
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<pre><code>python3 examples/agilex3_walkthroughs/14_keccak_toy/analysis.py stats
+python3 examples/agilex3_walkthroughs/14_keccak_toy/analysis.py registers</code></pre>
+
+<table>
+<tr><th>question</th><th>answer</th></tr>
+<tr><td>instances</td><td>866 &mdash; 207 <code>tennm_ff</code>, 659 <code>tennm_lcell_comb</code></td></tr>
+<tr><td>boundary</td><td><code>clk</code>, <code>rst_n</code>, <code>start</code>, <code>din[199:0]</code> &rarr; <code>dout[199:0]</code>, <code>done</code>, <code>busy</code></td></tr>
+<tr><td>register banks</td><td><code>s[199:0]</code>, <code>rnd[4:0]</code>, and two single bits</td></tr>
+<tr><td>clock / clear</td><td>one <code>clk</code>, one active-low <code>clrn</code>, on every flip-flop</td></tr>
+<tr><td>enable groups</td><td><strong>200 / 7</strong> &mdash; the whole state bank shares one <code>ena</code> net; the counter and the two flags are ungated</td></tr>
+</table>
+
+<p>The enable split is the first real lead, and it is worth a sentence because
+walkthrough 13 had nothing like it: there, all 301 registers ran every cycle and
+grouping by control pins said nothing at all. Here 200 registers stop and start
+together on one net and seven do not, which separates &ldquo;the thing being
+computed&rdquo; from &ldquo;the thing that decides when to compute it&rdquo;
+before a single <code>lut_mask</code> has been read.</p>
+
+<figure>
+  <div class="frame">
+    <img src="images/netlist_graph.svg" alt="the neighbourhood of one state flip-flop">
+  </div>
+  <figcaption>One state bit and one hop in each direction:
+  <code>s[0]</code>'s <code>q</code> feeds a 5-input cell and a 3-input cell, and
+  its <code>d</code> comes from a multiplexer. Seven gates. Drawn with
+  <code>--const-hub</code>; see section 4.</figcaption>
+</figure>
+
+<div class="note"><span class="tag">Names</span>
+This export was compiled with names intact, so the flip-flops really are called
+<code>s[0..199]</code> and the kept wires really are called <code>cpar</code>,
+<code>theta</code> and <code>chi</code>. Every derivation below is written to
+work without them &mdash; cells are selected by what they read and what shape
+their truth table has, never by their names &mdash; but nothing here is a claim
+about recovering a core that was blinded first. Walkthrough 16 is where that
+gets tested; walkthroughs 02, 03 and 10 ship anonymised netlists today.
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="dag">4. The netlist as a graph</h2>
+
+<p>Nodes are gates, edges are nets. The graph has cycles &mdash; the state feeds
+itself every round &mdash; but every cycle passes through a flip-flop, so cutting
+the edges that end on a flip-flop pin leaves a DAG, and that DAG can be levelled
+topologically:</p>
+
+<pre><code>python tools/hal_viz dag examples/agilex3_walkthroughs/14_keccak_toy/netlist.hal.v \
+    -g plugins/gate_libraries/definitions/AGILEX_TENNM.hgl --const-hub --max-gates 900 \
+    -o examples/agilex3_walkthroughs/14_keccak_toy/images/dag.svg --html</code></pre>
+
+<figure>
+  <div class="frame">
+    <img src="images/dag.svg" alt="the whole netlist, levelled left to right">
+  </div>
+  <figcaption>868 nodes, 3352 edges, 821 cut at a register,
+  <code>5</code> topological levels. Also written as a standalone page,
+  <a href="images/dag.html"><code>images/dag.html</code></a>.</figcaption>
+</figure>
+
+<p>Five levels, and on this design the level profile <em>is</em> the round,
+step for step:</p>
+
+<table>
+<tr><th>level</th><th>nodes</th><th>what is in it</th></tr>
+<tr><td>0</td><td>209</td><td>the 207 flip-flops, plus the shared GND/VCC hub</td></tr>
+<tr><td>1</td><td>51</td><td><strong>theta's parity planes</strong>: 40 column-parity cells &mdash; plus the eight round-constant cells, the terminal-count test, the load select and one counter cell, all of which read only the counter</td></tr>
+<tr><td>2</td><td>208</td><td><strong>theta proper</strong>: 200 cells, one per state bit &mdash; plus the counter's next state and the two flags</td></tr>
+<tr><td>3</td><td>200</td><td><strong>chi</strong>: 200 cells, one per state bit</td></tr>
+<tr><td>4</td><td>200</td><td><strong>iota and the load multiplexer</strong>, fused: one cell per state bit</td></tr>
+</table>
+
+<div class="why"><span class="tag">What the level count measures, and how this compares</span>
+Combinational depth between registers, not size. Walkthrough 11 (ARX) is 18
+levels over 137 cells &mdash; deep and narrow, because a 16-bit carry ripples.
+Walkthroughs 12 (SPN) and 13 (bit-serial stream cipher) are both 3 levels, wide
+and shallow. This is 5, and the reason is neither of those: a sponge round is a
+<em>fixed, short pipeline of named steps</em>, and each step is one LUT deep
+because each step is a small function of a few bits. Read the column profile and
+you have read the algorithm's shape before decoding one mask. Notice also what
+is <strong>absent</strong>: no carry chain anywhere in the datapath, because
+nothing in Keccak adds.
+</div>
+
+<div class="honest"><span class="tag">Two deviations from walkthroughs 01&ndash;10</span>
+<p><code>--const-hub</code>, as in 11, 12 and 13. This design's constant fan-out
+is <strong>5979</strong> consuming pins &mdash; the largest in the series &mdash;
+and the default one-stub-per-pin spelling turns level 0 into a wall of circles
+that is most of the file and none of the information. Drop the flag for the other
+spelling; the level count is the same either way, but the edge count is not (the
+hub draws a flip-flop's five tied control pins once instead of five times).</p>
+<p><code>images/netlist_graph.svg</code> is <strong>scoped to one gate's
+neighbourhood</strong>, as 12 and 13 scope theirs. At 868 gates the unlevelled
+whole-netlist drawing is not a diagram: the gate graph is cyclic, so <code>dot</code>
+cannot layer it, and it does not finish. The same 868 nodes <em>levelled</em>
+draw in seconds.</p>
+</div>
+
+<p><a href="images/dag_interactive.html"><code>images/dag_interactive.html</code></a>
+is the same drawing with values on it: a self-contained clock-step page over
+<code>artifacts/dag_trace.json</code>, whose window is 32 cycles from the load
+that starts the published all-zero-state vector &mdash; the counter running
+0&hellip;17, <code>busy</code> falling, <code>done</code> rising, and
+<code>dout</code> carrying the answer for exactly one cycle before the next load.
+Watching level 1 light up, then 2, then 3, then 4, eighteen times, is the round
+schedule as a moving picture.</p>
+
+<!-- ===================================================================== -->
+<h2 id="walk">5. The walk, step by step</h2>
+
+<p>Every number below comes from
+<a href="analysis.py"><code>analysis.py</code></a>, one function per step, and
+every one of them is re-asserted by <a href="check.py"><code>check.py</code></a>.
+The hard part of this design is not any single step: it is that the permutation's
+algebra needs a 5&nbsp;&times;&nbsp;5 grid of 8-bit lanes and the netlist offers
+two hundred flip-flops in a row. Steps 2 to 5 build that grid out of the wiring.</p>
+
+<div class="step" id="s1">
+<h3><span class="num">1</span> What is each port?</h3>
+<p><code>din</code> and <code>dout</code> are both 200 bits, <code>start</code>
+is one bit that is ignored while <code>busy</code> is high, and
+<code>dout</code> is driven continuously &mdash; it is just the state register.
+So the design is a 200-bit function computed over some number of cycles, and the
+only question the boundary answers is &ldquo;how many&rdquo;, which step 7 gets
+to.</p>
+</div>
+
+<div class="step" id="s2">
+<h3><span class="num">2</span> Forty cells are a pure XOR of five flip-flops</h3>
+<p>Select cells by shape, not by name: cone taken back to the registers, exactly
+five sources, and the function is the XOR of all five. On this export that
+selects <strong>forty</strong> cells and nothing else. (The round-constant cells
+also read exactly five registers and are emphatically not an XOR of them, which
+is the point of testing the function rather than the fan-in.)</p>
+
+<figure>
+  <div class="frame">
+    <img src="images/parity_cell.svg" alt="one column-parity cell and its neighbourhood">
+  </div>
+  <figcaption>One parity cell: five flip-flops into one ALM, and its output read
+  by ten theta cells. 17 gates in scope.</figcaption>
+</figure>
+
+<p>The forty five-element sets are <em>disjoint</em> and cover all 200 state
+bits. That is already a partition of the state into forty classes of five, and
+it is the first structural fact about the design: something in here treats the
+200 bits as 40 groups of 5.</p>
+</div>
+
+<div class="step" id="s3">
+<h3><span class="num">3</span> The 5&nbsp;&times;&nbsp;5&nbsp;&times;&nbsp;8 grid, out of XOR fan-in alone</h3>
+<p>Two hundred more cells are a 3-input XOR of one flip-flop and two parity nets.
+All the cells belonging to one parity class read the same <em>pair</em> of
+classes, so each of the forty classes has exactly two neighbours &mdash; but the
+XOR is symmetric, so nothing says which neighbour is which.</p>
+
+<p>Walking does. Suppose (this is the hypothesis, and it is about to be tested)
+that one neighbour steps the column and leaves the bit index alone while the
+other steps both. Then a five-step walk that takes <code>a</code> of the first
+and <code>b</code> of the second moves the column by <code>b - a</code> and the
+bit index by <code>-b</code>, so it can only return to where it started when
+<code>b = 0</code> and <code>a = 5</code>. Enumerate all
+2<sup>5</sup>&nbsp;=&nbsp;32 walks from each class; exactly one closes, and its
+first step names the unrotated neighbour. That map turns out to have
+<strong>eight cycles of length five</strong>, and composing it with the other
+neighbour gives a map with <strong>five cycles of length eight</strong>.</p>
+
+<p>Eight bit positions, five columns, five members per class. The
+5&nbsp;&times;&nbsp;5 array of 8-bit lanes, recovered from nothing but which
+flip-flops get XORed together.</p>
+
+<div class="why"><span class="tag">Why this is worth the trouble</span>
+Every later step needs coordinates. The rotation offsets are bit-index
+differences, and a bit index is meaningless until you know which flip-flops form
+a lane; the chi rows are five-element sets and so are the parity classes, and
+they are <em>different</em> five-element sets. Guessing that <code>s[i]</code> is
+lane <code>i/8</code> bit <code>i%8</code> happens to be right here, and would be
+a guess. This is a derivation, and on a blinded netlist it is the only kind
+available.
+</div>
+</div>
+
+<div class="step" id="s4">
+<h3><span class="num">4</span> chi: the 5-bit map, and which operand is which</h3>
+<p>Two hundred cells read exactly three theta nets. Their algebraic normal form
+is <code>b0 + b2 + b1&middot;b2</code> &mdash; two linear terms and one product
+&mdash; which tells the three operands apart with no ordering convention at all:
+<code>b1</code> is the variable that appears only in the product,
+<code>b2</code> in both, <code>b0</code> only linearly. That is
+<code>b0 ^ (~b1 &amp; b2)</code>, written out.</p>
+
+<figure>
+  <div class="frame">
+    <img src="images/chi_cell.svg" alt="one chi cell and its neighbourhood">
+  </div>
+  <figcaption>One chi cell: three theta nets in, one multiplexer out. Six gates.
+  There is no AND gate anywhere &mdash; the nonlinearity is inside this ALM's
+  <code>lut_mask</code>, exactly as walkthrough 13's three AND terms were.</figcaption>
+</figure>
+
+<p>Because <code>b1</code> means &ldquo;the next lane along the row&rdquo;,
+following it closes a cycle, and it closes at length five every time:
+<strong>forty five-cycles</strong>. Those are the rows. Build the 5-bit map with
+the inputs in each cycle's own order &mdash; the netlist's order, not the pass's
+net-name order &mdash; and all forty give the same table:</p>
+
+<pre><code>00 09 12 0B 05 0C 16 0F 0A 03 18 01 0D 04 1E 07
+14 15 06 17 11 10 02 13 1A 1B 08 19 1D 1C 0E 1F</code></pre>
+
+<p>Bijective, non-affine, algebraic degree <strong>2</strong>, differential
+uniformity <strong>8</strong>, coordinate function
+<code>x0 ^ x2 ^ (x1 &amp; x2)</code>. Matched against
+<code>tools/hal_crypto</code>'s library it is <code>keccak_chi_5</code> at the
+<strong><code>exact</code></strong> tier &mdash; not a bit permutation of it,
+because the bit order came out of the netlist's own row cycle rather than out of
+sorted net names.</p>
+
+<div class="honest"><span class="tag">The S-box pass finds none of this</span>
+Run <code>python3 tools/hal_crypto sbox keccak_toy.vo</code> and the answer is
+<em>no substitution box found</em>, with the reason stated: <code>400
+combinational net(s) read more than 12 sources, so their cones were not
+enumerated</code>. That is correct and it is not a bug. The pass cuts cones at
+the flip-flops, and in this architecture chi reads the register bank
+<em>through</em> theta, so a chi cone depends on up to <strong>33</strong>
+flip-flops. The hand recovery above works only because it cuts the cone at the
+theta nets instead &mdash; one hop, not the whole cone &mdash; which is a
+question no general pass knows to ask. Section 6 shows what the same command
+does to the <em>same permutation</em> with the register moved half a round.
+</div>
+</div>
+
+<div class="step" id="s5">
+<h3><span class="num">5</span> rho and pi: twenty-five constants that are not signals</h3>
+<p>Zero cells. Zero nets. Zero vectors named after a rotation. What exists is a
+200-bit permutation, and it is read off in one line: each chi cell's
+<code>b0</code> operand names a source state bit, and the flip-flop its output
+eventually reaches names a destination state bit. That map is
+<code>rho</code> followed by <code>pi</code>.</p>
+
+<p>Turning it into a table needs lanes, and the lanes fall out of the map
+itself. <code>pi</code> moves a whole lane to a whole lane, so for a given
+destination column every destination lane has a different source column &mdash;
+which means the pair <em>(destination column, source column)</em> names a lane
+uniquely. That grouping gives <strong>25 sets of 8</strong> on the first try, and
+if it had not, the hypothesis would have been wrong. Rows come from chi's
+<code>b1</code> chain, lifted from bits to lanes. The row <em>labels</em> come
+from <code>pi</code> as well: the source lanes of the destination lanes in column
+<code>X</code> all lie in one row, and that row is therefore row <code>X</code>.</p>
+
+<p>Then the rotation amount of a lane is the bit-index difference across it,
+which is either constant over all eight bits or the whole recovery is wrong. It
+is constant. Twenty-five of them:</p>
+
+<div class="scroll">
+<table>
+<tr><th></th><th>y=0</th><th>y=1</th><th>y=2</th><th>y=3</th><th>y=4</th></tr>
+<tr><th>x=0</th><td>0</td><td>4</td><td>3</td><td>1</td><td>2</td></tr>
+<tr><th>x=1</th><td>1</td><td>4</td><td>2</td><td>5</td><td>2</td></tr>
+<tr><th>x=2</th><td>6</td><td>6</td><td>3</td><td>7</td><td>5</td></tr>
+<tr><th>x=3</th><td>4</td><td>7</td><td>1</td><td>5</td><td>0</td></tr>
+<tr><th>x=4</th><td>3</td><td>4</td><td>7</td><td>0</td><td>6</td></tr>
+</table>
+</div>
+
+<p>That is the published rho table reduced mod 8, every entry. Three lanes
+&mdash; <code>(0,0)</code>, <code>(3,4)</code> and <code>(4,3)</code> &mdash;
+rotate by zero at this width, which at width 64 they do not; the recovery has no
+trouble with them because a zero shift is still a measured shift. And the lane
+map itself comes back as <code>(x,y) &rarr; (y, 2x+3y)</code>, checked for all
+twenty-five, which is <code>pi</code>.</p>
+
+<div class="why"><span class="tag">This is walkthrough 11's lesson and walkthrough 12's, together</span>
+11's rotations were not signals and had to be read off carry-chain operand order.
+12's pLayer was not a signal and had to be read off which cone drives which
+flip-flop. Here <em>both</em> a rotation and a permutation are free wiring at
+once, and they are recovered by the same move: the layer that costs no logic is
+the layer no tool hands you, so you read it out of the indices of an ordered cell
+layer. Say so when you report it &mdash; &ldquo;recovered from cone-to-register
+incidence&rdquo; is a different claim from &ldquo;the pass reported it&rdquo;.
+</div>
+</div>
+
+<div class="step" id="s6">
+<h3><span class="num">6</span> iota, and the one gauge in this walkthrough</h3>
+<p>Eight cells read only the round counter and drive a state bit's next-state
+multiplexer. All eight reach bits of the <em>same lane</em>, which is therefore
+lane <code>(0,0)</code> &mdash; that fixes the origin of <code>x</code>. Four of
+the eight compute a constant.</p>
+
+<figure>
+  <div class="frame">
+    <img src="images/iota_cell.svg" alt="one round-constant cell and its neighbourhood">
+  </div>
+  <figcaption>The round-constant lookup: five counter flip-flops into one ALM,
+  and out into one bit of one lane's next-state multiplexer. Eight gates.</figcaption>
+</figure>
+
+<p>Which four are constant is a cyclic pattern of eight, and it is asymmetric
+enough to be useful. Of the sixteen ways to choose an origin and a direction for
+the bit index, exactly one makes the varying positions come out as
+<code>{0, 1, 3, 7}</code> &mdash; the published <code>2^j - 1</code> pattern.
+Enumerate the eight surviving cells over counter values 0&hellip;17 with that
+labelling and the eighteen round constants are:</p>
+
+<pre><code>01 82 8A 00 8B 01 81 09 8A 88 09 0A 8B 8B 89 03 02 80</code></pre>
+
+<div class="honest"><span class="tag">This one is a gauge, and it is the only one</span>
+Everything else on this page is a measurement. This is not: the netlist fixes
+<em>which four of eight positions</em> iota ever touches, and the publication
+fixes <em>which rotation of that pattern</em> to call bit zero. It is the same
+move walkthrough 05 had to make with inverted storage
+(<code>state_encoding: as-stored | complemented</code>). What makes it honest
+rather than circular is that it is falsifiable: under any of the other fifteen
+choices the recovered schedule matches nothing anyone has published, and
+<code>analysis.py</code> fails loudly if more than one choice fits.
+</div>
+
+<p>Two details worth keeping. <code>RC[3]</code> is <code>00</code>, so round 3
+has no iota at all &mdash; a step of the round that does nothing, on one round in
+eighteen. And four of the eight lane bits are never touched by any round, which
+is why the four constant cells matter: without the <code>keep</code> that
+preserved them, the recovery would have seen a 4-bit constant and had to guess
+where in the lane it sat.</p>
+</div>
+
+<div class="step" id="s7">
+<h3><span class="num">7</span> How many rounds? One cell says so.</h3>
+<p>One cell reads the five counter flip-flops and is true for exactly one of the
+32 values: <strong>17</strong>. So eighteen rounds, and
+<strong>19</strong> cycles from an accepted <code>start</code> to
+<code>done</code> &mdash; one load plus eighteen.</p>
+
+<div class="why"><span class="tag">Compare walkthrough 13</span>
+13's warm-up is 1152 steps, <code>count == 1151</code> is an eleven-input test,
+and an in-coverage ALM reads six &mdash; so that design had to split the counter
+into 64&nbsp;&times;&nbsp;18 and the recovery had to find <em>two</em> moduli and
+multiply them. Eighteen fits in one cell, so here there is nothing to factor.
+The interesting part is that the difference is a property of the <em>number</em>,
+not of the cipher: the same ceiling that made 13 hard makes this easy.
+</div>
+</div>
+
+<div class="step" id="s8">
+<h3><span class="num">8</span> Run it against something published</h3>
+<p>Structure said: five parity planes, these twenty-five offsets, this 5-bit
+substitution, eighteen rounds. This step reads none of that. It drives the
+exported netlist as a black box with vectors out of the literature &mdash; the
+eXtended Keccak Code Package's
+<code>tests/TestVectors/KeccakF-200-IntermediateValues.txt</code>, which applies
+the permutation repeatedly to the all-zero state &mdash; and looks at what comes
+out.</p>
+
+<table>
+<tr><th>input</th><th>output after 19 cycles</th><th>published?</th></tr>
+<tr><td><code>00</code> &times; 25</td><td><code>3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA</code></td><td>yes</td></tr>
+<tr><td>the line above</td><td><code>1BEF689492A8A543A5999FDB834E3166A14BE827D95040479E</code></td><td>yes</td></tr>
+</table>
+
+<p>Both, byte for byte, with <code>busy</code> high for exactly 18 of the 19
+cycles. The all-zero input is the headline because it is the one vector for which
+no byte-order convention could possibly matter; the second, whose input is dense,
+is what pins the lane-to-byte map down.</p>
+
+<div class="why"><span class="tag">Two independent methods, and they agree</span>
+Neither half read the other's output. Structure never saw a test vector;
+behaviour never saw a rotation offset. Agreement between them is the evidence.
+Either alone is a hypothesis &mdash; and a matching test vector is not an
+identification either, any more than a matching S-box table is. What has been
+established is: <em>this netlist computes this function</em>, and <em>this
+function is the published Keccak-f[200]</em>. Those are two statements.
+</div>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="identify">6. What the crypto identifier says &mdash; twice</h2>
+
+<p>Everything above was done by hand. Here is what the general-purpose pass
+makes of the same file:</p>
+
+<pre><code>python3 tools/hal_crypto identify \
+    examples/agilex3_walkthroughs/14_keccak_toy/keccak_toy.vo</code></pre>
+
+<pre><code>Structural family: none-detected
+Classical / PQC style: undetermined
+  S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits
+  shift registers: 0 chain(s) of at least 4 stages
+  ARX: no carry-chain adder of at least 4 bits; no fixed rotation
+  modular arithmetic: no add/subtract pair over the same operand registers
+  permutation layers: 0 non-identity bit map(s) between equally wide vectors
+  400 combinational net(s) read more than 12 sources, so their cones were
+  not enumerated
+  confidence: medium</code></pre>
+
+<p><code>none-detected</code>, on a real Keccak permutation, with every pass
+honestly reporting what it did not find and the confidence dropped from
+<code>high</code> to <code>medium</code> because a coverage limit was hit rather
+than a clean negative reached. Nothing here is wrong. The design contains no
+shift chain, no adder, no rotation that exists as a signal, and no substitution
+whose cone is narrow enough to enumerate.</p>
+
+<p>So the walkthrough ships a second export. <a href="retimed.v"><code>retimed.v</code></a>
+is the <em>same permutation</em>, the same interface, the same nineteen cycles
+and the same answer on <code>dout</code> when <code>done</code> is high. One
+thing differs: where the register sits inside the round. Writing
+<code>g</code> for <code>pi&middot;rho&middot;theta</code> and <code>f_k</code>
+for <code>iota_k&middot;chi</code>, a round is <code>f_k&middot;g</code> and the
+whole permutation is <code>f_17&middot;g&middot;&hellip;&middot;f_0&middot;g</code>.
+<code>design.v</code> stores <code>s_k</code>; <code>retimed.v</code> stores
+<code>g(s_k)</code>. That is a retiming by half a round, it costs one extra
+multiplexer on the last round, and it puts chi <em>first</em> after the
+flip-flops instead of last.</p>
+
+<table>
+<tr><th></th><th><code>keccak_toy.vo</code></th><th><code>keccak_retimed.vo</code></th></tr>
+<tr><td>instances</td><td>866</td><td>1067</td></tr>
+<tr><td>chi cone width at the registers</td><td>27&ndash;33 flip-flops</td><td><strong>3</strong> flip-flops</td></tr>
+<tr><td>S-boxes extracted</td><td>0</td><td><strong>40</strong></td></tr>
+<tr><td>library match</td><td>&mdash;</td><td><code>keccak_chi_5</code>, 37 <code>exact</code> + 3 <code>bit_permutation</code></td></tr>
+<tr><td>family</td><td><code>none-detected</code></td><td><code>sponge</code></td></tr>
+<tr><td>confidence</td><td><code>medium</code></td><td><code>high</code></td></tr>
+<tr><td>behaviour</td><td colspan="2" style="text-align:center">identical</td></tr>
+</table>
+
+<div class="why"><span class="tag">The lesson, stated plainly</span>
+A structural negative is a statement about <em>the netlist you were given</em>.
+Walkthrough 12 makes this point with coding style &mdash; drop a <code>keep</code>
+and the S-box stops matching; move where the registers sit and it stops existing
+as cones at all. This is the same point one level up, at the
+<em>pipeline</em>: two exports of one algorithm, produced by the same tool with
+the same settings, differing only in a retiming that any hardware engineer would
+consider free, and the structural verdict flips from &ldquo;nothing here&rdquo;
+to &ldquo;a sponge, high confidence&rdquo;. Before concluding that a design
+contains no cryptography, ask whether the register placement could have dissolved
+it.
+</div>
+
+<div class="honest"><span class="tag">This walkthrough changed the tool, and here is the before</span>
+The retimed export did not produce those forty matches at first either. The
+S-box pass keys its search on the support of a <em>single</em> cone, which is
+enough for PRESENT, AES and every other S-box whose output bits read every input
+bit &mdash; and is never enough for chi, whose outputs read <strong>three of
+five</strong>. So <code>keccak_chi_5</code> sat in the library with no netlist
+shape that could reach it. The fix
+(<code>hal_crypto.sbox.cluster_supports</code>) grows a candidate from one cone
+by repeatedly taking the neighbour that brings the <em>fewest new sources</em>.
+That qualifier is the whole of it: following any neighbour merges the
+substitution layer with the load multiplexers sitting on top of it &mdash; on
+this export it turns forty five-source clusters into one cluster of everything
+&mdash; while following the cheapest one walks along chi and stops at the
+multiplexers. Every pre-existing fixture and walkthrough verdict is unchanged,
+byte for byte.
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="axis">7. Classical or post-quantum? Neither.</h2>
+
+<p>Here is where this walkthrough parts company with 11, 12 and 13. Each of
+those ends with <code>classical-style</code>, and each time that is a real
+finding: an ARX round, an SPN with a published S-box and a nonlinear feedback
+register are structures classical symmetric cryptography is built from and
+post-quantum cryptography is not.</p>
+
+<p>A sponge is not like that. <strong>The same permutation is on both
+sides.</strong></p>
+
+<ul class="tight">
+<li>SHA-3 and SHAKE are Keccak, and they are classical hashing.</li>
+<li>SHAKE-128 and SHAKE-256 are the extendable-output function inside
+<strong>ML-KEM</strong> (FIPS 203) and <strong>ML-DSA</strong> (FIPS 204) &mdash;
+sampling the matrix <code>A</code>, expanding seeds, hashing messages.</li>
+<li>Hashing is essentially the <em>entirety</em> of <strong>SLH-DSA</strong> /
+<strong>SPHINCS+</strong> (FIPS 205): a hash-based signature scheme is a
+Merkle-tree construction over a hash function and nothing else.</li>
+</ul>
+
+<p>So &ldquo;there is a Keccak core on this die&rdquo; is strong evidence about
+what the design computes and <strong>no evidence at all</strong> about which
+family of scheme it serves. What decides that is the arithmetic <em>around</em>
+the sponge &mdash; a number-theoretic transform over a small modulus says
+lattice, a syndrome decoder says code-based, a Merkle tree walker says hash-based
+&mdash; and none of it is inside the permutation.</p>
+
+<p>Before this walkthrough, <code>hal_crypto</code> reported a sponge as
+<code>classical-style</code>, on the general rule &ldquo;S-boxes and shift
+registers are classical structures&rdquo;. That verdict was not just imprecise;
+its accompanying caveat was actively wrong here, since it read &ldquo;a
+hash-based scheme contains neither NTTs nor S-boxes and would come back
+none-detected&rdquo; &mdash; and a SPHINCS+ accelerator is <em>exactly</em> a
+design in which this pass would find a sponge. It now reports:</p>
+
+<pre><code>Structural family: sponge          (confidence high)
+Classical / PQC style: undetermined
+
+  A sponge permutation was found and no lattice/ring arithmetic was. That
+  places the design on neither side of the classical/PQC axis, because the
+  same permutation sits on both: SHA-3 and SHAKE are classical hashing, and
+  SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and
+  the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence
+  about what the design computes and no evidence at all about which family
+  of scheme uses it -- the surrounding arithmetic decides that, and none was
+  found here.</code></pre>
+
+<p>The finding's <em>status</em> changes too, from <code>heuristic</code> to
+<code>unknown</code>, and it carries no confidence number &mdash; because there
+is no proposition to be confident about. Note that the <em>family</em> verdict is
+still <code>high</code> confidence: &ldquo;this is a sponge&rdquo; is a strong
+structural claim, and &ldquo;therefore it is classical&rdquo; is not a claim at
+all. Keeping those two apart is the entire point.</p>
+
+<div class="note"><span class="tag">The general shape of this, for real targets</span>
+<code>undetermined</code> is not a failure mode, and neither is
+<code>none-detected</code>. A report that says &ldquo;a Keccak-f permutation, 18
+rounds, and nothing else in this netlist places it on the classical/PQC
+axis&rdquo; is <em>more</em> useful than one that picks a side, because it tells
+the reader exactly what to go and look for next: the surrounding datapath. A
+report that says <code>classical-style</code> because a sponge was found sends
+them in the wrong direction with confidence attached. Walkthrough 15 (a toy NTT)
+is the other half of this, and walkthrough 16 puts both in front of you blind.
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="rebuild">8. Reconstruction, and the negative controls</h2>
+
+<p><a href="recovered.v"><code>recovered.v</code></a> is the RTL written from the
+netlist alone, every constant traceable to one step above.
+<a href="recovered_reference.py"><code>recovered_reference.py</code></a> is the
+same claims as a Python model, and
+<code>tools/hal_agilex behavior</code> simulates the <em>exported netlist</em>
+against it:</p>
+
+<table>
+<tr><th>run</th><th>result</th></tr>
+<tr><td>netlist vs <code>design.v</code> model, 600 cycles</td><td><code>proven_bounded</code></td></tr>
+<tr><td>netlist vs <code>recovered.v</code> model, 600 cycles</td><td><code>proven_bounded</code></td></tr>
+<tr><td>&hellip; with one rho offset moved by one bit</td><td>caught at cycle <strong>9</strong></td></tr>
+<tr><td>&hellip; with the AND in chi replaced by an XOR</td><td>caught at cycle <strong>9</strong></td></tr>
+<tr><td>&hellip; with the last round's constant wrong</td><td>caught at cycle <strong>26</strong></td></tr>
+</table>
+
+<p>The second control is the counterfactual the whole design is about: delete the
+one AND term and Keccak-f[200] becomes a linear map over GF(2) &mdash; an
+invertible 200&times;200 bit matrix, a round of which is a matrix product. It is
+caught in nine cycles, which is what makes the AND load-bearing rather than
+decorative.</p>
+
+<div class="honest"><span class="tag">The third control is why the bound is 600 and not 40</span>
+The first two controls are caught at cycle 9 by any bound at all, because
+<code>dout</code> is driven continuously and one wrong round shows up
+immediately. The third is different: a wrong constant in the <em>last</em>
+round only changes the answer when a permutation actually reaches round 17. A
+40-cycle run <strong>misses it entirely</strong>. An 80-cycle run catches it at
+cycle 46. A 120-cycle run catches it at cycle 26.
+<p style="margin-bottom:0">Those three numbers are not a monotone sequence and
+that is the interesting part: <code>behavior</code> asserts its asynchronous
+clear at <code>cycles // 3</code>, so <em>changing the bound changes the
+stimulus</em>, and an 80-cycle run clears the state at cycle 26 &mdash; exactly
+where the divergence would have been &mdash; and only catches it on the next
+permutation. <strong>A shorter run is not a prefix of a longer one.</strong>
+That is walkthrough 08's coverage-hole lesson with a second twist on it, and it
+is why <code>check.py</code> re-runs all three at a stated bound and separately
+asserts that 40 cycles would have been too few.</p>
+</div>
+
+<div class="honest"><span class="tag">What the bounded check does not reach</span>
+600 cycles is roughly thirty complete permutations out of a 2<sup>200</sup>-element
+state space. Nothing here is a proof of equivalence, and the phrase
+<code>proven_bounded</code> is chosen to say so. What makes the overall result
+strong is not the bound: it is that the structure and the behaviour were derived
+independently, that the structure reproduces a published constant table it never
+read, and that three deliberately wrong models are caught.
+</div>
+
+<p>The HAL tier (<code>check.py --with-hal</code>) loads
+<code>netlist.hal.v</code> through <code>hal_py</code> and re-derives the census
+with a second reader and a second gate model: 868 gates (866 plus HAL's two
+constant drivers), 659 ALMs elaborated, none refused. Its
+<strong>strongly connected</strong> components are
+<code>{s}</code>&nbsp;(840 gates, all 200 state registers),
+<code>{rnd, run}</code>&nbsp;(15) and <code>{fin}</code>&nbsp;(2). The first is a
+single lump and cannot be cut, and the reason is the property the permutation
+exists to have: after one round every state bit depends on most of the state, so
+&ldquo;mutually reachable&rdquo; is true of everything. Diffusion is exactly what
+makes the coarse decomposition useless here &mdash; and the split it <em>does</em>
+find, datapath from counter from flag, is the same one-way-coupling reading that
+separated key schedule from data path in walkthrough 11.</p>
+
+<!-- ===================================================================== -->
+<h2 id="further">9. Going further</h2>
+<ul class="tight">
+<li>Take the rho table out and check it against the published width-64 values.
+Twenty-two of the twenty-five reduce to a nonzero residue mod 8 and three do not
+&mdash; can you tell, <em>from the netlist alone</em>, whether a lane with offset
+0 was designed that way or is a width-64 offset that happened to be a multiple of
+8? (No. Say so.)</li>
+<li>Re-synthesise <code>recovered.v</code> under <code>quartus/</code> and diff
+the primitive census against the original export. A match is corroboration, not
+an equivalence proof.</li>
+<li>Build the 200&times;200 GF(2) matrix of one round with chi linearised, and
+check that the linear control of section 8 really is a linear map. Then compute
+its order, and notice that the real permutation has no such invariant.</li>
+<li>Drive <code>keccak_retimed.vo</code> with the published vectors and confirm
+it produces the same answers as <code>keccak_toy.vo</code> &mdash; and then look
+at <code>dout</code> during the run, where the two disagree completely. Retiming
+preserves the interface contract at <code>done</code> and nothing else.</li>
+<li>Wrap the permutation in an actual sponge (rate 16 bytes, capacity 9,
+multi-rate padding) and ask what the netlist gains: an absorb multiplexer, a byte
+counter, and a padding comparator. Which of those would a structural pass see?</li>
+</ul>
+
+<!-- ===================================================================== -->
+<h2 id="repro">10. Reproducing all of it</h2>
+
+<p>Synthesis (Windows, Quartus Prime Pro 26.1):</p>
+<pre><code>mkdir scratch &amp;&amp; cd scratch
+cp ../design.v ../quartus/keccak_toy.qpf ../quartus/keccak_toy.qsf ../quartus/build.tcl .
+quartus_sh -t build.tcl
+quartus_syn keccak_toy -c keccak_toy
+quartus_eda --simulation --format=verilog --tool=questasim \
+            --output_directory=simulation keccak_toy -c keccak_toy</code></pre>
+
+<p>The counterfactual export is the same three commands with
+<code>retimed.v</code>, <code>quartus/keccak_retimed.qsf</code> and the revision
+name <code>keccak_retimed</code>.</p>
+
+<p>Import and analysis (Linux, with a built HAL and Graphviz):</p>
+<pre><code>python tools/hal_agilex import keccak_toy.vo -o netlist.hal.v
+
+export HAL_BASE_PATH=&lt;build&gt; HAL_PY_PATH=&lt;build&gt;/lib PYTHONPATH=&lt;build&gt;/lib
+sh examples/agilex3_walkthroughs/14_keccak_toy/run_analysis.sh</code></pre>
+
+<p><code>check.py</code> has two tiers: with no arguments it needs nothing but a
+Python 3 interpreter (the structural analysis is <code>tools/hal_agilex</code>
+and <code>tools/hal_crypto</code>, both HAL-free), and <code>--with-hal</code>
+adds the tier that loads <code>netlist.hal.v</code> through <code>hal_py</code>
+and re-derives the SCC decomposition.</p>
+
+<p class="kbd">Every number on this page is produced by
+<code>analysis.py</code> and re-asserted by <code>check.py</code>; the findings
+documents behind them are in <code>artifacts/</code>, and
+<code>artifacts/report.html</code> is one page over all of them.</p>

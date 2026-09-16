@@ -1,0 +1,197 @@
+{
+  "cells_spent_on_rho_and_pi": 0,
+  "how": "the composite rho-then-pi is the 200-bit map from each chi cell's b0 operand to the flip-flop its output reaches; lanes are the (destination column, source column) pairs, rows are chi's own b1 chain, and the rotation amount is the bit-index difference across a lane, which is constant or the recovery fails",
+  "lanes_rotated_by_zero": [
+    [
+      0,
+      0
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      4,
+      3
+    ]
+  ],
+  "nets_named_after_a_rotation": 0,
+  "pi_is_lane_x_y_to_y_2x_plus_3y": true,
+  "published_rho_mod_8": [
+    [
+      0,
+      4,
+      3,
+      1,
+      2
+    ],
+    [
+      1,
+      4,
+      2,
+      5,
+      2
+    ],
+    [
+      6,
+      6,
+      3,
+      7,
+      5
+    ],
+    [
+      4,
+      7,
+      1,
+      5,
+      0
+    ],
+    [
+      3,
+      4,
+      7,
+      0,
+      6
+    ]
+  ],
+  "recovered_pi_spec": {
+    "0,0": [
+      0,
+      0
+    ],
+    "0,1": [
+      1,
+      3
+    ],
+    "0,2": [
+      2,
+      1
+    ],
+    "0,3": [
+      3,
+      4
+    ],
+    "0,4": [
+      4,
+      2
+    ],
+    "1,0": [
+      0,
+      2
+    ],
+    "1,1": [
+      1,
+      0
+    ],
+    "1,2": [
+      2,
+      3
+    ],
+    "1,3": [
+      3,
+      1
+    ],
+    "1,4": [
+      4,
+      4
+    ],
+    "2,0": [
+      0,
+      4
+    ],
+    "2,1": [
+      1,
+      2
+    ],
+    "2,2": [
+      2,
+      0
+    ],
+    "2,3": [
+      3,
+      3
+    ],
+    "2,4": [
+      4,
+      1
+    ],
+    "3,0": [
+      0,
+      1
+    ],
+    "3,1": [
+      1,
+      4
+    ],
+    "3,2": [
+      2,
+      2
+    ],
+    "3,3": [
+      3,
+      0
+    ],
+    "3,4": [
+      4,
+      3
+    ],
+    "4,0": [
+      0,
+      3
+    ],
+    "4,1": [
+      1,
+      1
+    ],
+    "4,2": [
+      2,
+      4
+    ],
+    "4,3": [
+      3,
+      2
+    ],
+    "4,4": [
+      4,
+      0
+    ]
+  },
+  "recovered_rho_mod_8_spec": [
+    [
+      0,
+      4,
+      3,
+      1,
+      2
+    ],
+    [
+      1,
+      4,
+      2,
+      5,
+      2
+    ],
+    [
+      6,
+      6,
+      3,
+      7,
+      5
+    ],
+    [
+      4,
+      7,
+      1,
+      5,
+      0
+    ],
+    [
+      3,
+      4,
+      7,
+      0,
+      6
+    ]
+  ],
+  "rho_matches_published": true
+}

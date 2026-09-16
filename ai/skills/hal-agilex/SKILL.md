@@ -150,6 +150,6 @@ interfaces onto one model).
   `run_all.sh` — see `01_blinky_counter/run_analyses.sh` steps 0/6/7 and
   `08_shift_debouncer/run_analysis.sh` steps 0/5 for the inventory → recognize
   → behavior (+negative controls) sequence, and step 1c of either for the
-  trace → `hal_viz clock_step` pair. All eight walkthroughs commit an
+  trace → `hal_viz clock_step` pair. Every walkthrough commits an
   `artifacts/dag_trace.json`; their `check.py` re-runs the exporter and
   requires the same document back.

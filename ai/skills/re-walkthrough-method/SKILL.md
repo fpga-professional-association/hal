@@ -154,6 +154,55 @@ first. Same lesson as the ARX rotations: **the layer that costs no logic is the
 layer no wire-level tool hands you** -- recover it from index arithmetic over an
 ordered layer, and say which tier the claim came from.
 
+**The cone-support tier needs one cell per link, so the pipeline decides whether
+it fires.** `14_keccak_toy` is the case that bounds it: *two* of the round's five
+steps (rho and pi) are free wiring, and the two exports of that one permutation
+answer differently. On `keccak_retimed.vo` the composite sits between the kept
+`theta` vector and the register with one multiplexer in between, so the tier
+returns the whole 200-bit map, all 200 links -- and matches nothing, because no
+library carries a 200-bit Keccak rho-pi. On `keccak_toy.vo` it returns **nothing
+at all**: `chi` sits between `theta` and the register, so no destination bit's
+next state reads exactly one source bit. Either way the tier gives you an *index
+map*, never the 25 rotation offsets or the 5x5 lane transposition -- turning one
+into the other needs the lane geometry, which is the next two paragraphs.
+
+**Recover the geometry the algebra needs before trying to read constants
+expressed in it.** Keccak's algebra is over a 5 x 5 array of 8-bit lanes; the
+netlist offers `s[0..199]` in a row. Declaring bit *i* to be lane *i/8* is a
+guess that happens to be right and would be worth nothing on a blinded netlist.
+In `14_keccak_toy` it is *derived*: 40 cells are a pure XOR of exactly five
+flip-flops (select by **function**, not fan-in -- the round-constant cells also
+read five registers and are not an XOR of them), those 40 five-element sets are
+disjoint and cover the state, the `theta` layer gives each class two parity
+neighbours, and the only closed five-step walk in that neighbour graph is the
+one using the same neighbour every time -- which separates them and yields eight
+cycles of five and five cycles of eight. Eight bit positions, five columns, five
+rows. Look for **the layer whose fan-in is a statement about the state's shape**.
+
+**One coordinate usually ends up a gauge, and the fix is to name it.**
+`14_keccak_toy` derives columns, rows, lanes and bit adjacency from wiring, but
+the *origin and direction* of the bit index inside a lane come from matching the
+measured "which four of eight positions does iota ever touch" pattern against
+the published one -- 16 candidates, exactly one fits. Same move as
+`05_lfsr_prng`'s inverted storage (`state_encoding: as-stored | complemented`).
+It stays honest because it is falsifiable (the other fifteen reproduce no
+published schedule) and because the script **fails loudly if more than one
+candidate fits**. Label it a gauge in the output; do not launder it into a
+measurement.
+
+**Where the register sits decides what a structural pass can see, and the
+algorithm does not.** `14_keccak_toy` ships two exports of one permutation with
+one interface and identical behaviour, differing only by a half-round retiming.
+In the canonical one, `chi` reads the register bank *through* `theta`, every chi
+cone is 33 flip-flops wide, the S-box extraction refuses to enumerate cones that
+wide, and `hal_crypto identify` returns `none-detected` on a real Keccak core.
+In the retimed one, chi sits on the register outputs and the same command finds
+all forty instances and returns `sponge`. `12_present_sbox` makes this point
+with *coding style*; this makes it one level up, at the **pipeline**. Before
+concluding a design contains no cryptography, ask whether the register placement
+could have dissolved it -- and note the tool says so itself, by dropping
+`none-detected` to `medium` confidence whenever it refused a cone.
+
 **A structural test that finds *nothing* is a claim about the netlist you were
 given, and the first thing to suspect is the multiplexer on top.** On
 `13_trivium_stream`, a real export of Trivium, the shift-chain test found **zero**
@@ -184,6 +233,19 @@ numbers found in wiring; an S-box match is a statement about a table, and its
 Neither identifies a cipher, and neither does a matching test vector. State the
 structure, cite the match, keep them apart.
 
+**"Classical or post-quantum" is not always a question the structure answers,
+and `undetermined` is the right answer when it is not.** `11`, `12` and `13` all
+end `classical-style` and each time that is real. A **sponge** is the case where
+the reasoning stops: SHA-3 and SHAKE are classical hashing, and the *same* SHAKE
+is the extendable-output function inside ML-KEM and ML-DSA and the entirety of
+SPHINCS+. "A Keccak core is present" is evidence about what the design computes
+and none about which family of scheme uses it -- what decides that is the
+arithmetic *around* the sponge. `hal_crypto` therefore reports `sponge` with
+`high` confidence and `style: undetermined` with no confidence number at all:
+the family claim is strong and the axis claim does not exist. A report naming
+the ambiguity is more useful than one that picks a side, because it says what to
+go and look for next.
+
 **What survives synthesis is decided by the RTL, not by the algorithm.**
 `12_present_sbox` ships two counterfactual exports of the *same* cipher: drop a
 `keep` attribute and the S-box still extracts but matches nothing in the
@@ -209,7 +271,7 @@ a structural pass is a statement about the netlist you were given.
 
 ## Where things live
 - Examples, teaching order: `examples/agilex3_walkthroughs/
-  {01_blinky_counter..13_trivium_stream}/guide.html` + that directory's
+  {01_blinky_counter..14_keccak_toy}/guide.html` + that directory's
   `README.md` ("what it teaches" table). Per walkthrough: `analyze.py`/
   `analysis.py` (structure), `probe.py` (behaviour), `reference.py`/
   `recovered_reference.py` (step 7/8 models), and `check.py` -- the

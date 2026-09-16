@@ -1,0 +1,11 @@
+{
+  "counter_reaches_its_terminal_count_once_per_permutation": true,
+  "counter_width": 5,
+  "cycles_from_accepted_start_to_done": 19,
+  "gated_registers": 200,
+  "gating_net": "i1983~1_combout",
+  "reading": "one counter, one five-input terminal test and one enable net: unlike walkthrough 13's 1152 there is no modulus to factor, because eighteen fits in a single ALM's six inputs",
+  "rounds": 18,
+  "terminal_count_value": 17,
+  "ungated_registers": 7
+}

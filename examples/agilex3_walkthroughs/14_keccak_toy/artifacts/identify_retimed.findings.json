@@ -1,0 +1,4831 @@
+{
+  "analysis": {
+    "entry_point": "hal_crypto.classify.build_document",
+    "plugin": {
+      "name": "hal_crypto",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "keccak_retimed",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "keccak_retimed",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 1067,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/14_keccak_toy/keccak_retimed.vo",
+      "sha256": "fddec1ef0253010c21674f19bd9593727b76330463f04a8bb2c2f7b4e2c6c714",
+      "size_bytes": 443569
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "adders": [],
+        "conditional_xor_cells": 210,
+        "missing": [
+          "no carry-chain adder of at least 4 bits",
+          "no fixed rotation, in a named vector or in the order a cell layer reads a register bank"
+        ],
+        "rotation_on_adder_operand": false,
+        "rotations": [],
+        "standalone_xor_cells": 240,
+        "verdict": "not-arx",
+        "xor_cells": 450,
+        "xor_layer_nets": [
+          "pre[0]",
+          "theta[0]",
+          "pre[1]",
+          "theta[1]",
+          "pre[2]",
+          "theta[2]",
+          "pre[3]",
+          "theta[3]",
+          "pre[4]",
+          "theta[4]",
+          "pre[5]",
+          "theta[5]",
+          "pre[6]",
+          "theta[6]",
+          "pre[7]",
+          "theta[7]",
+          "theta[52]",
+          "theta[53]",
+          "theta[54]",
+          "theta[55]",
+          "theta[48]",
+          "theta[49]",
+          "theta[50]",
+          "theta[51]",
+          "theta[101]",
+          "theta[102]",
+          "theta[103]",
+          "theta[96]",
+          "theta[97]",
+          "theta[98]",
+          "theta[99]",
+          "theta[100]",
+          "theta[147]",
+          "theta[148]",
+          "theta[149]",
+          "theta[150]",
+          "theta[151]",
+          "theta[144]",
+          "theta[145]",
+          "theta[146]",
+          "theta[194]",
+          "theta[195]",
+          "theta[196]",
+          "theta[197]",
+          "theta[198]",
+          "theta[199]",
+          "theta[192]",
+          "theta[193]",
+          "theta[28]",
+          "theta[29]",
+          "theta[30]",
+          "theta[31]",
+          "theta[24]",
+          "theta[25]",
+          "theta[26]",
+          "theta[27]",
+          "theta[76]",
+          "theta[77]",
+          "theta[78]",
+          "theta[79]",
+          "theta[72]",
+          "theta[73]",
+          "theta[74]",
+          "theta[75]"
+        ],
+        "xor_layer_reads_adder_output": false
+      },
+      "id": "hal_crypto/arx/not-arx",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "ARX needs adders, rotations and an XOR layer together; no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+      "tags": [
+        "arx",
+        "crypto"
+      ],
+      "title": "No ARX round structure"
+    },
+    {
+      "data": {
+        "confidence_tier": "high",
+        "evidence": [
+          "a 5-bit substitution over v[0], v[16], v[24], v[32], v[8] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[100], v[108], v[116], v[84], v[92] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[101], v[109], v[117], v[85], v[93] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[102], v[110], v[118], v[86], v[94] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[103], v[111], v[119], v[87], v[95] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[104], v[112], v[80], v[88], v[96] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[105], v[113], v[81], v[89], v[97] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[106], v[114], v[82], v[90], v[98] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[107], v[115], v[83], v[91], v[99] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[10], v[18], v[26], v[2], v[34] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[11], v[19], v[27], v[35], v[3] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[120], v[128], v[136], v[144], v[152] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[121], v[129], v[137], v[145], v[153] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[122], v[130], v[138], v[146], v[154] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[123], v[131], v[139], v[147], v[155] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[124], v[132], v[140], v[148], v[156] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[125], v[133], v[141], v[149], v[157] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[126], v[134], v[142], v[150], v[158] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[127], v[135], v[143], v[151], v[159] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[12], v[20], v[28], v[36], v[4] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[13], v[21], v[29], v[37], v[5] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[14], v[22], v[30], v[38], v[6] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[15], v[23], v[31], v[39], v[7] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[160], v[168], v[176], v[184], v[192] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[161], v[169], v[177], v[185], v[193] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[162], v[170], v[178], v[186], v[194] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[163], v[171], v[179], v[187], v[195] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[164], v[172], v[180], v[188], v[196] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[165], v[173], v[181], v[189], v[197] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[166], v[174], v[182], v[190], v[198] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[167], v[175], v[183], v[191], v[199] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[17], v[1], v[25], v[33], v[9] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[40], v[48], v[56], v[64], v[72] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[41], v[49], v[57], v[65], v[73] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[42], v[50], v[58], v[66], v[74] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[43], v[51], v[59], v[67], v[75] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[44], v[52], v[60], v[68], v[76] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[45], v[53], v[61], v[69], v[77] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[46], v[54], v[62], v[70], v[78] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[47], v[55], v[63], v[71], v[79] equals keccak_chi_5 (exact match)",
+          "40 bijective non-affine substitution(s) extracted from LUT cones, 40 of them matching the built-in library"
+        ],
+        "style": "undetermined"
+      },
+      "id": "hal_crypto/identify/classical-vs-pqc",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "the whole netlist",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn.",
+      "tags": [
+        "crypto",
+        "identify",
+        "pqc"
+      ],
+      "title": "Classical / PQC style: undetermined"
+    },
+    {
+      "confidence": 0.85,
+      "data": {
+        "confidence_tier": "high",
+        "evidence": [
+          "a 5-bit substitution over v[0], v[16], v[24], v[32], v[8] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[100], v[108], v[116], v[84], v[92] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[101], v[109], v[117], v[85], v[93] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[102], v[110], v[118], v[86], v[94] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[103], v[111], v[119], v[87], v[95] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[104], v[112], v[80], v[88], v[96] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[105], v[113], v[81], v[89], v[97] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[106], v[114], v[82], v[90], v[98] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[107], v[115], v[83], v[91], v[99] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[10], v[18], v[26], v[2], v[34] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[11], v[19], v[27], v[35], v[3] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[120], v[128], v[136], v[144], v[152] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[121], v[129], v[137], v[145], v[153] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[122], v[130], v[138], v[146], v[154] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[123], v[131], v[139], v[147], v[155] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[124], v[132], v[140], v[148], v[156] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[125], v[133], v[141], v[149], v[157] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[126], v[134], v[142], v[150], v[158] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[127], v[135], v[143], v[151], v[159] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[12], v[20], v[28], v[36], v[4] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[13], v[21], v[29], v[37], v[5] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[14], v[22], v[30], v[38], v[6] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[15], v[23], v[31], v[39], v[7] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[160], v[168], v[176], v[184], v[192] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[161], v[169], v[177], v[185], v[193] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[162], v[170], v[178], v[186], v[194] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[163], v[171], v[179], v[187], v[195] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[164], v[172], v[180], v[188], v[196] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[165], v[173], v[181], v[189], v[197] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[166], v[174], v[182], v[190], v[198] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[167], v[175], v[183], v[191], v[199] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[17], v[1], v[25], v[33], v[9] equals keccak_chi_5 (bit_permutation match)",
+          "a 5-bit substitution over v[40], v[48], v[56], v[64], v[72] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[41], v[49], v[57], v[65], v[73] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[42], v[50], v[58], v[66], v[74] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[43], v[51], v[59], v[67], v[75] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[44], v[52], v[60], v[68], v[76] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[45], v[53], v[61], v[69], v[77] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[46], v[54], v[62], v[70], v[78] equals keccak_chi_5 (exact match)",
+          "a 5-bit substitution over v[47], v[55], v[63], v[71], v[79] equals keccak_chi_5 (exact match)",
+          "40 bijective non-affine substitution(s) extracted from LUT cones, 40 of them matching the built-in library"
+        ],
+        "families_present": [
+          "sponge",
+          "spn"
+        ],
+        "family": "sponge"
+      },
+      "id": "hal_crypto/identify/family",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "the whole netlist",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "heuristic",
+      "summary": "The six passes agree on 'sponge'. Families with evidence: sponge, spn. Every line of the evidence list below is a structural observation; none of them names an algorithm.",
+      "tags": [
+        "crypto",
+        "identify"
+      ],
+      "title": "Structural family: sponge"
+    },
+    {
+      "data": {
+        "butterflies": [],
+        "butterfly_count": 0,
+        "missing": [
+          "no add/subtract pair over the same operand registers",
+          "no carry chain with a constant operand, so no modulus to read"
+        ],
+        "modulus_candidates": [],
+        "named_moduli": [],
+        "stage_depth": 0,
+        "verdict": "no-modular-transform"
+      },
+      "id": "hal_crypto/ntt/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "A butterfly needs an add and a subtract over the same operands, and a modulus needs a constant operand; no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+      "tags": [
+        "crypto",
+        "ntt"
+      ],
+      "title": "No modular-arithmetic transform"
+    },
+    {
+      "data": {
+        "maps_examined": 1
+      },
+      "id": "hal_crypto/permutation/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "unknown",
+      "summary": "Every pure-wire map between two equally wide vectors is the identity, so there is no permutation layer to compare against the published pLayers.",
+      "tags": [
+        "crypto",
+        "permutation"
+      ],
+      "title": "No non-identity bit permutation layer"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "detail": {
+              "input_permutation": [
+                0,
+                2,
+                3,
+                4,
+                1
+              ],
+              "output_permutation": [
+                0,
+                4,
+                1,
+                2,
+                3
+              ]
+            },
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "bit_permutation"
+          }
+        ],
+        "outputs": [
+          "chi[0]",
+          "chi[16]",
+          "chi[24]",
+          "chi[32]",
+          "chi[8]"
+        ],
+        "sources": [
+          "v[0]",
+          "v[16]",
+          "v[24]",
+          "v[32]",
+          "v[8]"
+        ],
+        "table": [
+          0,
+          5,
+          3,
+          6,
+          20,
+          17,
+          7,
+          2,
+          10,
+          11,
+          9,
+          8,
+          28,
+          29,
+          15,
+          14,
+          24,
+          21,
+          26,
+          23,
+          12,
+          1,
+          30,
+          19,
+          18,
+          27,
+          16,
+          25,
+          4,
+          13,
+          22,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/0",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[0], v[16], v[24], v[32], v[8]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[0], v[16], v[24], v[32], v[8] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'bit_permutation' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (bit_permutation match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[100]",
+          "chi[108]",
+          "chi[116]",
+          "chi[84]",
+          "chi[92]"
+        ],
+        "sources": [
+          "v[100]",
+          "v[108]",
+          "v[116]",
+          "v[84]",
+          "v[92]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/1",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[100], v[108], v[116], v[84], v[92]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[100], v[108], v[116], v[84], v[92] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[11]",
+          "chi[19]",
+          "chi[27]",
+          "chi[35]",
+          "chi[3]"
+        ],
+        "sources": [
+          "v[11]",
+          "v[19]",
+          "v[27]",
+          "v[35]",
+          "v[3]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/10",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[11], v[19], v[27], v[35], v[3]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[11], v[19], v[27], v[35], v[3] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[120]",
+          "chi[128]",
+          "chi[136]",
+          "chi[144]",
+          "chi[152]"
+        ],
+        "sources": [
+          "v[120]",
+          "v[128]",
+          "v[136]",
+          "v[144]",
+          "v[152]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/11",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[120], v[128], v[136], v[144], v[152]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[120], v[128], v[136], v[144], v[152] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[121]",
+          "chi[129]",
+          "chi[137]",
+          "chi[145]",
+          "chi[153]"
+        ],
+        "sources": [
+          "v[121]",
+          "v[129]",
+          "v[137]",
+          "v[145]",
+          "v[153]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/12",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[121], v[129], v[137], v[145], v[153]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[121], v[129], v[137], v[145], v[153] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[122]",
+          "chi[130]",
+          "chi[138]",
+          "chi[146]",
+          "chi[154]"
+        ],
+        "sources": [
+          "v[122]",
+          "v[130]",
+          "v[138]",
+          "v[146]",
+          "v[154]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/13",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[122], v[130], v[138], v[146], v[154]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[122], v[130], v[138], v[146], v[154] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[123]",
+          "chi[131]",
+          "chi[139]",
+          "chi[147]",
+          "chi[155]"
+        ],
+        "sources": [
+          "v[123]",
+          "v[131]",
+          "v[139]",
+          "v[147]",
+          "v[155]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/14",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[123], v[131], v[139], v[147], v[155]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[123], v[131], v[139], v[147], v[155] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[124]",
+          "chi[132]",
+          "chi[140]",
+          "chi[148]",
+          "chi[156]"
+        ],
+        "sources": [
+          "v[124]",
+          "v[132]",
+          "v[140]",
+          "v[148]",
+          "v[156]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/15",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[124], v[132], v[140], v[148], v[156]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[124], v[132], v[140], v[148], v[156] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[125]",
+          "chi[133]",
+          "chi[141]",
+          "chi[149]",
+          "chi[157]"
+        ],
+        "sources": [
+          "v[125]",
+          "v[133]",
+          "v[141]",
+          "v[149]",
+          "v[157]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/16",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[125], v[133], v[141], v[149], v[157]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[125], v[133], v[141], v[149], v[157] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[126]",
+          "chi[134]",
+          "chi[142]",
+          "chi[150]",
+          "chi[158]"
+        ],
+        "sources": [
+          "v[126]",
+          "v[134]",
+          "v[142]",
+          "v[150]",
+          "v[158]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/17",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[126], v[134], v[142], v[150], v[158]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[126], v[134], v[142], v[150], v[158] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[127]",
+          "chi[135]",
+          "chi[143]",
+          "chi[151]",
+          "chi[159]"
+        ],
+        "sources": [
+          "v[127]",
+          "v[135]",
+          "v[143]",
+          "v[151]",
+          "v[159]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/18",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[127], v[135], v[143], v[151], v[159]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[127], v[135], v[143], v[151], v[159] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[12]",
+          "chi[20]",
+          "chi[28]",
+          "chi[36]",
+          "chi[4]"
+        ],
+        "sources": [
+          "v[12]",
+          "v[20]",
+          "v[28]",
+          "v[36]",
+          "v[4]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/19",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[12], v[20], v[28], v[36], v[4]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[12], v[20], v[28], v[36], v[4] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[101]",
+          "chi[109]",
+          "chi[117]",
+          "chi[85]",
+          "chi[93]"
+        ],
+        "sources": [
+          "v[101]",
+          "v[109]",
+          "v[117]",
+          "v[85]",
+          "v[93]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/2",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[101], v[109], v[117], v[85], v[93]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[101], v[109], v[117], v[85], v[93] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[13]",
+          "chi[21]",
+          "chi[29]",
+          "chi[37]",
+          "chi[5]"
+        ],
+        "sources": [
+          "v[13]",
+          "v[21]",
+          "v[29]",
+          "v[37]",
+          "v[5]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/20",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[13], v[21], v[29], v[37], v[5]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[13], v[21], v[29], v[37], v[5] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[14]",
+          "chi[22]",
+          "chi[30]",
+          "chi[38]",
+          "chi[6]"
+        ],
+        "sources": [
+          "v[14]",
+          "v[22]",
+          "v[30]",
+          "v[38]",
+          "v[6]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/21",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[14], v[22], v[30], v[38], v[6]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[14], v[22], v[30], v[38], v[6] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[15]",
+          "chi[23]",
+          "chi[31]",
+          "chi[39]",
+          "chi[7]"
+        ],
+        "sources": [
+          "v[15]",
+          "v[23]",
+          "v[31]",
+          "v[39]",
+          "v[7]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/22",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[15], v[23], v[31], v[39], v[7]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[15], v[23], v[31], v[39], v[7] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[160]",
+          "chi[168]",
+          "chi[176]",
+          "chi[184]",
+          "chi[192]"
+        ],
+        "sources": [
+          "v[160]",
+          "v[168]",
+          "v[176]",
+          "v[184]",
+          "v[192]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/23",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[160], v[168], v[176], v[184], v[192]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[160], v[168], v[176], v[184], v[192] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[161]",
+          "chi[169]",
+          "chi[177]",
+          "chi[185]",
+          "chi[193]"
+        ],
+        "sources": [
+          "v[161]",
+          "v[169]",
+          "v[177]",
+          "v[185]",
+          "v[193]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/24",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[161], v[169], v[177], v[185], v[193]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[161], v[169], v[177], v[185], v[193] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[162]",
+          "chi[170]",
+          "chi[178]",
+          "chi[186]",
+          "chi[194]"
+        ],
+        "sources": [
+          "v[162]",
+          "v[170]",
+          "v[178]",
+          "v[186]",
+          "v[194]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/25",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[162], v[170], v[178], v[186], v[194]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[162], v[170], v[178], v[186], v[194] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[163]",
+          "chi[171]",
+          "chi[179]",
+          "chi[187]",
+          "chi[195]"
+        ],
+        "sources": [
+          "v[163]",
+          "v[171]",
+          "v[179]",
+          "v[187]",
+          "v[195]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/26",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[163], v[171], v[179], v[187], v[195]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[163], v[171], v[179], v[187], v[195] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[164]",
+          "chi[172]",
+          "chi[180]",
+          "chi[188]",
+          "chi[196]"
+        ],
+        "sources": [
+          "v[164]",
+          "v[172]",
+          "v[180]",
+          "v[188]",
+          "v[196]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/27",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[164], v[172], v[180], v[188], v[196]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[164], v[172], v[180], v[188], v[196] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[165]",
+          "chi[173]",
+          "chi[181]",
+          "chi[189]",
+          "chi[197]"
+        ],
+        "sources": [
+          "v[165]",
+          "v[173]",
+          "v[181]",
+          "v[189]",
+          "v[197]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/28",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[165], v[173], v[181], v[189], v[197]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[165], v[173], v[181], v[189], v[197] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[166]",
+          "chi[174]",
+          "chi[182]",
+          "chi[190]",
+          "chi[198]"
+        ],
+        "sources": [
+          "v[166]",
+          "v[174]",
+          "v[182]",
+          "v[190]",
+          "v[198]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/29",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[166], v[174], v[182], v[190], v[198]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[166], v[174], v[182], v[190], v[198] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[102]",
+          "chi[110]",
+          "chi[118]",
+          "chi[86]",
+          "chi[94]"
+        ],
+        "sources": [
+          "v[102]",
+          "v[110]",
+          "v[118]",
+          "v[86]",
+          "v[94]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/3",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[102], v[110], v[118], v[86], v[94]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[102], v[110], v[118], v[86], v[94] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[167]",
+          "chi[175]",
+          "chi[183]",
+          "chi[191]",
+          "chi[199]"
+        ],
+        "sources": [
+          "v[167]",
+          "v[175]",
+          "v[183]",
+          "v[191]",
+          "v[199]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/30",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[167], v[175], v[183], v[191], v[199]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[167], v[175], v[183], v[191], v[199] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "detail": {
+              "input_permutation": [
+                0,
+                3,
+                1,
+                2,
+                4
+              ],
+              "output_permutation": [
+                0,
+                2,
+                3,
+                1,
+                4
+              ]
+            },
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "bit_permutation"
+          }
+        ],
+        "outputs": [
+          "chi[17]",
+          "chi[1]",
+          "chi[25]",
+          "chi[33]",
+          "chi[9]"
+        ],
+        "sources": [
+          "v[17]",
+          "v[1]",
+          "v[25]",
+          "v[33]",
+          "v[9]"
+        ],
+        "table": [
+          0,
+          3,
+          6,
+          5,
+          20,
+          7,
+          18,
+          1,
+          9,
+          10,
+          11,
+          8,
+          28,
+          15,
+          30,
+          13,
+          24,
+          25,
+          22,
+          23,
+          12,
+          29,
+          2,
+          19,
+          17,
+          16,
+          27,
+          26,
+          4,
+          21,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/31",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[17], v[1], v[25], v[33], v[9]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[17], v[1], v[25], v[33], v[9] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'bit_permutation' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (bit_permutation match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[40]",
+          "chi[48]",
+          "chi[56]",
+          "chi[64]",
+          "chi[72]"
+        ],
+        "sources": [
+          "v[40]",
+          "v[48]",
+          "v[56]",
+          "v[64]",
+          "v[72]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/32",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[40], v[48], v[56], v[64], v[72]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[40], v[48], v[56], v[64], v[72] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[41]",
+          "chi[49]",
+          "chi[57]",
+          "chi[65]",
+          "chi[73]"
+        ],
+        "sources": [
+          "v[41]",
+          "v[49]",
+          "v[57]",
+          "v[65]",
+          "v[73]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/33",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[41], v[49], v[57], v[65], v[73]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[41], v[49], v[57], v[65], v[73] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[42]",
+          "chi[50]",
+          "chi[58]",
+          "chi[66]",
+          "chi[74]"
+        ],
+        "sources": [
+          "v[42]",
+          "v[50]",
+          "v[58]",
+          "v[66]",
+          "v[74]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/34",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[42], v[50], v[58], v[66], v[74]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[42], v[50], v[58], v[66], v[74] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[43]",
+          "chi[51]",
+          "chi[59]",
+          "chi[67]",
+          "chi[75]"
+        ],
+        "sources": [
+          "v[43]",
+          "v[51]",
+          "v[59]",
+          "v[67]",
+          "v[75]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/35",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[43], v[51], v[59], v[67], v[75]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[43], v[51], v[59], v[67], v[75] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[44]",
+          "chi[52]",
+          "chi[60]",
+          "chi[68]",
+          "chi[76]"
+        ],
+        "sources": [
+          "v[44]",
+          "v[52]",
+          "v[60]",
+          "v[68]",
+          "v[76]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/36",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[44], v[52], v[60], v[68], v[76]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[44], v[52], v[60], v[68], v[76] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[45]",
+          "chi[53]",
+          "chi[61]",
+          "chi[69]",
+          "chi[77]"
+        ],
+        "sources": [
+          "v[45]",
+          "v[53]",
+          "v[61]",
+          "v[69]",
+          "v[77]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/37",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[45], v[53], v[61], v[69], v[77]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[45], v[53], v[61], v[69], v[77] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[46]",
+          "chi[54]",
+          "chi[62]",
+          "chi[70]",
+          "chi[78]"
+        ],
+        "sources": [
+          "v[46]",
+          "v[54]",
+          "v[62]",
+          "v[70]",
+          "v[78]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/38",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[46], v[54], v[62], v[70], v[78]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[46], v[54], v[62], v[70], v[78] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[47]",
+          "chi[55]",
+          "chi[63]",
+          "chi[71]",
+          "chi[79]"
+        ],
+        "sources": [
+          "v[47]",
+          "v[55]",
+          "v[63]",
+          "v[71]",
+          "v[79]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/39",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[47], v[55], v[63], v[71], v[79]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[47], v[55], v[63], v[71], v[79] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[103]",
+          "chi[111]",
+          "chi[119]",
+          "chi[87]",
+          "chi[95]"
+        ],
+        "sources": [
+          "v[103]",
+          "v[111]",
+          "v[119]",
+          "v[87]",
+          "v[95]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/4",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[103], v[111], v[119], v[87], v[95]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[103], v[111], v[119], v[87], v[95] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[104]",
+          "chi[112]",
+          "chi[80]",
+          "chi[88]",
+          "chi[96]"
+        ],
+        "sources": [
+          "v[104]",
+          "v[112]",
+          "v[80]",
+          "v[88]",
+          "v[96]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/5",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[104], v[112], v[80], v[88], v[96]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[104], v[112], v[80], v[88], v[96] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[105]",
+          "chi[113]",
+          "chi[81]",
+          "chi[89]",
+          "chi[97]"
+        ],
+        "sources": [
+          "v[105]",
+          "v[113]",
+          "v[81]",
+          "v[89]",
+          "v[97]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/6",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[105], v[113], v[81], v[89], v[97]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[105], v[113], v[81], v[89], v[97] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[106]",
+          "chi[114]",
+          "chi[82]",
+          "chi[90]",
+          "chi[98]"
+        ],
+        "sources": [
+          "v[106]",
+          "v[114]",
+          "v[82]",
+          "v[90]",
+          "v[98]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/7",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[106], v[114], v[82], v[90], v[98]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[106], v[114], v[82], v[90], v[98] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "exact"
+          }
+        ],
+        "outputs": [
+          "chi[107]",
+          "chi[115]",
+          "chi[83]",
+          "chi[91]",
+          "chi[99]"
+        ],
+        "sources": [
+          "v[107]",
+          "v[115]",
+          "v[83]",
+          "v[91]",
+          "v[99]"
+        ],
+        "table": [
+          0,
+          9,
+          18,
+          11,
+          5,
+          12,
+          22,
+          15,
+          10,
+          3,
+          24,
+          1,
+          13,
+          4,
+          30,
+          7,
+          20,
+          21,
+          6,
+          23,
+          17,
+          16,
+          2,
+          19,
+          26,
+          27,
+          8,
+          25,
+          29,
+          28,
+          14,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/8",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[107], v[115], v[83], v[91], v[99]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[107], v[115], v[83], v[91], v[99] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'exact' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (exact match)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "Input and output bits were ordered by net name, which is the pass's own convention; a match at the 'bit_permutation' tier is exactly the statement that a different order would make the tables equal.",
+          "id": "bit-order",
+          "kind": "structural"
+        },
+        {
+          "description": "tennm_lcell_comb and tennm_ff behave as documented in hal_agilex.primitives, which was validated by simulating real Quartus exports against the RTL they were synthesised from.",
+          "id": "primitive-semantics",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so no instance can have been dropped silently before the analysis ran.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "the cones are combinational, so enumerating their input space covers every evaluation of them",
+        "unbounded": true
+      },
+      "data": {
+        "algebraic_degree": 2,
+        "bit_permutation_search": "bit-permutation equivalence searched exhaustively (5! input permutations)",
+        "bits": 5,
+        "differential_uniformity": 8,
+        "matches": [
+          {
+            "detail": {
+              "input_permutation": [
+                0,
+                1,
+                2,
+                4,
+                3
+              ],
+              "output_permutation": [
+                0,
+                1,
+                2,
+                4,
+                3
+              ]
+            },
+            "family": "sponge",
+            "name": "keccak_chi_5",
+            "reference": "Keccak chi over a five-lane row (FIPS 202 section 3.2.4)",
+            "tier": "bit_permutation"
+          }
+        ],
+        "outputs": [
+          "chi[10]",
+          "chi[18]",
+          "chi[26]",
+          "chi[2]",
+          "chi[34]"
+        ],
+        "sources": [
+          "v[10]",
+          "v[18]",
+          "v[26]",
+          "v[2]",
+          "v[34]"
+        ],
+        "table": [
+          0,
+          17,
+          10,
+          19,
+          5,
+          20,
+          14,
+          23,
+          12,
+          13,
+          6,
+          15,
+          9,
+          8,
+          2,
+          11,
+          18,
+          3,
+          24,
+          1,
+          21,
+          4,
+          30,
+          7,
+          26,
+          27,
+          16,
+          25,
+          29,
+          28,
+          22,
+          31
+        ]
+      },
+      "id": "hal_crypto/sbox/library-match/9",
+      "method": {
+        "bounded": false,
+        "description": "Enumerates the whole input space of a combinational cone using only the tennm_lcell_comb semantics in hal_agilex.primitives, and reads the truth table off it. Exhaustive, so the resulting table is the function, not a sample of it.",
+        "kind": "simulation",
+        "name": "exhaustive cone evaluation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "description": "LUT cones over v[10], v[18], v[26], v[2], v[34]",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "The 5 output cones over v[10], v[18], v[26], v[2], v[34] were enumerated over all 32 input assignments; the resulting bijection equals keccak_chi_5 under the 'bit_permutation' equivalence. Table equality is a fact about the extracted function -- it does not by itself make the design that cipher.",
+      "tags": [
+        "crypto",
+        "sbox"
+      ],
+      "title": "A 5-bit substitution equal to keccak_chi_5 (bit_permutation match)"
+    },
+    {
+      "id": "hal_crypto/shift-register/none",
+      "method": {
+        "bounded": false,
+        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
+        "kind": "structural",
+        "name": "structural crypto pattern match"
+      },
+      "scope": {
+        "artifact_ids": [
+          "keccak_retimed"
+        ],
+        "gate_types": [
+          "tennm_ff"
+        ]
+      },
+      "status": "unknown",
+      "summary": "No run of registers wired q-to-d through buffers or inverters reaches 4 stages, so there is no shift register to classify.",
+      "tags": [
+        "crypto",
+        "lfsr"
+      ],
+      "title": "No shift chain of at least 4 stages"
+    }
+  ],
+  "generated_at": "2026-09-16T23:13:02Z",
+  "notes": [
+    "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
+    "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."
+  ],
+  "producer": {
+    "name": "hal_crypto.classify",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
