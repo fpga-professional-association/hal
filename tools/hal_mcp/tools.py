@@ -138,8 +138,10 @@ def _find_module(session, spec):
 def _find_net(session, spec):
     """Resolve a net by numeric id, exact name, or unique substring.
 
-    The same resolution rules as ``halenv.find_gate`` / ``find_module``; HAL has
-    no ``get_net_by_name`` either, so the scan is unavoidable.
+    The same resolution rules as ``halenv.find_gate`` / ``find_module``.
+    ``Netlist.get_net_by_name`` exists, but it is exact-match only and returns
+    ``None`` on both a miss and an ambiguous name without saying which; this
+    scan is what adds the substring fallback and names the colliding nets.
     """
     netlist = session.netlist
     spec = str(spec)

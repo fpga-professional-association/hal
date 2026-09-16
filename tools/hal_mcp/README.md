@@ -208,8 +208,12 @@ is process-wide.
   `from hal_plugins import graph_algorithm`, after
   `hal_py.plugin_manager.load_all_plugins()`. HAL's *parsers* are plugins too,
   so nothing loads before that call.
-- **`Netlist` has no `get_net_by_name` or `get_gate_by_name`.** Every lookup by
-  name is a scan, which is why the tools accept a numeric id as well.
+- **`Netlist.get_gate_by_name`/`get_net_by_name` exist, but only cover exact,
+  unambiguous matches.** They return `None` on both a miss and a duplicate
+  name, never guessing which gate or net you meant. The tools here still scan
+  `get_gates()`/`get_nets()` themselves because they resolve a spec that can
+  also be a numeric id or a unique substring, and report which names collide
+  when a lookup is ambiguous.
 - **The traversal helpers are `hal_py.NetlistUtils`, capitalised.** The C++
   namespace is `netlist_utils` and `.claude/skills/using-hal/SKILL.md` says
   `hal_py.netlist_utils`, but `netlist_utils.cpp` binds the submodule as
