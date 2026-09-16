@@ -140,6 +140,40 @@ def exercise(label, obj, failures, called):
             failures.append((f"{label}.{name}", traceback.format_exc(limit=2)))
 
 
+def check_boolean_function_to_string(hal_py, failures, called):
+    """``BooleanFunction.to_string`` is two bindings under one name.
+
+    The class carries both an instance ``to_string()`` and the static bit-vector formatter
+    ``to_string(value, base)``. pybind11 refuses to put a static and an instance method into one
+    overload chain, so the formatter is bound as a plain method and called on the class instead --
+    which works because an unbound method is just a function in Python 3. The sweep above cannot
+    see any of this (it only walks instances of the objects it built), and the instance method was
+    unreachable altogether until issue #62, so both spellings are called explicitly here.
+    """
+    bf = hal_py.BooleanFunction
+    value = hal_py.BooleanFunction.Value
+
+    try:
+        function = bf.from_string("A & B")
+        printed = function.to_string()
+        called.append("BooleanFunction.to_string()")
+        if printed != str(function):
+            failures.append(("BooleanFunction.to_string()",
+                             "instance to_string() returned %r, but str() returned %r"
+                             % (printed, str(function))))
+    except Exception:
+        failures.append(("BooleanFunction.to_string()", traceback.format_exc(limit=2)))
+
+    try:
+        formatted = bf.to_string([value.ONE, value.ZERO, value.ONE], 2)
+        called.append("BooleanFunction.to_string(value, base)")
+        if not isinstance(formatted, str):
+            failures.append(("BooleanFunction.to_string(value, base)",
+                             "static bit-vector formatter returned %r" % (formatted,)))
+    except Exception:
+        failures.append(("BooleanFunction.to_string(value, base)", traceback.format_exc(limit=2)))
+
+
 def import_plugin_modules(failures):
     """Import every plugin module. An extension module can fail at import alone, and a plugin that
     is only ever imported by the documentation build is otherwise never loaded by a test."""
@@ -190,6 +224,8 @@ def run_checks(hal_py):
     objects = build_netlist(hal_py)
     for label, obj in objects.items():
         exercise(label, obj, failures, called)
+
+    check_boolean_function_to_string(hal_py, failures, called)
 
     # Submodule-level functions take arguments almost without exception, but the few that do not are
     # worth calling, as they are the ones a user reaches for first.

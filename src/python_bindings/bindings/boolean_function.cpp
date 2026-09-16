@@ -56,7 +56,16 @@ namespace hal
             :rtype: hal_py.BooleanFunction or None
         )");
 
-        py_boolean_function.def_static(
+        // # Developer Note
+        // `BooleanFunction` has both a static `to_string(value, base)` bit-vector formatter and an instance
+        // `to_string()`. pybind11 refuses to put a static and an instance method into the same overload chain
+        // ("overloading a method with both static and instance methods is not supported"), so the bit-vector
+        // formatter is bound as a plain method whose `self` is the bit-vector instead of a `BooleanFunction`. In
+        // Python 3 an unbound method is just a function, hence `hal_py.BooleanFunction.to_string(value, base)`
+        // keeps working exactly as before, while `f.to_string()` now dispatches to the instance overload that is
+        // registered further below, see issue #62. Since pybind11 takes the first parameter of a method to be
+        // `self`, it must not be given a `py::arg` of its own and can only be passed positionally.
+        py_boolean_function.def(
             "to_string",
             [](const std::vector<BooleanFunction::Value>& value, u8 base = 2) -> std::optional<std::string> {
                 auto res = BooleanFunction::to_string(value, base);
@@ -70,10 +79,13 @@ namespace hal
                     return std::nullopt;
                 }
             },
-            py::arg("value"),
             py::arg("base") = 2,
             R"(
             Convert the given bit-vector to its string representation in the given base.
+
+            This overload is called on the class, i.e., ``hal_py.BooleanFunction.to_string(value, base)``, with the
+            bit-vector as its first (positional) argument. Called on an instance, ``f.to_string()`` returns the
+            string representation of the Boolean function ``f`` itself.
 
             :param list[hal_py.BooleanFunction.Value] value: The value as a bit-vector.
             :param int base: The base that the values should be converted to. Valid values are 2 (default), 8, 10, and 16.
@@ -1259,6 +1271,15 @@ namespace hal
         )");
 
         py_boolean_function.def("__str__", [](const BooleanFunction& f) { return f.to_string(); }, R"(
+            Translates the Boolean function into its string representation.
+
+            :returns: The Boolean function as a string.
+            :rtype: str
+        )");
+
+        // instance overload of 'to_string', see the developer note at the static bit-vector formatter above
+        py_boolean_function.def(
+            "to_string", [](const BooleanFunction& f) -> std::string { return f.to_string(); }, R"(
             Translates the Boolean function into its string representation.
 
             :returns: The Boolean function as a string.

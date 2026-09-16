@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <bitset>
 #include <boost/spirit/home/x3.hpp>
+#include <cctype>
 #include <chrono>
 #include <map>
 #include <iomanip>
@@ -1071,6 +1072,33 @@ namespace hal
             {ParserType::LibertyNoSpace, BooleanFunctionParser::parse_with_liberty_grammar}
         };
 
+        // The 'LibertyNoSpace' fallback below removes all spaces from the expression and re-parses it. That is only
+        // safe as long as removing a space cannot fuse two operands into a single identifier: otherwise 'A 0b0'
+        // would silently be parsed as the variable 'A0b0' instead of 'A & 0b0', i.e., a wrong Boolean function
+        // would be returned without any error. The fallback is therefore skipped for expressions in which some
+        // whitespace separates two identifier characters, see issue #62.
+        const auto fuses_identifiers = [](const std::string& str) -> bool {
+            const auto is_identifier_character = [](const char c) -> bool { return (std::isalnum(static_cast<unsigned char>(c)) != 0) || (c == '_'); };
+
+            char previous       = '\0';
+            bool preceded_space = false;
+            for (const char current : str)
+            {
+                if (current == ' ')
+                {
+                    preceded_space = (previous != '\0');
+                    continue;
+                }
+                if (preceded_space && is_identifier_character(previous) && is_identifier_character(current))
+                {
+                    return true;
+                }
+                preceded_space = false;
+                previous       = current;
+            }
+            return false;
+        };
+
         for (const auto& [parser_type, parser] : parsers)
         {
             std::string sanitized_expression = expression;
@@ -1078,6 +1106,11 @@ namespace hal
 
             if (parser_type == ParserType::LibertyNoSpace)
             {
+                if (fuses_identifiers(expression))
+                {
+                    continue;
+                }
+
                 sanitized_expression.erase(
                     std::remove(sanitized_expression.begin(), sanitized_expression.end(), ' '),
                     sanitized_expression.end()

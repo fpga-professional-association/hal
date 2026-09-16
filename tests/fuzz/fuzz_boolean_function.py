@@ -27,11 +27,6 @@ Usage
     FUZZ_ITERS=200  python3 tests/fuzz/fuzz_boolean_function.py   # deeper sweep
     FUZZ_SAMPLES=50 python3 tests/fuzz/fuzz_boolean_function.py   # trees per seed
 
-    # re-enable the spelling combination that only reproduces the already-known
-    # BF-2 defect (0b-constants together with whitespace-AND), off by default so
-    # the sweep keeps hunting for *new* bugs:
-    FUZZ_ENABLE_KNOWN_BUG_TRIGGERS=1 python3 tests/fuzz/fuzz_boolean_function.py
-
 The harness exits 0 as long as every failure it sees is an *expected* one, so it
 can gate CI. Unexpected failures exit 1 and print a one-line repro command.
 """
@@ -86,20 +81,8 @@ ONE = BF.Value.ONE
 
 
 def bf_str(function):
-    """String form of a BooleanFunction.
-
-    NOTE (BF-1, binding gap): ``BooleanFunction::to_string()`` has no Python
-    binding of its own. ``src/python_bindings/bindings/boolean_function.cpp``
-    only exposes the *static* ``to_string(value: list[Value], base: int)``
-    bit-vector formatter under that name, so ``f.to_string()`` raises
-    ``TypeError: incompatible function arguments`` for every instance -- the
-    instance method is reachable only through ``__str__``. Prefer the real
-    method once it exists so this harness keeps testing the documented API.
-    """
-    try:
-        return function.to_string()
-    except TypeError:
-        return str(function)
+    """String form of a BooleanFunction, through the documented instance method."""
+    return function.to_string()
 
 # --------------------------------------------------------------------------- #
 # seeds / configuration
@@ -120,76 +103,19 @@ SAMPLES_PER_SEED = int(os.environ.get("FUZZ_SAMPLES", "40"))
 # function parser has to accept as a single variable name.
 NAME_STYLES = ("plain", "indexed")
 
-ENABLE_KNOWN_BUG_TRIGGERS = os.environ.get("FUZZ_ENABLE_KNOWN_BUG_TRIGGERS", "") not in ("", "0")
-
-# Seeds that are known to fail. Empty: with the known-bug triggers off, all 25
-# default seeds pass. Add entries as ``seed: "reason"`` when a new real failure
-# is found and minimized; the harness then keeps exiting 0 while still
-# reporting the finding.
+# Seeds that are known to fail. Empty: all 25 default seeds pass. Add entries as
+# ``seed: "reason"`` when a new real failure is found and minimized; the harness
+# then keeps exiting 0 while still reporting the finding.
 EXPECTED_FAILURE_SEEDS = {}
-
-
-def _probe_bf1():
-    """BooleanFunction::to_string() has no instance binding."""
-    try:
-        BF.Var("A", 1).to_string()
-    except TypeError:
-        return True
-    return False
-
-
-def _probe_bf2a():
-    """Whitespace AND next to a 0b-constant is silently glued into a variable."""
-    parsed = BF.from_string("A 0b0")
-    return (not parsed.is_empty()) and parsed.is_variable() \
-        and parsed.has_variable_name("A0b0")
-
-
-def _probe_bf2b():
-    """Whitespace AND anywhere makes every 0b-constant in the string unparseable."""
-    return BF.from_string("(A B) & 0b1").is_empty()
 
 
 # Minimized repros of already-known defects, run on every invocation as
 # expected failures. If one of them stops reproducing, the harness says so (and
-# still exits 0) so the entry can be removed.
-KNOWN_BUGS = [
-    {
-        "id": "BF-1",
-        "summary": (
-            "Binding gap: src/python_bindings/bindings/boolean_function.cpp binds "
-            "BooleanFunction::to_string() only as __str__, while the name 'to_string' is "
-            "taken by the static bit-vector formatter to_string(value, base). "
-            "f.to_string() therefore raises TypeError for every instance, and Python code "
-            "following the C++ API has to use str(f) instead."
-        ),
-        "probe": _probe_bf1,
-    },
-    {
-        "id": "BF-2a",
-        "summary": (
-            "SILENT MISPARSE. BooleanFunction::from_string() tries Standard, then Liberty, "
-            "then 'LibertyNoSpace' -- which strips *all* spaces and re-parses. The Liberty "
-            "grammar does not know the 0b0/0b1 constants that from_string()'s own docstring "
-            "documents, so 'A 0b0' falls through to the no-space pass, becomes the single "
-            "token 'A0b0' and is returned as a *variable named A0b0* -- no error, wrong "
-            "function. The space-stripping fallback can silently turn an AND of two "
-            "operands into one concatenated identifier."
-        ),
-        "probe": _probe_bf2a,
-    },
-    {
-        "id": "BF-2b",
-        "summary": (
-            "Same root cause, loud variant: once whitespace-AND is used anywhere, "
-            "from_string() is on the Liberty grammar and every 0b0/0b1 in the expression "
-            "makes the whole parse fail. '(A B) & 0b1' returns 'no parser available', "
-            "while '(A B) & 1' and 'A & 0b1' are both fine. The two documented spellings "
-            "(whitespace for AND, 0b0/0b1 for constants) are mutually exclusive."
-        ),
-        "probe": _probe_bf2b,
-    },
-]
+# still exits 0) so the entry can be removed. Empty: BF-1, BF-2a and BF-2b (see
+# issue #62) are fixed and are asserted as *properties* now -- BF-1 by bf_str()
+# calling the instance method unconditionally, BF-2 by rendering 0b-constants
+# together with whitespace-AND in check_tree() below.
+KNOWN_BUGS = []
 
 
 def seed_sequence(count):
@@ -274,8 +200,8 @@ def render(tree, rnd, minimal_parens, whitespace_and, binary_constants,
 
     ``whitespace_and`` allows the whitespace spelling of AND, ``binary_constants``
     allows the ``0b0`` / ``0b1`` spelling of constants. Both are documented by
-    from_string(), but they cannot be combined -- see BF-2 in KNOWN_BUGS -- so
-    the caller only turns both on when it wants to reproduce that bug.
+    from_string() and must be combinable in one expression (they were not before
+    issue #62 was fixed).
     """
     kind = tree[0]
     if kind == "var":
@@ -420,11 +346,10 @@ def check_tree(tree, variables, rnd=None):
     #      precedence (NOT > AND > XOR > OR) allows
     for minimal_parens in (False, True):
         for whitespace_and in (False, True):
-            # 0b-constants stay off in whitespace mode unless the caller asks
-            # for the known-bug trigger (BF-2)
-            binary_constants = (not whitespace_and) or ENABLE_KNOWN_BUG_TRIGGERS
+            # 0b-constants are exercised in both modes: they have to work
+            # together with whitespace-AND as well (BF-2, issue #62)
             expression = render(tree, rnd, minimal_parens, whitespace_and,
-                                binary_constants)
+                                binary_constants=True)
             label = "%s%s" % (
                 " (minimal brackets)" if minimal_parens else "",
                 " (whitespace AND)" if whitespace_and else "")
@@ -616,10 +541,8 @@ def main():
         iters = int(os.environ.get("FUZZ_ITERS", str(len(DEFAULT_SEEDS))))
         seeds = seed_sequence(iters)
 
-    print("fuzz_boolean_function: %d seeds x %d trees, <= %d variables, "
-          "known-bug triggers %s"
-          % (len(seeds), SAMPLES_PER_SEED, MAX_VARS,
-             "ON" if ENABLE_KNOWN_BUG_TRIGGERS else "off"))
+    print("fuzz_boolean_function: %d seeds x %d trees, <= %d variables"
+          % (len(seeds), SAMPLES_PER_SEED, MAX_VARS))
 
     unexpected = []
     expected = []
