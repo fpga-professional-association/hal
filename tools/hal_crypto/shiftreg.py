@@ -15,6 +15,31 @@ are usually run together:
 * **the form is Fibonacci** (one feedback function into the head) or **Galois**
   (the last stage is XORed into several stages along the chain).
 
+Two shapes that a vendor export routinely has and the plain reading above
+misses, both measured on ``examples/agilex3_walkthroughs/13_trivium_stream``, a
+Quartus export of Trivium:
+
+* **a parallel key/IV load hides every shift link at once.**  ``s[i] <= load ?
+  init[i] : s[i-1]`` is a multiplexer, so "this register's next state is exactly
+  another register's output" is false for all 288 stages and the pass found *no
+  chain at all* in a design that is three shift registers.  The fix is the one
+  :func:`hal_crypto.arx.xor_nets` already uses for XOR cells packed with their
+  multiplexer: hold one external net at one constant and look again.  The net is
+  chosen by how many next-state functions read it nonlinearly, both values are
+  tried, and the winning ``{"net": ..., "value": ...}`` is reported on every
+  structure it produced as ``mode`` -- because "these registers form a shift
+  chain *while* ``start`` is low" is a weaker claim than "these registers form a
+  shift chain", and the difference belongs in the finding.
+* **the feedback may close through a sibling register.**  Trivium, Grain and
+  every other modern hardware stream cipher are *coupled* shift registers: no
+  segment's feedback is a function of its own stages alone.  A chain whose head
+  reads stages of another chain found in the same netlist is still closed --
+  it is reported with ``coupled: True`` and the foreign taps named, not written
+  off as an open shift register.  A coupled register has **no feedback
+  polynomial of its own** (a polynomial describes a recurrence over one
+  register's own history), so ``polynomial`` is ``None`` there and the algebraic
+  normal form is the whole report.
+
 Storage polarity is a synthesis artefact, not a design choice.  Quartus
 implements an asynchronous load of a non-zero seed by storing some stages
 inverted and putting an inverter on the output, which turns half the shift
@@ -38,8 +63,10 @@ from .netlist_model import ConeTooWide, UnsupportedCell
 __all__ = [
     "MIN_CHAIN_LENGTH",
     "MAX_PERIOD_CHECK_BITS",
+    "MAX_MODE_NETS",
     "StageUpdate",
     "register_updates",
+    "mode_candidates",
     "find_shift_structures",
     "lfsr_period",
     "berlekamp_massey",
@@ -53,6 +80,13 @@ MIN_CHAIN_LENGTH = 4
 #: recurrence.  ``2**24`` steps is a second or two; beyond that the period is
 #: left unreported rather than guessed from primitivity tables.
 MAX_PERIOD_CHECK_BITS = 24
+
+#: How many external nets are tried as an operating-mode select.  Freeze enough
+#: inputs and almost anything becomes a shift chain, so the search is deliberately
+#: tiny: the one or two nets the most next-state functions read nonlinearly, each
+#: at both values, and only for registers the unheld reading did not already
+#: explain.
+MAX_MODE_NETS = 2
 
 
 class StageUpdate(object):
@@ -175,14 +209,88 @@ def _clock_group(model, ff):
 # ---------------------------------------------------------------------------
 
 
+def mode_candidates(updates):
+    """External nets worth holding at a constant, most-read first.
+
+    A net only qualifies when at least :data:`MIN_CHAIN_LENGTH` next-state
+    functions read it *and* cannot be read without holding it -- i.e. they are
+    not already affine.  That is the signature of a load/enable select in front
+    of a register bank, and it is what keeps this from being a licence to freeze
+    arbitrary inputs until something looks like a chain.
+    """
+    counts = {}
+    for update in updates.values():
+        if update.problem is not None or update.table is None:
+            continue
+        if update.affine_form() is not None:
+            continue
+        for key in update.other_deps:
+            counts[key] = counts.get(key, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    return [
+        name for name, count in ranked[:MAX_MODE_NETS] if count >= MIN_CHAIN_LENGTH
+    ]
+
+
+def _held(model, updates, net, value):
+    """*updates* with *net* held at *value* wherever a function reads it."""
+    result = {}
+    for name, update in updates.items():
+        table = update.table
+        if update.problem is not None or table is None or net not in table.inputs:
+            result[name] = update
+            continue
+        table = table.cofactor(table.inputs.index(net), value).restricted()
+        register_deps = []
+        other_deps = []
+        for key in table.inputs:
+            (register_deps if model.register_of(key) else other_deps).append(key)
+        result[name] = StageUpdate(
+            update.ff,
+            table=table,
+            register_deps=register_deps,
+            other_deps=other_deps,
+        )
+    return result
+
+
 def find_shift_structures(model):
     """Every shift chain in *model*, with its feedback classified.
 
     Returns a list of dicts.  ``kind`` is one of ``lfsr``, ``nlfsr`` or
     ``shift_register``; the last one is the honest outcome for a chain that is
     not closed by a feedback function, and it is reported, not dropped.
+
+    The netlist is read once with nothing held (``mode`` is ``None`` on every
+    structure that comes back).  Registers no structure claimed are then offered
+    to the operating-mode search described in the module docstring: each
+    candidate net at each value, in a fixed order, and a structure is kept only
+    when it claims registers the unheld reading left over **and** it is closed
+    by a feedback function.  So holding a net can only *add* feedback registers,
+    never reinterpret a structure that was already found and never invent an
+    open chain: a bank of registers that becomes a shift chain once its load
+    select is held is simply a loadable register bank, which is what most
+    register banks are, and it is not evidence of anything.  The extra
+    assumption has to buy an LFSR or an NLFSR to be worth recording.
     """
     updates = register_updates(model)
+    results = _structures(model, updates, None)
+    used = {name for entry in results for name in entry["stages"]}
+    for net in mode_candidates(updates):
+        for value in (0, 1):
+            mode = {"net": net, "value": value}
+            for structure in _structures(model, _held(model, updates, net, value), mode):
+                if structure["kind"] == "shift_register":
+                    continue
+                if set(structure["stages"]) & used:
+                    continue
+                used.update(structure["stages"])
+                results.append(structure)
+    return results
+
+
+def _structures(model, updates, mode):
+    """Every shift chain visible in *updates*, all tagged with *mode*."""
     by_q = {}
     q_of_name = {}
     for ff in model.ff_instances:
@@ -222,6 +330,7 @@ def find_shift_structures(model):
 
     # Two sweeps: open chains have a head that nothing shifts into; closed ones
     # do not, so their head is found as "the stage that is not a shift link".
+    chains = []
     for closed in (False, True):
         for start in sorted(updates):
             if start in used or updates[start].problem is not None:
@@ -237,10 +346,47 @@ def find_shift_structures(model):
             if len(chain) < MIN_CHAIN_LENGTH:
                 continue
             used.update(chain)
-            results.append(
-                _describe(model, updates, q_of_name, chain, inverted, ambiguity)
+            chains.append((chain, ambiguity))
+
+    # Every chain is found before any of them is classified, because a feedback
+    # function that reads a *sibling* chain can only be recognised once the
+    # sibling exists.  positions maps a q net key to (chain, stage, gauge bit).
+    positions = {}
+    gauges = []
+    for number, (chain, _ambiguity) in enumerate(chains):
+        gauge = _gauge_of(chain, inverted)
+        gauges.append(gauge)
+        for stage, name in enumerate(chain):
+            key = q_of_name.get(name)
+            if key is not None:
+                positions[key] = (number, stage, gauge[stage])
+
+    for number, (chain, ambiguity) in enumerate(chains):
+        results.append(
+            _describe(
+                model,
+                updates,
+                q_of_name,
+                chain,
+                inverted,
+                ambiguity,
+                number,
+                positions,
+                gauges[number],
             )
+        )
+
+    for entry in results:
+        entry["mode"] = mode
     return results
+
+
+def _gauge_of(chain, inverted):
+    """Running parity of the inverters along *chain*, stage 0 fixed at 0."""
+    gauge = [0] * len(chain)
+    for index in range(1, len(chain)):
+        gauge[index] = gauge[index - 1] ^ inverted.get(chain[index], 0)
+    return gauge
 
 
 def _walk(start, successors):
@@ -283,21 +429,34 @@ def _base_result(model, updates, chain, gauge, ambiguity):
         "ambiguity": ambiguity,
         "head": chain[0],
         "tail": chain[-1],
+        "chain": None,
+        "coupled": False,
     }
 
 
-def _describe(model, updates, q_of_name, chain, inverted, ambiguity):
+def _describe(
+    model,
+    updates,
+    q_of_name,
+    chain,
+    inverted,
+    ambiguity,
+    number=0,
+    positions=None,
+    gauge=None,
+):
     length = len(chain)
     position = {name: index for index, name in enumerate(chain)}
     stage_of_key = {
         q_of_name[name]: position[name] for name in chain if q_of_name[name]
     }
+    positions = positions or {}
 
-    gauge = [0] * length
-    for index in range(1, length):
-        gauge[index] = gauge[index - 1] ^ inverted.get(chain[index], 0)
+    if gauge is None:
+        gauge = _gauge_of(chain, inverted)
 
     result = _base_result(model, updates, chain, gauge, ambiguity)
+    result["chain"] = number
     head_update = updates[chain[0]]
 
     if head_update.problem is not None or not head_update.register_deps:
@@ -328,28 +487,55 @@ def _describe(model, updates, q_of_name, chain, inverted, ambiguity):
             return result
     result["data_inputs"] = data_inputs
 
-    taps = []
+    # Each feedback input is placed as (chain, stage, gauge bit).  Own-chain
+    # inputs are taps in the textbook sense; inputs that land on another chain
+    # found in the same sweep are the coupling of a Trivium/Grain-style
+    # generator, and anything that lands nowhere leaves the chain open.
+    sites = []
+    coupled = []
     for key in table.inputs:
         stage = stage_of_key.get(key)
-        if stage is None:
+        if stage is not None:
+            sites.append((number, stage, gauge[stage]))
+            continue
+        elsewhere = positions.get(key)
+        if elsewhere is None:
             result["kind"] = "shift_register"
             result["reason"] = (
                 "the first stage reads register {}, which is not a stage of this "
-                "chain".format(key)
+                "chain nor of any other shift chain in this netlist".format(key)
             )
             return result
-        taps.append(stage)
+        sites.append(elsewhere)
+        coupled.append((key, elsewhere))
 
-    logical = _logical_feedback(table, taps, gauge)
-    sorted_taps = sorted(taps)
+    sorted_taps = sorted(site[1] for site in sites if site[0] == number)
+    logical = _logical_feedback(table, sites, own=None if coupled else number)
     result["taps"] = sorted_taps
     result["form"] = "fibonacci"
-    result["form_reason"] = (
-        "exactly one stage is driven by a function of several stages; every other "
-        "stage takes its value from the one before it"
-    )
     result["autonomous"] = not data_inputs
     result["feedback_reads_last_stage"] = (length - 1) in sorted_taps
+    result["coupled"] = bool(coupled)
+    if coupled:
+        foreign = sorted({site[0] for _key, site in coupled})
+        result["coupled_chains"] = foreign
+        result["coupled_taps"] = [
+            {"register": key, "chain": site[0], "stage": site[1]}
+            for key, site in sorted(coupled, key=lambda item: item[1])
+        ]
+        result["form_reason"] = (
+            "exactly one stage is driven by a function of several stages and every "
+            "other stage takes its value from the one before it, but {} of those "
+            "stages belong to chain(s) {}: this register is closed through a "
+            "sibling, not onto itself".format(
+                len(coupled), ", ".join(str(index) for index in foreign)
+            )
+        )
+    else:
+        result["form_reason"] = (
+            "exactly one stage is driven by a function of several stages; every other "
+            "stage takes its value from the one before it"
+        )
 
     affine = logical.linear_terms()
     if affine is None:
@@ -362,7 +548,7 @@ def _describe(model, updates, q_of_name, chain, inverted, ambiguity):
 
     constant = affine[0]
     encoding = "as-stored"
-    if constant and len(sorted_taps) % 2 == 0:
+    if constant and len(sites) % 2 == 0:
         logical = _complement_all(logical)
         constant = logical.linear_terms()[0]
         encoding = "complemented"
@@ -370,6 +556,9 @@ def _describe(model, updates, q_of_name, chain, inverted, ambiguity):
     result["feedback_constant"] = constant
     result["state_encoding"] = encoding
     result["feedback_anf"] = boolfunc.anf_string(logical)
+    if coupled:
+        _no_polynomial(result)
+        return result
     _attach_polynomial(result, sorted_taps)
     if constant == 0 and result["feedback_reads_last_stage"] and length <= MAX_PERIOD_CHECK_BITS:
         period = lfsr_period(length, sorted_taps)
@@ -378,21 +567,48 @@ def _describe(model, updates, q_of_name, chain, inverted, ambiguity):
     return result
 
 
-def _logical_feedback(table, taps, gauge):
-    """Re-index *table* to tap order and rewrite it over the gauge variables."""
-    order = sorted(range(len(taps)), key=lambda index: taps[index])
-    names = tuple("s[{}]".format(taps[index]) for index in order)
+def _logical_feedback(table, sites, own=None):
+    """Re-index *table* to stage order and rewrite it over the gauge variables.
+
+    *sites* gives ``(chain, stage, gauge bit)`` for each input of *table*, in
+    input order.  ``own`` is the chain number whose stages are written plainly
+    as ``s[i]``; pass ``None`` (a coupled register) to qualify every variable
+    with its chain, because ``s[65]`` means two different flip-flops once more
+    than one register is in play.
+    """
+    order = sorted(range(len(sites)), key=lambda index: sites[index][:2])
+    names = tuple(
+        "s[{}]".format(sites[index][1])
+        if own is not None and sites[index][0] == own
+        else "s{}[{}]".format(sites[index][0], sites[index][1])
+        for index in order
+    )
     values = [
         table.values[_permute_address(index, order)] for index in range(len(table.values))
     ]
     permuted = boolfunc.TruthTable(names, values)
     complement_mask = 0
     for slot, index in enumerate(order):
-        if gauge[taps[index]]:
+        if sites[index][2]:
             complement_mask |= 1 << slot
     size = len(permuted.values)
     return boolfunc.TruthTable(
         names, [permuted.values[index ^ complement_mask] for index in range(size)]
+    )
+
+
+def _no_polynomial(result):
+    """Record that a coupled register has no feedback polynomial of its own."""
+    result["polynomial"] = None
+    result["polynomial_exponents"] = None
+    result["polynomial_reciprocal"] = None
+    result["polynomial_reciprocal_exponents"] = None
+    result["polynomial_convention"] = (
+        "a feedback polynomial describes a recurrence over one register's own "
+        "history; this register's feedback reads stages of chain(s) {}, so it has "
+        "none and the algebraic normal form is the whole statement".format(
+            ", ".join(str(index) for index in result["coupled_chains"])
+        )
     )
 
 

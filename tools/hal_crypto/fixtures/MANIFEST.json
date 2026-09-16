@@ -26,6 +26,14 @@
       "sha256": "e707cb25dee94d2a3a78ed6d5fdba2f4addcce8b604e24d845f86be639338e9b",
       "size_bytes": 5622
     },
+    "coupled_nlfsr.vo": {
+      "description": "two chains of 8 and 10 stages, each closed through the other",
+      "expected_family": "lfsr-stream",
+      "expected_style": "classical-style",
+      "role": "positive control for coupled (Trivium/Grain-style) registers: neither chain has a feedback polynomial of its own",
+      "sha256": "07a88a7d9efc1e0863f9aeb43de5970d2dadb7271121b387dfaf6370d2d22113",
+      "size_bytes": 5653
+    },
     "lfsr16_fibonacci.vo": {
       "description": "16-stage Fibonacci LFSR, x^16 + x^15 + x^13 + x^4 + 1",
       "expected_family": "lfsr-stream",
@@ -41,6 +49,14 @@
       "role": "positive control for Galois-versus-Fibonacci",
       "sha256": "0d2646db567b616610ef06facddface5352bfaebc9a583fd26002558bcb8fc85",
       "size_bytes": 5739
+    },
+    "lfsr16_loadable.vo": {
+      "description": "the same LFSR behind a parallel `load ? seed : shift`",
+      "expected_family": "lfsr-stream",
+      "expected_style": "classical-style",
+      "role": "positive control for the operating-mode search: every shift link is a multiplexer until `load` is held at 0",
+      "sha256": "b1cd67fd32fa01e1d540602712a91b97593454cd22030aca6b40f883d79b3573",
+      "size_bytes": 10266
     },
     "nlfsr16.vo": {
       "description": "16-stage NLFSR: the same taps with an AND term in the feedback",

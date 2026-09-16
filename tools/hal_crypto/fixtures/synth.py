@@ -369,6 +369,107 @@ def _shift_chain(name, length, taps=None, nonlinear=False, galois_taps=None):
     return builder
 
 
+def _loadable_lfsr(name, length=16, taps=(3, 12, 14, 15)):
+    """The Fibonacci LFSR above, behind a parallel ``load ? seed : shift``.
+
+    Every stage's next state is a multiplexer, so the plain "is this register
+    driven by exactly one other register" test fails on all of them at once and
+    the chain is invisible until ``load`` is held at 0.  That is what a vendor
+    export of any keyed generator looks like -- see
+    ``examples/agilex3_walkthroughs/13_trivium_stream`` -- and it is the shape
+    :func:`hal_crypto.shiftreg.mode_candidates` exists for.
+    """
+    builder = Builder(name)
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("input", "load")
+    builder.port("input", "seed", length)
+    builder.port("output", "dout")
+    builder.wire("state", length)
+    builder.wire("nxt", length)
+    builder.wire("feedback")
+
+    def parity(values):
+        result = 0
+        for value in values:
+            result ^= value
+        return result
+
+    builder.function(
+        "fb", "feedback", ["state[{}]".format(tap) for tap in taps], parity
+    )
+    for index in range(length):
+        shifted = "feedback" if index == 0 else "state[{}]".format(index - 1)
+        data = "nxt[{}]".format(index)
+        builder.lut(
+            "mux_{}".format(index),
+            data,
+            ["load", "seed[{}]".format(index), shifted],
+            # address bit 0 = load, 1 = seed, 2 = shifted
+            [0, 0, 0, 1, 1, 0, 1, 1],
+        )
+        builder.register(
+            "state_{}".format(index), data, "state[{}]".format(index), clear="rst_n"
+        )
+    builder.assign("dout", "state[{}]".format(length - 1))
+    return builder
+
+
+def _coupled_nlfsr(name, lengths=(8, 10)):
+    """Two shift registers, each closed through the *other* one.
+
+    Neither chain's feedback is a function of its own stages alone, so neither
+    has a feedback polynomial or a period; together they are one 18-bit
+    nonlinear generator.  This is the Trivium/Grain shape at toy size, and it is
+    the minimum case for the ``coupled`` reporting in
+    :func:`hal_crypto.shiftreg.find_shift_structures`.
+    """
+    builder = Builder(name)
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("output", "dout")
+    first, second = lengths
+    builder.wire("a", first)
+    builder.wire("b", second)
+    builder.wire("head_a")
+    builder.wire("head_b")
+
+    def feedback(values):
+        # own tap ^ foreign tap ^ (two adjacent foreign stages ANDed)
+        return values[0] ^ values[1] ^ (values[2] & values[3])
+
+    builder.function(
+        "fa",
+        "head_a",
+        [
+            "a[{}]".format(first - 3),
+            "b[{}]".format(second - 1),
+            "b[{}]".format(second - 3),
+            "b[{}]".format(second - 2),
+        ],
+        feedback,
+    )
+    builder.function(
+        "fb",
+        "head_b",
+        [
+            "b[{}]".format(second - 4),
+            "a[{}]".format(first - 1),
+            "a[{}]".format(first - 3),
+            "a[{}]".format(first - 2),
+        ],
+        feedback,
+    )
+    for index in range(first):
+        data = "head_a" if index == 0 else "a[{}]".format(index - 1)
+        builder.register("a_{}".format(index), data, "a[{}]".format(index), clear="rst_n")
+    for index in range(second):
+        data = "head_b" if index == 0 else "b[{}]".format(index - 1)
+        builder.register("b_{}".format(index), data, "b[{}]".format(index), clear="rst_n")
+    builder.assign("dout", "a[{}]".format(first - 1))
+    return builder
+
+
 def _arx_round(name, width=8, rotation=3):
     """One ARX round: add two registered words, rotate, XOR, register back."""
     builder = Builder(name)
@@ -615,6 +716,26 @@ FIXTURES = {
         "build": lambda: _shift_chain("nlfsr16", 16, taps=[3, 12, 14, 15], nonlinear=True),
         "description": "16-stage NLFSR: the same taps with an AND term in the feedback",
         "role": "negative control for *linear* feedback: no polynomial exists",
+        "family": "lfsr-stream",
+        "style": "classical-style",
+    },
+    "lfsr16_loadable": {
+        "build": lambda: _loadable_lfsr("lfsr16_loadable", 16, (3, 12, 14, 15)),
+        "description": "the same LFSR behind a parallel `load ? seed : shift`",
+        "role": (
+            "positive control for the operating-mode search: every shift link is a "
+            "multiplexer until `load` is held at 0"
+        ),
+        "family": "lfsr-stream",
+        "style": "classical-style",
+    },
+    "coupled_nlfsr": {
+        "build": lambda: _coupled_nlfsr("coupled_nlfsr", (8, 10)),
+        "description": "two chains of 8 and 10 stages, each closed through the other",
+        "role": (
+            "positive control for coupled (Trivium/Grain-style) registers: neither "
+            "chain has a feedback polynomial of its own"
+        ),
         "family": "lfsr-stream",
         "style": "classical-style",
     },

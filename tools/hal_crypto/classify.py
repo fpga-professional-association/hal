@@ -202,19 +202,37 @@ def verdict(evidence):
     if feedback:
         present.append("lfsr-stream")
         for entry in feedback:
-            if entry["kind"] == "lfsr":
+            if entry["kind"] == "lfsr" and entry.get("polynomial"):
                 evidence_lines.append(
-                    "a {}-stage {} LFSR with feedback polynomial {}{}".format(
+                    "a {}-stage {} LFSR with feedback polynomial {}{}{}".format(
                         entry["length"],
                         entry["form"],
                         entry["polynomial"],
                         ", maximal length" if entry.get("maximal_length") else "",
+                        _mode_suffix(entry),
+                    )
+                )
+            elif entry["kind"] == "lfsr":
+                evidence_lines.append(
+                    "a {}-stage linear feedback register coupled to chain(s) {}, "
+                    "feedback {}{}".format(
+                        entry["length"],
+                        ", ".join(str(index) for index in entry["coupled_chains"]),
+                        entry["feedback_anf"],
+                        _mode_suffix(entry),
                     )
                 )
             else:
                 evidence_lines.append(
-                    "a {}-stage NLFSR with feedback ANF {}".format(
-                        entry["length"], entry["feedback_anf"]
+                    "a {}-stage NLFSR with feedback ANF {}{}{}".format(
+                        entry["length"],
+                        entry["feedback_anf"],
+                        " (coupled to chain(s) {})".format(
+                            ", ".join(str(index) for index in entry["coupled_chains"])
+                        )
+                        if entry.get("coupled")
+                        else "",
+                        _mode_suffix(entry),
                     )
                 )
         confidence = _max_confidence(confidence, "high")
@@ -258,6 +276,27 @@ def verdict(evidence):
         "confidence": confidence,
         "confidence_value": _CONFIDENCE_VALUE[confidence],
     }
+
+
+def _mode_suffix(entry):
+    """", while <net> = <value>" when the structure needed a net held."""
+    mode = entry.get("mode")
+    if not mode:
+        return ""
+    return ", while {} = {}".format(mode["net"], mode["value"])
+
+
+def _mode_sentence(entry):
+    """The sentence that turns a structural claim into a claim about a mode."""
+    mode = entry.get("mode")
+    if not mode:
+        return ""
+    return (
+        " The shift links are only visible with {} held at {}: every stage's next "
+        "state is a multiplexer, which is what a parallel load looks like after "
+        "synthesis. The claim is therefore about the netlist in that operating "
+        "mode.".format(mode["net"], mode["value"])
+    )
 
 
 def _max_confidence(current, candidate):
@@ -459,11 +498,18 @@ def shift_findings(artifact_id, structures):
             items.append(
                 model.finding(
                     "hal_crypto/lfsr/polynomial" + suffix,
-                    "A {}-stage {} {}LFSR with feedback polynomial {}".format(
+                    "A {}-stage {} {}LFSR with {}".format(
                         entry["length"],
                         entry["form"],
                         "" if entry.get("autonomous", True) else "data-absorbing ",
-                        entry["polynomial"],
+                        "feedback polynomial {}".format(entry["polynomial"])
+                        if entry.get("polynomial")
+                        else "feedback {} over coupled chain(s) {}".format(
+                            entry["feedback_anf"],
+                            ", ".join(
+                                str(index) for index in entry["coupled_chains"]
+                            ),
+                        ),
                     ),
                     model.STATUS_PROVEN_UNDER_ASSUMPTIONS,
                     findings.EXACT_EVALUATION,
@@ -475,12 +521,14 @@ def shift_findings(artifact_id, structures):
                         "{} registers shift into one another and the feedback is the "
                         "XOR of stages {}. The feedback cone was enumerated over its "
                         "whole input space, so the tap set is read off the function, "
-                        "not guessed from the wiring. Convention: {}, which makes the "
-                        "same recurrence read {} from the other end.{}{}".format(
+                        "not guessed from the wiring. Convention: {}{}{}{}".format(
                             entry["length"],
                             ", ".join(str(tap) for tap in entry["taps"]),
                             entry["polynomial_convention"],
-                            entry["polynomial_reciprocal"],
+                            ". "
+                            if not entry.get("polynomial")
+                            else ", which makes the same recurrence read {} from the "
+                            "other end.".format(entry["polynomial_reciprocal"]),
                             " Iterating the recurrence gives period {}{}.".format(
                                 entry["period"],
                                 " = 2^{} - 1, maximal".format(entry["length"])
@@ -495,6 +543,7 @@ def shift_findings(artifact_id, structures):
                             "CRC/scrambler shape rather than an autonomous "
                             "generator.".format(", ".join(entry.get("data_inputs", []))),
                         )
+                        + _mode_sentence(entry)
                     ),
                     bounds_dict=model.unbounded(
                         description=(
@@ -524,8 +573,14 @@ def shift_findings(artifact_id, structures):
             items.append(
                 model.finding(
                     "hal_crypto/nlfsr/feedback" + suffix,
-                    "A {}-stage NLFSR: the feedback has degree {}".format(
-                        entry["length"], entry["feedback_degree"]
+                    "A {}-stage NLFSR: the feedback has degree {}{}".format(
+                        entry["length"],
+                        entry["feedback_degree"],
+                        " and is coupled to chain(s) {}".format(
+                            ", ".join(str(index) for index in entry["coupled_chains"])
+                        )
+                        if entry.get("coupled")
+                        else "",
                     ),
                     model.STATUS_PROVEN_UNDER_ASSUMPTIONS,
                     findings.EXACT_EVALUATION,
@@ -533,7 +588,21 @@ def shift_findings(artifact_id, structures):
                     summary=(
                         "The chain is closed by a feedback function that is not linear, "
                         "so it has no feedback polynomial. Its algebraic normal form is "
-                        "{}.".format(entry["feedback_anf"])
+                        "{}.{}".format(
+                            entry["feedback_anf"],
+                            " {} of its inputs are stages of chain(s) {} rather than of "
+                            "this one, so the register is closed through a sibling: a "
+                            "Trivium/Grain-style coupled generator, whose state is the "
+                            "union of the coupled chains.".format(
+                                len(entry["coupled_taps"]),
+                                ", ".join(
+                                    str(index) for index in entry["coupled_chains"]
+                                ),
+                            )
+                            if entry.get("coupled")
+                            else "",
+                        )
+                        + _mode_sentence(entry)
                     ),
                     bounds_dict=model.unbounded(
                         description="the feedback cone was enumerated exhaustively"
