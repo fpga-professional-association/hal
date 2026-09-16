@@ -1,5 +1,9 @@
 var NAVTREEINDEX14 =
 {
+"namespacehal_1_1core__strings.html":[8,0,0,4],
+"namespacehal_1_1core__strings.html#a37f09aeed09bf8c9d56b599ffcdceef2":[8,0,0,4,2],
+"namespacehal_1_1core__strings.html#a939599c80f140610abb0390b66acf8a6":[8,0,0,4,1],
+"namespacehal_1_1cte.html":[8,0,0,5],
 "namespacehal_1_1cte.html#aab09ed4f02596098679737430eee8d38":[8,0,0,5,3],
 "namespacehal_1_1cte.html#aab09ed4f02596098679737430eee8d38a075903d97258c81e85a150f68985b242":[8,0,0,5,3,2],
 "namespacehal_1_1cte.html#aab09ed4f02596098679737430eee8d38a7942d0a7ac35269563fdee20e7271d74":[8,0,0,5,3,1],
@@ -245,9 +249,5 @@ var NAVTREEINDEX14 =
 "namespacehal_1_1plugin__manager.html#aa6a32055279aa92651b51436e9921c1e":[8,0,0,22,14],
 "namespacehal_1_1plugin__manager.html#aacd4893d3d32447c4ed1f27b21a827cf":[8,0,0,22,9],
 "namespacehal_1_1plugin__manager.html#ac3ea4574499d7a7ec9a879f1a1a5b685":[8,0,0,22,3],
-"namespacehal_1_1plugin__manager.html#ac7195b40f8ac66e68cfe5f8e6cf6f074":[8,0,0,22,12],
-"namespacehal_1_1plugin__manager.html#acb6d1f3c164b832fb19257b1df06aa53":[8,0,0,22,18],
-"namespacehal_1_1plugin__manager.html#acfef91bcd7b9db938f10e4b705cf3bfb":[8,0,0,22,10],
-"namespacehal_1_1plugin__manager.html#ad34e384af419d40a22d5486356772c24":[8,0,0,22,4],
-"namespacehal_1_1plugin__manager.html#ad66fea3d4017a3c7b058436924d3dda3":[8,0,0,22,16]
+"namespacehal_1_1plugin__manager.html#ac7195b40f8ac66e68cfe5f8e6cf6f074":[8,0,0,22,12]
 };

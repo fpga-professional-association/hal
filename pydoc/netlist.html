@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Netlist &mdash; hal_py v4.5.0-201-gad4aa9dd1 documentation</title>
+  <title>Netlist &mdash; hal_py v4.5.0-203-ge05910ec5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
@@ -27,7 +27,7 @@
             <a href="index.html" class="icon icon-home"> hal_py
           </a>
               <div class="version">
-                v4.5.0-201-gad4aa9dd1
+                v4.5.0-203-ge05910ec5
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -568,6 +568,24 @@ Submodules, gates and nets under this module will be moved to the parent of this
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="hal_py.Netlist.get_gate_by_name">
+<span class="sig-name descname"><span class="pre">get_gate_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">hal::Gate</span></span></span><a class="headerlink" href="#hal_py.Netlist.get_gate_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the gate specified by the given name.
+The name is matched exactly, no wildcards and no partial matches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the gate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The gate if exactly one gate carries that name, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise (no match, or an ambiguous name shared by multiple gates).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a> or <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="hal_py.Netlist.get_gate_library">
 <span class="sig-name descname"><span class="pre">get_gate_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="gate_library.html#hal_py.GateLibrary" title="hal_py.GateLibrary"><span class="pre">hal_py.GateLibrary</span></a></span></span><a class="headerlink" href="#hal_py.Netlist.get_gate_library" title="Permalink to this definition"></a></dt>
 <dd><p>Get the gate library associated with the netlist.</p>
@@ -617,6 +635,24 @@ The filter is evaluated on every gate such that the result only contains gates m
 </div></blockquote>
 </li>
 </ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.Netlist.get_gates_by_name">
+<span class="sig-name descname"><span class="pre">get_gates_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[hal::Gate]</span></span></span><a class="headerlink" href="#hal_py.Netlist.get_gates_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get all gates carrying the given name.
+The name is matched exactly, no wildcards and no partial matches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the gates.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of gates, empty if no gate carries that name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="gate.html#hal_py.Gate" title="hal_py.Gate">hal_py.Gate</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -832,6 +868,24 @@ The filter is evaluated on every module such that the result only contains modul
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="hal_py.Netlist.get_net_by_name">
+<span class="sig-name descname"><span class="pre">get_net_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">hal::Net</span></span></span><a class="headerlink" href="#hal_py.Netlist.get_net_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the net specified by the given name.
+The name is matched exactly, no wildcards and no partial matches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the net.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The net if exactly one net carries that name, <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise (no match, or an ambiguous name shared by multiple nets).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a> or <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="hal_py.Netlist.get_nets">
 <span class="sig-name descname"><span class="pre">get_nets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hal_py.Netlist.get_nets" title="Permalink to this definition"></a></dt>
 <dd><p>Overloaded function.</p>
@@ -867,6 +921,24 @@ The filter is evaluated on every net such that the result only contains nets mat
 </div></blockquote>
 </li>
 </ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hal_py.Netlist.get_nets_by_name">
+<span class="sig-name descname"><span class="pre">get_nets_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#hal_py.Netlist" title="hal_py.Netlist"><span class="pre">hal_py.Netlist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List[hal::Net]</span></span></span><a class="headerlink" href="#hal_py.Netlist.get_nets_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get all nets carrying the given name.
+The name is matched exactly, no wildcards and no partial matches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the nets.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of nets, empty if no net carries that name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net">hal_py.Net</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
