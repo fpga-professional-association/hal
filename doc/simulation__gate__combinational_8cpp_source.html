@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-203-ge05910ec5</span>
+   &#160;<span id="projectnumber">v4.5.0-206-g06e58ad64</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -90,61 +90,111 @@ $(document).ready(function(){initNavTree('simulation__gate__combinational_8cpp_s
 <div class="contents">
 <a href="simulation__gate__combinational_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="netlist__simulator_8h.html">netlist_simulator/netlist_simulator.h</a>&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacehal.html">hal</a></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    NetlistSimulator::SimulationGateCombinational::SimulationGateCombinational(<span class="keyword">const</span> Gate* gate) : SimulationGate(gate)</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;        std::unordered_map&lt;std::string, BooleanFunction&gt; functions = gate-&gt;get_boolean_functions();</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;        m_output_pins = gate-&gt;get_type()-&gt;get_output_pins();</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> GatePin* pin : m_output_pins)</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;        {</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;            <span class="keyword">const</span> Net* out_net = gate-&gt;get_fan_out_net(pin);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;            m_output_nets.push_back(out_net);</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;algorithm&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacehal.html">hal</a></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;{</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    NetlistSimulator::SimulationGateCombinational::SimulationGateCombinational(<span class="keyword">const</span> Gate* gate) : SimulationGate(gate)</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    {</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    }</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    Result&lt;std::monostate&gt; NetlistSimulator::SimulationGateCombinational::initialize_functions()</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    {</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <span class="keyword">const</span> Gate* gate = m_gate;</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            <span class="comment">// resolve recursion within output functions</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;            BooleanFunction&amp; func = functions.at(pin-&gt;get_name());</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;            <span class="keywordflow">while</span> (<span class="keyword">true</span>)</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;            {</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;                <span class="keyword">auto</span> vars = func.get_variable_names();</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                <span class="keywordtype">bool</span> exit = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;                <span class="keywordflow">for</span> (<span class="keyword">const</span> GatePin* other_pin : m_output_pins)</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;                {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;                    <span class="keywordflow">if</span> (<span class="keyword">const</span> std::string&amp; other_pin_name = other_pin-&gt;get_name(); std::find(vars.begin(), vars.end(), other_pin_name) != vars.end())</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;                    {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                        func = func.substitute(other_pin_name, functions.at(other_pin_name)).get();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;                        exit = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                    }</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                }</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                <span class="keywordflow">if</span> (exit)</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;                    <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;                }</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            }</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            m_functions.emplace(out_net, func);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateCombinational::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, std::map&lt;std::pair&lt;const Net*, u64&gt;, BooleanFunction::Value&gt;&amp; new_events)</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    {</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <a class="code" href="defines_8h.html#aea1d71af1a30c261dbd16745c82e94ba">UNUSED</a>(simulation);</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keyword">const</span> std::string context = <span class="stringliteral">&quot;cannot simulate gate &#39;&quot;</span> + gate-&gt;get_name() + <span class="stringliteral">&quot;&#39; with ID &quot;</span> + std::to_string(gate-&gt;get_id()) + <span class="stringliteral">&quot; of type &#39;&quot;</span> + gate-&gt;get_type()-&gt;get_name() + <span class="stringliteral">&quot;&#39;&quot;</span>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <span class="keyword">const</span> std::unordered_map&lt;std::string, BooleanFunction&gt; functions = gate-&gt;get_boolean_functions();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keyword">const</span> std::vector&lt;GatePin*&gt; declared_output_pins                 = gate-&gt;get_type()-&gt;get_output_pins();</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keywordflow">for</span> (GatePin* pin : declared_output_pins)</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;            <span class="keyword">const</span> Net* out_net = gate-&gt;get_fan_out_net(pin);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;            <span class="keywordflow">if</span> (out_net == <span class="keyword">nullptr</span>)</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;            {</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                <span class="comment">// An output pin that drives nothing cannot influence the simulation, and there is no net to</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;                <span class="comment">// record a value for -- the result map is keyed by net, so keeping it would put a null key in</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;                <span class="comment">// there that the read-back dereferences. Skipping it is also what lets a gate type with more</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;                <span class="comment">// output pins than the instance configures be simulated at all: an Agilex ALM declares four</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;                <span class="comment">// (combout, sumout, cout, shareout) and any one configuration defines at most two.</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;            }</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> func_it = functions.find(pin-&gt;get_name());</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            <span class="keywordflow">if</span> (func_it == functions.end())</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;            {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a>(context + <span class="stringliteral">&quot;: output pin &#39;&quot;</span> + pin-&gt;get_name() + <span class="stringliteral">&quot;&#39; drives net &#39;&quot;</span> + out_net-&gt;get_name() + <span class="stringliteral">&quot;&#39; with ID &quot;</span> + std::to_string(out_net-&gt;get_id())</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;                           + <span class="stringliteral">&quot; but the gate has no Boolean function for it.&quot;</span>);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            }</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;            BooleanFunction func = func_it-&gt;second;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <span class="comment">// compute delay, currently just a placeholder</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> <a class="code" href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">delay</a> = 0;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> out_net : m_output_nets)</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            BooleanFunction::Value result = m_functions[out_net].evaluate(m_input_values).get();</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;            new_events[std::make_pair(out_net, event.time + delay)] = result;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        }</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    }</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}    <span class="comment">// namespace hal</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            <span class="comment">// resolve recursion within output functions</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;            <span class="keywordflow">while</span> (<span class="keyword">true</span>)</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                <span class="keyword">const</span> <span class="keyword">auto</span> vars = func.get_variable_names();</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                <span class="keywordtype">bool</span> exit       = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;                <span class="keywordflow">for</span> (<span class="keyword">const</span> GatePin* other_pin : declared_output_pins)</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                    <span class="keyword">const</span> std::string&amp; other_pin_name = other_pin-&gt;get_name();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;                    <span class="keywordflow">if</span> (std::find(vars.begin(), vars.end(), other_pin_name) == vars.end())</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                    {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                        <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                    }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                    <span class="keyword">const</span> <span class="keyword">auto</span> other_it = functions.find(other_pin_name);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                    <span class="keywordflow">if</span> (other_it == functions.end())</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                    {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                        <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a>(context + <span class="stringliteral">&quot;: the Boolean function of output pin &#39;&quot;</span> + pin-&gt;get_name() + <span class="stringliteral">&quot;&#39; refers to output pin &#39;&quot;</span> + other_pin_name</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                                   + <span class="stringliteral">&quot;&#39;, for which the gate has no Boolean function.&quot;</span>);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                    }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                    <span class="keyword">auto</span> substituted = func.substitute(other_pin_name, other_it-&gt;second);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                    <span class="keywordflow">if</span> (substituted.is_error())</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;                    {</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;                        <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#af20e293cf442ddedc129f87bbb6a69e9">ERR_APPEND</a>(substituted.get_error(), context + <span class="stringliteral">&quot;: failed to resolve output pin &#39;&quot;</span> + other_pin_name + <span class="stringliteral">&quot;&#39; within the function of output pin &#39;&quot;</span> + pin-&gt;get_name() + <span class="stringliteral">&quot;&#39;.&quot;</span>);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;                    }</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;                    func = substituted.get();</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                    exit = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                <span class="keywordflow">if</span> (exit)</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                {</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                    <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            m_output_pins.push_back(pin);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            m_output_nets.push_back(out_net);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            m_functions.emplace(out_net, func);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        }</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a>({});</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    }</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateCombinational::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, std::map&lt;std::pair&lt;const Net*, u64&gt;, BooleanFunction::Value&gt;&amp; new_events)</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    {</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        <a class="code" href="defines_8h.html#aea1d71af1a30c261dbd16745c82e94ba">UNUSED</a>(simulation);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        <span class="comment">// compute delay, currently just a placeholder</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> <a class="code" href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">delay</a> = 0;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> out_net : m_output_nets)</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            BooleanFunction::Value result = m_functions[out_net].evaluate(m_input_values).get();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;            new_events[std::make_pair(out_net, event.time + delay)] = result;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        }</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    }</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;}    <span class="comment">// namespace hal</span></div>
 <div class="ttc" id="adefines_8h_html_a1af9f95651e921615e75917a6dd1b574"><div class="ttname"><a href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a></div><div class="ttdeci">uint64_t u64</div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00042">defines.h:42</a></div></div>
 <div class="ttc" id="adefines_8h_html_aea1d71af1a30c261dbd16745c82e94ba"><div class="ttname"><a href="defines_8h.html#aea1d71af1a30c261dbd16745c82e94ba">UNUSED</a></div><div class="ttdeci">#define UNUSED(expr)</div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00049">defines.h:49</a></div></div>
+<div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_a1c3e89a5c947d0af52de06b706adcf09"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a></div><div class="ttdeci">#define ERR(message)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00060">result.h:60</a></div></div>
+<div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_a5ad667153a89697b109f5b8e64da7fe7"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a></div><div class="ttdeci">#define OK(...)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00056">result.h:56</a></div></div>
+<div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_af20e293cf442ddedc129f87bbb6a69e9"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#af20e293cf442ddedc129f87bbb6a69e9">ERR_APPEND</a></div><div class="ttdeci">#define ERR_APPEND(prev_error, message)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00064">result.h:64</a></div></div>
 <div class="ttc" id="anamespacehal_html"><div class="ttname"><a href="namespacehal.html">hal</a></div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00044">defines.h:45</a></div></div>
 <div class="ttc" id="anamespacehal_html_adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b"><div class="ttname"><a href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">hal::GateTypeProperty::delay</a></div><div class="ttdeci">@ delay</div></div>
 <div class="ttc" id="anetlist__simulator_8h_html"><div class="ttname"><a href="netlist__simulator_8h.html">netlist_simulator.h</a></div></div>

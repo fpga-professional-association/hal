@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-203-ge05910ec5</span>
+   &#160;<span id="projectnumber">v4.5.0-206-g06e58ad64</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -226,7 +226,7 @@ Additional Inherited Members</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>HAL's built-in event-driven simulation engine. </p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00045">45</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00047">47</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ad39df0c1f32f882bc7ade5993b485906"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad39df0c1f32f882bc7ade5993b485906">&#9670;&nbsp;</a></span>generate_vcd()</h2>
@@ -277,7 +277,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> if the file gerneration was successful, <code>false</code> otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00568">568</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00611">611</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">References <a class="el" href="log_8h_source.html#l00078">log_error</a>, and <a class="el" href="netlist_2persistent_2netlist__serializer_8cpp_source.html#l00057">net</a>.</p>
 
@@ -338,7 +338,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classhal_1_1_simulation_engine_event_driven.html#a34c8cd9eab4c348bc2d90165539be506">hal::SimulationEngineEventDriven</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00230">230</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00248">248</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">References <a class="el" href="simulation_8cpp_source.html#l00036">hal::Simulation::get_events_by_net_id()</a>.</p>
 
@@ -370,7 +370,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classhal_1_1_simulation_engine.html#a12c31632ab81473aa0304d7dda29a8ed">hal::SimulationEngine</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00116">116</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00118">118</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
 
 <p class="reference">References <a class="el" href="simulation__engine_8h_source.html#l00064">hal::SimulationEngine::mSimulationInput</a>.</p>
 
@@ -393,7 +393,7 @@ Additional Inherited Members</h2></td></tr>
 <p>Get the current simulation state.</p>
 <dl class="section return"><dt>Returns</dt><dd>The current simulation state. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00215">215</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00233">233</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="plugins_2simulator_2hal__simulator_2python_2python__bindings_8cpp_source.html#l00019">hal::PYBIND11_PLUGIN()</a>.</p>
 
@@ -416,7 +416,7 @@ Additional Inherited Members</h2></td></tr>
 <p>Get the current iteration timeout value.</p>
 <dl class="section return"><dt>Returns</dt><dd>The iteration timeout. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00225">225</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00243">243</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="plugins_2simulator_2hal__simulator_2python_2python__bindings_8cpp_source.html#l00019">hal::PYBIND11_PLUGIN()</a>.</p>
 
@@ -438,7 +438,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 <p>Initialize the simulation. No additional gates or clocks can be added after this point. </p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00248">248</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00279">279</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">References <a class="el" href="wave__event_8h_source.html#l00041">hal::WaveEvent::affected_net</a>, <a class="el" href="log_8h_source.html#l00078">log_error</a>, <a class="el" href="netlist__simulator_8cpp_source.html#l00020">measure_block_time</a>, <a class="el" href="netlist_2persistent_2netlist__serializer_8cpp_source.html#l00057">net</a>, <a class="el" href="wave__event_8h_source.html#l00046">hal::WaveEvent::new_value</a>, <a class="el" href="netlist_2persistent_2netlist__serializer_8cpp_source.html#l00066">pins</a>, and <a class="el" href="wave__event_8h_source.html#l00051">hal::WaveEvent::time</a>.</p>
 
@@ -551,9 +551,9 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="classhal_1_1_simulation_engine_event_driven.html#ab61cdfe9c0a42ecf2384d104e6f295a3">hal::SimulationEngineEventDriven</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00235">235</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00253">253</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
-<p class="reference">References <a class="el" href="simulation__input_8h_source.html#l00048">hal::SimulationInputNetEvent::get_simulation_duration()</a>.</p>
+<p class="reference">References <a class="el" href="simulation__input_8h_source.html#l00048">hal::SimulationInputNetEvent::get_simulation_duration()</a>, and <a class="el" href="event__log_8cpp_source.html#l00302">hal::initialize()</a>.</p>
 
 </div>
 </div>
@@ -630,7 +630,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 <p>Reset the simulator state, i.e., treat all signals as unknown. Does not remove gates/nets from the simulation set. </p>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00200">200</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00217">217</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="plugins_2simulator_2hal__simulator_2python_2python__bindings_8cpp_source.html#l00019">hal::PYBIND11_PLUGIN()</a>.</p>
 
@@ -701,7 +701,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00220">220</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00238">238</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="plugins_2simulator_2hal__simulator_2python_2python__bindings_8cpp_source.html#l00019">hal::PYBIND11_PLUGIN()</a>.</p>
 
@@ -730,7 +730,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00210">210</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00228">228</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">References <a class="el" href="namespacehal.html#ae062cd9848a7ac51bd0bb4d76f1fb94ba9ed39e2ea931586b6a985a6942ef573e">hal::state</a>.</p>
 
@@ -761,7 +761,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00188">188</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8cpp_source.html#l00198">198</a> of file <a class="el" href="netlist__simulator_8cpp_source.html">netlist_simulator.cpp</a>.</p>
 
 <p class="reference">References <a class="el" href="event__log_8cpp_source.html#l00302">hal::initialize()</a>.</p>
 
@@ -790,7 +790,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00047">47</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00049">49</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
 
 </div>
 </div>
@@ -814,7 +814,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00180">180</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="netlist__simulator_8h_source.html#l00182">182</a> of file <a class="el" href="netlist__simulator_8h_source.html">netlist_simulator.h</a>.</p>
 
 </div>
 </div>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Netlist Simulator Controller &mdash; hal_py v4.5.0-203-ge05910ec5 documentation</title>
+  <title>Netlist Simulator Controller &mdash; hal_py v4.5.0-206-g06e58ad64 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
@@ -27,7 +27,7 @@
             <a href="index.html" class="icon icon-home"> hal_py
           </a>
               <div class="version">
-                v4.5.0-203-ge05910ec5
+                v4.5.0-206-g06e58ad64
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -257,9 +257,9 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>clock_net</strong> (<a class="reference internal" href="net.html#hal_py.Net" title="hal_py.Net"><em>hal_py.Net</em></a>) – The net that carries the clock signal.</p></li>
-<li><p><strong>period</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The clock period from rising edge to rising edge in picoseconds.</p></li>
+<li><p><strong>period</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The clock period from rising edge to rising edge in picoseconds. Must be at least 2.</p></li>
 <li><p><strong>start_at_zero</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Initial clock state is 0 if <code class="docutils literal notranslate"><span class="pre">True</span></code>, 1 otherwise.</p></li>
-<li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Optional max time limit when showing clock in VCD viewer or editor</p></li>
+<li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Time limit up to which the clock waveform is generated. Defaults to 0, which means for the whole simulation, i.e. up to the time reached by the <code class="docutils literal notranslate"><span class="pre">simulate</span></code> calls.</p></li>
 </ul>
 </dd>
 </dl>
