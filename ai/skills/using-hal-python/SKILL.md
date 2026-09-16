@@ -61,12 +61,16 @@ failure mode behind "no gate library parser registered for file extension
 `load_all_plugins()`. This is this repo's single most-repeated scripting
 mistake -- three of the Agilex walkthrough scripts independently made it.
 
-**`hal_py.Netlist` has no `get_gate_by_name`.** Filter `netlist.get_gates()`
-or use `get_gate_by_id`. (A convenience fix is filed as issue #52; don't
-assume it exists until it lands.)
+**`get_gate_by_name`/`get_net_by_name` match exactly and return `None` on a
+duplicate, not just on a miss.** `hal_py.Netlist` has `get_gate_by_name`,
+`get_net_by_name`, and the plural `get_gates_by_name`/`get_nets_by_name`. The
+singular forms never guess: a name shared by more than one gate or net
+resolves to `None` exactly like a name that matches nothing, so a duplicate is
+never silently resolved to whichever one comes first. Use the plural form, or
+filter `netlist.get_gates()`, when more than one match is expected.
 
 ```python
-gate = next(g for g in netlist.get_gates() if g.get_name() == "count_reg_3")
+gate = netlist.get_gate_by_name("count_reg_3")
 ```
 
 **The `--python-script` exit code is trustworthy -- check it.** `hal` exits 0

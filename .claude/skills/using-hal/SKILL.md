@@ -232,8 +232,12 @@ docstrings (`help(hal_py.<Plugin>)`) for the exact call, don't guess.
   `from hal_plugins import graph_algorithm` (after
   `hal_py.plugin_manager.load_all_plugins()`). Three of the Agilex walkthrough
   scripts independently made this exact mistake — it is the most common
-  scripting error in this repo. Also: `hal_py.Netlist` has no
-  `get_gate_by_name`; filter `netlist.get_gates()` or use `get_gate_by_id`.
+  scripting error in this repo. Also: `hal_py.Netlist.get_gate_by_name` and
+  `get_net_by_name` match exactly and return `None` on both a miss and an
+  ambiguous name — a duplicate is never silently resolved to whichever one
+  comes first — so filter `netlist.get_gates()`, or use the plural
+  `get_gates_by_name`/`get_nets_by_name`, when more than one match is
+  expected.
 - **`netlist` exists only when a project argument was given.** With
   `--project-dir` / `--import-netlist` / `--empty-project`, HAL loads the
   netlist and binds it to `netlist` before the script runs (see above). Without
