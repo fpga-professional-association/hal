@@ -66,9 +66,11 @@ cut at a register.
 
 Level 0 is the 301 `tennm_ff` plus the two constant nodes. Level 1 holds **301
 cells** — 285 plain shift multiplexers, the three feedback cells, the keystream
-cell, the two terminal-count tests and the `lo` counter. Level 2 holds just
-**9**: the three segment-head multiplexers (which have to wait for a feedback
-cell), the `hi` counter and its enable, and the two flags. Three levels on a
+cell, the two terminal-count tests and ten counter cells (two of them
+carry-chain slices). Level 2 holds just **9**: the three segment-head
+multiplexers, which are the only cells that have to wait for a feedback cell;
+four more counter cells, one of them the `hi` bank's clock enable; and the two
+flags. Three levels on a
 cipher with 1152 warm-up steps is the whole architecture in one number — the
 combinational depth of one Trivium step is *one LUT*, and everything else is
 schedule.

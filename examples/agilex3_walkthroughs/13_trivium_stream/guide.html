@@ -297,11 +297,13 @@ nodes. After the cut a register has no combinational predecessor, so it is a
 source by construction.</li>
 <li><strong>Level 1: 301 cells</strong> — everything whose inputs are registers
 and ports only. That is 285 plain shift multiplexers, the three feedback cells,
-the cell that drives <code>ks</code>, the two terminal-count tests and the
-six-cell <code>lo</code> counter.</li>
-<li><strong>Level 2: 9 cells</strong> — the three segment-head multiplexers
-(which must wait for a feedback cell), the five-cell <code>hi</code> counter with
-its enable, and the two flag cells.</li>
+the cell that drives <code>ks</code>, the two terminal-count tests
+(<code>lo_last</code>, <code>hi_last</code>) and ten counter cells, two of which
+are carry-chain slices.</li>
+<li><strong>Level 2: 9 cells</strong> — the three segment-head multiplexers,
+which are the only ones that have to wait for a feedback cell; four more counter
+cells, one of them the <code>hi</code> bank's clock enable; and the two flag
+cells.</li>
 </ul>
 
 <div class="why"><span class="tag">What the level count measures</span>
