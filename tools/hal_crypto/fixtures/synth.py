@@ -661,6 +661,122 @@ def _rotation_layer(name, width=16, rotation=5):
     return builder
 
 
+def _spn_round(name, table, bits=4, nibbles=4):
+    """One SPN round behind a round-key XOR and a parallel load.
+
+    ``state[P(i)] <= load ? plain[P(i)] : sub[i] ^ rkey[P(i)]`` with
+    ``P(i) = bits*i mod (w-1)``, the PRESENT pLayer construction at toy width.
+    That one cell per link is the whole point: the permutation is still exactly
+    in the netlist, but no destination bit peels back to a source through wires
+    alone, so the pure-wire tier reports nothing and
+    :func:`hal_crypto.permutation.cone_support_maps` has to read the map off
+    which bit of ``sub`` each next-state cone depends on.  It is the
+    walkthrough-12 shape at 16 bits: a real export of a real cipher puts the
+    key addition and the load multiplexer exactly here.
+    """
+    builder = Builder(name)
+    width = bits * nibbles
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("input", "load")
+    builder.port("input", "plain", width)
+    builder.port("input", "rkey", width)
+    builder.port("output", "dout", width)
+    builder.wire("state", width)
+    builder.wire("sub", width)
+    builder.wire("nxt", width)
+    for nibble in range(nibbles):
+        base = nibble * bits
+        inputs = ["state[{}]".format(base + index) for index in range(bits)]
+        for position in range(bits):
+            builder.function(
+                "sb{}_{}".format(nibble, position),
+                "sub[{}]".format(base + position),
+                inputs,
+                lambda values, position=position: (
+                    table[sum(bit << index for index, bit in enumerate(values))] >> position
+                )
+                & 1,
+            )
+    # address bit 0 = load, 1 = plain, 2 = sub, 3 = rkey
+    round_key = [
+        ((index >> 1) & 1) if index & 1 else (((index >> 2) & 1) ^ ((index >> 3) & 1))
+        for index in range(16)
+    ]
+    for index in range(width):
+        target = width - 1 if index == width - 1 else (bits * index) % (width - 1)
+        builder.lut(
+            "rk_{}".format(target),
+            "nxt[{}]".format(target),
+            [
+                "load",
+                "plain[{}]".format(target),
+                "sub[{}]".format(index),
+                "rkey[{}]".format(target),
+            ],
+            round_key,
+        )
+    for index in range(width):
+        builder.register(
+            "state_{}".format(index), "nxt[{}]".format(index),
+            "state[{}]".format(index), clear="rst_n",
+        )
+        builder.assign("dout[{}]".format(index), "state[{}]".format(index))
+    return builder
+
+
+def _mux_bank(name, width=16, first=3, second=5):
+    """A 2-to-1 datapath multiplexer bank, in both shapes that fool a support test.
+
+    ``y`` selects between two *different* source banks, each read through a
+    rotation; ``z`` selects between two rotations of the *same* bank.  Both are
+    ordinary datapath multiplexers and neither is a permutation layer, so
+    :func:`hal_crypto.permutation.cone_support_maps` must report nothing for
+    either -- for ``y`` because two sources explain it equally well, for ``z``
+    because no bit's next state reads only one bit of the source.
+    """
+    builder = Builder(name)
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("input", "sel")
+    builder.port("input", "din_a", width)
+    builder.port("input", "din_b", width)
+    builder.port("output", "dout", width)
+    builder.port("output", "dout2", width)
+    for vector in ("a", "b", "y", "z", "ny", "nz"):
+        builder.wire(vector, width)
+    # address bit 0 = sel, 1 = the sel-high operand, 2 = the sel-low operand
+    select = [0, 0, 0, 1, 1, 0, 1, 1]
+    for index in range(width):
+        builder.register("a_{}".format(index), "din_a[{}]".format(index),
+                         "a[{}]".format(index), clear="rst_n")
+        builder.register("b_{}".format(index), "din_b[{}]".format(index),
+                         "b[{}]".format(index), clear="rst_n")
+        builder.lut(
+            "ymux_{}".format(index),
+            "ny[{}]".format(index),
+            [
+                "sel",
+                "a[{}]".format((index - first) % width),
+                "b[{}]".format((index - second) % width),
+            ],
+            select,
+        )
+        builder.lut(
+            "zmux_{}".format(index),
+            "nz[{}]".format(index),
+            ["sel", "a[{}]".format(index), "a[{}]".format((index - 1) % width)],
+            select,
+        )
+        builder.register("y_{}".format(index), "ny[{}]".format(index),
+                         "y[{}]".format(index), clear="rst_n")
+        builder.register("z_{}".format(index), "nz[{}]".format(index),
+                         "z[{}]".format(index), clear="rst_n")
+        builder.assign("dout[{}]".format(index), "y[{}]".format(index))
+        builder.assign("dout2[{}]".format(index), "z[{}]".format(index))
+    return builder
+
+
 def _present_table():
     from ..known import SBOXES
 
@@ -778,6 +894,33 @@ FIXTURES = {
         "build": lambda: _rotation_layer("rotate16", width=16, rotation=5),
         "description": "two 16-bit register banks joined by a rotation of 5",
         "role": "positive control for the permutation pass, negative for ARX",
+        "family": "none-detected",
+        "style": "undetermined",
+    },
+    "spn_round16": {
+        "build": lambda: _spn_round("spn_round16", _present_table(), 4, nibbles=4),
+        "description": (
+            "one 16-bit SPN round: four PRESENT S-boxes, a 4i mod 15 bit "
+            "permutation, and a round-key XOR plus a parallel load between the "
+            "permutation and the register bank"
+        ),
+        "role": (
+            "positive control for the cone-support tier: the permutation is behind "
+            "one XOR cell per link, so the pure-wire tier cannot see it"
+        ),
+        "family": "spn",
+        "style": "classical-style",
+    },
+    "mux_bank16": {
+        "build": lambda: _mux_bank("mux_bank16", width=16, first=3, second=5),
+        "description": (
+            "two 2-to-1 datapath multiplexer banks: one selecting between two "
+            "source banks, one between two rotations of the same bank"
+        ),
+        "role": (
+            "negative control for the cone-support tier -- a multiplexer is not a "
+            "permutation layer, in either shape"
+        ),
         "family": "none-detected",
         "style": "undetermined",
     },

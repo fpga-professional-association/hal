@@ -58,6 +58,14 @@
       "sha256": "b1cd67fd32fa01e1d540602712a91b97593454cd22030aca6b40f883d79b3573",
       "size_bytes": 10266
     },
+    "mux_bank16.vo": {
+      "description": "two 2-to-1 datapath multiplexer banks: one selecting between two source banks, one between two rotations of the same bank",
+      "expected_family": "none-detected",
+      "expected_style": "undetermined",
+      "role": "negative control for the cone-support tier -- a multiplexer is not a permutation layer, in either shape",
+      "sha256": "4edfb1342950b06fe813bf8294faabede0444b2ea7641dec27f4b8df339755e1",
+      "size_bytes": 27265
+    },
     "nlfsr16.vo": {
       "description": "16-stage NLFSR: the same taps with an AND term in the feedback",
       "expected_family": "lfsr-stream",
@@ -97,6 +105,14 @@
       "role": "negative control for the LFSR pass",
       "sha256": "415ce25b2a8bd5072b2254f610f38cf421209c75b70d8e2d84003fcabddb2814",
       "size_bytes": 4737
+    },
+    "spn_round16.vo": {
+      "description": "one 16-bit SPN round: four PRESENT S-boxes, a 4i mod 15 bit permutation, and a round-key XOR plus a parallel load between the permutation and the register bank",
+      "expected_family": "spn",
+      "expected_style": "classical-style",
+      "role": "positive control for the cone-support tier: the permutation is behind one XOR cell per link, so the pure-wire tier cannot see it",
+      "sha256": "72e828daeb5e167aea823ea827dead32d583d6733780dbfa69c9e1b369f9f14a",
+      "size_bytes": 15751
     },
     "unknown_sbox_layer.vo": {
       "description": "the same shape with a 4-bit bijection that is in no library",

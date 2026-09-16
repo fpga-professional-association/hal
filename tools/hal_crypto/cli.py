@@ -116,8 +116,11 @@ def command_arx(args):
 def command_permutation(args):
     netlist, artifact = _load(args)
     model = NetlistModel(netlist)
+    wiring = permutation.find_permutations(model)
     items = classify.permutation_findings(
-        artifact["artifact_id"], permutation.find_permutations(model)
+        artifact["artifact_id"],
+        wiring,
+        cone_maps=permutation.cone_support_maps(model, wiring=wiring),
     )
     return _emit(
         _single_pass_document(

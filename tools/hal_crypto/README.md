@@ -19,7 +19,7 @@ chance to be wrong about what the vendor wrote.
 | `sbox.py` | which LUT cones form an *n*-bit bijection, and does it equal a published S-box? | `fixtures/present_sbox_layer.vo` | `fixtures/unknown_sbox_layer.vo`, `fixtures/counter8.vo` |
 | `shiftreg.py` | is a register chain closed by feedback -- by its own stages or by a sibling's; is the feedback linear (polynomial) or not (ANF); Fibonacci or Galois? | `fixtures/lfsr16_fibonacci.vo`, `fixtures/lfsr16_galois.vo`, `fixtures/lfsr16_loadable.vo`, `fixtures/coupled_nlfsr.vo` | `fixtures/nlfsr16.vo`, `fixtures/shift16_plain.vo` |
 | `arx.py` | are adders, fixed rotations and an XOR layer present **and wired together**? | `fixtures/arx_round8.vo` | `fixtures/counter8.vo`, `fixtures/rotate16.vo` |
-| `permutation.py` | which pure-wire bit maps exist, and do they equal a published pLayer or rotation set? | `fixtures/rotate16.vo` | `fixtures/counter8.vo` |
+| `permutation.py` | which pure-wire bit maps exist, and do they equal a published pLayer or rotation set? and which maps survive one cell per link? | `fixtures/rotate16.vo` (wiring), `fixtures/spn_round16.vo` (cone support) | `fixtures/counter8.vo`, `fixtures/mux_bank16.vo` |
 | `ntt.py` | is there an add/subtract butterfly over the same operands, and what modulus does the constant-operand chain reduce by? | `fixtures/ntt_stage13.vo` | `fixtures/butterfly4.vo` (butterfly, no modulus) |
 | `classify.py` | all of the above, as one family verdict and one classical/PQC verdict | every fixture declares its expected verdict in `fixtures/MANIFEST.json` | `examples/agilex3_walkthroughs/01_blinky_counter` |
 
@@ -151,6 +151,43 @@ Prime Pro export of Speck32/64, and both defeat the obvious reading:
 Holding one input is deliberately the limit: freeze enough inputs and almost
 any function turns affine.
 
+### A pLayer in a vendor export is not a wire either
+
+Measured on `examples/agilex3_walkthroughs/12_present_sbox`, a Quartus Prime Pro
+export of PRESENT-80. Both of that cipher's bit maps are fully present in the
+netlist and neither is visible to a pass that requires wiring: the round-key
+XOR sits between the substitution layer and the datapath register, and a
+parallel key load puts a multiplexer on every link of the 80-bit key register.
+One 3-input ALM per bit hides a 64-bit pLayer and an 80-bit rotation.
+
+`permutation.cone_support_maps` reads them off the *cone support* instead. For
+every register bank it asks, of each bit's next-state function, **which bits of
+vector V does it depend on** — with the walk cut at every declared vector, so
+the answer names the layer above the logic rather than the registers behind it,
+and with each cone enumerated exhaustively, so a dead LUT input cannot
+manufacture a link. Exactly one bit is a link; a bijection of the bank, or a
+single consistent rotation amount, is a map. On that export it returns the
+pLayer (matching the published `present_player`, all 64 bits) and the key
+schedule's rotation left by 61 (76 of 80 bits — the other four go through the
+S-box).
+
+This tier is **weaker than the wiring tier and never replaces it**. Its
+findings are `hal_crypto/permutation/cone-support`, carry
+`read_from: "next-state cone support"`, and carry an explicit
+`one-side-input-per-link` assumption: the claim is *which bit each register
+reads*, modulo whatever else the cone reads, so it describes the operating mode
+in which the source reaches the register. Three rules keep it honest:
+
+- a map the wiring tier, or `register_bank_rotations`, already reports is not
+  reported again — the reading that needs less inference stands alone;
+- when two sources each explain every link into a bank, nothing is reported:
+  that is a multiplexer choosing between operands, which is what
+  `fixtures/mux_bank16.vo` pins;
+- a *partial* map is only ever a rotation, never a general permutation, and
+  never one by ±1: a bank whose bits each read their neighbour with the head
+  left over is an open shift chain, and `shiftreg.py` names it properly, with
+  its feedback.
+
 ## Fixtures
 
 `fixtures/*.vo` are **synthesized shapes, not vendor exports**: they are
@@ -170,7 +207,7 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-95 tests, no HAL, ~10 s. Registered with ctest as
+109 tests, no HAL, ~14 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
@@ -179,7 +216,9 @@ specification states, `01_blinky_counter` must classify `none-detected`, and
 quoted and no claim that the design *is* SPECK, and `13_trivium_stream` must
 classify `lfsr-stream` as three coupled NLFSRs of 93, 84 and 111 stages with the
 published Trivium feedback functions recovered and no polynomial claimed for any
-of them.
+of them, and `12_present_sbox` must yield the PRESENT pLayer and the key
+register's rotation by 61 from the cone support, with its `variants/` exports
+showing what a different register placement costs.
 
 `elaborate` is the one subcommand that loads a netlist in HAL's own process, so
 it also has a case in `tests/headless_smoke/tool_cli_plugin_load_smoke.py`,

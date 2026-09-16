@@ -149,7 +149,7 @@ PRESENT-80 test vectors, the netlist returns the four published ciphertexts.</p>
 <a href="#contact">2. First contact: census, ports, registers</a><br>
 <a href="#dag">3. The netlist as a graph</a><br>
 <a href="#sboxes">4. The substitution layer</a><br>
-<a href="#player">5. The permutation layer, which no pass can see</a><br>
+<a href="#player">5. The permutation layer, which the wiring cannot show</a><br>
 <a href="#keysched">6. The key schedule</a><br>
 <a href="#rounds">7. How many rounds</a><br>
 <a href="#verdict">8. The verdict, and what it is allowed to mean</a><br>
@@ -455,39 +455,66 @@ levelled DAG in section 3 is the whole-design picture that survives this size; t
 is what it is for.</p>
 </div>
 
-<h2 id="player">5. The permutation layer, which no pass can see</h2>
+<h2 id="player">5. The permutation layer, which the wiring cannot show</h2>
 
 <p>PRESENT's other layer is a bit permutation, and <code>hal_crypto</code> has a
 pass for exactly that. Run it:</p>
 
 <pre><code>$ python3 -m hal_crypto permutation present_sbox.vo -o artifacts/permutation.findings.json
 
+register bank kreg reads kreg rotated left by 61, recovered from the next-state cone support
+  76 of the 80 bits of register bank kreg have a next-state cone that reads exactly one
+  bit of kreg, and the index map is a rotation left by 61.
+
+A 64-bit general bit map from subs into register bank state, recovered from the next-state
+cone support matching present_player
+  64 of the 64 bits of register bank state have a next-state cone that reads exactly one
+  bit of subs, and the index map is a general permutation. [...] It equals the published
+  present_player.
+
 No non-identity bit permutation layer
-  Every pure-wire map between two equally wide vectors is the identity, so there is
-  no permutation layer to compare against the published pLayers.</code></pre>
+  Every pure-wire map between two equally wide vectors is the identity, so there is no
+  permutation layer to compare against the published pLayers. 2 map(s) were recovered
+  from the next-state cone support instead and are reported separately: the silence here
+  is about wires, not about the design.</code></pre>
 
-<p>Nothing. The pass is not broken and the permutation is not absent — the two
-statements are compatible, and understanding why is worth more than the result
-would have been.</p>
+<p>Three findings and two tiers, and the difference between them is the whole
+subject of this section. The third one is the pure-wire pass, and it is right: in
+this netlist there is no wire permutation to find. The first two are a weaker
+question asked of the same netlist, and that question the netlist does answer.</p>
 
-<div class="note"><span class="tag">Why the pass finds nothing here</span>
+<div class="note"><span class="tag">Why the wiring shows nothing here</span>
 <p>A permutation layer costs no logic. That is what makes it cheap in silicon and
 what makes it hard to see: after synthesis it is not a signal, it is
-<em>which cell output is soldered to which flip-flop input</em>. The pass looks for
-the one shape where a permutation does leave a trace — a declared vector, or a
-register bank's D pins, whose bits each peel back through nothing but buffers and
+<em>which cell output is soldered to which flip-flop input</em>. The pure-wire tier
+looks for the one shape where a permutation leaves a trace — a declared vector, or
+a register bank's D pins, whose bits each peel back through nothing but buffers and
 inverters to distinct bits of one other vector. In this netlist the D pins of the
 datapath register are driven by ALMs (the round key XOR sits between the
 substitution and the register), so the peel stops immediately and the pass
-correctly reports that it has nothing to compare.</p>
-<p style="margin-bottom:0">This is a real coverage gap in the tool, and it is
-reported as such rather than worked around: <code>hal_crypto permutation</code>
-finds rotations between register banks (walkthrough 11's ARX shifts) but will
-<em>not</em> find a pLayer that lands behind any logic. Anyone identifying an SPN
-should expect to do this step by hand.</p>
+correctly reports that it has nothing to compare. The same single cell per link
+hides the key register's rotation from <code>hal_crypto lfsr</code>.</p>
+<p style="margin-bottom:0">The second tier stops asking about wires and asks about
+<em>dependence</em>: of each flip-flop's next-state function, which bit of which
+declared vector does it actually read? The cone is enumerated over its whole input
+space, so "reads exactly one bit of <code>subs</code>" is read off the function and
+cannot be faked by a dead LUT input; when every bit of a bank links that way and
+the indices form a bijection, the map is reported — with the round key, the load
+path and the mode select it passed through named in the finding. It is deliberately
+the weaker claim: <em>which bit each register reads</em>, in the operating mode
+where that bit reaches it, not <em>the map is the wiring</em>. A map the wiring tier
+can see is never restated at this tier, and a bank two different sources explain
+equally well is a multiplexer and is refused.</p>
 </div>
 
-<h4>Doing it by hand</h4>
+<h4>Doing it by hand — and why it is still the better derivation</h4>
+
+<p>The pass above leans on one thing the netlist happened to keep: the name
+<code>subs</code>. That vector survived because of the <code>keep</code> pragma
+(<a href="#variants">section 10</a> measures what happens without it), and a map
+expressed over a vendor's net names is only as good as those names. The recovery
+below uses none: it compares <em>functions</em>, and it is what found the
+permutation in the first place.</p>
 
 <p>By hand does not mean by eye. The question is: for each of the 64 datapath
 flip-flops, which substitution output drives it? Answer it functionally, in two
@@ -554,14 +581,24 @@ exactly: rotate the register left by 61, put the top nibble through the S-box, X
 the round counter into bits 19:15, and use the top 64 bits as the round key.</p>
 
 <div class="why"><span class="tag">Why the rotation is not in the shift-register pass either</span>
-<p style="margin-bottom:0">A rotation by 61 across 80 flops <em>is</em> a shift
-structure, and <code>hal_crypto lfsr</code> reports nothing here: it walks
-register-to-register links through buffers and inverters only, and in this netlist
-every key flop's D goes through the load multiplexer that selects between
-<code>key_in</code> and the rotated value. One 3-input cell per bit is enough to
-hide an 80-bit rotation from a pass that requires pure wiring. Reading the
-<em>cone sources</em> instead of the wire, as above, sees straight through it — the
-mux does not change which register the bit comes from.</p>
+<p>A rotation by 61 across 80 flops <em>is</em> a shift structure, and
+<code>hal_crypto lfsr</code> reports nothing here: it walks register-to-register
+links through buffers and inverters only, and in this netlist every key flop's D
+goes through the load multiplexer that selects between <code>key_in</code> and the
+rotated value. One 3-input cell per bit is enough to hide an 80-bit rotation from a
+pass that requires pure wiring. Reading the <em>cone sources</em> instead of the
+wire, as above, sees straight through it — the mux does not change which register
+the bit comes from.</p>
+<p style="margin-bottom:0">That pass does have a way through a load multiplexer —
+holding one external net at one constant, which is what recovers all 288 shift
+links of <a href="../13_trivium_stream/guide.html">walkthrough 13</a>'s Trivium.
+Applied here, with <code>start</code> held at 0, it finds four <em>open</em> chains
+of 16 to 20 stages: the 80-bit cycle cut at the nine bits that are not plain links
+(the substituted nibble and the five counter-injected bits). Open chains bought by
+a held select are dropped on purpose — every loadable register bank becomes one —
+so the answer stays "no chain", and it is the right answer to the question that
+pass asks. "Rotation by 61" is a different question, and it is the permutation
+pass, at its cone-support tier, that answers it.</p>
 </div>
 
 <h2 id="rounds">7. How many rounds</h2>
@@ -729,6 +766,12 @@ is the behaviour you want: on a real target the difference between &ldquo;the
 PRESENT S-box&rdquo; and &ldquo;a degree-3 4-bit bijection that is not in the
 library&rdquo; is the difference between an identification and a lead.</p>
 
+<p>The pLayer goes with it. The map recovered in <a href="#player">section 5</a> is
+expressed over the vector <code>subs</code>, and without the pragma that vector is
+not a signal any more — there is nothing for the permutation to be a map
+<em>of</em>. Both exports below still yield the key register's rotation by 61,
+which depends on neither pragma.</p>
+
 <h4>The textbook placement: nothing at all</h4>
 
 <p>Move the register to the other side of the key addition — the placement every
@@ -746,6 +789,12 @@ verdict:</p>
 where the schedule's S-box happens to read four registers directly — and it does not
 match the library either, for the same folding reason. The design is bit-for-bit the
 same cipher; its ciphertexts are the same; and a structural identifier sees nothing.</p>
+
+<p>Nothing of the <em>datapath</em>, that is. The key schedule does not depend on
+the substitution layer, so its rotation by 61 comes out of this export exactly as it
+does from the main one, and the verdict's evidence list says so. One rotating
+register is not a cipher: the family stays <code>none-detected</code>, and the
+walkthrough's counterfactual stands.</p>
 
 <div class="honest"><span class="tag">The lesson, stated plainly</span>
 <p>Structural crypto identification is a search for shapes that <em>survived</em>

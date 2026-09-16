@@ -119,6 +119,7 @@ class NetlistModel(object):
         self._index_instances()
         self.input_keys = self._input_keys()
         self._support_cache = {}
+        self._cut_caches = {}
 
     # -- preparation ------------------------------------------------------
 
@@ -335,15 +336,47 @@ class NetlistModel(object):
 
     def support(self, key, _stack=None):
         """The source net keys *key* depends on, syntactically."""
-        cached = self._support_cache.get(key)
+        return self._support(key, frozenset(), self._support_cache, _stack or set())
+
+    def cut_support(self, key, cut, expand_root=False):
+        """:meth:`support`, stopping at every net in *cut* as if it were a source.
+
+        The register boundary is not the only cut worth taking.  A round-key
+        XOR or a load multiplexer between two layers hides which bit of the
+        upstream layer reaches which register, and the upstream layer is
+        usually still a *named vector* in the export -- so cutting the walk
+        there answers "which bit of that vector does this register read" in one
+        pass, where :meth:`support` can only answer "which registers".  The
+        cut is the caller's claim about where a meaningful boundary is, and
+        :func:`hal_crypto.permutation.cone_support_maps` is what makes it.
+
+        *cut* must be hashable (a frozenset); one cache is kept per cut.
+
+        ``expand_root`` steps through *key* itself when it happens to be in the
+        cut, instead of answering "it depends on itself".  The caller wants the
+        cut to name the layer *behind* the net it is asking about -- a register's
+        ``d`` pin is often a bit of a ``nxt``-style vector, and stopping there
+        would answer nothing.
+        """
+        if expand_root and key in cut and not self.is_source(key):
+            cut = cut - {key}
+            cache_key = (cut, key)
+        else:
+            cache_key = cut
+        cache = self._cut_caches.get(cache_key)
+        if cache is None:
+            cache = self._cut_caches[cache_key] = {}
+        return self._support(key, cut, cache, set())
+
+    def _support(self, key, cut, cache, stack):
+        cached = cache.get(key)
         if cached is not None:
             return cached
-        stack = _stack or set()
         if key in stack:
             raise UnsupportedCell("combinational loop through {}".format(key))
-        if self.is_source(key):
+        if key in cut or self.is_source(key):
             result = frozenset([key])
-            self._support_cache[key] = result
+            cache[key] = result
             return result
         instance, pin = self._drivers[key]
         stack = stack | {key}
@@ -351,13 +384,13 @@ class NetlistModel(object):
         if pin in ("combout", "sumout", "cout"):
             keys, _, _, _, _ = self._lut_inputs(instance)
             for child in keys:
-                result |= self.support(child, stack)
+                result |= self._support(child, cut, cache, stack)
             if pin in ("sumout", "cout"):
                 carry = instance.connections.get("cin")
                 if carry:
                     resolved = self.resolve(instance.single("cin"))
                     if resolved[0] == "net":
-                        result |= self.support(resolved[1], stack)
+                        result |= self._support(resolved[1], cut, cache, stack)
         else:
             raise UnsupportedCell(
                 "net {} is driven by pin {} of {}, which is not modelled".format(
@@ -365,7 +398,7 @@ class NetlistModel(object):
                 )
             )
         frozen = frozenset(result)
-        self._support_cache[key] = frozen
+        cache[key] = frozen
         return frozen
 
     def support_of_bit(self, bit):

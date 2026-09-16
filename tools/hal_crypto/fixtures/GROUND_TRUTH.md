@@ -34,6 +34,8 @@ fails the check.
 | `butterfly4.vo` | 4-bit `a+b` and `a-b` over the same registers | positive for butterfly detection, negative for the modulus | `none-detected` | `undetermined` |
 | `ntt_stage13.vo` | the same butterfly plus a conditional subtract of 3329 | positive: lattice-style modular transform | `lattice-ntt` | `pqc-style` |
 | `rotate16.vo` | two 16-bit banks joined by a rotation of 5 | positive for the permutation pass, negative for ARX | `none-detected` | `undetermined` |
+| `spn_round16.vo` | one 16-bit SPN round: four PRESENT S-boxes, a `4i mod 15` permutation, and a round-key XOR plus a parallel load between them and the register | positive for the cone-support tier: the permutation is behind one cell per link | `spn` | `classical-style` |
+| `mux_bank16.vo` | two 2-to-1 datapath multiplexer banks: one selecting between two source banks, one between two rotations of the same bank | negative for the cone-support tier: a multiplexer is not a permutation layer, in either shape | `none-detected` | `undetermined` |
 
 ## The exact claims the tests assert
 
@@ -116,11 +118,34 @@ identify a scheme.
 
 **`rotate16.vo`** — `back[i] = front[(i-5) mod 16]` through pure wiring. The
 permutation pass reports a 16-bit rotation; the ARX pass reports `not-arx`
-because there is no adder and no XOR layer. Family `none-detected`.
+because there is no adder and no XOR layer. Family `none-detected`. The
+cone-support tier finds the same map and *drops* it: reading it off the wires
+needs less inference, so that reading stands alone.
+
+**`spn_round16.vo`** — `state[P(i)] <= load ? plain[P(i)] : sub[i] ^ rkey[P(i)]`
+with `P(i) = 4i mod 15`, `P(15) = 15`, and `sub` four PRESENT S-boxes over the
+four nibbles of `state`. Not one destination bit peels back to a source through
+wires alone, so the pure-wire tier reports **nothing at all** — and the
+cone-support tier reports the whole map: 16 of 16 links, source `sub`,
+destination `register bank state`, `permutation = [0, 4, 8, 12, 1, 5, 9, 13, 2,
+6, 10, 14, 3, 7, 11, 15]` (the same map read in the other direction),
+`link_form: gated` with `load` shared by every link and at most three other
+operands per link. Family `spn`: four extracted substitutions and a permutation
+layer between them. This is `12_present_sbox` at toy width; the map is 16 bits
+wide, so it matches no published pLayer and the finding lists none.
+
+**`mux_bank16.vo`** — two banks that a support test would happily mistake for
+permutation layers, and neither may be reported. `y[i] <= sel ? a[(i-3) mod 16]
+: b[(i-5) mod 16]` gives *two* complete candidate maps, one per source, which
+is the signature of a multiplexer choosing between operands rather than of a
+layer; the pass reports nothing and records the refusal with both sources
+named. `z[i] <= sel ? a[i] : a[(i-1) mod 16]` is the other shape: every bit
+reads two bits of the same source, so there is no link anywhere and no
+candidate is ever formed. Family `none-detected`.
 
 ## Walkthrough exports used as end-to-end cases
 
-Two real Quartus exports outside this directory are part of the same
+The real Quartus exports outside this directory are part of the same
 acceptance set, because they are what the tool has to work on:
 
 | export | expected | why |
@@ -130,3 +155,5 @@ acceptance set, because they are what the tool has to work on:
 | `examples/agilex3_walkthroughs/10_crc8_checker/netlist/crc8_checker.vo` | a data-absorbing Galois register, reciprocal polynomial `x^8 + x^2 + x + 1` | that walkthrough's stated 0x07 generator; the family stays `none-detected` because a CRC absorbs data rather than generating a keystream |
 | `examples/agilex3_walkthroughs/11_speck_toy/speck_toy.vo` | `arx`, `classical-style`, four 16-bit rotations (7, 7, 2, 2) matching the published `speck_32` set | the case the synthesized `arx_round8` cannot make: a real export names **no** rotated vector and has **no** standalone XOR cell, so the round is only visible in the order a cell layer reads a register bank and under a held multiplexer select |
 | `examples/agilex3_walkthroughs/13_trivium_stream/trivium_stream.vo` | `lfsr-stream`, `classical-style`, three coupled NLFSRs of 93, 84 and 111 stages under `start = 0` | the case the two synthesized fixtures above make one at a time, made together by a real export: a parallel key/IV load hides all 288 shift links, and every segment's feedback closes through a sibling |
+| `examples/agilex3_walkthroughs/12_present_sbox/present_sbox.vo` | `spn`, `classical-style`, the PRESENT pLayer (`present_player`, 64 of 64 links) and the key register's rotation left by 61 (76 of 80 links), both from the cone support | what `spn_round16` makes at toy width, made by a real export: the round key sits between the substitution layer and the datapath register and a key load sits on every link of the key register, so the pure-wire tier reports nothing at all |
+| `examples/agilex3_walkthroughs/12_present_sbox/variants/present_textbook.vo` | `none-detected`, and the key rotation **but not** the pLayer | the counterfactual: with the register holding the state *before* the key addition, the substitution layer is not a signal, so there is no source vector for a pLayer to be a map of. The key schedule does not depend on the substitution, and its rotation still comes out |

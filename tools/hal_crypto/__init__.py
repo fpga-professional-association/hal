@@ -13,7 +13,9 @@ one question each:
 ``arx``
     are adders, fixed rotations and an XOR layer present *and wired together*?
 ``permutation``
-    which pure-wire bit maps exist, and do they equal a published pLayer or a
+    which pure-wire bit maps exist, which further maps survive one cell per
+    link (a round-key XOR, a load multiplexer) and are readable off the
+    next-state cone support, and do they equal a published pLayer or a
     published rotation set?
 ``ntt``
     is there an add/subtract butterfly over the same operands, and what

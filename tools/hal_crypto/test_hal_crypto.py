@@ -21,6 +21,10 @@ LFSR feedback polynomial     ``nlfsr16`` (has taps, has no polynomial) and
 ARX                          ``counter8`` and ``01_blinky_counter`` -- an
                              adder with no rotation and no XOR layer
 permutation layer            ``counter8`` (every wire map is the identity)
+permutation, cone-support    ``mux_bank16`` -- a 2-to-1 datapath multiplexer
+                             bank, in both the shape where two sources
+                             explain it and the shape where no bit reads
+                             only one bit of one source
 NTT butterfly / modulus      ``butterfly4`` has the butterfly and no
                              modulus; ``counter8`` has neither
 classifier                   ``01_blinky_counter`` must be ``none-detected``
@@ -71,6 +75,13 @@ CRC_EXPORT = os.path.join(
 SPECK_EXPORT = os.path.join(WALKTHROUGHS, "11_speck_toy", "speck_toy.vo")
 TRIVIUM_EXPORT = os.path.join(
     WALKTHROUGHS, "13_trivium_stream", "trivium_stream.vo"
+)
+PRESENT_EXPORT = os.path.join(WALKTHROUGHS, "12_present_sbox", "present_sbox.vo")
+PRESENT_NOKEEP_EXPORT = os.path.join(
+    WALKTHROUGHS, "12_present_sbox", "variants", "present_nokeep.vo"
+)
+PRESENT_TEXTBOOK_EXPORT = os.path.join(
+    WALKTHROUGHS, "12_present_sbox", "variants", "present_textbook.vo"
 )
 
 _MODEL_CACHE = {}
@@ -871,6 +882,239 @@ class LayerRotationTest(unittest.TestCase):
         # hold path, which is the identity and must not be reported
         entries = permutation.register_bank_rotations(fixture("counter8"))
         self.assertEqual([], entries)
+
+
+def _xor_linked_permutation_verilog(width=16):
+    """A permutation whose every link is an XOR with one round-key bit.
+
+    ``nxt[P(i)] = sub[i] ^ rkey[P(i)]`` with ``P(i) = 4i mod 15``.  ``sub`` is
+    built out of two-input cells so that nothing peels through it: the point of
+    the fixture is that the *only* way to the map is the cone support, and the
+    only thing between the layers is one XOR operand per link.
+    """
+    builder = synth.Builder("xor_linked_permutation")
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("input", "rkey", width)
+    builder.port("output", "dout", width)
+    builder.wire("state", width)
+    builder.wire("sub", width)
+    builder.wire("nxt", width)
+    for index in range(width):
+        builder.lut(
+            "sb_{}".format(index),
+            "sub[{}]".format(index),
+            ["state[{}]".format(index), "state[{}]".format((index + 1) % width)],
+            [0, 0, 0, 1],
+        )
+    for index in range(width):
+        target = width - 1 if index == width - 1 else (4 * index) % (width - 1)
+        builder.lut(
+            "rk_{}".format(target),
+            "nxt[{}]".format(target),
+            ["sub[{}]".format(index), "rkey[{}]".format(target)],
+            [0, 1, 1, 0],
+        )
+    for index in range(width):
+        builder.register(
+            "state_{}".format(index), "nxt[{}]".format(index),
+            "state[{}]".format(index), clear="rst_n",
+        )
+        builder.assign("dout[{}]".format(index), "state[{}]".format(index))
+    return builder.dumps()
+
+
+class ConeSupportPermutationTest(unittest.TestCase):
+    """Maps that survive one cell per link, and the ones that must not.
+
+    The wiring tier answers "is this map the wiring"; this tier answers "does
+    each destination bit read exactly one bit of that vector". The second
+    question is the one a real export leaves open, and the tests below pin both
+    what it recovers and what it refuses.
+    """
+
+    def test_a_keyed_spn_round_is_recovered_when_the_wiring_tier_is_blind(self):
+        model = fixture("spn_round16")
+        self.assertEqual(
+            [],
+            [
+                entry
+                for entry in permutation.find_permutations(model)
+                if entry["kind"] != "identity"
+            ],
+        )
+        entries = permutation.cone_support_maps(model)
+        self.assertEqual(1, len(entries))
+        entry = entries[0]
+        self.assertEqual("general", entry["kind"])
+        self.assertEqual("sub", entry["source"])
+        self.assertEqual("register bank state", entry["destination"])
+        self.assertEqual(16, entry["width"])
+        self.assertEqual(16, entry["bits_observed"])
+        self.assertTrue(entry["complete"])
+        self.assertEqual("next-state cone support", entry["read_from"])
+        self.assertEqual("cone-support", entry["evidence_tier"])
+        # P(i) = 4i mod 15, read in the other direction
+        self.assertEqual(
+            [0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15],
+            entry["permutation"],
+        )
+        self.assertEqual("gated", entry["link_form"])
+        self.assertEqual(["load"], entry["shared_side_inputs"])
+
+    def test_a_pure_xor_link_is_reported_as_one(self):
+        model = NetlistModel(vo_netlist.parse_text(_xor_linked_permutation_verilog()))
+        entries = permutation.cone_support_maps(model)
+        self.assertEqual(1, len(entries))
+        self.assertEqual("xor", entries[0]["link_form"])
+        self.assertEqual(1, entries[0]["max_side_inputs"])
+        self.assertEqual(
+            [0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15],
+            entries[0]["permutation"],
+        )
+
+    def test_a_two_to_one_datapath_mux_bank_is_not_a_permutation(self):
+        """The negative control: neither multiplexer shape may be reported."""
+        rejections = []
+        model = fixture("mux_bank16")
+        self.assertEqual([], permutation.cone_support_maps(model, rejections=rejections))
+        self.assertEqual(1, len(rejections))
+        self.assertEqual("register bank y", rejections[0]["destination"])
+        self.assertEqual(["a", "b"], rejections[0]["sources"])
+        self.assertIn("multiplexer", rejections[0]["reason"])
+        # the `z` bank -- sel ? a[i] : a[i-1] -- produces no candidate at all,
+        # because no bit's next state reads only one bit of `a`
+        self.assertNotIn(
+            "register bank z", [entry["destination"] for entry in rejections]
+        )
+
+    def test_a_map_the_wiring_tier_already_has_is_not_repeated(self):
+        rejections = []
+        entries = permutation.cone_support_maps(fixture("rotate16"), rejections=rejections)
+        self.assertEqual([], entries)
+        self.assertEqual(["front"], rejections[0]["sources"])
+        self.assertIn("stronger claim", rejections[0]["reason"])
+
+    def test_a_rotation_the_cell_pins_already_give_is_not_repeated(self):
+        """``register_bank_rotations`` reads arx_round8's y rotation; leave it there."""
+        self.assertEqual(
+            {"y"},
+            {
+                entry["source"]
+                for entry in permutation.register_bank_rotations(fixture("arx_round8"))
+            },
+        )
+        self.assertEqual([], permutation.cone_support_maps(fixture("arx_round8")))
+
+    def test_shift_chains_are_not_reported_as_rotations(self):
+        """A bank missing exactly its head is an open chain, not a rotation."""
+        for name in ("lfsr16_fibonacci", "lfsr16_galois", "nlfsr16", "shift16_plain"):
+            self.assertEqual([], permutation.cone_support_maps(fixture(name)), name)
+        self.assertEqual([], permutation.cone_support_maps(load(TRIVIUM_EXPORT)))
+
+    def test_a_counter_and_a_plain_register_file_produce_nothing(self):
+        for name in ("counter8", "butterfly4", "present_sbox_layer"):
+            self.assertEqual([], permutation.cone_support_maps(fixture(name)), name)
+
+
+class PresentExportRecoveryTest(unittest.TestCase):
+    """The acceptance case: walkthrough 12's committed Quartus exports.
+
+    Both layers of PRESENT-80 are in ``present_sbox.vo`` and neither is a wire:
+    the round key sits between the substitution layer and the datapath
+    register, and a parallel key load sits on every link of the key register.
+    Section 5 of that walkthrough's ``guide.html`` recovers both by hand; these
+    tests are the automated form of the same statements.
+    """
+
+    def test_the_player_is_recovered_and_matches_the_published_table(self):
+        entries = permutation.cone_support_maps(load(PRESENT_EXPORT))
+        layer = [entry for entry in entries if entry["source"] == "subs"]
+        self.assertEqual(1, len(layer))
+        entry = layer[0]
+        self.assertEqual("register bank state", entry["destination"])
+        self.assertEqual(64, entry["width"])
+        self.assertEqual(64, entry["bits_observed"])
+        self.assertEqual(
+            ["present_player"], [match["name"] for match in entry["matches"]]
+        )
+        self.assertEqual(
+            "src[i] drives dest[P(i)]", entry["matches"][0]["convention"]
+        )
+        published = [63 if i == 63 else (16 * i) % 63 for i in range(64)]
+        inverse = [0] * 64
+        for index, target in enumerate(published):
+            inverse[target] = index
+        self.assertEqual(inverse, entry["permutation"])
+
+    def test_the_key_register_rotation_is_recovered(self):
+        entries = permutation.cone_support_maps(load(PRESENT_EXPORT))
+        rotations = [entry for entry in entries if entry["kind"] == "rotation"]
+        self.assertEqual(1, len(rotations))
+        entry = rotations[0]
+        self.assertEqual("register bank kreg", entry["destination"])
+        self.assertEqual("kreg", entry["source"])
+        self.assertEqual(80, entry["width"])
+        self.assertEqual(61, entry["rotate_left_by"])
+        # 76 of 80: the four substituted bits read the S-box output instead
+        self.assertEqual(76, entry["bits_observed"])
+        self.assertFalse(entry["complete"])
+
+    def test_the_wiring_tier_still_sees_nothing_and_says_so(self):
+        """The new tier does not silently upgrade the old one's silence."""
+        self.assertEqual(
+            [],
+            [
+                entry
+                for entry in permutation.find_permutations(load(PRESENT_EXPORT))
+                if entry["kind"] != "identity"
+            ],
+        )
+
+    def test_the_finding_is_proven_only_under_the_side_input_assumption(self):
+        document = identify(PRESENT_EXPORT)
+        entry = finding_by_id(document, "hal_crypto/permutation/cone-support/1")
+        self.assertEqual("proven_under_assumptions", entry["status"])
+        self.assertIn(
+            "one-side-input-per-link",
+            [assumption["id"] for assumption in entry["assumptions"]],
+        )
+        self.assertIn("present_player", entry["title"])
+        self.assertIn("weaker claim of the two", entry["summary"])
+
+    def test_the_textbook_variant_keeps_the_player_hidden(self):
+        """The counterfactual: without a named substitution layer, no pLayer.
+
+        ``present_textbook.vo`` holds the state *before* the key addition, so
+        every S-box cone reaches back through the key XOR to eight sources and
+        the substitution layer is not a signal at all. The key schedule's
+        rotation survives -- it does not depend on the substitution -- and the
+        datapath permutation does not. Recovering it would need the
+        substitution layer first, which is exactly what that variant destroys.
+        """
+        entries = permutation.cone_support_maps(load(PRESENT_TEXTBOOK_EXPORT))
+        self.assertEqual(
+            [("register bank kreg", "kreg", 61)],
+            [
+                (entry["destination"], entry["source"], entry["rotate_left_by"])
+                for entry in entries
+            ],
+        )
+
+    def test_the_nokeep_variant_keeps_the_player_hidden_too(self):
+        entries = permutation.cone_support_maps(load(PRESENT_NOKEEP_EXPORT))
+        self.assertEqual(["kreg"], [entry["source"] for entry in entries])
+
+    def test_the_family_verdicts_of_all_three_exports_are_unchanged(self):
+        for path, family in (
+            (PRESENT_EXPORT, "spn"),
+            (PRESENT_NOKEEP_EXPORT, "spn"),
+            (PRESENT_TEXTBOOK_EXPORT, "none-detected"),
+        ):
+            netlist = vo_netlist.parse_file(path)
+            self.assertEqual(
+                family, classify.verdict(classify.run_passes(netlist))["family"], path
+            )
 
 
 class NttPassTest(unittest.TestCase):

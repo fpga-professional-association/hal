@@ -50,6 +50,9 @@ EXPECTED_ROUNDS = 31
 EXPECTED_KEY_WIDTH = 80
 EXPECTED_ROTATION = 61
 EXPECTED_ROTATION_LINKS = 71
+# The cone-support tier counts the five counter-injected bits as rotation links
+# too: `kreg[i] <= kreg[i+19] ^ round[j]` still reads exactly one key bit.
+EXPECTED_CONE_ROTATION_LINKS = 76
 EXPECTED_SUBSTITUTED = [76, 77, 78, 79]
 EXPECTED_INJECTED = [15, 16, 17, 18, 19]
 EXPECTED_FAMILY = "spn"
@@ -270,12 +273,44 @@ def check_identify():
     check("the S-box pass reports %d substitutions" % EXPECTED_GROUPS,
           len(evidence["sbox"]["sboxes"]) == EXPECTED_GROUPS,
           str(len(evidence["sbox"]["sboxes"])))
-    check("the permutation pass finds no permutation layer (it cannot see one)",
+    check("the permutation pass finds no *pure-wire* layer (there is none)",
           not [entry for entry in evidence["permutations"]
                if entry["kind"] != "identity"],
           str([entry["kind"] for entry in evidence["permutations"]]))
     check("the shift-register pass finds no chain", not evidence["shift"],
           str(len(evidence["shift"])))
+
+    # ... and what the cone-support tier gets instead, which is section 5 and
+    # section 6 of the guide, automated.
+    maps = evidence["cone_permutations"]
+    layer = [entry for entry in maps if entry["source"] == "subs"]
+    check("the cone-support tier recovers the pLayer over all 64 bits",
+          len(layer) == 1 and layer[0]["bits_observed"] == 64
+          and layer[0]["destination"] == "register bank state",
+          str([(e["source"], e["bits_observed"]) for e in maps]))
+    if layer:
+        check("the recovered pLayer equals the published PRESENT pLayer",
+              [match["name"] for match in layer[0]["matches"]] == ["present_player"],
+              str(layer[0]["matches"]))
+        published = [63 if i == 63 else (16 * i) % 63 for i in range(64)]
+        inverse = [0] * 64
+        for index, target in enumerate(published):
+            inverse[target] = index
+        check("... bit by bit, in the convention 'subs[i] drives state[P(i)]'",
+              layer[0]["permutation"] == inverse)
+    rotation = [entry for entry in maps if entry["kind"] == "rotation"]
+    check("the cone-support tier recovers the key rotation, left by %d"
+          % EXPECTED_ROTATION,
+          len(rotation) == 1
+          and rotation[0]["destination"] == "register bank kreg"
+          and rotation[0]["rotate_left_by"] == EXPECTED_ROTATION
+          and rotation[0]["bits_observed"] == EXPECTED_CONE_ROTATION_LINKS,
+          str([(e["source"], e.get("rotate_left_by"), e["bits_observed"])
+               for e in rotation]))
+    check("both maps are reported as the weaker, cone-support tier",
+          all(entry["evidence_tier"] == "cone-support"
+              and entry["read_from"] == "next-state cone support"
+              for entry in maps))
 
 
 def _gate_count(path):
@@ -300,6 +335,10 @@ def check_variants():
     check("without `keep`: the family is still %s" % EXPECTED_FAMILY,
           verdict["family"] == EXPECTED_FAMILY, verdict["family"])
 
+    check("without `keep`: the pLayer is gone with the substitution layer",
+          [entry["source"] for entry in evidence["cone_permutations"]] == ["kreg"],
+          str([entry["source"] for entry in evidence["cone_permutations"]]))
+
     evidence, verdict = _identify(TEXTBOOK)
     check("textbook register placement: the family is %s"
           % EXPECTED_TEXTBOOK_FAMILY,
@@ -308,6 +347,12 @@ def check_variants():
           all(entry["sources"][0].startswith("kreg")
               for entry in evidence["sbox"]["sboxes"]),
           str([entry["sources"] for entry in evidence["sbox"]["sboxes"]]))
+    check("textbook register placement: no pLayer either, and the key rotation "
+          "survives",
+          [(entry["source"], entry.get("rotate_left_by"))
+           for entry in evidence["cone_permutations"]]
+          == [("kreg", EXPECTED_ROTATION)],
+          str([entry["source"] for entry in evidence["cone_permutations"]]))
 
 
 def _load_reference():
