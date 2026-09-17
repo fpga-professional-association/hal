@@ -306,6 +306,69 @@ def _sbox_round(name, table, bits, nibbles=1, add_permutation=None):
     return builder
 
 
+def _chi_layer(name, slices=2, lanes=5):
+    """Keccak/Ascon chi rows between register banks, behind a parallel load.
+
+    The shape :func:`_sbox_round` cannot make.  Every output bit of a PRESENT
+    or AES S-box reads every input bit, so the S-box pass finds those from the
+    support of a single cone; ``chi`` reads **three** of five::
+
+        y_i = x_i ^ (~x_{i+1} & x_{i+2})
+
+    so a five-lane row is five cones that cover five sources between them and
+    no cone that covers them all.  The parallel ``load ? seed : chi`` on top is
+    not decoration either: it is what every real export has (walkthroughs 11
+    and 13 both turn on it), and its multiplexer cells share the same register
+    sources while dragging in ``load`` and a ``seed`` bit each -- so a cluster
+    search that follows any neighbour swallows the whole bank, and only one
+    that follows the *cheapest* neighbour walks along the substitution.
+    """
+    builder = Builder(name)
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("input", "load")
+    width = slices * lanes
+    builder.port("input", "seed", width)
+    builder.port("output", "dout", width)
+    builder.wire("state", width)
+    builder.wire("chi", width)
+    for row in range(slices):
+        base = row * lanes
+        for index in range(lanes):
+            builder.lut(
+                "chi{}_{}".format(row, index),
+                "chi[{}]".format(base + index),
+                [
+                    "state[{}]".format(base + index),
+                    "state[{}]".format(base + (index + 1) % lanes),
+                    "state[{}]".format(base + (index + 2) % lanes),
+                ],
+                [
+                    (value & 1) ^ ((~(value >> 1) & 1) & ((value >> 2) & 1))
+                    for value in range(8)
+                ],
+            )
+    for index in range(width):
+        selected = builder.wire("d_{}".format(index))
+        builder.lut(
+            "mux_{}".format(index),
+            selected,
+            ["chi[{}]".format(index), "seed[{}]".format(index), "load"],
+            [
+                ((value >> 1) & 1) if (value >> 2) & 1 else (value & 1)
+                for value in range(8)
+            ],
+        )
+        builder.register(
+            "state_{}".format(index),
+            selected,
+            "state[{}]".format(index),
+            clear="rst_n",
+        )
+        builder.assign("dout[{}]".format(index), "state[{}]".format(index))
+    return builder
+
+
 def _shift_chain(name, length, taps=None, nonlinear=False, galois_taps=None):
     builder = Builder(name)
     builder.port("input", "clk")
@@ -813,6 +876,16 @@ FIXTURES = {
         "role": "negative control for S-box *matching*: extracted, never matched",
         "family": "spn",
         "style": "classical-style",
+    },
+    "keccak_chi_layer": {
+        "build": lambda: _chi_layer("keccak_chi_layer", slices=2),
+        "description": "two Keccak chi rows of five lanes, behind a parallel load",
+        "role": (
+            "positive control for the cluster search: each output reads three of "
+            "five sources, so no single cone's support names the S-box"
+        ),
+        "family": "sponge",
+        "style": "undetermined",
     },
     "lfsr16_fibonacci": {
         "build": lambda: _shift_chain("lfsr16_fibonacci", 16, taps=[3, 12, 14, 15]),

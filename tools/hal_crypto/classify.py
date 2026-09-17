@@ -38,6 +38,13 @@ built from -- it is not a statement that the design is not post-quantum, since
 a hash-based or code-based scheme contains neither NTTs nor S-boxes and would
 come back ``none-detected``.  That caveat travels in the finding text.
 
+``sponge`` is the one family that is **not** placed on the axis at all, and it
+gets ``undetermined`` rather than ``classical-style``.  A Keccak permutation is
+SHA-3 and it is equally the SHAKE inside ML-KEM, ML-DSA and SPHINCS+; the
+structure is identical either way, so calling it classical would be reporting a
+coin toss as a measurement.  What decides the axis is the arithmetic *around*
+the sponge, which is exactly what the other five passes look for.
+
 ``none-detected`` is a first-class result.  A netlist with a counter in it is
 supposed to produce it, and the finding says which passes ran and what each one
 did not find, so the negative is checkable rather than a shrug.
@@ -282,6 +289,19 @@ def verdict(evidence):
             "small modulus are the structure post-quantum lattice schemes are "
             "built from. This does NOT identify a scheme -- the same ring "
             "arithmetic appears wherever that ring is used."
+        )
+    elif "sponge" in present:
+        style = "undetermined"
+        style_text = (
+            "A sponge permutation was found and no lattice/ring arithmetic was. "
+            "That places the design on neither side of the classical/PQC axis, "
+            "because the same permutation sits on both: SHA-3 and SHAKE are "
+            "classical hashing, and SHAKE is also the extendable-output function "
+            "inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core "
+            "is present' is therefore evidence about what the design computes "
+            "and no evidence at all about which family of scheme uses it -- the "
+            "surrounding arithmetic decides that, and none was found here. "
+            "Structures found: {}.".format(", ".join(present))
         )
     else:
         style = "classical-style"

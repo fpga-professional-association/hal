@@ -1,0 +1,35 @@
+{
+  "all_match": true,
+  "headline": {
+    "cycles_from_accepted_start_to_done": 19,
+    "input": "00000000000000000000000000000000000000000000000000",
+    "matches_published_vector": true,
+    "output": "3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA",
+    "published": "3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA",
+    "rounds_run": 18,
+    "vector": "XKCP, first permutation of the all-zero state"
+  },
+  "rounds_run": [
+    18
+  ],
+  "vectors": [
+    {
+      "cycles_from_accepted_start_to_done": 19,
+      "input": "00000000000000000000000000000000000000000000000000",
+      "matches_published_vector": true,
+      "output": "3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA",
+      "published": "3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA",
+      "rounds_run": 18,
+      "vector": "XKCP, first permutation of the all-zero state"
+    },
+    {
+      "cycles_from_accepted_start_to_done": 19,
+      "input": "3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA",
+      "matches_published_vector": true,
+      "output": "1BEF689492A8A543A5999FDB834E3166A14BE827D95040479E",
+      "published": "1BEF689492A8A543A5999FDB834E3166A14BE827D95040479E",
+      "rounds_run": 18,
+      "vector": "XKCP, second permutation"
+    }
+  ]
+}

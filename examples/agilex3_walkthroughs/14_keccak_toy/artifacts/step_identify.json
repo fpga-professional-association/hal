@@ -1,0 +1,72 @@
+{
+  "canonical": {
+    "cone_support_maps": [],
+    "confidence": "medium",
+    "evidence": [
+      "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+      "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+      "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+      "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read"
+    ],
+    "export": "keccak_toy.vo",
+    "families_present": [],
+    "family": "none-detected",
+    "instances": 866,
+    "match_tiers": [],
+    "matched_names": [],
+    "rejections": [
+      "400 combinational net(s) read more than 12 sources, so their cones were not enumerated; an S-box hidden behind that much fan-in would not have been found",
+      "the 5-bit map collides, so it is not a substitution"
+    ],
+    "sboxes_extracted": 0,
+    "sboxes_matched": 0,
+    "style": "undetermined",
+    "style_rationale": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography.",
+    "wiring_permutation_layers": []
+  },
+  "reading": "sponge is the one family the classifier refuses to place on the classical/PQC axis, because the same permutation is SHA-3 and is the extendable-output function inside ML-KEM, ML-DSA and SPHINCS+",
+  "retimed": {
+    "cone_support_maps": [
+      {
+        "bits_observed": 200,
+        "destination": "register bank v",
+        "kind": "general",
+        "matches": [],
+        "source": "theta",
+        "width": 200
+      }
+    ],
+    "confidence": "high",
+    "evidence": [
+      "a 5-bit substitution over v[0], v[16], v[24], v[32], v[8] equals keccak_chi_5 (bit_permutation match)",
+      "a 5-bit substitution over v[100], v[108], v[116], v[84], v[92] equals keccak_chi_5 (exact match)",
+      "a 5-bit substitution over v[101], v[109], v[117], v[85], v[93] equals keccak_chi_5 (exact match)",
+      "a 5-bit substitution over v[102], v[110], v[118], v[86], v[94] equals keccak_chi_5 (exact match)"
+    ],
+    "export": "keccak_retimed.vo",
+    "families_present": [
+      "sponge",
+      "spn"
+    ],
+    "family": "sponge",
+    "instances": 1067,
+    "match_tiers": [
+      "bit_permutation",
+      "exact"
+    ],
+    "matched_names": [
+      "keccak_chi_5"
+    ],
+    "rejections": [
+      "440 combinational net(s) read more than 12 sources, so their cones were not enumerated; an S-box hidden behind that much fan-in would not have been found",
+      "the 5-bit map collides, so it is not a substitution"
+    ],
+    "sboxes_extracted": 40,
+    "sboxes_matched": 40,
+    "style": "undetermined",
+    "style_rationale": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn.",
+    "wiring_permutation_layers": []
+  },
+  "same_permutation": true,
+  "style_is_undetermined_on_the_sponge": true
+}

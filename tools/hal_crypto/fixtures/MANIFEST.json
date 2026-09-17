@@ -34,6 +34,14 @@
       "sha256": "07a88a7d9efc1e0863f9aeb43de5970d2dadb7271121b387dfaf6370d2d22113",
       "size_bytes": 5653
     },
+    "keccak_chi_layer.vo": {
+      "description": "two Keccak chi rows of five lanes, behind a parallel load",
+      "expected_family": "sponge",
+      "expected_style": "undetermined",
+      "role": "positive control for the cluster search: each output reads three of five sources, so no single cone's support names the S-box",
+      "sha256": "d1da5cc033fc0d0cd2a47fe0f6488e2c6e1432c94d01c9978fb2a65fdc03a2ff",
+      "size_bytes": 9990
+    },
     "lfsr16_fibonacci.vo": {
       "description": "16-stage Fibonacci LFSR, x^16 + x^15 + x^13 + x^4 + 1",
       "expected_family": "lfsr-stream",

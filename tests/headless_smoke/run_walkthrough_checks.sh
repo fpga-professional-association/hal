@@ -109,6 +109,11 @@ if [[ "${TIER}" == "nohal" ]]; then
     # tools/hal_crypto.  --with-hal below adds the hal_py load and the SCC
     # decomposition.
     run 13_trivium_stream
+    # 14 is the largest of these (866 instances, two exports, a 600-cycle
+    # behaviour run, three negative controls re-run live and a trace replay)
+    # and still needs nothing but tools/hal_agilex and tools/hal_crypto; ~35 s.
+    # --with-hal below adds the hal_py load and the SCC decomposition.
+    run 14_keccak_toy
 else
     for var in HAL_BASE_PATH HAL_PY_PATH PYTHONPATH; do
         if [[ -z "${!var:-}" ]]; then
@@ -132,6 +137,7 @@ else
     run 08_shift_debouncer --with-hal -o "${SCRATCH}/08_shift_debouncer"
     run 11_speck_toy --with-hal
     run 13_trivium_stream --with-hal
+    run 14_keccak_toy --with-hal
 fi
 
 # Canary: the checks are supposed to read the committed artifacts, not

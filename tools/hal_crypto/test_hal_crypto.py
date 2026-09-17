@@ -83,6 +83,10 @@ PRESENT_NOKEEP_EXPORT = os.path.join(
 PRESENT_TEXTBOOK_EXPORT = os.path.join(
     WALKTHROUGHS, "12_present_sbox", "variants", "present_textbook.vo"
 )
+KECCAK_EXPORT = os.path.join(WALKTHROUGHS, "14_keccak_toy", "keccak_toy.vo")
+KECCAK_RETIMED_EXPORT = os.path.join(
+    WALKTHROUGHS, "14_keccak_toy", "keccak_retimed.vo"
+)
 
 _MODEL_CACHE = {}
 
@@ -341,6 +345,79 @@ class SboxPassTest(unittest.TestCase):
     def test_no_sbox_in_the_walkthrough_counter(self):
         result = sbox.identify(load(COUNTER_EXPORT))
         self.assertEqual([], result["sboxes"])
+
+
+class ChiRowTest(unittest.TestCase):
+    """A substitution whose output bits read a *subset* of the inputs.
+
+    ``y_i = x_i ^ (~x_{i+1} & x_{i+2})`` reads three of five, so the shape the
+    rest of the S-box pass is built on -- "some cone's support names the whole
+    box" -- does not hold, and neither does it for Ascon or any other chi-like
+    row map.  See ``fixtures/GROUND_TRUTH.md``.
+    """
+
+    def test_no_cone_reads_all_five_sources(self):
+        """The premise: the single-net search could not have found this."""
+        model = fixture("keccak_chi_layer")
+        nets, _ = sbox._combinational_nets(model)
+        supports = {frozenset(table.inputs) for table in nets.values()}
+        rows = [
+            frozenset("state[{}]".format(index) for index in group)
+            for group in (range(5), range(5, 10))
+        ]
+        for row in rows:
+            self.assertNotIn(row, supports)
+        self.assertEqual({3, 5}, {len(item) for item in supports})
+
+    def test_both_rows_are_extracted_and_match_keccak_chi(self):
+        result = sbox.identify(fixture("keccak_chi_layer"))
+        self.assertEqual(2, len(result["sboxes"]))
+        for entry in result["sboxes"]:
+            self.assertEqual(5, entry["bits"])
+            self.assertEqual(
+                list(known.SBOXES["keccak_chi_5"]["sbox"].table), entry["table"]
+            )
+            self.assertEqual(2, entry["algebraic_degree"])
+            tiers = {match["name"]: match["tier"] for match in entry["matches"]}
+            self.assertEqual("exact", tiers["keccak_chi_5"])
+        self.assertEqual(
+            [
+                ["state[0]", "state[1]", "state[2]", "state[3]", "state[4]"],
+                ["state[5]", "state[6]", "state[7]", "state[8]", "state[9]"],
+            ],
+            [entry["sources"] for entry in result["sboxes"]],
+        )
+
+    def test_the_load_multiplexer_is_not_swallowed_into_the_cluster(self):
+        """Growing by *any* neighbour merges the rows and the load path."""
+        model = fixture("keccak_chi_layer")
+        nets, _ = sbox._combinational_nets(model)
+        by_source = {}
+        for key, table in nets.items():
+            for name in table.inputs:
+                by_source.setdefault(name, set()).add(key)
+        supports = sbox.cluster_supports(nets, by_source)
+        self.assertIn(
+            frozenset("state[{}]".format(index) for index in range(5)), supports
+        )
+        self.assertIn(
+            frozenset("state[{}]".format(index) for index in range(5, 10)), supports
+        )
+        for support in supports:
+            self.assertNotIn("load", support)
+            self.assertFalse(
+                any(name.startswith("seed") for name in support), sorted(support)
+            )
+
+    def test_the_present_layer_is_still_found_by_the_single_net_search(self):
+        """The new candidates only ever *append*: nothing was rerouted."""
+        model = fixture("present_sbox_layer")
+        nets, _ = sbox._combinational_nets(model)
+        supports = {frozenset(table.inputs) for table in nets.values()}
+        for group in (range(4), range(4, 8)):
+            self.assertIn(
+                frozenset("state[{}]".format(index) for index in group), supports
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -1192,6 +1269,68 @@ class ClassifierTest(unittest.TestCase):
             style = finding_by_id(document, "hal_crypto/identify/classical-vs-pqc")
             self.assertEqual(entry["family"], family["data"]["family"], name)
             self.assertEqual(entry["style"], style["data"]["style"], name)
+
+    def test_sponge_is_not_placed_on_the_classical_pqc_axis(self):
+        """A Keccak permutation is SHA-3 *and* the XOF inside ML-KEM/ML-DSA."""
+        document = identify(os.path.join(FIXTURES, "keccak_chi_layer.vo"))
+        validate.validate_document(document)
+        family = finding_by_id(document, "hal_crypto/identify/family")
+        self.assertEqual("sponge", family["data"]["family"])
+        self.assertIn("sponge", family["data"]["families_present"])
+        style = finding_by_id(document, "hal_crypto/identify/classical-vs-pqc")
+        self.assertEqual("undetermined", style["data"]["style"])
+        self.assertEqual("unknown", style["status"])
+        # the ambiguity has to be stated, not left for the reader to infer
+        self.assertIn("SHA-3", style["summary"])
+        self.assertIn("ML-KEM", style["summary"])
+        # ... and stating it is not the same as claiming the design is one
+        text = json.dumps(document)
+        for word in ("is SHA-3", "is ML-KEM", "implements SHA-3", "implements SHAKE"):
+            self.assertNotIn(word, text)
+
+    def test_the_two_keccak_exports_differ_only_in_what_can_be_seen(self):
+        """14_keccak_toy: one round per cycle, with the register moved half a round.
+
+        Same permutation, same interface, same nineteen cycles.  In the
+        canonical form chi reads the register bank *through* theta and its
+        cones are thirty-three flip-flops wide, so the pass refuses to
+        enumerate them and the honest answer is ``none-detected``.  Retimed,
+        chi sits on the register outputs and the same command finds forty of
+        them.
+        """
+        canonical = identify(KECCAK_EXPORT)
+        validate.validate_document(canonical)
+        family = finding_by_id(canonical, "hal_crypto/identify/family")
+        self.assertEqual("none-detected", family["data"]["family"])
+        # a coverage limit, not a clean negative
+        self.assertEqual("medium", family["data"]["confidence_tier"])
+        boxes = finding_by_id(canonical, "hal_crypto/sbox/none")
+        self.assertTrue(
+            any(
+                "read more than" in entry["reason"]
+                for entry in boxes["data"]["rejected"]
+            ),
+            boxes["data"]["rejected"],
+        )
+
+        retimed = identify(KECCAK_RETIMED_EXPORT)
+        validate.validate_document(retimed)
+        family = finding_by_id(retimed, "hal_crypto/identify/family")
+        self.assertEqual("sponge", family["data"]["family"])
+        self.assertEqual("high", family["data"]["confidence_tier"])
+        style = finding_by_id(retimed, "hal_crypto/identify/classical-vs-pqc")
+        self.assertEqual("undetermined", style["data"]["style"])
+        matches = [
+            entry
+            for entry in retimed["findings"]
+            if entry["id"].startswith("hal_crypto/sbox/library-match")
+        ]
+        self.assertEqual(40, len(matches))  # five rows x eight bit-slices
+        for entry in matches:
+            self.assertEqual(5, entry["data"]["bits"])
+            self.assertEqual(
+                ["keccak_chi_5"], [m["name"] for m in entry["data"]["matches"]]
+            )
 
     def test_pqc_wording_never_names_a_scheme(self):
         document = identify(os.path.join(FIXTURES, "ntt_stage13.vo"))

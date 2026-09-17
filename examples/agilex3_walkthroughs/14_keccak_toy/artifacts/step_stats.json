@@ -1,0 +1,50 @@
+{
+  "declared_vectors": {
+    "chi": 200,
+    "cpar": 40,
+    "din": 200,
+    "dout": 200,
+    "rc_lut": 8,
+    "rnd": 5,
+    "s": 200,
+    "theta": 200
+  },
+  "design_name": "keccak_toy",
+  "gate_types": {
+    "tennm_ff": 207,
+    "tennm_lcell_comb": 659
+  },
+  "inputs": [
+    {
+      "name": "din",
+      "width": 200
+    },
+    {
+      "name": "clk",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "width": 1
+    },
+    {
+      "name": "start",
+      "width": 1
+    }
+  ],
+  "instances": 866,
+  "outputs": [
+    {
+      "name": "dout",
+      "width": 200
+    },
+    {
+      "name": "done",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "width": 1
+    }
+  ]
+}
