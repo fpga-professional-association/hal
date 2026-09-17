@@ -1,0 +1,10 @@
+[mcp_servers.logic2]
+url = "http://127.0.0.1:10530"
+
+[mcp_servers.hal]
+command = "python3"
+args = ["tools/hal_mcp"]
+env_vars = [
+    "HAL_BASE_PATH",
+    "HAL_PY_PATH",
+]

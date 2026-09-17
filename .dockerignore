@@ -1,0 +1,5 @@
+.git
+.claude/worktrees
+build
+deployment/build-output
+**/__pycache__
