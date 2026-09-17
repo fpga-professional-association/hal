@@ -36,10 +36,10 @@
       "named_style": "classical-style"
     },
     {
-      "blinded_confidence": "medium",
-      "blinded_family": "none-detected",
-      "blinded_style": "undetermined",
-      "changed": true,
+      "blinded_confidence": "high",
+      "blinded_family": "arx",
+      "blinded_style": "classical-style",
+      "changed": false,
       "core": "core_d",
       "named_confidence": "high",
       "named_family": "arx",
@@ -56,9 +56,7 @@
       "named_style": "pqc-style"
     }
   ],
-  "blinding_losses": [
-    "core_d"
-  ],
+  "blinding_losses": [],
   "cores": [
     {
       "blind_confidence": "medium",
@@ -208,7 +206,7 @@
       "truth_style": "classical-style"
     },
     {
-      "blind_confidence": "medium",
+      "blind_confidence": "high",
       "blind_family": "arx",
       "blind_outcome": "correct",
       "blind_style": "classical-style",
@@ -248,10 +246,10 @@
       ],
       "facts_recovered": 3,
       "facts_total": 5,
-      "tool_confidence": "medium",
-      "tool_family": "none-detected",
-      "tool_outcome": "missed",
-      "tool_style": "undetermined",
+      "tool_confidence": "high",
+      "tool_family": "arx",
+      "tool_outcome": "correct",
+      "tool_style": "classical-style",
       "truth_design": "Speck32/64 block cipher, encryption only, one round per cycle",
       "truth_family": "arx",
       "truth_style": "classical-style"
@@ -305,11 +303,11 @@
   "rules_never_exercised": [
     "R3-spn"
   ],
-  "tool_correct": 3,
+  "tool_correct": 4,
   "tool_correct_named": 4,
   "tool_outcomes": {
-    "correct": 3,
-    "missed": 2
+    "correct": 4,
+    "missed": 1
   },
   "total": 5
 }

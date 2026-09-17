@@ -277,7 +277,7 @@
       "title": "Blind identification of core_e: lattice-ntt"
     }
   ],
-  "generated_at": "2026-09-17T04:39:47Z",
+  "generated_at": "2026-09-17T05:54:10Z",
   "notes": [
     "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
   ],

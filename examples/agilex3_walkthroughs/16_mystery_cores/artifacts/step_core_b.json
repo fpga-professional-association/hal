@@ -62,10 +62,11 @@
     "confidence": "medium",
     "evidence": [
       "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
-      "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+      "shift registers: 1 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
       "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
       "modular arithmetic: no add/subtract pair over the same operand registers",
-      "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+      "permutation layers: 0 non-identity bit map(s) between equally wide vectors",
+      "1 shift chain(s) with no feedback at all, which is a shift register and not a generator"
     ],
     "families_present": [],
     "family": "none-detected",
@@ -134,7 +135,20 @@
     "longest_single_predecessor_chain": 8,
     "one_way_couplings": [],
     "registers": 49,
-    "shift_structures": [],
+    "shift_structures": [
+      {
+        "autonomous": null,
+        "chain": 0,
+        "coupled": false,
+        "coupled_chains": null,
+        "feedback_anf": null,
+        "feedback_degree": null,
+        "kind": "shift_register",
+        "length": 8,
+        "mode": null,
+        "polynomial": null
+      }
+    ],
     "single_predecessor_registers": 14
   }
 }

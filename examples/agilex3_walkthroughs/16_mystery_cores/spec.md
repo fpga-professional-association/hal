@@ -212,6 +212,13 @@ for this walkthrough.** Where the tool gets a core wrong, that is recorded as a
 measurement and written up as a gap, and the fix belongs to a separate issue —
 a capstone that tunes the instrument it is calibrating measures nothing.
 
+The other half of that rule: when such an issue is fixed, this walkthrough is
+**re-run**, not frozen. `check.py` re-derives every number live, so a tool
+improvement shows up as a failing check and has to be answered by re-measuring
+and saying what moved — the guide keeps both columns. A score table nobody
+re-takes is an anecdote, and a page that quotes its own history instead of
+re-deriving it cannot tell a fix from a regression.
+
 ## 7. The one thing known in advance to be hard
 
 Blinding splits internal vectors. Several of `hal_crypto`'s passes ask a
@@ -230,7 +237,8 @@ something else.
 
 Gaps found this way are written up in the guide and filed as issues. They are
 not patched here: a capstone that tunes the instrument it is calibrating
-measures nothing.
+measures nothing. Two were found (#101, #102), and both were fixed afterwards;
+the page was then re-derived against the repaired tool under section 6's rule.
 
 ## 8. Layout
 

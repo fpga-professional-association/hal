@@ -238,7 +238,7 @@
       "title": "Blind identification of core_c: lfsr-stream"
     }
   ],
-  "generated_at": "2026-09-17T04:39:44Z",
+  "generated_at": "2026-09-17T05:54:07Z",
   "notes": [
     "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
   ],
