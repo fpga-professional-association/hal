@@ -388,6 +388,10 @@ def register_bank_rotations(model):
         entry["destination"] = "register bank {} next-state fan-in".format(name)
         entry["read_from"] = "register-bank next-state cells"
         entry["all_inverted"] = False
+        # Bookkeeping, never reported: it lets a caller recognise a rotation it
+        # has already been told about from a weaker, name-free reading of the
+        # same flip-flops.  See ``hal_crypto.arx._registers_behind``.
+        entry["_registers"] = sorted(bank[index].name for index in indices)
         results.append(entry)
     return results
 
