@@ -68,6 +68,17 @@ mkdir -p "$LOG_DIR" || exit 1
 FAILED_CASES=""
 RESULT_ROWS=""
 
+# The lines worth reading out of a failing log: the repro commands, the seed and
+# stage of each finding, and the whole "expected failure that no longer fails"
+# verdict, which is prose rather than a repro line. The rest of the log -- the
+# generated Verilog, the minimized repro, HAL's own [info] chatter -- is in the
+# uploaded artifact.
+EXCERPT_PATTERN='repro:|FUZZ_SEED=|NO LONGER|no longer|UNEXPECTED|^FAIL |^ERROR |^Errors|Failed |remove the named entry|assert the now-fixed|Re-running will not'
+
+excerpt() {
+    grep -E "$EXCERPT_PATTERN" "$1" | head -n 40
+}
+
 # run_case <name> <script> <VAR=VALUE>...
 run_case() {
     name=$1
@@ -85,7 +96,7 @@ run_case() {
     elapsed=$(( $(date +%s) - start ))
     printf '    %s in %ds -> %s\n' "$status" "$elapsed" "$log"
     if [ "$status" = FAILED ]; then
-        tail -n 40 "$log"
+        excerpt "$log" | sed 's/^/    | /'
     fi
     RESULT_ROWS="${RESULT_ROWS}${name}	${status}	${elapsed}	$*
 "
@@ -102,7 +113,7 @@ if [ -n "${FUZZ_CTEST_BUILD_DIR:-}" ]; then
     else
         status=FAILED
         FAILED_CASES="$FAILED_CASES fixed-seeds-ctest"
-        tail -n 40 "$log"
+        excerpt "$log" | sed 's/^/    | /'
     fi
     elapsed=$(( $(date +%s) - start ))
     printf '    %s in %ds -> %s\n' "$status" "$elapsed" "$log"
@@ -158,8 +169,7 @@ summary=${GITHUB_STEP_SUMMARY:-/dev/null}
         for name in $FAILED_CASES; do
             printf '#### `%s`\n\n' "$name"
             printf '```\n'
-            grep -E 'repro:|FUZZ_SEED=|NO LONGER|no longer|UNEXPECTED|^FAIL |^ERROR |Failed ' \
-                "$LOG_DIR/$name.log" | head -n 40
+            excerpt "$LOG_DIR/$name.log"
             printf '```\n\n'
         done
         printf 'Full logs: the `nightly-fuzz-logs` artifact on this run.\n'
