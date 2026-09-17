@@ -2,8 +2,18 @@
 #include "netlist_test_utils.h"
 
 #include "gate_library_test_utils.h"
+#include "gtest/gtest.h"
 #include "hal_core/netlist/gate_library/gate_type.h"
 #include "hal_core/utilities/log.h"
+
+#include <algorithm>
+#include <atomic>
+
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
 
 namespace hal
 {
@@ -294,42 +304,86 @@ namespace hal
         return res;
     }
 
+    namespace
+    {
+        // The sandbox directory actually in use by the current test (set by create_sandbox_directory() and
+        // consumed by create_sandbox_path()/create_sandbox_file()/remove_sandbox_directory()). gtest runs test
+        // bodies serially within a single binary, so a plain static is enough here -- deliberately not
+        // thread_local: these test binaries dlopen()/dlclose() a large number of HAL plugins per test via
+        // plugin_manager::load_all_plugins()/unload_all_plugins(), and repeatedly doing so while holding a
+        // thread_local runs into glibc's limited static-TLS surplus for dlopen()'d modules.
+        std::filesystem::path g_active_sandbox_directory;
+
+        // Builds a directory name that is unique per-process (so that concurrently running ctest binaries, e.g.
+        // "ctest -j", never collide) and, when called from within a gtest test body, also carries the current
+        // test's name for readability/debuggability.
+        std::filesystem::path unique_sandbox_directory_name()
+        {
+            static std::atomic<u64> counter{0};
+
+#ifdef _WIN32
+            const auto pid = static_cast<unsigned long>(_getpid());
+#else
+            const auto pid = static_cast<unsigned long>(getpid());
+#endif
+
+            std::string name = "sandbox_pid" + std::to_string(pid) + "_" + std::to_string(counter.fetch_add(1));
+
+            if (const auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info(); test_info != nullptr)
+            {
+                name += std::string("_") + test_info->test_suite_name() + "_" + test_info->name();
+            }
+
+            // Sanitize characters that are awkward in path components (gtest allows '/' in typed-test names).
+            std::replace(name.begin(), name.end(), '/', '_');
+
+            return name;
+        }
+    }    // namespace
+
     std::filesystem::path test_utils::create_sandbox_directory()
     {
-        std::filesystem::path sb_path = utils::get_base_directory() / sandbox_directory_path;
-        std::filesystem::create_directory(sb_path);
+        std::filesystem::path sandbox_root = utils::get_base_directory() / sandbox_directory_path;
+        std::filesystem::create_directories(sandbox_root);
+
+        std::filesystem::path sb_path = sandbox_root / unique_sandbox_directory_name();
+        std::filesystem::create_directories(sb_path);
+
+        g_active_sandbox_directory = sb_path;
         return sb_path;
     }
 
     void test_utils::remove_sandbox_directory()
     {
-        std::filesystem::remove_all((utils::get_base_directory() / sandbox_directory_path));
+        if (!g_active_sandbox_directory.empty())
+        {
+            std::filesystem::remove_all(g_active_sandbox_directory);
+            g_active_sandbox_directory.clear();
+        }
     }
 
     std::filesystem::path test_utils::create_sandbox_path(const std::string file_name)
     {
-        std::filesystem::path sb_path = (utils::get_base_directory() / sandbox_directory_path);
-        if (!std::filesystem::exists(sb_path))
+        if (g_active_sandbox_directory.empty() || !std::filesystem::exists(g_active_sandbox_directory))
         {
             log_error("test_utils",
                       "create_sandbox_path: sandbox is not created yet. "
                       "Please use \'create_sandbox_directory()\' to create it beforehand.");
             return std::filesystem::path();
         }
-        return sb_path / file_name;
+        return g_active_sandbox_directory / file_name;
     }
 
     std::filesystem::path test_utils::create_sandbox_file(std::string file_name, std::string content)
     {
-        std::filesystem::path sb_path = (utils::get_base_directory() / sandbox_directory_path);
-        if (!std::filesystem::exists(sb_path))
+        if (g_active_sandbox_directory.empty() || !std::filesystem::exists(g_active_sandbox_directory))
         {
             log_error("test_utils",
                       "[netlist_test_utils] create_sandbox_path: sandbox is not created yet. "
                       "Please use \'create_sandbox_directory()\' to create it beforehand.");
             return std::filesystem::path();
         }
-        std::filesystem::path f_path = sb_path / file_name;
+        std::filesystem::path f_path = g_active_sandbox_directory / file_name;
         std::ofstream sb_file(f_path.string());
         sb_file << content;
         sb_file.close();

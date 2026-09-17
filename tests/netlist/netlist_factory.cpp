@@ -47,6 +47,12 @@ namespace hal {
         }
 
         virtual void TearDown() {
+            // gate_library_manager outlives a single test and keys its cache by absolute file path, and every
+            // test now gets its own unique sandbox directory (see netlist_test_utils.cpp), so the library every
+            // test's SetUp() writes -- always named MIN_TEST_GATE_LIBRARY_FOR_NETLIST_FACTORY_TESTS -- would
+            // otherwise accumulate as a distinct cache entry per test. Drop it here so later tests, in
+            // particular the auto-detect path of check_load_netlists, only ever see one.
+            gate_library_manager::remove(m_g_lib_path);
             test_utils::remove_sandbox_directory();
             plugin_manager::unload_all_plugins();
         }
@@ -500,6 +506,9 @@ namespace hal {
                     EXPECT_EQ(given_names, expected_names);
                 }
             }
+
+            // see TearDown(): m_g_lib_path is dropped there, but other_g_lib_path is local to this test
+            gate_library_manager::remove(other_g_lib_path);
         TEST_END
     }
 } //namespace hal
