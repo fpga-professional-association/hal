@@ -14,6 +14,19 @@ the two shapes a cipher datapath produces and a plain counter does not:
   an NTT butterfly.  Buffers and inverters between the operand register and the
   adder are peeled, so the operand names the register, not the copy.
 
+A *vendor* subtracter needs two more allowances than a hand-built one, and
+without them Quartus's ``a - b`` is not recognised at all:
+
+* the inversion of the second operand is folded **into the arithmetic cell's
+  own mask** rather than paid for with an inverter cell, so the cell's two mask
+  halves read ``XNOR(a, b)`` and ``a AND NOT b`` and the operands arrive with
+  *independent* polarities, not one shared one;
+* the carry-in of one is **seeded by a leading chain cell**.  An ALM's ``cin``
+  can only come from the previous cell's ``cout``, so there is no way to tie it
+  to a constant: Quartus prefixes the chain with a cell that has no data
+  operands, no sum output, and the single job of emitting the constant carry.
+  Every Quartus subtract chain starts with one.
+
 Nothing here is trusted on the strength of the pattern.  A recognized chain is
 *evaluated*: its sum bits are compared against ``a + b + cin`` on the effective
 operand values, exhaustively when the operand space is small enough and on a
@@ -32,6 +45,7 @@ from .netlist_model import UnsupportedCell
 __all__ = [
     "DEFAULT_SAMPLES",
     "EXHAUSTIVE_VARIABLE_LIMIT",
+    "carry_seed",
     "chains",
     "classify_chain",
     "check_chain_function",
@@ -69,16 +83,25 @@ def _slice_operands(model, cell):
         return source, bool(inverted) ^ bool(polarity)
 
     if len(keys) == 2:
-        for polarity in (0, 1):
+        # The two operands carry *independent* polarities.  ``(0, 0)`` is a
+        # plain add and ``(1, 1)`` is an add of two complemented vectors; the
+        # mixed pair is a subtracter whose inversion Quartus folded into this
+        # cell's mask instead of spending an inverter on it.  At most one of the
+        # four can match: ``low`` fixes the parity of the pair and ``high``
+        # then distinguishes the two members of that parity class.
+        for first_polarity, second_polarity in ((0, 0), (1, 1), (0, 1), (1, 0)):
             for index in range(4):
-                first = (index >> 0) & 1
-                second = (index >> 1) & 1
+                first = ((index >> 0) & 1) ^ first_polarity
+                second = ((index >> 1) & 1) ^ second_polarity
                 if low[index] != (first ^ second):
                     break
-                if high[index] != ((first ^ polarity) & (second ^ polarity)):
+                if high[index] != (first & second):
                     break
             else:
-                return [peeled(keys[0], polarity), peeled(keys[1], polarity)], None
+                return (
+                    [peeled(keys[0], first_polarity), peeled(keys[1], second_polarity)],
+                    None,
+                )
         return None
     if len(keys) == 1:
         # a + 0: f0 = a, f1 = 0.   a + 1: f0 = !a, f1 = a.
@@ -95,13 +118,46 @@ def _slice_operands(model, cell):
     return None
 
 
+def carry_seed(model, cell):
+    """The constant carry a leading, operand-less chain cell emits, or ``None``.
+
+    An ALM takes its carry only from the previous cell in the chain, so a
+    subtracter's ``cin = 1`` cannot be tied to a constant: Quartus prefixes the
+    chain with a cell that has no data operands and no sum output, whose
+    ``cout`` is the constant.  Reading it is the ordinary arithmetic equation
+    ``cout = (f0 AND cin) OR (NOT f0 AND f1)`` on a cell whose two mask halves
+    are single bits.
+    """
+    if cell.single("sumout") is not None:
+        return None
+    try:
+        keys, low, high = model._arithmetic_tables(cell)  # noqa: SLF001
+    except UnsupportedCell:
+        return None
+    if keys:
+        return None
+    carry = cell.single("cin")
+    if carry is None:
+        incoming = 0
+    else:
+        resolved = model.resolve(carry)
+        if resolved[0] != "const" or resolved[1] is None:
+            return None
+        incoming = resolved[1]
+    return (low[0] & incoming) | ((1 - low[0]) & high[0])
+
+
 def classify_chain(model, chain):
     """Describe one carry chain as an adder over two operand vectors.
 
     Returns ``None`` when the chain is not shaped like an adder at all.  A
     trailing cell that only forwards the carry is dropped, the way Quartus
-    writes the top of a chain.
+    writes the top of a chain, and a *leading* cell that only emits the carry is
+    dropped the same way -- see :func:`carry_seed`.
     """
+    seeded = carry_seed(model, chain[0]) if len(chain) > 2 else None
+    if seeded is not None:
+        chain = chain[1:]
     left = []
     right = []
     sums = []
@@ -126,12 +182,15 @@ def classify_chain(model, chain):
     if len(sums) < 2:
         return None
 
-    carry = chain[0].single("cin")
-    if carry is None:
-        carry_in = 0
+    if seeded is not None:
+        carry_in = seeded
     else:
-        resolved = model.resolve(carry)
-        carry_in = resolved[1] if resolved[0] == "const" else None
+        carry = chain[0].single("cin")
+        if carry is None:
+            carry_in = 0
+        else:
+            resolved = model.resolve(carry)
+            carry_in = resolved[1] if resolved[0] == "const" else None
 
     return {
         "cells": [cell.name for cell in chain],

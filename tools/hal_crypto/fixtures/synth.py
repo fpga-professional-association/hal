@@ -158,6 +158,85 @@ class Builder(object):
         ]
         self._cell(name, mask, connections)
 
+    def vendor_arithmetic(self, name, operand_a, operand_b, sum_net, carry_in, carry_out):
+        """One subtracter slice the way a *vendor* writes it.
+
+        ``a - b`` is ``a + ~b + 1``, and :meth:`arithmetic` spells the ``~b``
+        with an inverter cell in front of the chain.  Quartus does not: it folds
+        the inversion into this cell's own mask, so the two halves read
+        ``XNOR(a, b)`` and ``a AND NOT b`` and the operands arrive with
+        *independent* polarities.  A recognizer that only knows the inverter
+        spelling sees no subtracter at all in any real export.
+        """
+        low = [1 ^ ((index >> 2) & 1) ^ ((index >> 3) & 1) for index in range(16)]
+        high = [((index >> 2) & 1) & (1 ^ ((index >> 3) & 1)) for index in range(16)]
+        mask = 0
+        for index in range(16):
+            if low[index]:
+                mask |= 1 << index
+            if high[index]:
+                mask |= 1 << (16 + index)
+        connections = [
+            ".dataa(gnd)",
+            ".datab(gnd)",
+            ".datac({})".format(operand_a),
+            ".datad({})".format(operand_b),
+            ".datae(gnd)",
+            ".dataf(gnd)",
+            ".datag(gnd)",
+            ".datah(gnd)",
+            ".cin({})".format(carry_in),
+            ".sharein(gnd)",
+            ".combout()",
+            ".sumout({})".format(sum_net),
+            ".cout({})".format(carry_out if carry_out else ""),
+            ".shareout()",
+        ]
+        self._cell(name, mask, connections)
+
+    def carry_seed(self, name, value, carry_out):
+        """A chain cell whose only job is to emit a constant carry.
+
+        An ALM's ``cin`` comes only from the previous cell's ``cout``, so a
+        subtracter's carry-in of one cannot be tied to a constant: Quartus
+        prefixes the chain with a cell that has no data operands and no sum
+        output.  ``cout = (f0 AND cin) OR (NOT f0 AND f1)`` with ``cin`` at zero
+        makes ``f1`` the value and ``f0`` zero.
+        """
+        mask = 0xFFFF0000 if value else 0
+        connections = [
+            ".dataa(gnd)",
+            ".datab(gnd)",
+            ".datac(gnd)",
+            ".datad(gnd)",
+            ".datae(gnd)",
+            ".dataf(gnd)",
+            ".datag(gnd)",
+            ".datah(gnd)",
+            ".cin(gnd)",
+            ".sharein(gnd)",
+            ".combout()",
+            ".sumout()",
+            ".cout({})".format(carry_out),
+            ".shareout()",
+        ]
+        self._cell(name, mask, connections)
+
+    def vendor_subtract(self, stem, operands_a, operands_b, sums, carry_out=None):
+        """``a - b`` as a Quartus export writes it: a seed cell, then slices."""
+        carry = self.wire("{}_seed".format(stem))
+        self.carry_seed("{}_seed_cell".format(stem), 1, carry)
+        for index, (a, b) in enumerate(zip(operands_a, operands_b)):
+            last = index == len(operands_a) - 1
+            following = (carry_out or "") if last else self.wire(
+                "{}_c{}".format(stem, index)
+            )
+            self.vendor_arithmetic(
+                "{}_{}".format(stem, index), a, b, sums[index], carry, following
+            )
+            carry = following
+        return carry
+
     def _cell(self, name, mask, connections):
         self.body.append(
             "tennm_lcell_comb #(\n"
@@ -648,6 +727,116 @@ def _butterfly(name, width=4):
     return builder
 
 
+def _fermat_butterfly(name, bits=5, modulus=17):
+    """A butterfly reduced modulo a Fermat prime, the way Quartus builds one.
+
+    Everything :func:`_ntt_stage` does differently, and every difference is a
+    thing a real export has and a hand-written fixture did not:
+
+    * the subtracter's second operand is inverted **inside the arithmetic
+      cell's mask**, not by an inverter cell, and its carry-in of one comes from
+      a leading **carry-seed** cell (see :meth:`Builder.vendor_subtract`);
+    * the modular corrections are **plain LUTs**, not carry chains.  ``q`` is
+      ``2**(bits-1) + 1``, so subtracting it is an increment and one bit flip
+      and no synthesiser spends an arithmetic chain on it -- which means the
+      "modulus is a carry chain's constant operand" tier finds nothing at all,
+      and the modulus has to be read out of what the correction *computes*.
+
+    Both corrections are functions of their chain's own result, which is at most
+    ``bits + 1`` nets wide, so each output bit is one six-input cell.
+    """
+    builder = Builder(name)
+    builder.port("input", "clk")
+    builder.port("input", "rst_n")
+    builder.port("output", "up", bits)
+    builder.port("output", "down", bits)
+    for vector in ("a", "b", "sum", "diff", "sum_mod", "dif_mod"):
+        builder.wire(vector, bits)
+    builder.wire("sum_red", bits + 1)
+    builder.wire("dif_fix", bits + 1)
+    builder.wire("sum_carry")
+    builder.wire("dif_carry")
+
+    builder.adder(
+        "add",
+        ["a[{}]".format(index) for index in range(bits)],
+        ["b[{}]".format(index) for index in range(bits)],
+        ["sum[{}]".format(index) for index in range(bits)],
+        carry_out="sum_carry",
+    )
+    builder.vendor_subtract(
+        "sub",
+        ["a[{}]".format(index) for index in range(bits)],
+        ["b[{}]".format(index) for index in range(bits)],
+        ["diff[{}]".format(index) for index in range(bits)],
+        carry_out="dif_carry",
+    )
+
+    raw_sum = ["sum[{}]".format(index) for index in range(bits)] + ["sum_carry"]
+    raw_dif = ["diff[{}]".format(index) for index in range(bits)] + ["dif_carry"]
+    mask = (1 << bits) - 1
+
+    # `sum - q` and `diff + q`, as whole vectors and one bit wider, so that the
+    # top bit of each is a real net -- the borrow that selects the correction.
+    # That is what a synthesiser leaves behind when it folds a cheap constant
+    # into LUTs instead of spending a carry chain on it.
+    def offset_bit(amount, position):
+        def evaluate(values):
+            total = sum(bit << index for index, bit in enumerate(values))
+            return ((total + amount) >> position) & 1
+
+        return evaluate
+
+    for index in range(bits + 1):
+        builder.function(
+            "sum_red_{}".format(index),
+            "sum_red[{}]".format(index),
+            raw_sum,
+            offset_bit(-modulus, index),
+        )
+        builder.function(
+            "dif_fix_{}".format(index),
+            "dif_fix[{}]".format(index),
+            raw_dif,
+            offset_bit(modulus, index),
+        )
+
+    for index in range(bits):
+        builder.lut(
+            "sum_mod_{}".format(index),
+            "sum_mod[{}]".format(index),
+            [
+                "sum[{}]".format(index),
+                "sum_red[{}]".format(index),
+                "sum_red[{}]".format(bits),
+            ],
+            # borrow set -> the subtraction went negative -> keep the raw sum
+            [0, 0, 1, 1, 0, 1, 0, 1],
+        )
+        builder.lut(
+            "dif_mod_{}".format(index),
+            "dif_mod[{}]".format(index),
+            [
+                "diff[{}]".format(index),
+                "dif_fix[{}]".format(index),
+                "dif_carry",
+            ],
+            # carry out set -> the difference was non-negative -> keep it raw
+            [0, 0, 1, 1, 0, 1, 0, 1],
+        )
+        builder.register(
+            "a_{}".format(index), "sum_mod[{}]".format(index), "a[{}]".format(index),
+            clear="rst_n",
+        )
+        builder.register(
+            "b_{}".format(index), "dif_mod[{}]".format(index), "b[{}]".format(index),
+            clear="rst_n",
+        )
+        builder.assign("up[{}]".format(index), "a[{}]".format(index))
+        builder.assign("down[{}]".format(index), "b[{}]".format(index))
+    return builder
+
+
 def _ntt_stage(name, bits=13, modulus=3329):
     """A butterfly whose sum is reduced modulo *q* by a conditional subtract.
 
@@ -960,6 +1149,20 @@ FIXTURES = {
         "build": lambda: _ntt_stage("ntt_stage13", bits=13, modulus=3329),
         "description": "a butterfly with a conditional subtract of q = 3329",
         "role": "positive control for the NTT pass and the PQC-style verdict",
+        "family": "lattice-ntt",
+        "style": "pqc-style",
+    },
+    "ntt_fermat17": {
+        "build": lambda: _fermat_butterfly("ntt_fermat17", bits=5, modulus=17),
+        "description": (
+            "a Quartus-shaped butterfly reduced modulo the Fermat prime 17: the "
+            "subtracter's inversion folded into its own mask behind a carry-seed "
+            "cell, and both corrections built out of LUTs rather than chains"
+        ),
+        "role": (
+            "positive control for the vendor subtracter and for reading a "
+            "modulus off the correction when no constant-operand chain exists"
+        ),
         "family": "lattice-ntt",
         "style": "pqc-style",
     },

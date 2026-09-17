@@ -38,6 +38,12 @@ python3 tools/hal_crypto identify \
 #      -- is none-detected, because there chi reads the registers through theta
 
 python3 tools/hal_crypto identify \
+    examples/agilex3_walkthroughs/15_ntt_mult/ntt_mult.vo
+#   -> family lattice-ntt, style pqc-style, confidence *medium*: one butterfly
+#      and "modulus 257, in no published-parameter library".  257 = 2^8 + 1 is
+#      too cheap to need a carry chain, so it came off the correction logic
+
+python3 tools/hal_crypto identify \
     examples/agilex3_walkthroughs/01_blinky_counter/blinky_counter.vo
 #   -> family none-detected, with a per-pass list of what was looked for
 
@@ -76,7 +82,12 @@ What the words are allowed to mean:
 
 - `pqc-style` = **lattice-style NTT/ring arithmetic is present**. It never
   names a scheme. Reducing modulo 3329 is what ML-KEM does *and* what anything
-  else on that ring does.
+  else on that ring does. When the recovered modulus is in **no** published
+  library the confidence drops to `medium` and the style text adds that this is
+  "the shape of a lattice scheme's arithmetic and not any deployed one's
+  parameters" — which is the honest reading of `15_ntt_mult`'s `q = 257`, a real
+  modulus at toy parameters. Read `recovered_moduli` for the number and
+  `named_moduli` for whether anyone has published it.
 - `classical-style` does **not** rule out post-quantum: a hash-based or
   code-based scheme has neither NTTs nor S-boxes and lands in `none-detected`.
 - **`sponge` is never placed on the axis at all** — it gets `undetermined`, and
@@ -150,6 +161,35 @@ What the words are allowed to mean:
   explain the same bank (that is a multiplexer), when a stronger reading
   already has the map, or when a partial map's amount is ±1 (that is an open
   shift chain — `lfsr` names it, with its feedback).
+- **A vendor subtracter does not look like a hand-written one, and for a while
+  none was recognised.** Quartus folds the second operand's inversion into the
+  arithmetic cell's *own mask* (`XNOR(a,b)` and `a AND NOT b`, so the two
+  operands carry **independent** polarities) instead of spending an inverter
+  cell, and it cannot tie `cin` to a constant at all — an ALM's carry comes only
+  from the previous cell's `cout` — so it prefixes the chain with a **carry-seed
+  cell**: no data operands, no sum output, one constant `cout`. Every Quartus
+  subtract chain has both. Before `15_ntt_mult` the pass found *zero*
+  butterflies in any real export; `arith.carry_seed` and the per-operand
+  polarity search are what fixed it, and `fixtures/ntt_fermat17.vo` is the
+  shape on its own.
+- **A cheap modulus is not a carry chain, and the constant-operand tier finds
+  nothing.** `sum - q` only gets an arithmetic chain when *q* is expensive to
+  add. At `q = 2**k + 1` (a Fermat prime: 257, 17, 65537) the correction is an
+  increment and one bit flip and Quartus builds it out of ordinary LUTs, so
+  `modulus_candidates` is empty on a design whose modulus is perfectly real.
+  The second tier, `ntt.reduction_moduli`, derives *q* from what the correction
+  **computes**: it takes each net that could be the select, builds *q* one bit
+  at a time (bit *k* of `sum - q` depends only on bits 0..*k* of *q*), and keeps
+  a candidate only when the corrected vector is re-located on a sweep of **every
+  attainable chain result**. It reports `select_net`, `sum_nets`,
+  `difference_nets` and `checked_every_sum`, and it reproduces `3329` on
+  `ntt_stage13` where the first tier already had it. A missing
+  `reduction_moduli` key means the tier did not fire, not that it failed.
+- **`stage_depth` counts butterflies chained through *wiring*.** An iterative
+  core chains them through a *counter*, so `15_ntt_mult`'s four stages of eight
+  come back as `stage_depth: 1` and that is the honest structural answer. Same
+  distinction as `13_trivium_stream`'s three levels of logic versus its
+  1152-step warm-up.
 - **A data-absorbing feedback register is not a keystream generator.** A CRC or
   scrambler XORs an external bit in every step; it gets `autonomous: false` and
   does *not* make the family `lfsr-stream`. The polynomial is still reported.

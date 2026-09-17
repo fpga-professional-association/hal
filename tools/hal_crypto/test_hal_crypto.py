@@ -26,7 +26,9 @@ permutation, cone-support    ``mux_bank16`` -- a 2-to-1 datapath multiplexer
                              explain it and the shape where no bit reads
                              only one bit of one source
 NTT butterfly / modulus      ``butterfly4`` has the butterfly and no
-                             modulus; ``counter8`` has neither
+                             modulus; ``counter8`` has neither;
+                             ``ntt_fermat17`` has both in the shapes a
+                             *vendor* emits them in
 classifier                   ``01_blinky_counter`` must be ``none-detected``
 ===========================  ==============================================
 
@@ -762,6 +764,38 @@ class ArithmeticTest(unittest.TestCase):
         self.assertEqual(1, len(entries))
         self.assertEqual(3329, entries[0]["subtrahend"])
 
+    def test_a_vendor_subtracter_is_recognized(self):
+        """Folded inversion plus a leading carry seed -- what Quartus emits.
+
+        ``butterfly4`` spells ``a - b`` with an inverter cell and a carry-in
+        tied to vcc, which no synthesiser can do: an ALM's ``cin`` comes only
+        from the previous cell's ``cout``.  This is the same subtraction the way
+        a real export has it, and before the fix it was not an adder at all.
+        """
+        operations = sorted(
+            entry["operation"] for entry in arith.adders(fixture("ntt_fermat17"))
+        )
+        self.assertEqual(["add", "subtract"], operations)
+
+    def test_a_carry_seed_is_read_as_the_constant_it_emits(self):
+        model = fixture("ntt_fermat17")
+        seeds = [
+            arith.carry_seed(model, chain[0])
+            for chain in arith.chains(model)
+        ]
+        self.assertIn(1, seeds)
+        self.assertIn(None, seeds)
+
+    def test_a_subtract_chain_carries_its_carry_in_of_one(self):
+        entries = [
+            entry
+            for entry in arith.adders(fixture("ntt_fermat17"))
+            if entry["operation"] == "subtract"
+        ]
+        self.assertEqual(1, len(entries))
+        self.assertEqual(1, entries[0]["carry_in"])
+        self.assertEqual(5, entries[0]["width"])
+
     def test_the_walkthrough_counter_chain_is_an_adder(self):
         entries = arith.adders(load(COUNTER_EXPORT))
         self.assertEqual(1, len(entries))
@@ -1211,6 +1245,51 @@ class NttPassTest(unittest.TestCase):
         result = ntt.identify(fixture("counter8"))
         self.assertEqual(0, result["butterfly_count"])
         self.assertEqual("no-modular-transform", result["verdict"])
+
+    def test_a_modulus_with_no_constant_chain_is_read_off_the_correction(self):
+        """``q = 2**4 + 1`` is too cheap to need a chain, and is found anyway."""
+        model = fixture("ntt_fermat17")
+        constants = [
+            entry
+            for entry in arith.adders(model)
+            if entry["operation"] == "add_constant"
+        ]
+        self.assertEqual([], constants)
+        result = ntt.identify(model)
+        self.assertEqual(1, result["butterfly_count"])
+        self.assertEqual("modular-arithmetic-candidate", result["verdict"])
+        self.assertEqual([17], result["recovered_moduli"])
+        self.assertEqual([], result["named_moduli"])
+
+    def test_the_reduction_tier_names_the_nets_it_located(self):
+        entries = ntt.reduction_moduli(
+            fixture("ntt_fermat17"), ntt.butterflies(arith.adders(fixture("ntt_fermat17")))
+        )
+        self.assertEqual(1, len(entries))
+        entry = entries[0]
+        self.assertEqual(17, entry["modulus"])
+        self.assertTrue(entry["checked_every_sum"])
+        self.assertEqual(63, entry["vectors_checked"])
+        self.assertEqual(
+            ["sum_mod[{}]".format(index) for index in range(5)], entry["sum_nets"]
+        )
+        self.assertEqual(
+            ["dif_mod[{}]".format(index) for index in range(5)],
+            entry["difference_nets"],
+        )
+
+    def test_the_two_modulus_tiers_agree_where_both_fire(self):
+        """The constant-chain fixture's 3329 is reached the other way too."""
+        result = ntt.identify(fixture("ntt_stage13"))
+        self.assertEqual([3329], result["named_moduli"])
+        self.assertEqual([3329], result["recovered_moduli"])
+
+    def test_a_butterfly_with_no_correction_recovers_no_modulus(self):
+        """`reduction_moduli` is not a second way to guess."""
+        model = fixture("butterfly4")
+        entries = ntt.reduction_moduli(model, ntt.butterflies(arith.adders(model)))
+        self.assertEqual([], entries)
+        self.assertNotIn("recovered_moduli", ntt.identify(model))
 
 
 # ---------------------------------------------------------------------------
