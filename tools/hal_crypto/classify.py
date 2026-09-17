@@ -164,12 +164,23 @@ def verdict(evidence):
                 evidence["ntt"]["butterfly_count"], evidence["ntt"]["stage_depth"]
             )
         )
+        recovered = evidence["ntt"].get("recovered_moduli") or []
         if named:
             evidence_lines.append(
                 "a carry chain subtracts a constant equal to the published modulus "
                 "{}".format(", ".join(str(value) for value in named))
             )
             confidence = "high"
+        elif recovered:
+            evidence_lines.append(
+                "the butterfly's conditional correction subtracts {}, derived from "
+                "the reduction logic and checked on every sum the adder can "
+                "produce -- a modulus, but not one in the built-in library of "
+                "published parameters".format(
+                    ", ".join(str(value) for value in recovered)
+                )
+            )
+            confidence = _max_confidence(confidence, "medium")
         else:
             evidence_lines.append(
                 "a carry chain with a constant operand is present but the constant "
@@ -290,6 +301,13 @@ def verdict(evidence):
             "built from. This does NOT identify a scheme -- the same ring "
             "arithmetic appears wherever that ring is used."
         )
+        if not evidence["ntt"]["named_moduli"]:
+            style_text += (
+                " And the modulus found is in no published-parameter library, so "
+                "this is the *shape* of a lattice scheme's arithmetic and not any "
+                "deployed one's parameters: read it as 'the kernel a lattice "
+                "scheme is built out of', not as 'a post-quantum implementation'."
+            )
     elif "sponge" in present:
         style = "undetermined"
         style_text = (
@@ -962,14 +980,22 @@ def ntt_findings(artifact_id, result):
             )
         ]
     moduli = result["named_moduli"]
+    recovered = result.get("recovered_moduli") or []
+    if moduli:
+        qualifier = " with modulus {}".format(
+            ", ".join(str(value) for value in moduli)
+        )
+    elif recovered:
+        qualifier = " with modulus {}, in no published-parameter library".format(
+            ", ".join(str(value) for value in recovered)
+        )
+    else:
+        qualifier = " with an unrecognised constant modulus"
     return [
         model.finding(
             "hal_crypto/ntt/butterfly",
             "{} NTT-style butterfly pair(s){}".format(
-                result["butterfly_count"],
-                " with modulus {}".format(", ".join(str(value) for value in moduli))
-                if moduli
-                else " with an unrecognised constant modulus",
+                result["butterfly_count"], qualifier
             ),
             model.STATUS_HEURISTIC,
             findings.sampled_method(
@@ -989,7 +1015,17 @@ def ntt_findings(artifact_id, result):
                         ", ".join(str(value) for value in moduli)
                     )
                     if moduli
-                    else "The constant-operand chain's constant is in no library entry.",
+                    else (
+                        "No constant-operand chain carries it, but the conditional "
+                        "correction on the butterfly subtracts {} -- derived from "
+                        "the reduction logic and checked on every sum the adder "
+                        "can produce. It is in no library entry.".format(
+                            ", ".join(str(value) for value in recovered)
+                        )
+                        if recovered
+                        else "The constant-operand chain's constant is in no "
+                        "library entry."
+                    ),
                 )
             ),
             confidence=0.75 if moduli else 0.55,

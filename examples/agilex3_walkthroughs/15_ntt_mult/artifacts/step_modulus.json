@@ -1,0 +1,35 @@
+{
+  "checked_every_sum": true,
+  "constant_operand_chains": 0,
+  "difference_nets": [
+    "dif_mod[0]",
+    "dif_mod[1]",
+    "dif_mod[2]",
+    "dif_mod[3]",
+    "dif_mod[4]",
+    "dif_mod[5]",
+    "dif_mod[6]",
+    "dif_mod[7]",
+    "dif_mod[8]"
+  ],
+  "difference_select_net": "add_4~47",
+  "modulus": 257,
+  "modulus_form": "2**8 + 1 (a Fermat prime)",
+  "modulus_is_prime": true,
+  "note": "q = 257 is a real modulus read out of real logic, and it is in no published-parameter library: ML-KEM uses 3329 and ML-DSA 8380417. This is the shape of a lattice scheme's arithmetic at toy parameters, not a deployed scheme's parameters.",
+  "published_parameter_match": [],
+  "select_inverted": true,
+  "select_net": "sum_red[9]",
+  "sum_nets": [
+    "sum_mod[0]",
+    "sum_mod[1]",
+    "sum_mod[2]",
+    "sum_mod[3]",
+    "sum_mod[4]",
+    "sum_mod[5]",
+    "sum_mod[6]",
+    "sum_mod[7]",
+    "sum_mod[8]"
+  ],
+  "vectors_checked": 1023
+}

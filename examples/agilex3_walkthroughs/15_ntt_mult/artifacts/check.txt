@@ -1,0 +1,144 @@
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.11 seconds.
+[netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v' in 0.64 seconds.
+[ok  ] ntt_mult is fully covered
+[ok  ] the coverage finding is proven_under_assumptions -- proven_under_assumptions
+[ok  ] ntt_mult: 299 flip-flops and 910 ALMs, nothing else -- {'tennm_ff': 299, 'tennm_lcell_comb': 910}
+[ok  ] the committed ntt_mult findings hash the committed export -- byte-for-byte
+[ok  ] the DSP counterfactual is reported unsupported, with a tennm_mac -- {'tennm_mac': ['mult_4~DATAOUTA0']}
+[ok  ] the committed ntt_dsp findings hash the committed export -- byte-for-byte
+[ok  ] the guide says a 9x9 multiply is what puts a DSP in the netlist
+[ok  ] 1209 instances: 299 tennm_ff + 910 tennm_lcell_comb -- {'tennm_ff': 299, 'tennm_lcell_comb': 910}
+[ok  ] the boundary is clk/rst_n/start/a_in/b_in -> c_out/done/busy -- ['a_in', 'b_in', 'clk', 'rst_n', 'start', 'busy', 'c_out', 'done']
+[ok  ] the data ports are 128 / 128 in and 144 out -- {'a_in': 128, 'b_in': 128, 'clk': 1, 'rst_n': 1, 'start': 1}
+[ok  ] eight bits of input and nine bits of output per coefficient
+[ok  ] the combinational core is 42 levels deep -- 42
+[ok  ] the guide contrasts that depth with walkthrough 11's ARX round
+[ok  ] 288 coefficient flip-flops and 11 control ones -- 288 / 11
+[ok  ] two banks of sixteen coefficients, nine bits each -- 2 banks, [16] coefficients, [9] bits
+[ok  ] the load path and the adder path agree on every shared bit
+[ok  ] 144 cycles from an accepted start to done -- 144
+[ok  ] a 6-bit counter and a 3-bit phase, found without names -- 6 / 3
+[ok  ] five phases of 64, 16, 16, 32, 16 -- [64, 16, 16, 32, 16]
+[ok  ] the counter bits toggle 143, 71, 35, 17, 6 and 2 times -- [143, 71, 35, 17, 6, 2]
+[ok  ] exactly one butterfly, 9 bits wide -- 1 pair(s) of width 9
+[ok  ] its two chains read the same 18 operand nets -- 18
+[ok  ] the subtracter is recognised at all -- a vendor one, not a fixture one -- ['add', 'add', 'subtract']
+[ok  ] the guide says why: a folded inversion and a leading carry seed
+[ok  ] there is no constant-operand carry chain anywhere -- 0
+[ok  ] the modulus is 257 and it is prime -- 257
+[ok  ] ... derived from the correction and checked on all 1023 sums -- 1023
+[ok  ] ... and it matches nothing in the published-parameter library -- []
+[ok  ] 81 twiddle constants recovered -- 81
+[ok  ] two 32-entry tables, one of 16 and one constant -- [1, 16, 32, 32]
+[ok  ] exactly one phase's 'twiddle' is data and not a table -- ['1']
+[ok  ] the ring is Z_257[x] / (x^16 + 1) -- Z_257[x] / (x^16 + 1)
+[ok  ] psi = 15 has order 32, and omega = psi^2 = 225 -- 15 / 32 / 225
+[ok  ] the inverse table is omega^-brv3(g), and the post scale is n^-1 = 241 -- 241
+[ok  ] 96 butterfly steps: 64 forward and 32 inverse -- 96
+[ok  ] the pair distance is 8, 4, 2, 1 in every block of eight -- [[8], [4], [2], [1], [8], [4], [2], [1], [8], [4], [2], [1]]
+[ok  ] every butterfly writes back the pair it read
+[ok  ] the two cross-bank passes are the bit-reversal permutation -- {'2': True, '4': True}
+[ok  ] the netlist agrees with the schoolbook negacyclic product -- [('one times one', True), ('x^15 times x -- the negacyclic wrap', True), ('pseudo-random operands', True), ('all bytes at their maximum', True)]
+[ok  ] x^15 * x comes back as -1, so the quotient is x^16 + 1
+[ok  ] each product takes 145 cycles from an accepted start -- [145, 145, 145, 145]
+[ok  ] the netlist matches the reference.py model for 600 cycles -- behavior_design.findings.json
+[ok  ] the netlist matches the recovered_reference.py model for 600 cycles -- behavior_recovered.findings.json
+[ok  ] the committed 'one forward twiddle moved by one' control is caught at cycle 67 -- behavior_negative_control_twiddle.findings.json
+[ok  ] the committed 'the modulus moved from 257 to 256' control is caught at cycle 36 -- behavior_negative_control_modulus.findings.json
+[ok  ] the committed 'one post-scale constant moved by one' control is caught at cycle 132 -- behavior_negative_control_post.findings.json
+[ok  ] a reference with one forward twiddle moved by one is still caught -- diverged at cycle 67
+[ok  ] ... at the cycle the guide says it does -- 67 vs 67
+[ok  ] a reference with the modulus moved from 257 to 256 is still caught -- diverged at cycle 36
+[ok  ] ... at the cycle the guide says it does -- 36 vs 36
+[ok  ] a reference with one post-scale constant moved by one is still caught -- diverged at cycle 132
+[ok  ] ... at the cycle the guide says it does -- 132 vs 132
+[ok  ] ... and the last one is missed entirely by a 200-cycle bound -- None
+[ok  ] reference.py reproduces the schoolbook product
+[ok  ] recovered_reference.py reproduces the same product
+[ok  ] reference.py reproduces the schoolbook product
+[ok  ] recovered_reference.py reproduces the same product
+[ok  ] reference.py reproduces the schoolbook product
+[ok  ] recovered_reference.py reproduces the same product
+[ok  ] the two models are not the same arithmetic
+[ok  ] the committed verdict on ntt_mult is lattice-ntt / pqc-style -- lattice-ntt / pqc-style
+[ok  ] ... at medium confidence, because the modulus is in no library -- medium
+[ok  ] the style finding refuses to read the toy parameters as a scheme -- Lattice-style NTT / ring arithmetic is present: butterflies over a small modulus
+[ok  ] the butterfly finding names the modulus it recovered -- 1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library
+[ok  ] the DSP export still comes back lattice-ntt -- the butterfly is outside -- lattice-ntt
+[ok  ] ... but with a spurious arx reading the covered export does not have -- ['lattice-ntt', 'arx']
+[ok  ] re-running the classifier still says lattice-ntt / pqc-style -- lattice-ntt
+[ok  ] the guide states the honesty framing in its own words
+[ok  ] images/dag.dot exists
+[ok  ] the levelled DAG is 43 levels deep -- levels=43
+[ok  ] guide.html quotes the same level count
+[ok  ] images/dag_datapath.dot exists
+[ok  ] images/dag_datapath.svg exists and is what the guide embeds
+[ok  ] the datapath cone is 34 of those levels -- levels=34
+[ok  ] the guide says why the whole graph is not drawn
+[ok  ] artifacts/dag_trace.json exists
+[ok  ] images/dag_interactive.html exists
+[ok  ] the committed trace reproduces from the committed .vo
+[ok  ] the window is 32 cycles: a clear, a load, then 30 busy ones -- 32 frames, busy on 30
+[ok  ] the page embeds every recorded cycle -- 32
+[ok  ] netlist.hal.v loads with AGILEX_TENNM -- AGILEX_TENNM
+[ok  ] HAL sees the same 1209 instances plus its two constant gates -- 1211 gates {'HAL_GND': 1, 'HAL_VCC': 1, 'tennm_ff': 299, 'tennm_lcell_comb': 910}
+[ok  ] every ALM got semantics, none refused -- elaborated=910 refused=0
+[ok  ] the netlist is flat: one module -- modules=1
+[ok  ] the SCC decomposition puts both coefficient banks in one component -- {'pa': 144, 'pb': 144}
+[ok  ] the guide says why that component cannot be cut
+
+all checks passed

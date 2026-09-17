@@ -125,7 +125,8 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   used — the two disagree on the edge count (413 versus 936 there), because the
   hub draws a flip-flop's constant control pins once instead of per pin.
   `12_present_sbox` is the other one, for the same reason at 2292 stubs, and
-  `13_trivium_stream` the third at 4377 and `14_keccak_toy` the fourth at 5979.
+  `13_trivium_stream` the third at 4377, `14_keccak_toy` the fourth at 5979 and
+  `15_ntt_mult` the fifth.
 - **`netlist_graph` and `dag` are not interchangeable at size, and the refusal is
   not the only limit.** `--max-gates` (400) is a readability guard you can raise;
   Graphviz is the real one. On `13_trivium_stream` (613 gates, 1884 edges)
@@ -136,9 +137,23 @@ output no finding references), `--no-embed`, `--max-embed-bytes`,
   where the feedback is cut at every flip-flop, so the graph is layered by
   construction -- render in seconds. So: `dag` is the whole-netlist view above a
   few hundred gates, and `netlist_graph` gets scoped (`--gate NAME --depth 1`),
-  which is what `12_present_sbox`, `13_trivium_stream` and `14_keccak_toy` all
-  do. Check the gate
+  which is what `12_present_sbox`, `13_trivium_stream`, `14_keccak_toy` and
+  `15_ntt_mult` all do. Check the gate
   count before pointing `netlist_graph` at a whole module.
+- **`dag` has a size limit too, and it is depth times fan-out, not gate count.**
+  `15_ntt_mult` (1211 nodes, 5913 edges, **43** levels) does not render either:
+  `dot` runs over an hour without finishing, because 256 input-port bits feed
+  cells at level 42 and a long edge costs a dummy node on every rank it crosses.
+  Compare `14_keccak_toy` -- 868 nodes but only **5** levels -- which draws in
+  seconds. When `dag` will not finish, `-f none --html` still gives the counts
+  and the `.dot`, and scoping the *levelled* view (`--gate NAME --depth N
+  --direction predecessors`) gives a drawing: 15's datapath cone is 901 of the
+  1211 gates and 34 of the 43 levels in about a minute.
+- **With `--const-hub`, every depth-2 scope is the whole netlist.** The shared
+  GND/VCC node is a neighbour of every cell that ties a pin off, so two hops from
+  anywhere reaches everything. `14_keccak_toy` and `15_ntt_mult` both land on
+  exactly 401 gates from unrelated centres for that reason. Scope at `--depth 1`
+  with the hub, or drop the hub if you need two hops.
 - Every drawing carries a `cluster_legend` whose node ids all start with
   `legend`. If you parse an emitted `.dot`, filter those out before counting
   gates — `tests/headless_smoke/real_netlist_smoke.py` shows the pattern.

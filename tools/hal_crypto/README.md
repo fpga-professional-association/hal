@@ -20,7 +20,7 @@ chance to be wrong about what the vendor wrote.
 | `shiftreg.py` | is a register chain closed by feedback -- by its own stages or by a sibling's; is the feedback linear (polynomial) or not (ANF); Fibonacci or Galois? | `fixtures/lfsr16_fibonacci.vo`, `fixtures/lfsr16_galois.vo`, `fixtures/lfsr16_loadable.vo`, `fixtures/coupled_nlfsr.vo` | `fixtures/nlfsr16.vo`, `fixtures/shift16_plain.vo` |
 | `arx.py` | are adders, fixed rotations and an XOR layer present **and wired together**? | `fixtures/arx_round8.vo` | `fixtures/counter8.vo`, `fixtures/rotate16.vo` |
 | `permutation.py` | which pure-wire bit maps exist, and do they equal a published pLayer or rotation set? and which maps survive one cell per link? | `fixtures/rotate16.vo` (wiring), `fixtures/spn_round16.vo` (cone support) | `fixtures/counter8.vo`, `fixtures/mux_bank16.vo` |
-| `ntt.py` | is there an add/subtract butterfly over the same operands, and what modulus does the constant-operand chain reduce by? | `fixtures/ntt_stage13.vo` | `fixtures/butterfly4.vo` (butterfly, no modulus) |
+| `ntt.py` | is there an add/subtract butterfly over the same operands, and what modulus is behind it — in a constant-operand chain, or in what the correction *computes*? | `fixtures/ntt_stage13.vo` (chain tier), `fixtures/ntt_fermat17.vo` (reduction tier, and a vendor-shaped subtracter) | `fixtures/butterfly4.vo` (butterfly, no modulus) |
 | `classify.py` | all of the above, as one family verdict and one classical/PQC verdict | every fixture declares its expected verdict in `fixtures/MANIFEST.json` | `examples/agilex3_walkthroughs/01_blinky_counter` |
 
 Two shared layers sit under them: `netlist_model.py` (cone extraction and exact
@@ -231,7 +231,36 @@ that makes the coverage limit explicit:
 chi reads the register bank through theta and 400 cones are too wide to
 enumerate, and `keccak_retimed.vo` — the same permutation with the register
 moved half a round — must classify `sponge` at `high` with forty `keccak_chi_5`
-matches and style `undetermined`.
+matches and style `undetermined`. `15_ntt_mult` is the arithmetic case: it must
+classify `lattice-ntt` / `pqc-style` at `medium` confidence with the modulus
+**257** named and reported as matching nothing published, from a netlist that
+contains no constant-operand carry chain at all.
+
+### A vendor's subtracter, and a modulus that is not a constant
+
+Two things went wrong on the first real NTT export and both were the package's
+fault, not the design's.
+
+The **subtracter** was not recognised, so there was no butterfly. `a - b` is
+`a + ~b + 1`, and the hand-written fixtures spell that with an inverter cell and
+a carry-in tied to `vcc`. A synthesiser can do neither: it folds the inversion
+into the arithmetic cell's own mask (so the two operands carry *independent*
+polarities, and the mask halves read `XNOR(a,b)` and `a AND NOT b`), and an
+ALM's `cin` comes only from the previous cell's `cout`, so it manufactures the
+constant carry with a leading **carry-seed** cell — no data operands, no sum
+output. `arith.carry_seed` reads that cell and `arith._slice_operands` searches
+the four operand polarities instead of two.
+
+The **modulus** was not there to be read. `sum - q` only gets an arithmetic
+chain when `q` is expensive to add; at `q = 2**k + 1` it is an increment and one
+bit flip, built out of ordinary LUTs. `ntt.reduction_moduli` derives `q` from
+what the correction computes instead: for each candidate select net it builds
+`q` one bit at a time — bit *k* of `sum - q` depends only on bits 0..*k* of `q`,
+because a borrow only travels up — and keeps a candidate only when the corrected
+vector can be located again on a sweep of **every attainable chain result**. It
+reproduces `3329` on `ntt_stage13`, where the chain tier already had it, which
+is what makes the two a cross-check rather than two guesses.
+`fixtures/ntt_fermat17.vo` is the minimal case for both.
 
 ### An S-box whose output bits read a *subset* of the inputs
 

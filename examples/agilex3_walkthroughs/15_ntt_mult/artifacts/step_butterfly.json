@@ -1,0 +1,133 @@
+{
+  "butterfly_count": 1,
+  "butterfly_width": 9,
+  "difference_nets": [
+    "add_4~1_sumout",
+    "add_4~11_sumout",
+    "add_4~16_sumout",
+    "add_4~21_sumout",
+    "add_4~26_sumout",
+    "add_4~31_sumout",
+    "add_4~36_sumout",
+    "add_4~41_sumout",
+    "add_4~46_sumout"
+  ],
+  "note": "One butterfly, nine bits wide, and the two chains read the *same* two operand vectors. The subtracter's second operand arrives inverted inside the arithmetic cell's own mask and its carry-in of one is emitted by a leading chain cell with no data operands: that is what a Quartus subtracter looks like, and it is why the hand-built fixtures in tools/hal_crypto/fixtures are not enough.",
+  "operand_nets": [
+    "t[0]",
+    "t[1]",
+    "t[2]",
+    "t[3]",
+    "t[4]",
+    "t[5]",
+    "t[6]",
+    "t[7]",
+    "t[8]",
+    "u[0]",
+    "u[1]",
+    "u[2]",
+    "u[3]",
+    "u[4]",
+    "u[5]",
+    "u[6]",
+    "u[7]",
+    "u[8]"
+  ],
+  "sum_nets": [
+    "add_2~1_sumout",
+    "add_2~6_sumout",
+    "add_2~11_sumout",
+    "add_2~16_sumout",
+    "add_2~21_sumout",
+    "add_2~26_sumout",
+    "add_2~31_sumout",
+    "add_2~36_sumout",
+    "add_2~41_sumout"
+  ],
+  "vectors_checked": 256,
+  "verified_adders": [
+    {
+      "carry_in": 0,
+      "cells": 10,
+      "left": [
+        "t[0]",
+        "t[1]",
+        "t[2]",
+        "t[3]",
+        "t[4]",
+        "t[5]",
+        "t[6]",
+        "t[7]",
+        "t[8]"
+      ],
+      "operation": "add",
+      "right": [
+        "u[0]",
+        "u[1]",
+        "u[2]",
+        "u[3]",
+        "u[4]",
+        "u[5]",
+        "u[6]",
+        "u[7]",
+        "u[8]"
+      ],
+      "width": 9
+    },
+    {
+      "carry_in": 1,
+      "cells": 10,
+      "left": [
+        "u[0]",
+        "u[1]",
+        "u[2]",
+        "u[3]",
+        "u[4]",
+        "u[5]",
+        "u[6]",
+        "u[7]",
+        "u[8]"
+      ],
+      "operation": "subtract",
+      "right": [
+        "t[0]",
+        "t[1]",
+        "t[2]",
+        "t[3]",
+        "t[4]",
+        "t[5]",
+        "t[6]",
+        "t[7]",
+        "t[8]"
+      ],
+      "width": 9
+    },
+    {
+      "carry_in": 1,
+      "cells": 10,
+      "left": [
+        "mult_4~6_sumout",
+        "mult_4~16_sumout",
+        "mult_4~26_sumout",
+        "mult_4~36_sumout",
+        "mult_4~46_sumout",
+        "mult_4~56_sumout",
+        "mult_4~66_sumout",
+        "mult_4~76_sumout",
+        "mult_4~81_sumout"
+      ],
+      "operation": "add",
+      "right": [
+        "mult_4~1_sumout",
+        "mult_4~11_sumout",
+        "mult_4~21_sumout",
+        "mult_4~31_sumout",
+        "mult_4~41_sumout",
+        "mult_4~51_sumout",
+        "mult_4~61_sumout",
+        "mult_4~71_sumout"
+      ],
+      "width": 9
+    }
+  ]
+}

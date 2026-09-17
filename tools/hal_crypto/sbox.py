@@ -38,6 +38,7 @@ net/source graph.  The second is what finds chi -- see
 """
 
 import itertools
+import math
 
 from . import boolfunc, known
 from .netlist_model import ConeTooWide, UnsupportedCell
@@ -179,9 +180,14 @@ def _groups_for_support(support, nets, by_source):
         return []
     if len(pool) == bits:
         return [(sorted(support), pool)]
-    combinations = list(itertools.combinations(pool, bits))
-    if len(combinations) > MAX_GROUP_COMBINATIONS:
+    # Count before building.  `math.comb` of the pool size is the same guard
+    # the list length was, but it does not have to allocate the thing it is
+    # refusing first: a datapath with a wide bank of same-support next-state
+    # cells (walkthrough 15's coefficient registers are 144 of them) makes
+    # C(pool, bits) large enough to exhaust memory on the way to the check.
+    if math.comb(len(pool), bits) > MAX_GROUP_COMBINATIONS:
         return []
+    combinations = itertools.combinations(pool, bits)
     groups = []
     for combination in combinations:
         union = set()

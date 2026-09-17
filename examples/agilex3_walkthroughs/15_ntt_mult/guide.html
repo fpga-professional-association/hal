@@ -1,0 +1,751 @@
+<title>Agilex 3 RE walkthrough 15 &mdash; a toy negacyclic NTT multiplier</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 15 &mdash; a toy negacyclic NTT polynomial multiplier:
+recovering a modulus that is not a constant anywhere, a root of unity, eighty-one
+twiddles nobody wrote down, and a verdict of <code>pqc-style</code> that has to be
+read very carefully.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; post-synthesis export &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+1209 instances: 299 flip-flops, 910 ALMs.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has done walkthrough
+<a href="../11_speck_toy/guide.html">11</a> &mdash; carry chains read as
+arithmetic, rotations recovered from index order &mdash; and walkthrough
+<a href="../14_keccak_toy/guide.html">14</a>, where the verdict came back
+<code>undetermined</code> and that was the right answer. This one is the other
+side of that coin: the verdict comes back <code>pqc-style</code>, and the whole
+last third of the page is about what that sentence is allowed to mean.
+<p style="margin-bottom:0">What is new here is <em>arithmetic</em>. Every
+walkthrough so far recovered logic: tables, taps, permutations, parities. This
+design's secrets are numbers &mdash; a prime, a root of unity, eighty-one
+constants &mdash; and the netlist does not contain any of them as constants.
+The modulus is a function. The twiddles are LUT masks. Both come out anyway.</p>
+</div>
+
+<h2 id="contents">Contents</h2>
+<ol class="toc">
+<li><a href="#design">The design (the answer key)</a></li>
+<li><a href="#synth">Synthesis, and the two ceilings</a></li>
+<li><a href="#contact">First contact with the netlist</a></li>
+<li><a href="#dag">The netlist as a graph</a></li>
+<li><a href="#walk">The walk, step by step</a></li>
+<li><a href="#behaviour">Behaviour: the netlist against the definition</a></li>
+<li><a href="#rebuild">Reconstruction, and the negative controls</a></li>
+<li><a href="#identify">What the crypto identifier says &mdash; twice</a></li>
+<li><a href="#axis">Classical or post-quantum? <code>pqc-style</code>, carefully</a></li>
+<li><a href="#further">Going further</a></li>
+<li><a href="#repro">Reproducing all of it</a></li>
+</ol>
+
+<h2 id="design">1. The design (the answer key)</h2>
+
+<p>Skip this section if you want the exercise. Everything in it is in
+<a href="spec.md"><code>spec.md</code></a> and <a href="design.v"><code>design.v</code></a>,
+and <code>analysis.py</code> never reads either.</p>
+
+<p>The core multiplies two polynomials in the ring</p>
+
+<pre><code>R = Z_q[x] / (x^n + 1)      with   n = 16   and   q = 257</code></pre>
+
+<p>That quotient is <em>negacyclic</em>: <code>x^16 = -1</code>, so a term of
+degree sixteen or more wraps round <strong>with a sign flip</strong>. Every
+structured-lattice scheme in NIST's post-quantum portfolio multiplies in a ring
+of exactly this shape &mdash; ML-KEM in <code>Z_3329[x]/(x^256 + 1)</code>,
+ML-DSA in <code>Z_8380417[x]/(x^256 + 1)</code>. The shape is the same. The
+parameters are not, and section 9 is about how much that matters.</p>
+
+<p><code>q = 257 = 2^8 + 1</code> is a Fermat prime, and it is the only reason
+this fits in ALM logic with no DSP and no memory: <code>256 &equiv; -1</code>
+modulo 257, so reducing a 17-bit product <code>P = 256&middot;P_h + P_l</code> is
+<code>P &equiv; P_l - P_h</code> &mdash; one subtraction and one conditional
+correction. No division, no Barrett constant, no Montgomery domain.</p>
+
+<p><code>psi = 15</code> has order 32 modulo 257, so <code>psi^16 = -1</code> and
+<code>omega = psi&sup2; = 225</code> is a primitive 16th root of unity. The
+forward transform is a Cooley&ndash;Tukey stack with the <code>psi^i</code>
+pre-twist merged into its constants (Kyber's trick); the inverse is the
+<em>same</em> butterfly with plain cyclic constants, plus a post-twist folded
+into a 16-entry table. Five phases, 144 cycles, <strong>one</strong> butterfly:</p>
+
+<table>
+<thead><tr><th>phase</th><th>cycles</th><th>what it does</th></tr></thead>
+<tbody>
+<tr><td><code>NTT</code></td><td>64</td><td>32 butterflies over bank A, then 32 over bank B</td></tr>
+<tr><td><code>POINT</code></td><td>16</td><td><code>B[i] &lt;= A[i] &middot; B[i]</code></td></tr>
+<tr><td><code>BREV</code></td><td>16</td><td><code>A[brv(i)] &lt;= B[i]</code> &mdash; a multiply by one</td></tr>
+<tr><td><code>INTT</code></td><td>32</td><td>32 butterflies over bank A, inverse twiddles</td></tr>
+<tr><td><code>POST</code></td><td>16</td><td><code>B[brv(j)] &lt;= A[j] &middot; (n&#8315;&sup1; &middot; psi&#8315;^brv(j))</code></td></tr>
+</tbody>
+</table>
+
+<p>The three sixteen-cycle phases are the <em>same</em> datapath with the
+butterfly's upper operand forced to zero, so <code>sum = 0 + w&middot;v</code> is
+a plain modular multiply. That is why there is one butterfly in the netlist and
+not thirty-two: four stages of eight are a schedule in a six-bit counter.</p>
+
+<h2 id="synth">2. Synthesis, and the two ceilings</h2>
+
+<p>Two things had to be forced, and both are the point rather than paperwork.</p>
+
+<h3>2.1 The DSP</h3>
+
+<p><code>w * v</code> is a 9&nbsp;&times;&nbsp;9 multiply, and Quartus will put it
+in a <code>tennm_mac</code> &mdash; a DSP block &mdash; given the slightest
+excuse. A DSP is not one of the two primitives <code>hal_agilex</code> models, so
+an export containing one is refused; and, worse for the analysis, the entire
+modular multiplier disappears into a single opaque instance. The design therefore
+carries <code>multstyle = "logic"</code> on the module and
+<code>AUTO_DSP_RECOGNITION OFF</code> plus
+<code>DSP_BLOCK_BALANCING "LOGIC ELEMENTS"</code> in the project file.</p>
+
+<p><a href="ntt_dsp.vo"><code>ntt_dsp.vo</code></a> is the counterfactual that
+drops all three. Same RTL, same device, same flow &mdash; and one
+<code>tennm_mac</code>, 75 fewer ALMs, and this:</p>
+
+<pre><code>$ python3 tools/hal_agilex --strict inventory ntt_dsp.vo
+strict: hal_agilex/inventory/uncovered-primitives is unsupported
+  tennm_mac: mult_4~DATAOUTA0
+$ echo $?
+2</code></pre>
+
+<p>Section 8 comes back to what that export can and cannot still be read for.
+The short version is the interesting one: <em>more</em> of it survives than you
+would expect, and one thing that is not there gets found.</p>
+
+<h3>2.2 The six-input ceiling</h3>
+
+<p>The same wall walkthroughs 11, 13 and 14 hit. Two places needed
+<code>keep</code>:</p>
+
+<ul>
+<li>the four 16-to-1 <strong>read multiplexers</strong>. Written as
+<code>pa[ra]</code>, Quartus builds the top level of the tree out of the ALM's
+fracturable seven-input mode, which is a real configuration and not one this
+project's gate library models. Spelling the tree out as four 4-to-1 cones plus a
+fifth, with the middle vector kept, holds every cone at six inputs;</li>
+<li>the <strong>twiddle tables</strong>. One 64-entry table over
+<code>{inverse, cnt[4:0]}</code> is six inputs per output bit and ought to fit &mdash;
+but Quartus shares a sub-term between bits and spills one of them into the
+fracturable mode anyway. Two 32-entry tables and a select keep every cone at
+five inputs.</li>
+</ul>
+
+<p>There is a third <code>keep</code> that is not about coverage at all. The
+butterfly's operands <code>u</code>, <code>v</code>, <code>t</code> and the two
+raw results are kept so that the adder and the subtracter read the <em>same</em>
+two vectors. Unkept, Quartus is free to duplicate the operand logic &mdash; and
+"two chains over one pair of operands" is the entire structural definition of a
+butterfly. It would still be a correct multiplier; it would no longer be a
+recognisable one.</p>
+
+<h2 id="contact">3. First contact with the netlist</h2>
+
+<pre><code>$ python3 tools/hal_agilex --strict inventory ntt_mult.vo
+hal_agilex/inventory/fully-covered  proven_under_assumptions
+  tennm_ff: 299   tennm_lcell_comb: 910</code></pre>
+
+<p>1209 instances, two primitive types, one clock, one asynchronous clear. The
+boundary is five inputs and three outputs:</p>
+
+<pre><code>a_in  [127:0]        c_out [143:0]
+b_in  [127:0]        done
+clk, rst_n, start    busy</code></pre>
+
+<p>Two 128-bit inputs and one 144-bit output is the first real clue and it is
+worth stopping on. 144 = 16 &times; 9 and 128 = 16 &times; 8: <strong>the output
+carries one more bit per element than the input does</strong>. A design that
+stored the same alphabet it accepted would not do that. Nine bits and not eight
+means the value set has more than 256 members; one extra bit and not two means it
+has at most 512. Long before any arithmetic is decoded, the interface has said
+"the residues here do not fit in a byte".</p>
+
+<p><a href="images/netlist_graph.svg"><img src="images/netlist_graph.svg" alt="One bit of the upper operand multiplexer"></a></p>
+
+<p>One cell, at the point where the datapath meets the register banks: bit 0 of
+the butterfly's upper operand, choosing between two read ports and a constant
+zero. The gate graph is <em>scoped</em> to it because the whole gate graph is
+cyclic and <code>dot</code> cannot lay a cyclic graph out at all &mdash; the next
+section is the view that works. (Scoped at depth <strong>1</strong>, not 2: with
+the constants drawn as one shared hub, the hub is a neighbour of every cell, so
+any depth-2 scope is the entire netlist. Walkthrough 14 hit the same wall.)</p>
+
+<h2 id="dag">4. The netlist as a graph</h2>
+
+<p><code>hal_viz dag</code> cuts every flip-flop, levels what is left with Kahn's
+algorithm and draws it left to right. On this design it does the first half and
+declines the second:</p>
+
+<pre><code>$ python3 tools/hal_viz dag netlist.hal.v -g AGILEX_TENNM.hgl --const-hub \
+      --max-gates 1300 -f none -o images/dag.svg --html
+1211 gates   5913 edges   43 levels   1161 edges cut at a register</code></pre>
+
+<p><code>-f none</code> is not laziness. Graphviz's <code>dot</code> runs for
+<em>over an hour</em> on this graph without finishing: 256 input-port bits feed
+cells at level 42, and a long edge costs a dummy node on every rank it crosses,
+so the layout is tens of thousands of nodes wide. Walkthrough 13 made the
+neighbouring point &mdash; its 613-node <em>unlevelled</em> graph does not render
+at all, because a cyclic graph cannot be layered &mdash; and this is the first
+design in the series where even the <em>levelled</em> whole-netlist view is
+beyond a layout engine. The counts and
+<a href="images/dag.dot"><code>dag.dot</code></a> are committed; the drawing is
+not.</p>
+
+<p>What is drawn is the datapath: everything the modular sum depends on, eight
+hops back. 901 of the 1211 gates, 34 of the 43 levels &mdash; the multiplier,
+both reductions, the butterfly and the read multiplexers &mdash; and about a
+minute of <code>dot</code>.</p>
+
+<p><a href="images/dag_datapath.svg"><img src="images/dag_datapath.svg" alt="Levelled DAG of the datapath cone"></a></p>
+
+<p>The number to take away is the width of the full graph:
+<code>43</code> topological levels. Compare the series:</p>
+
+<table>
+<thead><tr><th>design</th><th>cells</th><th>levels</th><th>why</th></tr></thead>
+<tbody>
+<tr><td>12 &mdash; PRESENT (SPN)</td><td>226</td><td>3</td><td>sixteen independent 4-bit S-boxes, no carry between them</td></tr>
+<tr><td>13 &mdash; Trivium (stream)</td><td>310</td><td>3</td><td>one cipher step is one LUT; the warm-up is schedule</td></tr>
+<tr><td>14 &mdash; Keccak (sponge)</td><td>659</td><td>5</td><td>parity, substitution, wiring &mdash; all shallow</td></tr>
+<tr><td>11 &mdash; Speck (ARX)</td><td>137</td><td>18 levels</td><td>a 16-bit carry ripples</td></tr>
+<tr><td><strong>15 &mdash; this one</strong></td><td>910</td><td><strong>43</strong></td><td>a 9&nbsp;&times;&nbsp;9 array multiplier <em>and</em> two modular corrections between one register bank and the next</td></tr>
+</tbody>
+</table>
+
+<p>Deep and narrow is the ARX signature, and this is ARX's signature at two and a
+half times the depth. That alone rules out a lot: an SPN, a sponge and a stream
+cipher all have shallow rounds by construction, because they are built out of
+operations chosen to be cheap. Something in here is not cheap. The column profile
+says where: 288 cells sit alone on the last level, and they are the next-state
+multiplexers of a register bank; the long thin middle is one arithmetic
+structure.</p>
+
+<p><a href="images/dag_interactive.html">The same drawing with values on it</a>
+&mdash; 32 cycles out of the clear with <code>start</code> held high: one clear
+cycle, one load, then thirty butterflies of the first forward transform.
+Stepping through it is the cheapest way to see that two coefficient registers
+change per cycle and the entire graph in between is recomputed from scratch
+every time.</p>
+
+<h2 id="walk">5. The walk, step by step</h2>
+
+<h3>5.1 Two banks of sixteen nine-bit words</h3>
+
+<p>288 of the 299 flip-flops have one bit of <code>a_in</code> or
+<code>b_in</code> in their next-state cone. That is the load path, and it is the
+only way an input port can reach a register, so it partitions the state: 144
+registers behind <code>a_in</code>, 144 behind <code>b_in</code>.</p>
+
+<p>Grouping <em>within</em> a bank is harder than it looks. The obvious handle is
+the clock enable &mdash; nine registers sharing one <code>ena</code> net are one
+word &mdash; and it fails: the top bit of every coefficient has no clock enable
+at all, because it has no port bit either (the ports are bytes) and Quartus
+folded its hold into its own next-state cone. Grouping on the <em>write-select
+nets</em> each register reads works however the hold was implemented, and gives
+32 groups of nine.</p>
+
+<p>The bit weights come out twice, independently:</p>
+
+<ul>
+<li>from the <strong>load path</strong>: register <em>r</em> captures
+<code>a_in[8i + b]</code>, so it is bit <em>b</em> of coefficient <em>i</em>
+&mdash; for eight of the nine;</li>
+<li>from the <strong>adder path</strong>: register <em>r</em> reads bit <em>k</em>
+of the modular adder's output vector, whose bit order the carry chain already
+fixed &mdash; for all nine.</li>
+</ul>
+
+<p><code>analysis.py</code> requires the two to agree on the eight they share and
+dies if they do not. They agree. The ninth bit is then placed by the adder alone,
+which is the only reason the top bit of a coefficient has a weight at all.</p>
+
+<h3>5.2 The control orbit</h3>
+
+<p>Eleven registers are left. Two of them drive output ports, which names them:
+<code>busy</code> and <code>done</code>. The other nine are walked as a
+<em>transition orbit</em> &mdash; start from a load, apply the next-state
+functions, record the state &mdash; and then classified by what the orbit does,
+not by what they are called.</p>
+
+<p>A binary counter's bit <em>k</em> toggles only where bits 0..<em>k</em>-1 are
+all one. Building the order by that rule and then <em>checking</em> the result
+(the value increments by one or falls back to zero every cycle; a reset is the
+only moment any other control bit moves) gives six counter bits and three phase
+bits, with no ambiguity and no name ever read. Toggle counts over the run:</p>
+
+<pre><code>cnt[0] 143   cnt[1] 71   cnt[2] 35   cnt[3] 17   cnt[4] 6   cnt[5] 2
+ph[0]    4   ph[1]   2   ph[2]  1</code></pre>
+
+<p>Note that <code>ph[0]</code> toggles more often than <code>cnt[5]</code>.
+Sorting by activity would have put a phase bit inside the counter; the nesting
+rule does not care about activity.</p>
+
+<p>The orbit itself is the schedule: <strong>144 cycles</strong> from an accepted
+start to <code>done</code>, in five phases of <strong>64, 16, 16, 32, 16</strong>.
+A 64 and a 32 with the same counter is two of something and one of something, and
+64 = 2 &times; 32 says which: the counter's top bit is not part of the transform,
+it selects <em>which bank</em> the transform runs on.</p>
+
+<h3>5.3 One butterfly &mdash; and a subtracter that was invisible</h3>
+
+<p>There are ten carry chains. Seven belong to the multiplier. Of the other
+three, two are the interesting pair:</p>
+
+<pre><code>add_2  width 9  add       over  {t[0..8], u[0..8]}   carry-in 0
+add_4  width 9  subtract  over  {u[0..8], t[0..8]}   carry-in 1</code></pre>
+
+<p>One adder and one subtracter over the <em>same</em> two nine-bit vectors. That
+is a butterfly, and it is the whole of the structural claim &mdash; both chains
+were <em>evaluated</em> against <code>a + b + cin</code> before being labelled, so
+"adder" here is not a pattern match.</p>
+
+<p><a href="images/butterfly_cell.svg"><img src="images/butterfly_cell.svg" alt="One slice of the butterfly's adder"></a></p>
+
+<div class="warn">
+<strong>This did not work when the walkthrough started.</strong>
+<code>hal_crypto</code> found <em>zero</em> butterflies in this netlist, and would
+have found zero in any Quartus export. Its subtracter recogniser had been built
+against hand-written fixtures, and a real vendor subtracter differs from those in
+two ways at once:
+<ul>
+<li>the inversion of the second operand is folded <strong>into the arithmetic
+cell's own mask</strong> rather than paid for with an inverter cell, so the two
+mask halves read <code>XNOR(a,b)</code> and <code>a AND NOT b</code> &mdash; the
+operands arrive with <em>independent</em> polarities, not one shared one;</li>
+<li>the carry-in of one is emitted by a <strong>leading carry seed</strong>: an
+ALM's <code>cin</code> can only come from the previous cell's <code>cout</code>,
+so there is no way to tie it to a constant, and Quartus prefixes the chain with a
+cell that has no data operands, no sum output and the single job of producing the
+carry. Every Quartus subtract chain starts with one.</li>
+</ul>
+Both are now handled, with the fixture results unchanged. It is the same lesson
+walkthroughs 12, 13 and 14 each contributed one of: a pass built against a
+synthetic shape has not met a synthesiser.
+</div>
+
+<h3>5.4 The modulus, which is not a constant</h3>
+
+<p>The textbook place to find a modulus is a carry chain with a constant operand
+&mdash; <code>sum - q</code> written as <code>sum + (2^w - q)</code>. This design
+has <strong>zero</strong> constant-operand carry chains. Not a hidden one: none.
+<code>q = 257</code> is <code>2^8 + 1</code>, so subtracting it is an increment and
+one bit flip, and Quartus builds that out of ordinary LUTs. The cheapness of the
+modulus is what makes the modulus invisible.</p>
+
+<p>It is still there, as the <em>function</em> the correction computes. The
+recovery runs the other way round: the butterfly's sum is known exactly on any
+operand vector, so for a candidate <em>q</em> and a candidate select net the
+corrected vector is known too &mdash; and either the netlist contains it, bit for
+bit, or it does not. Building <em>q</em> one bit at a time (bit <em>k</em> of
+<code>sum - q</code> depends only on bits 0..<em>k</em> of <em>q</em>, because a
+borrow only travels up) turns that into a search small enough to finish, and the
+survivors are re-checked on <strong>every one of the 1023 sums a nine-bit adder
+can produce</strong>.</p>
+
+<pre><code>modulus                257
+select net             sum_red[9], inverted
+corrected sum          sum_mod[0..8]
+corrected difference   dif_mod[0..8]
+vectors checked        1023  (every attainable sum)
+published parameters   none</code></pre>
+
+<p>Two things about that number. It is <em>prime</em>, and it is
+<code>2^8 + 1</code> &mdash; consistent with the nine-bit-out, eight-bit-in
+interface from section 3, and now explaining it. And it matches nothing in
+<code>hal_crypto</code>'s library of published moduli, which is a fact worth
+reporting rather than hiding: see section 9.</p>
+
+<p><a href="images/reduction_cell.svg"><img src="images/reduction_cell.svg" alt="One bit of the modular correction"></a></p>
+
+<h3>5.5 Eighty-one constants, off the multiplier's own operand</h3>
+
+<p>The twiddles live in LUT masks, and reading them out of the masks would need
+the bit order of the multiplier's operand, which nothing has established. There
+is a much shorter route: <strong>hold every coefficient register at 1</strong>.
+Then <code>t = w &middot; 1 = w</code>, and <code>t</code>'s bit order is the one
+the carry chain already fixed. Sweep the orbit and the multiplier reports its own
+twiddle at every step.</p>
+
+<pre><code>phase 0  (64 steps)  period 32   16 16 16 16 16 16 16 16 253 253 253 253 193 ...
+phase 1  (16 steps)  not a table at all
+phase 2  (16 steps)  period  1   1
+phase 3  (32 steps)  period 32   1 1 1 1 1 1 1 1 1 1 1 1 241 241 241 241 ...
+phase 4  (16 steps)  period 16   241 256 4 193 129 249 32 2 136 137 223 30 ...</code></pre>
+
+<p>Phase 0 has period 32 over a 64-step phase, which is the bank-select bit
+showing up again: the same table drives both transforms. Phase 2's "twiddle" is
+the constant 1 &mdash; a copy pass reusing the multiplier because it is already
+there.</p>
+
+<p>Phase 1 is the one worth the extra work. Held at 1 it looks exactly like phase
+2, a constant-1 table. A <strong>second sweep with every coefficient held at
+3</strong> separates them: a real table scales the product by the held value and
+leaves the normalised table alone, while phase 1's product goes as the
+<em>square</em>. Its "twiddle" is not a constant; it is the other polynomial.
+That is the pointwise multiply, and no amount of staring at the counter would
+have found it.</p>
+
+<p><a href="images/twiddle_cell.svg"><img src="images/twiddle_cell.svg" alt="One bit of one twiddle table"></a></p>
+
+<h3>5.6 The butterfly schedule, and two permutations that cost nothing</h3>
+
+<p>Which coefficient does the butterfly read at step <em>n</em>? Hold every
+coefficient at 1, knock exactly one down to 0, and see which operand moves. (The
+baseline matters: a one-hot probe shows nothing in the pointwise phase, where
+<em>both</em> operands are data and zeroing everything else zeroes the product.)
+Writes come from the other side: whose enable is high, and whether its next state
+followed the sum or the difference.</p>
+
+<p>The answer, for all 96 butterfly steps:</p>
+
+<pre><code>pair distance, per block of eight steps
+  [8] [4] [2] [1]   [8] [4] [2] [1]   [8] [4] [2] [1]
+   \__ transform 1 __/  \__ transform 2 __/  \__ inverse __/
+every butterfly writes back exactly the pair it read</code></pre>
+
+<p>Four stages of eight, with the pair distance halving each stage. That is the
+loop nest of an iterative transform of length 16, and it is <em>not</em> in the
+netlist as logic &mdash; it is in the address generator, which is four wires that
+insert a zero into the step number at a stage-dependent position.</p>
+
+<p>The two sixteen-cycle copy phases move data <em>between</em> banks, and the
+index map they apply is</p>
+
+<pre><code>0 8 4 12 2 10 6 14 1 9 5 13 3 11 7 15</code></pre>
+
+<p>which is the bit-reversal permutation on four bits. Like walkthrough 11's
+rotations and walkthrough 14's rho/pi, it costs no logic and is therefore not a
+signal: it is which register the result lands in, and the only way to see it is
+to ask where each value went.</p>
+
+<h3>5.7 The ring</h3>
+
+<p>Now everything is in place to pin the algebra. The forward table is
+<code>psi^brv4(2^s + g)</code> for the stage and group the address schedule
+already gave; searching the 16 elements of order 32 modulo 257 for one that
+reproduces it leaves exactly one:</p>
+
+<pre><code>modulus           257
+degree            16
+psi               15     order 32,  psi^16 = 256 = -1
+omega             225    order 16   (= psi^2)
+inverse table     omega^-brv3(g)      exact match
+post-scale        241    = 16^-1 mod 257
+ring              Z_257[x] / (x^16 + 1)</code></pre>
+
+<p><code>psi^16 = -1</code> is the whole claim: the transform is negacyclic, the
+quotient is <code>x^16 + 1</code> and not <code>x^16 - 1</code>, and that minus
+sign is what a lattice scheme's ring is made of. The search <em>fails loudly</em>
+if more than one candidate fits, which is what keeps this a measurement rather
+than a fit.</p>
+
+<h2 id="behaviour">6. Behaviour: the netlist against the definition</h2>
+
+<p>Structure said "modulus 257, degree 16, psi 15, negacyclic". Behaviour is run
+without reading any of that: drive the export as a black box, and compare against
+the <em>schoolbook</em> convolution in <code>Z_257[x]/(x^16 + 1)</code> &mdash; the
+definition of the product, computed by a twenty-line double loop.</p>
+
+<p>There is no published test vector for a toy ring, and there does not need to
+be one: the negacyclic convolution <em>is</em> the specification of what the
+answer should be, in a way a table of numbers copied from a paper is not.</p>
+
+<pre><code>one times one                     145 cycles   agrees
+x^15 times x                      145 cycles   agrees   -> [256, 0, 0, ...]
+pseudo-random operands            145 cycles   agrees
+all bytes at their maximum        145 cycles   agrees</code></pre>
+
+<p><code>x^15 &middot; x</code> comes back as 256, which is <code>-1</code> modulo
+257. A cyclic transform would have returned <code>+1</code>. One vector, chosen
+because it is the one the two rings disagree on, and it confirms structurally
+what section 5.7 derived algebraically.</p>
+
+<h2 id="rebuild">7. Reconstruction, and the negative controls</h2>
+
+<p><a href="recovered_reference.py"><code>recovered_reference.py</code></a> is the
+whole design rebuilt out of what sections 5 and 6 recovered: the modulus, the
+three tables, the address rule, the phase lengths. It is written in the
+<em>netlist's</em> arithmetic &mdash; nine-bit words and the two-step Fermat
+reduction &mdash; where <a href="reference.py"><code>reference.py</code></a>, the
+spec-side model, uses Python integers and <code>% 257</code> and computes its
+tables from <code>psi</code>. The two are not the same arithmetic, which is what
+makes their agreement worth something.</p>
+
+<pre><code>$ python3 tools/hal_agilex behavior ntt_mult.vo \
+      --reference recovered_reference.py --cycles 600
+proven_bounded: the exported netlist matches the reference model for 600 cycles</code></pre>
+
+<p>Which means nothing on its own. Three deliberately wrong copies say what a
+wrong answer would have cost:</p>
+
+<table>
+<thead><tr><th>control</th><th>caught at cycle</th><th>what it tests</th></tr></thead>
+<tbody>
+<tr><td>the last forward twiddle, 137 &rarr; 136</td><td>67</td><td>one of eighty-one constants</td></tr>
+<tr><td>the modulus, 257 &rarr; 256</td><td>36</td><td>a ring versus a truncation</td></tr>
+<tr><td>one post-scale constant, 241 &rarr; 240</td><td>132</td><td>the last phase of five</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<strong>The bound is 600 and not 200, and the third control is why.</strong> At
+200 cycles that control passes <em>clean</em> &mdash; not because 200 cycles is
+too few to reach cycle 132, but because <code>hal_agilex behavior</code> asserts
+its asynchronous clear at <code>cycles // 3</code> and <code>2 &middot; cycles /
+3</code>. A third of 200 is 66, and a product takes 144 cycles, so at that bound
+the machine is reset before it ever reaches the phase the control is wrong in. A
+shorter run is <strong>not</strong> a prefix of a longer one. Walkthrough 14 hit
+the same wall from the other side, and walkthrough 08's saturation clamp is the
+original: a bounded check is a claim about the window, and choosing the window is
+part of the evidence.
+</div>
+
+<h2 id="identify">8. What the crypto identifier says &mdash; twice</h2>
+
+<pre><code>$ python3 tools/hal_crypto identify ntt_mult.vo
+Structural family: lattice-ntt                       heuristic, medium
+Classical / PQC style: pqc-style
+1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library</code></pre>
+
+<p>The evidence list is three lines and each is a structural observation:</p>
+
+<pre><code>1 verified add/subtract butterfly pair(s) over the same operand registers,
+  stage depth 1
+the butterfly's conditional correction subtracts 257, derived from the
+  reduction logic and checked on every sum the adder can produce -- a
+  modulus, but not one in the built-in library of published parameters</code></pre>
+
+<p><strong>Stage depth 1</strong> is worth reading carefully. The tool measures
+depth through <em>wiring</em>: how many butterflies are chained through
+registers. This design's four stages are chained through a <em>counter</em>, so
+the honest structural answer is one. That is the same distinction walkthrough 13
+drew between Trivium's three levels of logic and its 1152-step warm-up: depth in
+silicon and depth in the algorithm are different measurements, and an iterative
+core makes them disagree on purpose.</p>
+
+<h3>8.1 The DSP export</h3>
+
+<p>Now the counterfactual. <code>ntt_dsp.vo</code> is the same RTL with the
+multiplier in a <code>tennm_mac</code>. The naive expectation is that the
+identification collapses. It does not:</p>
+
+<pre><code>$ python3 tools/hal_crypto identify ntt_dsp.vo
+Structural family: lattice-ntt        families present: lattice-ntt, arx
+1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library</code></pre>
+
+<p>The butterfly and the modulus are <em>outside</em> the multiplier, so both
+survive. What is lost is different and worse: the export is out of coverage, so
+it cannot be simulated at all, which means no behavioural check, no negative
+controls, no reference model &mdash; the entire right-hand column of this
+walkthrough. The netlist is still readable. It is no longer <em>checkable</em>.</p>
+
+<p>And something is gained that should not be: <code>arx</code> now fires, on a
+design the covered export does not read as ARX. With the multiplier's ALMs gone,
+what is left around the butterfly looks enough like adders, a rotation and an XOR
+layer to trip the ARX pass. It is reported honestly &mdash;
+<code>families_present: [lattice-ntt, arx]</code>, most specific first &mdash; but
+it is a false positive, and it was created by a synthesis setting. Where the
+register sits decides what a structural pass can see (walkthrough 14); so does
+which primitive the arithmetic landed in.</p>
+
+<h2 id="axis">9. Classical or post-quantum? <code>pqc-style</code>, carefully</h2>
+
+<p>Walkthroughs 11, 12 and 13 all ended <code>classical-style</code> and each time
+that was right. Walkthrough 14 ended <code>undetermined</code> and that was right
+too. This one ends <code>pqc-style</code>, and it is the reading that most needs a
+fence around it.</p>
+
+<p>What the verdict is allowed to mean is exactly this: <em>lattice-style NTT /
+ring arithmetic is present.</em> Butterflies over a small modulus are the
+structure post-quantum lattice schemes are built from. That is a claim about what
+the design computes.</p>
+
+<p>What it does not mean:</p>
+
+<ul>
+<li><strong>It names no scheme.</strong> The same ring arithmetic appears
+wherever that ring is used. Reducing modulo 3329 is what ML-KEM does
+<em>and</em> what anything else on that ring does; reducing modulo 257 is what
+this does and what a signal-processing NTT on a Fermat ring does.</li>
+<li><strong>This is not a post-quantum implementation.</strong> <code>n = 16</code>
+and <code>q = 257</code> are toy parameters. A real scheme needs
+<code>n = 256</code>, a modulus for which none of the shortcuts in section 1
+exist, plus sampling, encoding, hashing and a protocol. What is in this netlist
+is the <em>arithmetic kernel</em> of a Kyber- or Dilithium-class scheme, at a size
+chosen to fit on a page.</li>
+<li><strong>The tool says so itself.</strong> Because the recovered modulus
+matches nothing in the published-parameter library, the confidence tier is
+<code>medium</code> rather than <code>high</code>, and the style finding adds:
+<em>"the modulus found is in no published-parameter library, so this is the
+shape of a lattice scheme's arithmetic and not any deployed one's parameters"</em>.
+A verdict that reported "257" as a modulus and stopped would have been less
+useful than one that says which library it is absent from.</li>
+</ul>
+
+<p>The contrast with the modulus tier is the point of the whole section. Before
+this walkthrough, <code>hal_crypto</code> could recover a modulus only when it was
+a carry chain's constant operand &mdash; which is to say, only when the modulus
+was expensive. It could report "3329, and here is the FIPS 203 reference" and it
+could report "there is no modulus here", and it had nothing to say about a design
+whose modulus was real, recoverable and simply not in the book. It now says the
+number.</p>
+
+<h2 id="further">10. Going further</h2>
+
+<ul>
+<li><strong>Read the multiplier.</strong> This walkthrough never decodes the
+9&nbsp;&times;&nbsp;9 array &mdash; it holds the coefficients at 1 and lets the
+multiplier report its own operand. Recovering the partial-product structure from
+the seven <code>mult_4~*</code> carry chains is a self-contained exercise, and
+the payoff is the operand bit order from a second direction.</li>
+<li><strong>Find the stage depth the tool cannot.</strong> Section 8 explains why
+<code>stage_depth</code> is 1. Recovering "four stages of eight" from the
+<em>counter</em> rather than from the wiring is what section 5.6 does by hand;
+turning it into a pass would be a real addition.</li>
+<li><strong>Change one parameter and resynthesise.</strong>
+<code>q = 3329</code> would need a 12-bit datapath and a real reduction &mdash; and
+the constant-operand carry chain would come back, so the <em>first</em> modulus
+tier would fire and the second would confirm it. That is the cleanest way to see
+what the two tiers each cover.</li>
+<li><strong>Blind it.</strong> Walkthrough 16 is the capstone: anonymised
+netlists, a family call and a classical-versus-PQC call with no ground truth
+until the end. This design is one of the cores that turns up there.</li>
+</ul>
+
+<h2 id="repro">11. Reproducing all of it</h2>
+
+<p>Every command on this page, in order, is in
+<a href="run_analysis.sh"><code>run_analysis.sh</code></a>. From the repository
+root, in an environment with a built HAL and Graphviz:</p>
+
+<pre><code>HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+    sh examples/agilex3_walkthroughs/15_ntt_mult/run_analysis.sh</code></pre>
+
+<p>and the assertions this page makes are re-checked by
+<a href="check.py"><code>check.py</code></a>, which needs nothing but a Python 3
+interpreter unless you pass <code>--with-hal</code>:</p>
+
+<pre><code>python3 examples/agilex3_walkthroughs/15_ntt_mult/check.py</code></pre>
+
+<p>The <code>--with-hal</code> tier loads <code>netlist.hal.v</code> through
+<code>hal_py</code> and decomposes it with the graph-algorithm plugin. Its result
+is worth one line here: the strongly connected component that contains the
+coefficient state contains <em>both</em> banks, all 288 registers. The banks look
+separate in the RTL and they are not separable in the netlist &mdash; the
+pointwise phase reads bank A into bank B and the copy phase reads bank B back
+into bank A, so the whole state is mutually reachable and no cut exists. Two
+methods, two different true statements: the write schedule says the banks are
+touched in distinct phases, and the SCC says they are one machine.</p>
+
+<p>The Quartus flow itself is not re-run by either script. To regenerate the
+exports you need Quartus Prime Pro 26.1 and the project files in
+<a href="quartus/"><code>quartus/</code></a>; <code>build.tcl</code> there has the
+three commands.</p>

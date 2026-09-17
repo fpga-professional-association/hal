@@ -1,0 +1,63 @@
+{
+  "component_count": 3,
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 288,
+        "tennm_lcell_comb": 712
+      },
+      "registers": {
+        "pa": 144,
+        "pb": 144
+      },
+      "size": 1000
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 10,
+        "tennm_lcell_comb": 21
+      },
+      "registers": {
+        "cnt": 6,
+        "ph": 3,
+        "run": 1
+      },
+      "size": 31
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "registers": {
+        "fin": 1
+      },
+      "size": 2
+    }
+  ],
+  "edges": 11534,
+  "elaborated": 910,
+  "gate_library": "AGILEX_TENNM",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 299,
+    "tennm_lcell_comb": 910
+  },
+  "gates": 1211,
+  "largest_component": {
+    "gate_types": {
+      "tennm_ff": 288,
+      "tennm_lcell_comb": 712
+    },
+    "registers": {
+      "pa": 144,
+      "pb": 144
+    },
+    "size": 1000
+  },
+  "modules": 1,
+  "nets": 1563,
+  "refused": [],
+  "vertices": 1211
+}

@@ -82,6 +82,14 @@
       "sha256": "316f92adc340e139c63506095bf1893d493c99b9953f98a6b0b74cd88f1e175b",
       "size_bytes": 5084
     },
+    "ntt_fermat17.vo": {
+      "description": "a Quartus-shaped butterfly reduced modulo the Fermat prime 17: the subtracter's inversion folded into its own mask behind a carry-seed cell, and both corrections built out of LUTs rather than chains",
+      "expected_family": "lattice-ntt",
+      "expected_style": "pqc-style",
+      "role": "positive control for the vendor subtracter and for reading a modulus off the correction when no constant-operand chain exists",
+      "sha256": "81c23551f2c481aa6fdb6de00c8f58975624923278f5f6645164339b71a02e3d",
+      "size_bytes": 14652
+    },
     "ntt_stage13.vo": {
       "description": "a butterfly with a conditional subtract of q = 3329",
       "expected_family": "lattice-ntt",

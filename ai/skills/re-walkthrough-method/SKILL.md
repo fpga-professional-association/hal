@@ -233,6 +233,44 @@ numbers found in wiring; an S-box match is a statement about a table, and its
 Neither identifies a cipher, and neither does a matching test vector. State the
 structure, cite the match, keep them apart.
 
+**When the secret is a number, the netlist holds it as a function, not as a
+constant.** Everything through `14_keccak_toy` recovered *logic* — tables, taps,
+permutations, parities. `15_ntt_mult`'s secrets are a prime, a root of unity and
+eighty-one twiddles, and the export contains none of them as constants. The
+modulus `q = 257` is `2**8 + 1`, so subtracting it is an increment and one bit
+flip and Quartus spends no carry chain on it: there is not one constant-operand
+chain in the design. It comes back anyway, by asking the question the other way
+round — the adder's output is known exactly on any operand vector, so for a
+candidate *q* and a candidate select net the *corrected* vector is known too, and
+either the netlist contains it bit for bit or it does not. The eighty-one
+twiddles come back by **holding every coefficient register at 1**, which makes
+the multiplier report its own operand in a bit order the carry chain already
+fixed. Both moves generalise: when a constant is not a constant, drive the
+thing that consumes it and read what comes out.
+
+**Read a vendor's arithmetic, not a textbook's.** `hal_crypto` found *zero*
+butterflies in a real Quartus export of a butterfly, because its subtracter
+recogniser had been built against hand-written fixtures. A vendor `a - b` folds
+the inversion into the arithmetic cell's own mask (independent operand
+polarities, not one shared one) and manufactures its carry-in of one with a
+leading **carry-seed** cell, because an ALM's `cin` can only come from the
+previous cell's `cout`. Same lesson `12`, `13` and `14` each contributed one of:
+a pass built against a synthetic shape has not met a synthesiser. When a
+recognizer returns nothing on a design you are sure contains the thing, suspect
+the *spelling* before the presence.
+
+**Depth in silicon and depth in the algorithm are different measurements, and an
+iterative core makes them disagree on purpose.** `15_ntt_mult` is 43 levels over
+910 cells — the deepest in the series by a factor of two and a half, because a
+9 x 9 array multiplier and two modular corrections sit between one register bank
+and the next — and it contains **one** butterfly. Its four transform stages of
+eight butterflies are a schedule in a six-bit counter, so `hal_crypto` reports
+`stage_depth: 1` and is right. Recovering the schedule takes the *orbit*: walk
+the control registers from a load, find the counter by the rule that bit *k*
+toggles only where bits 0..*k*-1 are all one (not by activity — a phase bit can
+toggle more often than the counter's top bit), and read the phase lengths off
+where the counter resets.
+
 **"Classical or post-quantum" is not always a question the structure answers,
 and `undetermined` is the right answer when it is not.** `11`, `12` and `13` all
 end `classical-style` and each time that is real. A **sponge** is the case where
@@ -245,6 +283,18 @@ arithmetic *around* the sponge. `hal_crypto` therefore reports `sponge` with
 the family claim is strong and the axis claim does not exist. A report naming
 the ambiguity is more useful than one that picks a side, because it says what to
 go and look for next.
+
+**`pqc-style` needs a fence around it too, and the fence is the parameters.**
+`15_ntt_mult` ends `pqc-style`, and that is also real: butterflies over a small
+modulus are the structure lattice schemes are built from. What it does not say is
+that the design *is* one. `n = 16`, `q = 257` are toy parameters; a deployed
+scheme needs `n = 256`, a modulus for which none of a Fermat prime's shortcuts
+exist, plus sampling, encoding, hashing and a protocol. `hal_crypto` marks the
+distinction where it can measure it: the recovered modulus is in no
+published-parameter library, so the confidence tier is `medium` rather than
+`high` and the style text says the design is "the shape of a lattice scheme's
+arithmetic and not any deployed one's parameters". *Say the number and say which
+book it is absent from* is more useful than either "PQC" or silence.
 
 **What survives synthesis is decided by the RTL, not by the algorithm.**
 `12_present_sbox` ships two counterfactual exports of the *same* cipher: drop a
@@ -271,7 +321,7 @@ a structural pass is a statement about the netlist you were given.
 
 ## Where things live
 - Examples, teaching order: `examples/agilex3_walkthroughs/
-  {01_blinky_counter..14_keccak_toy}/guide.html` + that directory's
+  {01_blinky_counter..15_ntt_mult}/guide.html` + that directory's
   `README.md` ("what it teaches" table). Per walkthrough: `analyze.py`/
   `analysis.py` (structure), `probe.py` (behaviour), `reference.py`/
   `recovered_reference.py` (step 7/8 models), and `check.py` -- the

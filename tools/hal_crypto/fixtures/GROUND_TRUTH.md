@@ -34,6 +34,7 @@ fails the check.
 | `counter8.vo` | 8-bit accumulator, `count + step` | negative for ARX: an adder with no rotation and no XOR layer | `none-detected` | `undetermined` |
 | `butterfly4.vo` | 4-bit `a+b` and `a-b` over the same registers | positive for butterfly detection, negative for the modulus | `none-detected` | `undetermined` |
 | `ntt_stage13.vo` | the same butterfly plus a conditional subtract of 3329 | positive: lattice-style modular transform | `lattice-ntt` | `pqc-style` |
+| `ntt_fermat17.vo` | a butterfly shaped the way Quartus shapes one, reduced modulo the Fermat prime 17 with LUTs instead of a chain | positive for the vendor subtracter and for reading a modulus out of the correction | `lattice-ntt` | `pqc-style` |
 | `rotate16.vo` | two 16-bit banks joined by a rotation of 5 | positive for the permutation pass, negative for ARX | `none-detected` | `undetermined` |
 | `spn_round16.vo` | one 16-bit SPN round: four PRESENT S-boxes, a `4i mod 15` permutation, and a round-key XOR plus a parallel load between them and the register | positive for the cone-support tier: the permutation is behind one cell per link | `spn` | `classical-style` |
 | `mux_bank16.vo` | two 2-to-1 datapath multiplexer banks: one selecting between two source banks, one between two rotations of the same bank | negative for the cone-support tier: a multiplexer is not a permutation layer, in either shape | `none-detected` | `undetermined` |
@@ -138,7 +139,29 @@ the constant `4863`. Since `2^13 - 4863 = 3329`, that is a subtraction of the
 ML-KEM/Kyber ring modulus, and the pass reports `3329` as a *named modulus
 candidate*. Verdict `lattice-style-modular-transform`, family `lattice-ntt`,
 style `pqc-style` — and the finding text says explicitly that this does not
-identify a scheme.
+identify a scheme. The *reduction* tier below reaches the same `3329`
+independently, which is what makes it a cross-check rather than a second guess.
+
+**`ntt_fermat17.vo`** — the shape a real Quartus export has, which none of the
+fixtures above did, at 5 bits and `q = 17 = 2^4 + 1`. Three differences, all of
+them load-bearing:
+
+* the subtracter's second operand is inverted **inside the arithmetic cell's own
+  mask** (`XNOR(a,b)` and `a AND NOT b`), not by an inverter cell, so the two
+  operands have *independent* polarities;
+* its carry-in of one comes from a leading **carry-seed** cell with no data
+  operands and no sum output — an ALM's `cin` comes only from the previous
+  cell's `cout`, so a constant carry has to be manufactured;
+* both modular corrections are **plain LUTs**. `q = 2^4 + 1` is an increment and
+  one bit flip, so nothing spends an arithmetic chain on it: there is *no*
+  constant-operand carry chain anywhere, and the modulus tier that reads one
+  finds nothing.
+
+`17` is recovered anyway, from what the correction computes — the candidate is
+built one bit at a time and then re-checked on all 63 sums the 5-bit adder can
+produce. Verdict `modular-arithmetic-candidate` (not `lattice-style-...`: 17 is
+in no published-parameter library), family `lattice-ntt`, style `pqc-style`, and
+the finding says the number and says it matches nothing published.
 
 **`rotate16.vo`** — `back[i] = front[(i-5) mod 16]` through pure wiring. The
 permutation pass reports a 16-bit rotation; the ARX pass reports `not-arx`
