@@ -1,0 +1,90 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.behavior.run_reference_check",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "core_c",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "core_c",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 611,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/16_mystery_cores/ground_truth/exports/core_c.vo",
+      "sha256": "ac7d00af490442d9e2d563d15a0c1da9054a7de885f7952b566e139bb70c8510",
+      "size_bytes": 227308
+    }
+  ],
+  "findings": [
+    {
+      "bounds": {
+        "cycle_bound": 3600,
+        "unbounded": false
+      },
+      "counterexample": {
+        "cycle_bound": 77,
+        "description": "reference/netlist divergence",
+        "witness": [
+          {
+            "cycle": 77,
+            "signal": "iv",
+            "value": "101799974870684427890868"
+          },
+          {
+            "cycle": 77,
+            "signal": "key",
+            "value": "809639055101991755632766"
+          },
+          {
+            "cycle": 77,
+            "signal": "rst_n",
+            "value": "1"
+          },
+          {
+            "cycle": 77,
+            "signal": "start",
+            "value": "0"
+          }
+        ]
+      },
+      "id": "hal_agilex/behavior/reference-mismatch",
+      "method": {
+        "bounded": true,
+        "description": "Simulates the vendor export with hal_agilex.primitives and compares it against a Python model of the RTL the export was synthesised from.",
+        "kind": "simulation",
+        "name": "netlist versus RTL reference simulation"
+      },
+      "scope": {
+        "artifact_ids": [
+          "core_c"
+        ],
+        "description": "every primitive instance of the export",
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "severity": "critical",
+      "status": "bounded_counterexample",
+      "summary": "Mismatch at cycle 77: expected {'ks': 0, 'ks_valid': 0, 'busy': 1}, got {'ks': 1, 'ks_valid': 0, 'busy': 1}.",
+      "tags": [
+        "agilex",
+        "validation"
+      ],
+      "title": "The exported netlist does not match the reference model"
+    }
+  ],
+  "generated_at": "2026-09-17T04:40:10Z",
+  "producer": {
+    "name": "hal_agilex.behavior",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

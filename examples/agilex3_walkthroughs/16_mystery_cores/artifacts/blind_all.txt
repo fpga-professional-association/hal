@@ -1,0 +1,123 @@
+== core_a -- blind
+{
+  "agrees_with_identify": false,
+  "all_reasons": [
+    {
+      "family": "sponge",
+      "reason": "no carry chain anywhere and 40 pairwise-disjoint cells, each a pure XOR of exactly 5 flip-flop outputs",
+      "rule": "R2-sponge",
+      "style": "undetermined"
+    }
+  ],
+  "confidence": "medium",
+  "deciding_rule": "R2-sponge",
+  "family": "sponge",
+  "identify_confidence": "medium",
+  "identify_family": "none-detected",
+  "identify_style": "undetermined",
+  "reason": "no carry chain anywhere and 40 pairwise-disjoint cells, each a pure XOR of exactly 5 flip-flop outputs",
+  "rules_fired": [
+    "R2-sponge"
+  ],
+  "style": "undetermined",
+  "style_confidence": null
+}
+
+== core_b -- blind
+{
+  "agrees_with_identify": true,
+  "all_reasons": [],
+  "confidence": "high",
+  "deciding_rule": "R6-none",
+  "family": "none-detected",
+  "identify_confidence": "medium",
+  "identify_family": "none-detected",
+  "identify_style": "undetermined",
+  "reason": "no rule fired",
+  "rules_fired": [],
+  "style": "undetermined",
+  "style_confidence": null
+}
+
+== core_c -- blind
+{
+  "agrees_with_identify": true,
+  "all_reasons": [
+    {
+      "family": "lfsr-stream",
+      "reason": "3 autonomous feedback register(s) of 93 + 111 + 84 stages, visible only while port_i1 is held at 0",
+      "rule": "R5-stream",
+      "style": "classical-style"
+    }
+  ],
+  "confidence": "high",
+  "deciding_rule": "R5-stream",
+  "family": "lfsr-stream",
+  "identify_confidence": "high",
+  "identify_family": "lfsr-stream",
+  "identify_style": "classical-style",
+  "reason": "3 autonomous feedback register(s) of 93 + 111 + 84 stages, visible only while port_i1 is held at 0",
+  "rules_fired": [
+    "R5-stream"
+  ],
+  "style": "classical-style",
+  "style_confidence": "high"
+}
+
+== core_d -- blind
+{
+  "agrees_with_identify": false,
+  "all_reasons": [
+    {
+      "family": "arx",
+      "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
+      "rule": "R4-arx",
+      "style": "classical-style"
+    }
+  ],
+  "confidence": "medium",
+  "deciding_rule": "R4-arx",
+  "family": "arx",
+  "identify_confidence": "medium",
+  "identify_family": "none-detected",
+  "identify_style": "undetermined",
+  "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
+  "rules_fired": [
+    "R4-arx"
+  ],
+  "style": "classical-style",
+  "style_confidence": "medium"
+}
+
+== core_e -- blind
+{
+  "agrees_with_identify": true,
+  "all_reasons": [
+    {
+      "family": "lattice-ntt",
+      "reason": "hal_crypto identify reports lattice-ntt (1 butterfly/-ies, moduli [257]); an add and a subtract of the same width (9) each over two non-constant operand vectors",
+      "rule": "R1-lattice",
+      "style": "pqc-style"
+    },
+    {
+      "family": "arx",
+      "reason": "2 carry chains adding two register operands, 9 bits wide, behind 42 levels of combinational logic",
+      "rule": "R4-arx",
+      "style": "classical-style"
+    }
+  ],
+  "confidence": "medium",
+  "deciding_rule": "R1-lattice",
+  "family": "lattice-ntt",
+  "identify_confidence": "medium",
+  "identify_family": "lattice-ntt",
+  "identify_style": "pqc-style",
+  "reason": "hal_crypto identify reports lattice-ntt (1 butterfly/-ies, moduli [257]); an add and a subtract of the same width (9) each over two non-constant operand vectors",
+  "rules_fired": [
+    "R1-lattice",
+    "R4-arx"
+  ],
+  "style": "pqc-style",
+  "style_confidence": "medium"
+}
+

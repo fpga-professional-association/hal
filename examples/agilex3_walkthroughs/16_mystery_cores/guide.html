@@ -1,0 +1,739 @@
+<title>Agilex 3 RE walkthrough 16 &mdash; mystery cores, blind identification</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+    --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+    --accent: #6fb1ff; --accent-soft: #16273a;
+    --warn: #e8b45a; --warn-soft: #2b2313;
+    --good: #7ed69b; --good-soft: #13251a;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5b6672; --rule: #dfe4ea;
+  --card: #f7f9fb; --code-bg: #f3f5f8; --code-fg: #1b1f24;
+  --accent: #1d5fa8; --accent-soft: #e7f0fb;
+  --warn: #8a5a00; --warn-soft: #fdf3e0;
+  --good: #1f6b3a; --good-soft: #e8f5ec;
+  --shadow: 0 1px 2px rgba(20,30,45,.08), 0 6px 18px rgba(20,30,45,.06);
+}
+:root[data-theme="dark"] {
+  --bg: #12161b; --fg: #e6eaf0; --muted: #9aa6b4; --rule: #2a323c;
+  --card: #171d24; --code-bg: #0e1318; --code-fg: #dfe6ee;
+  --accent: #6fb1ff; --accent-soft: #16273a;
+  --warn: #e8b45a; --warn-soft: #2b2313;
+  --good: #7ed69b; --good-soft: #13251a;
+  --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.35);
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2rem 1.25rem 6rem; max-width: 60rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 650; }
+h1 { font-size: 2rem; margin: 0 0 .3rem; letter-spacing: -.015em; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .8rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+h4 { font-size: .98rem; margin: 1.4rem 0 .4rem; }
+p, li { font-size: 1rem; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+pre {
+  background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .85rem 1rem; overflow-x: auto; font-size: .82rem;
+  line-height: 1.5; margin: .8rem 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.lead { font-size: 1.08rem; color: var(--muted); margin-top: .2rem; }
+.meta { color: var(--muted); font-size: .86rem; margin: .4rem 0 1.6rem; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+        padding: 1rem 1.15rem; margin: 1.2rem 0; box-shadow: var(--shadow); }
+.note, .why, .honest {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+}
+.why { border-left-color: var(--good); background: var(--good-soft); }
+.honest { border-left-color: var(--warn); background: var(--warn-soft); }
+.why > .tag, .note > .tag, .honest > .tag {
+  display: block; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: .3rem;
+}
+.why > .tag { color: var(--good); }
+.note > .tag { color: var(--accent); }
+.honest > .tag { color: var(--warn); }
+.why > :last-child, .note > :last-child, .honest > :last-child { margin-bottom: 0; }
+.step { margin-top: 2.4rem; }
+.step > h3 { display: flex; align-items: baseline; gap: .6rem; }
+.step > h3 .num {
+  flex: none; display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem;
+  font-weight: 700; align-self: center;
+}
+figure { margin: 1.2rem 0; }
+figure .frame {
+  overflow-x: auto; background: #fff; border: 1px solid var(--rule);
+  border-radius: 10px; padding: .8rem; text-align: center;
+}
+figure img { max-width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: .85rem; margin-top: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1rem 0; }
+th, td { border: 1px solid var(--rule); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: var(--card); font-weight: 650; }
+.scroll { overflow-x: auto; }
+.cols { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 55rem) { .cols { grid-template-columns: 1fr 1fr; } }
+.cols > div { min-width: 0; }
+.kbd { color: var(--muted); font-size: .8rem; }
+ul.tight li { margin: .15rem 0; }
+.toc { columns: 2 16rem; column-gap: 2rem; font-size: .93rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+</style>
+
+<h1>Reverse-engineering an Agilex 3 netlist</h1>
+<p class="lead">Walkthrough 16 &mdash; the capstone. Five blinded netlists, one
+fixed procedure, no names, no answer key until the calls are written down. Then
+the answers, and an honest score.</p>
+<p class="meta">
+Device <span class="mono">A3CW135BM16AE6S</span> (Agilex 3, package MBGA896) &middot;
+Quartus Prime Pro 26.1.0 Build 110 &middot; five post-synthesis exports &middot;
+HAL with <span class="mono">AGILEX_TENNM.hgl</span> &middot;
+120 to 1209 instances each.
+</p>
+
+<div class="card">
+<strong>Who this is for.</strong> Someone who has done walkthroughs
+<a href="../11_speck_toy/guide.html">11</a> through
+<a href="../15_ntt_mult/guide.html">15</a>. Each of those handed you a netlist
+and then, in the same directory, told you what it was. This one does not.
+<p style="margin-bottom:0">Five anonymized exports sit in
+<a href="cores/"><code>cores/</code></a>. A procedure fixed in advance in
+<a href="spec.md"><code>spec.md</code></a> runs over all five without reading
+anything else. The conclusions get written down. <em>Then</em>
+<a href="ground_truth/GROUND_TRUTH.md"><code>ground_truth/</code></a> opens and
+the calls are scored &mdash; including the ones a tool got wrong, which is the
+part worth staying for.</p>
+</div>
+
+<h2 id="contents">Contents</h2>
+<ol class="toc">
+<li><a href="#setup">The experiment</a></li>
+<li><a href="#rules">The decision rule, fixed in advance</a></li>
+<li><a href="#blind">The blind pass, core by core</a></li>
+<li><a href="#calls">Five calls, side by side</a></li>
+<li><a href="#reveal">The reveal</a></li>
+<li><a href="#blinding">What the blinding cost</a></li>
+<li><a href="#gaps">Two gaps, filed not fixed</a></li>
+<li><a href="#honesty">What this measured, and what it did not</a></li>
+<li><a href="#template">The template for a real target</a></li>
+<li><a href="#repro">Reproducing all of it</a></li>
+</ol>
+
+<h2 id="setup">1. The experiment</h2>
+
+<p>Five cores. Four are the designs of walkthroughs 11, 13, 14 and 15,
+<strong>re-synthesized from scratch</strong> under neutral top-level names into
+their own Quartus revisions, so no committed file here is a copy of a file
+committed there. The fifth is new RTL written for this walkthrough and for no
+other purpose, and it is <strong>not cryptography</strong>. Which one is which is
+not recorded anywhere the blind pass can reach.</p>
+
+<p>Walkthrough 12's PRESENT-80 datapath is deliberately absent. An S-box that
+matches a published table by name is the one case where the answer arrives
+without any method at all, and a capstone made of that case would measure
+nothing.</p>
+
+<h3>1.1 What blinding actually removes</h3>
+
+<p>Every export goes through the <code>anonymize.py</code> of walkthrough 10,
+byte for byte &mdash; grading against a weaker anonymiser than the one the series
+already publishes would be grading nothing. What survives is what a reverse
+engineer genuinely has: gate types and their pin names, the
+<code>lut_mask</code> parameters, the connectivity exactly, top-level port
+direction and width, and the <code>gnd</code>/<code>vcc</code> housekeeping
+nets.</p>
+
+<p>What does not survive is the module name, every port name, every net name,
+every instance name &mdash; and, the part that turns out to matter,
+<strong>every internal vector declaration</strong>. Quartus keeps the RTL's
+<code>wire [15:0] x_sum;</code>, which hands you the word boundaries for free. A
+netlist recovered from a bitstream has no such thing, so the blinding splits
+every internal vector into unrelated scalar wires.</p>
+
+<div class="note"><span class="tag">the design of the experiment</span>
+The blind half of <code>analysis.py</code> never opens a path under
+<code>ground_truth/</code>, and <code>check.py</code> asserts that with a regular
+expression over <code>analysis.py</code>'s own source. It is a crude check on
+purpose: an assertion that needs interpretation is one that stops being run.
+</div>
+
+<h2 id="rules">2. The decision rule, fixed in advance</h2>
+
+<p>The procedure is six steps per core &mdash; census, shape, state partition,
+nonlinearity, <code>hal_crypto identify</code>, and then a call. Steps 1&ndash;4
+never consult step 5, and step 6 is a pure function of steps 1&ndash;5. The point
+of that ordering is walkthrough 03's: two methods that never read each other
+agreeing is evidence, and them disagreeing is information.</p>
+
+<p>Step 6 is a table, written into <a href="spec.md"><code>spec.md</code></a>
+before these exports were analysed. Rules are tried in order and the first whose
+antecedent holds decides the family.</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>id</th><th>antecedent</th><th>family</th><th>style</th></tr></thead>
+<tbody>
+<tr><td><code>R1-lattice</code></td><td><code>identify</code> reports <code>lattice-ntt</code>, <em>or</em> the chain census contains an add and a subtract of the same width, both over two non-constant operand vectors</td><td><code>lattice-ntt</code></td><td><code>pqc-style</code></td></tr>
+<tr><td><code>R2-sponge</code></td><td>no carry chain anywhere, and &ge; 8 cells each a pure XOR of exactly 5 flip-flop outputs, with pairwise-disjoint sources</td><td><code>sponge</code></td><td><code>undetermined</code></td></tr>
+<tr><td><code>R3-spn</code></td><td>an S-box of &ge; 4 bits at tier <code>exact</code> or <code>xor_constant</code>, in &ge; 4 instances</td><td><code>spn</code></td><td><code>classical-style</code></td></tr>
+<tr><td><code>R4-arx</code></td><td>&ge; 2 carry chains of the same width &ge; 8 that each add <strong>two operand vectors</strong>, and combinational depth &ge; 10</td><td><code>arx</code></td><td><code>classical-style</code></td></tr>
+<tr><td><code>R5-stream</code></td><td>an autonomous feedback register of &ge; 32 stages with feedback of degree &ge; 1, possibly only under a held mode net</td><td><code>lfsr-stream</code></td><td><code>classical-style</code></td></tr>
+<tr><td><code>R6-none</code></td><td>none of the above</td><td><code>none-detected</code></td><td><code>undetermined</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Confidence is a second fixed rule: <strong>high</strong> when the structural
+rule and <code>hal_crypto</code> name the same family, or when nothing fired and
+no step produced any cryptographic evidence at all; <strong>medium</strong> when
+the structural rule fired and the tool disagreed. And one clamp: when the
+deciding rule <em>quoted</em> the tool's verdict, the call may not come out more
+confident than the tool it quoted.</p>
+
+<div class="why"><span class="tag">why R4 is about operands, not chains</span>
+Every carry chain in this set is a dedicated <code>cout &rarr; cin</code> wire
+and unmissable. What <code>arith.adders</code> adds is an <em>evaluation</em> of
+each one, so <code>a + b</code> and <code>a + 1</code> are distinguishable. By
+the end of section 3 that distinction will be the only thing in the entire
+census separating the decoy from the block cipher.
+</div>
+
+<h2 id="blind">3. The blind pass, core by core</h2>
+
+<p>The census first, all five at once, because the shape of this table is the
+first thing anybody would look at:</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th></th><th>core_a</th><th>core_b</th><th>core_c</th><th>core_d</th><th>core_e</th></tr></thead>
+<tbody>
+<tr><td>instances</td><td>866</td><td>120</td><td>611</td><td>241</td><td>1209</td></tr>
+<tr><td>flip-flops</td><td>207</td><td>49</td><td>301</td><td>104</td><td>299</td></tr>
+<tr><td>ALM cells</td><td>659</td><td>71</td><td>310</td><td>137</td><td>910</td></tr>
+<tr><td>carry chains</td><td>0</td><td>1</td><td>0</td><td>2</td><td>10</td></tr>
+<tr><td>DAG levels</td><td>5</td><td>18</td><td>3</td><td>18</td><td>43</td></tr>
+<tr><td>register components</td><td>200, 6</td><td>31</td><td>288, 12</td><td>64, 32, 7</td><td>288, 10</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Three things are already visible. Two cores have no arithmetic at all and are
+two and four levels deep &mdash; wide, shallow, logic-only. Two are seventeen
+levels deep behind a carry chain. One is forty-two levels deep behind ten of
+them. And the register components say how many machines each core is: core_d is
+the only one that is <em>three</em>.</p>
+
+<h3 id="core_a">3.1 core_a &mdash; 866 gates, no arithmetic, and a layer of fives</h3>
+
+<figure>
+<div class="frame"><img src="images/dag_core_a.svg" alt="core_a levelled DAG"></div>
+<figcaption>core_a, levelled: five columns over 866 nodes, drawn with
+<code>--const-hub</code>. No carry chain means no ripple means no depth.</figcaption>
+</figure>
+
+<p>207 flip-flops in two components: 200 and 6. Two hundred bits of state, and
+six bits of something driving them one way. Zero carry chains, four levels of
+logic. Whatever this computes, it computes it in one wide pass and not by
+adding.</p>
+
+<p>The nonlinearity step is where it opens up. Of 659 cells, <strong>forty</strong>
+are a pure XOR of exactly five flip-flop outputs, and those forty five-element
+source sets are <em>pairwise disjoint</em> &mdash; together they cover 200 bits
+exactly once. Another 200 cells are a pure XOR of eleven flip-flops.</p>
+
+<figure>
+<div class="frame"><img src="images/cell_parity_core_a.svg" alt="one of core_a's parity cells"></div>
+<figcaption>One of the forty. Five register outputs into one ALM, and the
+<code>lut_mask</code> is a parity. Forty of these, disjoint, is a layer.</figcaption>
+</figure>
+
+<div class="why"><span class="tag">disjointness is the claim</span>
+Forty cells that each read five registers is a coincidence. Forty cells that read
+<em>disjoint</em> fives, together covering the state exactly, is a structure: the
+state is partitioned into forty groups of five and something takes the parity of
+each group. That is <code>theta</code>, and walkthrough
+<a href="../14_keccak_toy/guide.html">14</a> builds a whole 5&nbsp;&times;&nbsp;5&nbsp;&times;&nbsp;8
+lane geometry out of exactly this observation.
+</div>
+
+<p>The other half of the picture is a <em>refusal</em>. 200 of the 207 next-state
+cones cannot be enumerated at all: they read more flip-flops than the exact
+evaluator will expand. That is not a missing measurement. A next-state function
+that reads tens of state bits is a diffusion layer, and the fact that it is
+nonlinear is why it cannot be folded into an affine form and read off.</p>
+
+<p><code>R2-sponge</code> fires: no carry chain, forty disjoint five-wide
+parities. <strong>Call: <code>sponge</code>, style <code>undetermined</code>,
+confidence medium</strong> &mdash; medium because <code>hal_crypto identify</code>
+returned <code>none-detected</code> on this export and the disagreement is
+reported rather than smoothed over.</p>
+
+<h3 id="core_b">3.2 core_b &mdash; 120 gates, and the trap</h3>
+
+<figure>
+<div class="frame"><img src="images/dag_core_b.svg" alt="core_b levelled DAG"></div>
+<figcaption>core_b, levelled: eighteen columns over 120 nodes. Almost all of that
+depth is one carry chain.</figcaption>
+</figure>
+
+<p>The smallest core in the set, and the one that is most likely to be called
+wrong. It has:</p>
+
+<ul class="tight">
+<li>a shift structure &mdash; the longest run of registers each reading exactly
+one other is <strong>eight</strong> long, and its head reads a primary input and
+no register at all;</li>
+<li>one carry chain, <strong>sixteen cells</strong>;</li>
+<li><strong>seventeen levels</strong> of combinational depth;</li>
+<li>a 31-register component and eighteen registers outside every loop.</li>
+</ul>
+
+<p>Read that list again next to core_d's, three sections down. Same chain width.
+Same depth. Both chains read a register bank and write it back. At this
+magnification the two cells are the same object:</p>
+
+<div class="cols">
+<div><figure>
+<div class="frame"><img src="images/cell_counter_core_b.svg" alt="one slice of core_b's chain"></div>
+<figcaption>core_b: one arithmetic-mode ALM, <code>cin</code> from the previous
+cell, <code>cout</code> to the next.</figcaption>
+</figure></div>
+<div><figure>
+<div class="frame"><img src="images/cell_adder_core_d.svg" alt="one slice of core_d's chain"></div>
+<figcaption>core_d: one arithmetic-mode ALM, <code>cin</code> from the previous
+cell, <code>cout</code> to the next.</figcaption>
+</figure></div>
+</div>
+
+<p>What separates them is one operand. Driving each chain over its whole operand
+space and reading the result back says that core_b's chain
+<strong>adds the constant 1</strong> &mdash; it is a counter &mdash; while
+core_d's two chains each add <strong>two operand vectors</strong>, fifteen bits
+wide. <code>R4-arx</code> requires the second and core_b has none of it.</p>
+
+<p>Nothing else fires either. The shift chain is not autonomous: its head reads a
+pin, so it absorbs data rather than feeding itself, which is walkthrough 10's
+distinction and the reason a CRC is not a keystream generator. There is no
+parity layer, no S-box, no butterfly.</p>
+
+<p><strong>Call: <code>none-detected</code>, confidence high</strong> &mdash;
+high because nothing produced any cryptographic evidence at all, which is the one
+case where a negative gets to be strong.</p>
+
+<figure>
+<div class="frame"><img src="images/module_tree_core_b.svg" alt="core_b module tree"></div>
+<figcaption>The module tree of the smallest core: one module. A post-synthesis
+export is flat, which is why none of these walkthroughs start from hierarchy.</figcaption>
+</figure>
+
+<div class="honest"><span class="tag">a gap, found on the decoy</span>
+<code>hal_crypto</code>'s own chain walk finds <strong>no</strong> shift structure
+in core_b, in a design with an eight-stage shift register in it. Its stages are
+<strong>tapped</strong>: every stage also drives a capture register, so each has
+two successors and the walk stops at the first fork. The walk that found the
+chain here follows the <em>predecessor</em> instead, which fan-out cannot break.
+It costs nothing here &mdash; an open chain is not evidence of cryptography
+either way &mdash; but a tapped Galois LFSR would disappear the same way, and
+that would cost something. Filed in section 7.
+</div>
+
+<h3 id="core_c">3.3 core_c &mdash; 611 gates, three levels, one ring</h3>
+
+<figure>
+<div class="frame"><img src="images/dag_core_c.svg" alt="core_c levelled DAG"></div>
+<figcaption>core_c, levelled: <strong>three</strong> columns over 611 nodes, 301
+cells in a single rank. The widest, shallowest thing in the series.</figcaption>
+</figure>
+
+<p>301 flip-flops, 310 cells, two levels of logic, no arithmetic. 288 registers
+in one component and 12 in another that drives it. One cell per register and one
+level of depth is the signature of a design whose entire step is one LUT &mdash;
+the work is in the <em>schedule</em>, not in the logic.</p>
+
+<p>The chain walk returns nothing on the first reading, exactly as walkthrough
+<a href="../13_trivium_stream/guide.html">13</a> reported: every stage's next
+state is a load multiplexer, so "driven by exactly one register" is false for all
+of them at once. Holding the external net that the most next-state functions read
+nonlinearly &mdash; <code>port_i1</code> under its blinded name &mdash; at 0
+brings back <strong>three</strong> feedback registers of 93, 84 and 111
+stages.</p>
+
+<p>All three are <code>coupled</code>: no segment's feedback is a function of its
+own stages alone. Every feedback has algebraic degree <strong>2</strong>. One
+quadratic term per segment is the whole difference between this and walkthrough
+05's linear LFSR, and it is what makes <code>R5-stream</code>'s
+"degree &ge; 1" a real test rather than a formality.</p>
+
+<p><code>R5-stream</code> fires and <code>hal_crypto identify</code> independently
+reports <code>lfsr-stream</code> at high confidence.
+<strong>Call: <code>lfsr-stream</code>, <code>classical-style</code>, confidence
+high.</strong></p>
+
+<h3 id="core_d">3.4 core_d &mdash; 241 gates, two chains, two machines</h3>
+
+<figure>
+<div class="frame"><img src="images/dag_core_d.svg" alt="core_d levelled DAG"></div>
+<figcaption>core_d, levelled: eighteen columns over 241 nodes, the two chains
+rippling in lockstep.</figcaption>
+</figure>
+
+<p>Two carry chains, sixteen cells each, each adding two fifteen-bit operand
+vectors. Seventeen levels of depth, which is what a sixteen-bit carry costs. So
+far this is core_b with one operand more.</p>
+
+<p>The state partition is what makes it a cipher. Three register components
+&mdash; 64, 32 and 7 &mdash; and the coupling between the two big ones runs
+<strong>one way</strong>: the 64-bit component feeds the 32-bit one and nothing
+comes back.</p>
+
+<div class="why"><span class="tag">the partition's direction is the evidence</span>
+A 64-bit state that autonomously drives a 32-bit state, with no return path, is a
+<em>key schedule driving a data path</em>. That hypothesis is available here
+before a single <code>lut_mask</code> has been decoded, and it is available on a
+netlist with no names in it, because the direction of an edge in the register
+graph is not a name.
+</div>
+
+<p><code>R4-arx</code> fires: two chains of equal width &ge; 8, both adding two
+operand vectors, behind seventeen levels.
+<strong>Call: <code>arx</code>, <code>classical-style</code>, confidence
+medium</strong> &mdash; medium, because <code>hal_crypto identify</code> says
+<code>none-detected</code> here. Section 6 is about why.</p>
+
+<p>What the blind pass does <em>not</em> get: the rotation amounts. That is
+deliberate &mdash; recovering them is the whole of walkthrough
+<a href="../11_speck_toy/guide.html">11</a> &mdash; but it is also, as it turns
+out, the exact thing the tool would have handed over on the un-blinded
+export.</p>
+
+<h3 id="core_e">3.5 core_e &mdash; 1209 gates, forty-three levels, one butterfly</h3>
+
+<p>The deepest netlist in the series: 42 levels of combinational logic between one
+register bank and the next, 288 cells in the last rank alone. The whole-netlist
+DAG is committed as counts and a <code>.dot</code> only &mdash; at 1209 nodes over
+43 levels Graphviz does not finish, which walkthrough 15 measured at over an
+hour.</p>
+
+<p>Ten carry chains of widths 7 to 16. Among them an <code>add</code> and a
+<code>subtract</code> of the <em>same</em> width, nine, each over two non-constant
+operand vectors. <code>hal_crypto identify</code> reports
+<code>lattice-ntt</code>, one butterfly, and a recovered modulus of
+<strong>257</strong> &mdash; recovered not from a constant (there is none; 257 is
+too cheap to need a carry chain) but from what the correction logic computes.</p>
+
+<p><code>R1-lattice</code> fires on both of its disjuncts at once: the tool's
+verdict, and the add/subtract pair read off the chain census without asking
+it.</p>
+
+<div class="honest"><span class="tag">rule order is load-bearing here</span>
+<code>R4-arx</code> <em>also</em> fires on core_e. Two adds of the same width
+&ge; 8 over two operand vectors, behind forty-two levels of logic &mdash; that is
+an ARX round's census, exactly. A butterfly is an add and a subtract over two
+operands behind deep logic, and there is no census-level fact that distinguishes
+it from a cipher round. What keeps a lattice kernel from being called a block
+cipher is the <strong>order of the table</strong>, not the evidence. That
+dependency is real, it was fixed in advance, and pretending otherwise would be
+the difference between a measurement and a demonstration.
+</div>
+
+<p><strong>Call: <code>lattice-ntt</code>, <code>pqc-style</code>, confidence
+medium.</strong> Medium is the clamp doing its job: the tool says medium because
+the recovered modulus is in no published-parameter library, and a method that
+echoed the tool's answer with more confidence than the tool had would be
+manufacturing certainty.</p>
+
+<h2 id="calls">4. Five calls, side by side</h2>
+
+<div class="scroll">
+<table>
+<thead><tr><th>core</th><th>blind call</th><th>style</th><th>confidence</th><th>rule</th><th>what fired</th></tr></thead>
+<tbody>
+<tr><td>core_a</td><td><code>sponge</code></td><td><code>undetermined</code></td><td>medium</td><td><code>R2-sponge</code></td><td>no chain; 40 disjoint five-wide parities</td></tr>
+<tr><td>core_b</td><td><code>none-detected</code></td><td><code>undetermined</code></td><td>high</td><td><code>R6-none</code></td><td>nothing at all</td></tr>
+<tr><td>core_c</td><td><code>lfsr-stream</code></td><td><code>classical-style</code></td><td>high</td><td><code>R5-stream</code></td><td>93 + 84 + 111 coupled, degree 2, under a held net</td></tr>
+<tr><td>core_d</td><td><code>arx</code></td><td><code>classical-style</code></td><td>medium</td><td><code>R4-arx</code></td><td>two 15-bit two-operand adds, 17 levels</td></tr>
+<tr><td>core_e</td><td><code>lattice-ntt</code></td><td><code>pqc-style</code></td><td>medium</td><td><code>R1-lattice</code></td><td>butterfly, modulus 257</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>And, recorded separately and never consulted by steps 1&ndash;4, what the tool
+said on its own:</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>core</th><th><code>hal_crypto identify</code> (blinded)</th><th>confidence</th></tr></thead>
+<tbody>
+<tr><td>core_a</td><td><code>none-detected</code></td><td>medium</td></tr>
+<tr><td>core_b</td><td><code>none-detected</code></td><td>medium</td></tr>
+<tr><td>core_c</td><td><code>lfsr-stream</code> / <code>classical-style</code></td><td>high</td></tr>
+<tr><td>core_d</td><td><code>none-detected</code></td><td>medium</td></tr>
+<tr><td>core_e</td><td><code>lattice-ntt</code> / <code>pqc-style</code></td><td>medium</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Three of the five come back <code>none-detected</code>, and the tool has no way
+to tell you that only <em>one</em> of those three is right. That sentence is the
+reason this walkthrough exists.</p>
+
+<h2 id="reveal">5. The reveal</h2>
+
+<p>Everything above this line was produced without opening
+<code>ground_truth/</code>. Everything below it opens nothing else.</p>
+
+<h3>5.1 First, bind the answer key to behaviour</h3>
+
+<p>"core_c is Trivium" is an assertion until the netlist is made to behave like
+Trivium. Each <em>named</em> export is simulated against its family's Python
+reference model, every output, every cycle:</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>core</th><th>reference</th><th>cycles</th><th>result</th></tr></thead>
+<tbody>
+<tr><td>core_a</td><td>Keccak-f[200], 18 rounds</td><td>600</td><td><code>proven_bounded</code></td></tr>
+<tr><td>core_b</td><td>the link framer</td><td>6000</td><td><code>proven_bounded</code></td></tr>
+<tr><td>core_c</td><td>Trivium</td><td>3600</td><td><code>proven_bounded</code></td></tr>
+<tr><td>core_d</td><td>Speck32/64</td><td>2000</td><td><code>proven_bounded</code></td></tr>
+<tr><td>core_e</td><td>NTT, n = 16, q = 257</td><td>600</td><td><code>proven_bounded</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Six negative controls run alongside, because a bounded agreement means nothing
+until you know what a wrong answer would take to catch. One rho offset moved by
+one; the frame delimiter moved from <code>0x7E</code> to <code>0x7F</code>; one
+Trivium tap moved from <code>s171</code> to <code>s170</code>; Speck's first
+rotation moved from 7 to 8; the modulus moved from 257 to 251. All five are
+caught, and <code>check.py</code> re-runs them live rather than reading a
+committed counterexample &mdash; a stored counterexample proves that a wrong model
+was once caught, not that this simulator would catch it now.</p>
+
+<div class="honest"><span class="tag">the sixth control is not caught, on purpose</span>
+core_b's watchdog counts to 65536, and a frame is at most 255 payload bytes, so
+the watchdog cannot fire while bits keep arriving. Moving its constant produces a
+reference model that is <em>wrong</em> and that a behaviour run of any length
+passes clean. That is what a coverage hole looks like from inside a bounded
+check: the run is not short, the path is unreachable. <code>check.py</code>
+asserts that this control is <strong>not</strong> caught, so the day the design
+changes and it becomes reachable, the check notices.
+</div>
+
+<h3>5.2 The answers</h3>
+
+<div class="scroll">
+<table>
+<thead><tr><th>core</th><th>what it is</th><th>truth</th><th>blind call</th><th>tool (blinded)</th><th>facts</th></tr></thead>
+<tbody>
+<tr><td>core_a</td><td>Keccak-f[200] permutation</td><td><code>sponge</code> / <code>undetermined</code></td><td><strong>correct</strong></td><td><code>none-detected</code> &mdash; missed</td><td>4 / 6</td></tr>
+<tr><td>core_b</td><td>serial link framer &mdash; the decoy</td><td><code>none-detected</code></td><td><strong>correct</strong></td><td>correct</td><td>3 / 4</td></tr>
+<tr><td>core_c</td><td>Trivium keystream generator</td><td><code>lfsr-stream</code> / <code>classical-style</code></td><td><strong>correct</strong></td><td>correct</td><td>4 / 5</td></tr>
+<tr><td>core_d</td><td>Speck32/64 block cipher</td><td><code>arx</code> / <code>classical-style</code></td><td><strong>correct</strong></td><td><code>none-detected</code> &mdash; missed</td><td>3 / 5</td></tr>
+<tr><td>core_e</td><td>NTT multiplier, n = 16, q = 257</td><td><code>lattice-ntt</code> / <code>pqc-style</code></td><td><strong>correct</strong></td><td>correct</td><td>2 / 4</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The method gets <strong>five of five</strong> families and styles right.
+<code>hal_crypto identify</code> on its own gets <strong>three of five</strong>,
+and both of its misses are false negatives on real cryptography. 16 of the 24
+listed key facts were recovered; the other 8 are things the blind pass does not
+attempt, and it says so in advance rather than after the fact.</p>
+
+<p><code>R3-spn</code> never fired, on any core. That is reported too: an
+unexercised rule is an untested rule, and the score table carries a
+<code>rules_never_exercised</code> field so that nobody reads five-for-five as
+"the table works".</p>
+
+<h2 id="blinding">6. What the blinding cost</h2>
+
+<p>The obvious question about the two misses is whether they are about
+<em>blinding</em> or about the passes. So the reveal runs the same
+<code>hal_crypto identify</code> on both copies of every core &mdash; the named
+export with its RTL identifiers intact, and the blinded one &mdash; and writes
+the difference to <code>artifacts/score.json</code> as
+<code>blinding_delta</code>:</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th>core</th><th>named export</th><th>blinded export</th><th>changed</th></tr></thead>
+<tbody>
+<tr><td>core_a</td><td><code>none-detected</code> (medium)</td><td><code>none-detected</code> (medium)</td><td>no</td></tr>
+<tr><td>core_b</td><td><code>none-detected</code> (medium)</td><td><code>none-detected</code> (medium)</td><td>no</td></tr>
+<tr><td>core_c</td><td><code>lfsr-stream</code> (high)</td><td><code>lfsr-stream</code> (high)</td><td>no</td></tr>
+<tr><td>core_d</td><td><strong><code>arx</code> (high)</strong></td><td><strong><code>none-detected</code> (medium)</strong></td><td><strong>yes</strong></td></tr>
+<tr><td>core_e</td><td><code>lattice-ntt</code> (medium)</td><td><code>lattice-ntt</code> (medium)</td><td>no</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>So the two misses have two different causes, and the control separates
+them.</p>
+
+<p><strong>core_a's miss is not about blinding.</strong> The tool returns
+<code>none-detected</code> on the named export too, and walkthrough 14 explains
+why: in this pipeline placement <code>chi</code> reads the register bank
+<em>through</em> <code>theta</code>, so every chi cone is 33 flip-flops wide, the
+S-box extraction refuses to enumerate cones that wide, and the substitution layer
+stops existing as cones. The same permutation retimed by half a round returns
+<code>sponge</code> with all forty matches. That is a known, documented, honest
+property of a structural pass, and the tool signals it by dropping its
+<code>none-detected</code> to medium confidence because it refused a cone.</p>
+
+<p><strong>core_d's miss is entirely about blinding.</strong> On the named export
+the ARX pass finds two verified adders, 54 XOR cells and <strong>four fixed
+rotations</strong>, and returns <code>arx</code> at high confidence. On the
+blinded export it finds the same two adders and the same 54 XOR cells, and
+<strong>zero</strong> rotations:</p>
+
+<pre><code>named   : verdict arx-candidate   adders 2  rotations 4  xor 54
+blinded : verdict not-arx         adders 2  rotations 0  xor 54
+          missing: ['no fixed rotation, in a named vector or in the
+                     order a cell layer reads a register bank']</code></pre>
+
+<h2 id="gaps">7. Two gaps, filed not fixed</h2>
+
+<p><strong>No pass in <code>tools/hal_crypto</code> was changed for this
+walkthrough.</strong> A capstone that tunes the instrument it is calibrating
+measures nothing, so both gaps below are written up here and filed as issues,
+and the score table above is what the tools do today.</p>
+
+<h3>7.1 Rotation recovery is keyed on vector names <span class="kbd">(issue #101)</span></h3>
+
+<p><code>arx.adder_operand_rotations</code> looks at the order an adder's slices
+read their operand, which is exactly right &mdash; a rotation costs no cell, so
+the ordering <em>is</em> the rotation. But to ask "is this bit
+<code>(i + c) mod w</code> of one word", it first has to know which word, and it
+gets that by grouping the operand's source nets by the text before the
+<code>[</code> in their names. Blinding splits every internal vector into scalars,
+so fifteen operand bits become fifteen unrelated names, the grouping finds
+fifteen "words" of one bit each, and no rotation is found &mdash; on a netlist
+where the ordered cell layer is completely intact.</p>
+
+<p>The fix is not to look at names: the operand bits peel back to flip-flops, and
+those flip-flops are still one register component with one clock/enable
+signature. Recovering the word from the <em>register bank</em> rather than from
+the net name would make the pass work on exactly the netlists it matters most on
+&mdash; the ones recovered from a bitstream, which have no vectors at all.</p>
+
+<h3>7.2 A tapped shift chain is not found <span class="kbd">(issue #102)</span></h3>
+
+<p><code>shiftreg</code>'s chain walk follows successors and stops at the first
+stage with more than one. core_b's receive register has a capture register
+hanging off every stage, so every stage has two successors and the walk stops at
+length one; <code>find_shift_structures</code> returns nothing on a design with
+an eight-stage shift register in it. Walking the <em>predecessor</em> instead
+&mdash; each stage has exactly one register feeding it, and fan-out cannot change
+that &mdash; finds the chain immediately. It costs nothing on this decoy, and it
+would cost a Galois LFSR whose stages are tapped.</p>
+
+<h2 id="honesty">8. What this measured, and what it did not</h2>
+
+<p>Five for five is a good-looking number and it needs three fences around
+it.</p>
+
+<p><strong>The rule table was calibrated on four of these five designs.</strong>
+Not on these exports &mdash; they are fresh syntheses, blinded &mdash; but the
+rules come from walkthroughs 11&ndash;15, whose netlists are the same RTL and
+whose answers were known while the rules were being written. What this experiment
+measures is therefore whether a method derived from five known netlists
+<em>survives blinding</em>, which is a real and useful question and is not the
+same question as whether it generalises to an unseen cipher. The decoy is the
+only <strong>out-of-sample</strong> core in the set, and its answer is
+"nothing".</p>
+
+<p><strong>One rule was revised during drafting, and it is recorded.</strong>
+<code>R2-sponge</code> originally also required every register's next state to
+have algebraic degree &le; 2. That is wrong on its face and walkthrough 14 says
+so: <code>chi</code> makes every next-state cone 33 flip-flops wide, so those
+cones come back as a <em>refusal</em>, not as a degree-2 function. The conjunct
+was dropped after the cone widths were measured. <a href="spec.md">spec.md</a>
+says so rather than quietly shipping the corrected table.</p>
+
+<p><strong>Family is not identification.</strong> Every call on this page is a
+statement about what a netlist is wired to compute. "There is a sponge in here"
+does not name SHA-3; "there is lattice-style ring arithmetic in here" does not
+name ML-KEM, and at <code>n = 16</code>, <code>q = 257</code> it very much does
+not; "there is an ARX round in here" does not name Speck, and the blind pass
+never recovered the rotation constants that would have started that argument. The
+useful output of a page like this is not a name. It is a short list of things to
+go and look for next.</p>
+
+<h2 id="template">9. The template for a real target</h2>
+
+<p>Six steps, in this order, on any netlist with no names on it:</p>
+
+<ol>
+<li><strong>Census.</strong> Gate histogram, ports, flip-flop count, carry chains
+&mdash; and <em>evaluate</em> the chains. A chain is unambiguous; what it computes
+is the discriminator.</li>
+<li><strong>Shape.</strong> Level the combinational core with the feedback cut at
+the flops. Deep and narrow versus wide and shallow separates ARX from SPN from
+bit-serial before anything is decoded, and it costs one pass.</li>
+<li><strong>State.</strong> The flip-flop-only dependency graph. Component sizes
+say how many machines; the <em>direction</em> of the edges between them says which
+drives which, and one-way is architecture.</li>
+<li><strong>Nonlinearity.</strong> Next-state degrees where the cones can be
+enumerated, and a count of the cones that cannot. Then look for cells that are a
+pure XOR of exactly <em>k</em> registers with disjoint sources &mdash; a layer,
+not a coincidence.</li>
+<li><strong>Ask the tool.</strong> Record what it says verbatim, including the
+negative, and do not let steps 1&ndash;4 read it.</li>
+<li><strong>Call it against a written-down rule.</strong> Then report which rule
+fired, whether the tool agreed, and what you did not attempt.</li>
+</ol>
+
+<p>And one habit that is worth more than any of them: when a structural pass
+returns nothing, run it on a <em>less</em> blinded copy of the same netlist
+before believing it. That is the entire content of section 6, and it turned one
+of two identical-looking failures into a filed bug and left the other as a
+documented property.</p>
+
+<h2 id="repro">10. Reproducing all of it</h2>
+
+<pre><code># everything, in the order this page runs it, inside the build container
+HAL_BASE_PATH=/work/build HAL_PY_PATH=/work/build/lib PYTHONPATH=/work/build/lib \
+    sh examples/agilex3_walkthroughs/16_mystery_cores/run_analysis.sh
+
+# just the blind pass -- no HAL, no Graphviz, nothing but tools/
+python3 examples/agilex3_walkthroughs/16_mystery_cores/analysis.py blind \
+    -o examples/agilex3_walkthroughs/16_mystery_cores/artifacts
+
+# the reveal and the score table
+python3 examples/agilex3_walkthroughs/16_mystery_cores/analysis.py reveal \
+    -o examples/agilex3_walkthroughs/16_mystery_cores/artifacts
+
+# every claim on this page, re-asserted
+python3 examples/agilex3_walkthroughs/16_mystery_cores/check.py</code></pre>
+
+<p>The Quartus flow for each core, and the blinding command, are in
+<a href="ground_truth/GROUND_TRUTH.md"><code>ground_truth/GROUND_TRUTH.md</code></a>.
+All five exports are <code>hal_agilex --strict inventory</code> clean.</p>
+
+<p class="kbd">Series index: <a href="../README.md">examples/agilex3_walkthroughs/README.md</a>
+&middot; method: <a href="../../../ai/skills/re-walkthrough-method/SKILL.md">ai/skills/re-walkthrough-method</a></p>

@@ -304,6 +304,65 @@ as cones at all (`none-detected`). Before concluding "this design contains no
 S-box", ask whether the coding style could have dissolved one -- a negative from
 a structural pass is a statement about the netlist you were given.
 
+### The blind template, and what it scored
+
+`16_mystery_cores` runs all of the above on five *anonymized* exports with the
+decision rule written down first, then opens the answer key and scores it. Use
+its `spec.md` section 4 as the template for a real target; use its `analysis.py`
+as the executable form. The six steps, in order, and **steps 1-4 must not read
+step 5**:
+
+1. **census** -- gate histogram, ports, flip-flops, carry chains, and
+   *evaluate* every chain. A chain is unambiguous; what it computes is the
+   discriminator. The decoy in that set has a 16-cell chain and 17 levels of
+   depth, identical to the Speck export's; the only census-level difference is
+   that its chain adds the **constant 1** and Speck's two add two operand
+   vectors each.
+2. **shape** -- level the combinational core with the feedback cut at the flops
+   (see the table above).
+3. **state** -- the flip-flop-only dependency graph built from *support*, not
+   from truth tables, so a cone too wide to enumerate still contributes its
+   edges. Component sizes say how many machines; the **direction** between them
+   is architecture (`64 -> 32`, one way, is a key schedule driving a data path,
+   recovered blind). Walk chains by **predecessor**: `shiftreg`'s successor walk
+   stops at the first stage with two successors, so a shift register whose
+   stages are *tapped* vanishes entirely.
+4. **nonlinearity** -- next-state ANF degrees where the cones enumerate, and a
+   **count of the cones that do not**. A refusal is evidence: 200 of 207
+   next-state cones too wide to read is a diffusion layer, not a missing
+   measurement. Then look for cells that are a pure XOR of exactly *k* register
+   outputs with **pairwise-disjoint** sources -- 40 disjoint fives is a layer,
+   40 non-disjoint fives is a coincidence.
+5. **ask the tool** -- record `hal_crypto identify` verbatim, including the
+   negative.
+6. **call it against the written rule**, report which rule fired, whether the
+   tool agreed, and what was not attempted.
+
+Three results from that run are worth carrying:
+
+**Rule *order* can be load-bearing, so write the order down.** An NTT butterfly
+and an ARX round have the same census -- an add and a subtract (or two adds) of
+the same width over two operand vectors, behind deep logic. On `15_ntt_mult`'s
+export both `R1-lattice` and `R4-arx` fire. Nothing in the evidence separates
+them; the table's ordering does.
+
+**Run a structural pass on a *less* blinded copy before believing a negative.**
+Two cores came back `none-detected` from `hal_crypto` and one came back
+correctly negative, and from the verdicts alone they are indistinguishable.
+Re-running the same command on the named export separates them: Speck's `arx`
+verdict exists on the named netlist and disappears on the blinded one (a
+*blinding* failure -- `arx.adder_operand_rotations` groups operand bits by the
+text before the `[` in their net names, so splitting vectors into scalars
+destroys the word it needs), while Keccak's `none-detected` is identical on both
+(a pipeline property `14` already documents). One is a bug, the other is not, and
+only the control tells you which.
+
+**`none-detected` on three of five, with one of them right, is the shape of the
+problem.** A structural verdict of "nothing found" carries no information about
+*why* nothing was found. Ask, in order: could the pipeline have dissolved the
+layer (`14`), could the coding style have (`12`), could the blinding have
+(`16`), and is the design simply not cryptography.
+
 ## The epistemics this series is actually teaching
 
 - **Structure and behaviour are independent evidence, not a pipeline.**
@@ -321,7 +380,7 @@ a structural pass is a statement about the netlist you were given.
 
 ## Where things live
 - Examples, teaching order: `examples/agilex3_walkthroughs/
-  {01_blinky_counter..15_ntt_mult}/guide.html` + that directory's
+  {01_blinky_counter..16_mystery_cores}/guide.html` + that directory's
   `README.md` ("what it teaches" table). Per walkthrough: `analyze.py`/
   `analysis.py` (structure), `probe.py` (behaviour), `reference.py`/
   `recovered_reference.py` (step 7/8 models), and `check.py` -- the

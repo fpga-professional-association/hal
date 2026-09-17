@@ -1,0 +1,80 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.inventory.build_document",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "top",
+      "description": "Quartus Prime Pro EDA netlist export (version not recorded in the header)",
+      "design_name": "top",
+      "gate_count": 120,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/16_mystery_cores/cores/core_b.anon.hal.v",
+      "sha256": "f4a28f9825e0d25f2696a5d7c5dc74a33a04fab299cb3ff8b2b3c161ca57d42c",
+      "size_bytes": 33491
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "Coverage means the primitive semantics in tools/hal_agilex/primitives.py, which were validated by simulating this export against the RTL it was synthesised from.",
+          "id": "coverage-list",
+          "kind": "library"
+        },
+        {
+          "description": "The .vo reader refuses Verilog it does not understand, so an instance cannot have been skipped silently.",
+          "discharged": true,
+          "id": "reader-completeness",
+          "kind": "tool"
+        }
+      ],
+      "bounds": {
+        "description": "a statement about the netlist text, not about an execution",
+        "unbounded": true
+      },
+      "data": {
+        "histogram": {
+          "tennm_ff": 49,
+          "tennm_lcell_comb": 71
+        }
+      },
+      "id": "hal_agilex/inventory/fully-covered",
+      "method": {
+        "bounded": false,
+        "description": "Enumeration of every instance in the export and of the pin configuration of each one; no solver and no simulation involved.",
+        "kind": "structural",
+        "name": "primitive inventory"
+      },
+      "scope": {
+        "artifact_ids": [
+          "top"
+        ],
+        "gate_types": [
+          "tennm_ff",
+          "tennm_lcell_comb"
+        ]
+      },
+      "status": "proven_under_assumptions",
+      "summary": "All 120 instances are tennm_ff or tennm_lcell_comb, each in a configuration this package models and has validated against the vendor export.",
+      "tags": [
+        "agilex",
+        "coverage"
+      ],
+      "title": "Every primitive in the export is inside the validated coverage"
+    }
+  ],
+  "generated_at": "2026-09-17T04:39:20Z",
+  "producer": {
+    "name": "hal_agilex.inventory",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

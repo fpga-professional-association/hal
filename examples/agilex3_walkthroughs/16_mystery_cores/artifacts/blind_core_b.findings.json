@@ -1,0 +1,211 @@
+{
+  "analysis": {
+    "entry_point": "16_mystery_cores/analysis.py:blind",
+    "plugin": {
+      "name": "agilex3_walkthroughs",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "core_b",
+      "description": "Quartus Prime Pro EDA netlist export (version not recorded in the header)",
+      "design_name": "top",
+      "gate_count": 120,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "/work/examples/agilex3_walkthroughs/16_mystery_cores/cores/core_b.anon.hal.v",
+      "sha256": "f4a28f9825e0d25f2696a5d7c5dc74a33a04fab299cb3ff8b2b3c161ca57d42c",
+      "size_bytes": 33491
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "The analysed file is the anonymised import: module, port, net and instance names are meaningless and internal vector declarations have been split into unrelated scalars, so no claim here can rest on a name or on a word boundary the vendor tool happened to keep.",
+          "id": "blinding",
+          "kind": "naming"
+        },
+        {
+          "description": "The family is decided by the rule table in spec.md section 4, fixed before these exports were analysed and calibrated on walkthroughs 11-15. A rule that fires is a structural observation, never an identification of an algorithm.",
+          "id": "fixed-rule-table",
+          "kind": "tool"
+        }
+      ],
+      "confidence": "high",
+      "data": {
+        "call": {
+          "agrees_with_identify": true,
+          "all_reasons": [],
+          "confidence": "high",
+          "deciding_rule": "R6-none",
+          "family": "none-detected",
+          "identify_confidence": "medium",
+          "identify_family": "none-detected",
+          "identify_style": "undetermined",
+          "reason": "no rule fired",
+          "rules_fired": [],
+          "style": "undetermined",
+          "style_confidence": null
+        },
+        "census": {
+          "adders": [
+            {
+              "addend": 1,
+              "constant": 1,
+              "exhaustive": false,
+              "left_registers": 16,
+              "left_sources": 16,
+              "operation": "add_constant",
+              "right_registers": 0,
+              "right_sources": 0,
+              "width": 16
+            }
+          ],
+          "carry_chain_lengths": [
+            16
+          ],
+          "carry_chains": 1,
+          "constant_adders": [
+            1
+          ],
+          "design": "top",
+          "flip_flops": 49,
+          "gate_types": {
+            "tennm_ff": 49,
+            "tennm_lcell_comb": 71
+          },
+          "input_ports": {
+            "port_i0": 1,
+            "port_i1": 1,
+            "port_i2": 1
+          },
+          "instances": 120,
+          "output_ports": {
+            "port_o0": 8,
+            "port_o1": 1,
+            "port_o2": 1,
+            "port_o3": 1,
+            "port_o4": 4
+          },
+          "subtracters": [],
+          "two_operand_adders": []
+        },
+        "identify": {
+          "arx_rotations": 0,
+          "arx_verdict": "not-arx",
+          "confidence": "medium",
+          "evidence": [
+            "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+            "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+            "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+            "modular arithmetic: no add/subtract pair over the same operand registers",
+            "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+          ],
+          "families_present": [],
+          "family": "none-detected",
+          "named_moduli": [],
+          "ntt_butterflies": 0,
+          "ntt_verdict": "no-modular-transform",
+          "recovered_moduli": [],
+          "sboxes": [],
+          "style": "undetermined"
+        },
+        "nonlinearity": {
+          "disjoint_register_xor_cells": {},
+          "max_readable_degree": 11,
+          "next_state_degrees": {
+            "1": 15,
+            "10": 1,
+            "11": 1,
+            "2": 2,
+            "3": 1,
+            "4": 1,
+            "5": 2,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "9": 1
+          },
+          "parity_cells": 0,
+          "pure_register_xor_cells": {},
+          "registers": 49,
+          "registers_linear_in_registers": 13,
+          "unreadable_cones": 22
+        },
+        "shape": {
+          "cells": 71,
+          "cells_per_level": {
+            "1": 13,
+            "10": 2,
+            "11": 2,
+            "12": 2,
+            "13": 2,
+            "14": 2,
+            "15": 2,
+            "16": 2,
+            "17": 1,
+            "2": 9,
+            "3": 18,
+            "4": 6,
+            "5": 2,
+            "6": 2,
+            "7": 2,
+            "8": 2,
+            "9": 2
+          },
+          "combinational_levels": 17,
+          "dag_levels": 18,
+          "widest_level": 3,
+          "widest_level_cells": 18
+        },
+        "state": {
+          "autonomous_feedback_stages": [],
+          "chain_head_reads_only_inputs": true,
+          "component_sizes": [
+            31
+          ],
+          "isolated_registers": 18,
+          "longest_single_predecessor_chain": 8,
+          "one_way_couplings": [],
+          "registers": 49,
+          "shift_structures": [],
+          "single_predecessor_registers": 14
+        }
+      },
+      "id": "walkthrough16/core_b/call",
+      "method": {
+        "bounded": false,
+        "description": "The six steps of examples/agilex3_walkthroughs/16_mystery_cores/spec.md section 3 over an anonymized Quartus export, followed by the fixed rule table of section 4. No behavioural simulation and no reference model: a reference model is a hypothesis about what the design is, and there is nothing to compare one against until the reveal.",
+        "kind": "structural",
+        "name": "blind structural identification"
+      },
+      "scope": {
+        "artifact_ids": [
+          "core_b"
+        ],
+        "description": "the whole blinded export"
+      },
+      "status": "heuristic",
+      "summary": "Blind call: family none-detected, style undetermined, confidence high. Deciding rule R6-none -- no rule fired. hal_crypto identify said none-detected (medium).",
+      "tags": [
+        "blind",
+        "crypto-identification",
+        "none-detected"
+      ],
+      "title": "Blind identification of core_b: none-detected"
+    }
+  ],
+  "generated_at": "2026-09-17T04:39:43Z",
+  "notes": [
+    "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
+  ],
+  "producer": {
+    "name": "agilex3_walkthroughs/16_mystery_cores",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

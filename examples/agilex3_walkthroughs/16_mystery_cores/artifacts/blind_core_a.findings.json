@@ -1,0 +1,196 @@
+{
+  "analysis": {
+    "entry_point": "16_mystery_cores/analysis.py:blind",
+    "plugin": {
+      "name": "agilex3_walkthroughs",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "core_a",
+      "description": "Quartus Prime Pro EDA netlist export (version not recorded in the header)",
+      "design_name": "top",
+      "gate_count": 866,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "/work/examples/agilex3_walkthroughs/16_mystery_cores/cores/core_a.anon.hal.v",
+      "sha256": "a1ecd8c543fa37d089c2114391680090b6b45f7146b85fea06b9c5e3fc79462b",
+      "size_bytes": 244018
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "The analysed file is the anonymised import: module, port, net and instance names are meaningless and internal vector declarations have been split into unrelated scalars, so no claim here can rest on a name or on a word boundary the vendor tool happened to keep.",
+          "id": "blinding",
+          "kind": "naming"
+        },
+        {
+          "description": "The family is decided by the rule table in spec.md section 4, fixed before these exports were analysed and calibrated on walkthroughs 11-15. A rule that fires is a structural observation, never an identification of an algorithm.",
+          "id": "fixed-rule-table",
+          "kind": "tool"
+        }
+      ],
+      "confidence": "medium",
+      "data": {
+        "call": {
+          "agrees_with_identify": false,
+          "all_reasons": [
+            {
+              "family": "sponge",
+              "reason": "no carry chain anywhere and 40 pairwise-disjoint cells, each a pure XOR of exactly 5 flip-flop outputs",
+              "rule": "R2-sponge",
+              "style": "undetermined"
+            }
+          ],
+          "confidence": "medium",
+          "deciding_rule": "R2-sponge",
+          "family": "sponge",
+          "identify_confidence": "medium",
+          "identify_family": "none-detected",
+          "identify_style": "undetermined",
+          "reason": "no carry chain anywhere and 40 pairwise-disjoint cells, each a pure XOR of exactly 5 flip-flop outputs",
+          "rules_fired": [
+            "R2-sponge"
+          ],
+          "style": "undetermined",
+          "style_confidence": null
+        },
+        "census": {
+          "adders": [],
+          "carry_chain_lengths": [],
+          "carry_chains": 0,
+          "constant_adders": [],
+          "design": "top",
+          "flip_flops": 207,
+          "gate_types": {
+            "tennm_ff": 207,
+            "tennm_lcell_comb": 659
+          },
+          "input_ports": {
+            "port_i0": 200,
+            "port_i1": 1,
+            "port_i2": 1,
+            "port_i3": 1
+          },
+          "instances": 866,
+          "output_ports": {
+            "port_o0": 200,
+            "port_o1": 1,
+            "port_o2": 1
+          },
+          "subtracters": [],
+          "two_operand_adders": []
+        },
+        "identify": {
+          "arx_rotations": 0,
+          "arx_verdict": "not-arx",
+          "confidence": "medium",
+          "evidence": [
+            "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+            "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+            "ARX: no carry-chain adder of at least 4 bits; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+            "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+            "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+          ],
+          "families_present": [],
+          "family": "none-detected",
+          "named_moduli": [],
+          "ntt_butterflies": 0,
+          "ntt_verdict": "no-modular-transform",
+          "recovered_moduli": [],
+          "sboxes": [],
+          "style": "undetermined"
+        },
+        "nonlinearity": {
+          "disjoint_register_xor_cells": {
+            "11": 9,
+            "5": 40
+          },
+          "max_readable_degree": 7,
+          "next_state_degrees": {
+            "3": 3,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "parity_cells": 40,
+          "pure_register_xor_cells": {
+            "11": 200,
+            "5": 40
+          },
+          "registers": 207,
+          "registers_linear_in_registers": 0,
+          "unreadable_cones": 200
+        },
+        "shape": {
+          "cells": 659,
+          "cells_per_level": {
+            "1": 51,
+            "2": 208,
+            "3": 200,
+            "4": 200
+          },
+          "combinational_levels": 4,
+          "dag_levels": 5,
+          "widest_level": 2,
+          "widest_level_cells": 208
+        },
+        "state": {
+          "autonomous_feedback_stages": [],
+          "chain_head_reads_only_inputs": false,
+          "component_sizes": [
+            200,
+            6
+          ],
+          "isolated_registers": 1,
+          "longest_single_predecessor_chain": 2,
+          "one_way_couplings": [
+            {
+              "from": 6,
+              "to": 200
+            }
+          ],
+          "registers": 207,
+          "shift_structures": [],
+          "single_predecessor_registers": 1
+        }
+      },
+      "id": "walkthrough16/core_a/call",
+      "method": {
+        "bounded": false,
+        "description": "The six steps of examples/agilex3_walkthroughs/16_mystery_cores/spec.md section 3 over an anonymized Quartus export, followed by the fixed rule table of section 4. No behavioural simulation and no reference model: a reference model is a hypothesis about what the design is, and there is nothing to compare one against until the reveal.",
+        "kind": "structural",
+        "name": "blind structural identification"
+      },
+      "scope": {
+        "artifact_ids": [
+          "core_a"
+        ],
+        "description": "the whole blinded export"
+      },
+      "status": "heuristic",
+      "summary": "Blind call: family sponge, style undetermined, confidence medium. Deciding rule R2-sponge -- no carry chain anywhere and 40 pairwise-disjoint cells, each a pure XOR of exactly 5 flip-flop outputs. hal_crypto identify said none-detected (medium).",
+      "tags": [
+        "blind",
+        "crypto-identification",
+        "sponge"
+      ],
+      "title": "Blind identification of core_a: sponge"
+    }
+  ],
+  "generated_at": "2026-09-17T04:39:43Z",
+  "notes": [
+    "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
+  ],
+  "producer": {
+    "name": "agilex3_walkthroughs/16_mystery_cores",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}
