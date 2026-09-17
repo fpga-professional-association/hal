@@ -78,7 +78,7 @@
         },
         "blinded_export": {
           "path": "cores/core_b.anon.hal.v",
-          "sha256": "e08ee3396e050b36cf5b941d6d380a4c1d5b55af95886eb47d875af2dd92a840"
+          "sha256": "f4a28f9825e0d25f2696a5d7c5dc74a33a04fab299cb3ff8b2b3c161ca57d42c"
         },
         "design": {
           "path": "ground_truth/designs/core_b.v",
@@ -195,7 +195,7 @@
         },
         "blinded_export": {
           "path": "cores/core_d.anon.hal.v",
-          "sha256": "8ecf831b77e684b9593d80d08430c5b993a4d138d22073e1a080bc1b147b234b"
+          "sha256": "f03588e8520cc3241d94b8805d325921f609b3b983150a64f72865e8e5dae8ff"
         },
         "design": {
           "path": "ground_truth/designs/core_d.v",
@@ -255,7 +255,7 @@
         },
         "blinded_export": {
           "path": "cores/core_e.anon.hal.v",
-          "sha256": "9820901f9683c4fbedd182b7cb0fc965a7b6a13ffa37d1ecc32d438ec90d4e9e"
+          "sha256": "4bb6c420051c0afb3137f3d6326fe2787c65680692ee410a19177a14b697840e"
         },
         "design": {
           "path": "ground_truth/designs/core_e.v",

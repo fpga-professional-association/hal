@@ -109,6 +109,14 @@ def split_internal_buses(text):
     engineer has to *recover* which flip-flops form a word and in which order,
     so the exercise removes that hint.  Only internal wires are split; top-level
     bus ports stay buses.
+
+    The bit reference is matched with an identifier boundary in front of it and
+    **not** as a plain substring.  Walkthrough 16 is where that mattered: a
+    design with an internal `wire [15:0] y;` and a port `key[63:0]` had every
+    one of its sixteen `key[0..15]` references rewritten to `ke__bit_y_0__`,
+    which HAL's Verilog parser then refused as an assignment to an undeclared
+    net.  A substring replace over a netlist is a bug waiting for two names to
+    be a suffix of each other, and in a netlist they eventually are.
     """
     ports = {_norm(name) for _, _, name in PORT_DECL.findall(text)}
 
@@ -119,7 +127,11 @@ def split_internal_buses(text):
             continue
         bits = list(range(int(low), int(high) + 1))
         for bit in bits:
-            text = text.replace("%s[%d]" % (name, bit), "__bit_%s_%d__" % (name, bit))
+            text = re.sub(
+                r"(?<![A-Za-z0-9_$])%s\[%d\]" % (re.escape(name), bit),
+                "__bit_%s_%d__" % (name, bit),
+                text,
+            )
         text = text.replace(
             decl,
             "\n".join("wire __bit_%s_%d__;" % (name, bit) for bit in _scramble(bits)),
