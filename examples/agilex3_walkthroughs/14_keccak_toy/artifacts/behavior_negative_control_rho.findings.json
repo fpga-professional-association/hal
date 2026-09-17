@@ -76,7 +76,7 @@
       "title": "The exported netlist does not match the reference model"
     }
   ],
-  "generated_at": "2026-09-16T23:13:04Z",
+  "generated_at": "2026-09-17T00:27:49Z",
   "producer": {
     "name": "hal_agilex.behavior",
     "version": "1.0.0"

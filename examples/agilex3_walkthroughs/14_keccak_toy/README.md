@@ -31,7 +31,13 @@ the algorithm.
 * **Two layers of the round cost no logic at all.** ρ and π are a lane rotation
   and a lane transposition, so there is no net, no cell and no vector to find.
   Twenty-five rotation offsets and a 5×5 lane map are recovered from *which*
-  θ net each χ cell reads, and from nothing else.
+  θ net each χ cell reads, and from nothing else. The permutation pass's
+  **wiring** tier reports nothing on either export; its **cone-support** tier
+  reports nothing on `keccak_toy.vo` (χ sits between θ and the register, so no
+  destination bit reads exactly one source bit) and the entire 200-bit map on
+  `keccak_retimed.vo` — matching nothing, because no library carries a 200-bit
+  Keccak ρ·π. An index map is not twenty-five offsets; that still takes the
+  lane geometry.
 * **The 5×5×8 grid is recovered from XOR fan-in.** 40 cells are a pure XOR of
   five flip-flops; the 40 classes they define have two neighbours each; the only
   closed five-step walk in that graph separates the unrotated neighbour from the
@@ -121,6 +127,7 @@ Two deliberate deviations from walkthroughs 01–10:
 | state geometry | **5 × 5 lanes of 8 bits**, recovered from XOR fan-in alone | 40 pure-XOR parity cells + the closed five-step walk |
 | θ | 40 column parities, each fed back one column left unrotated and one column right rotated by a bit | 3-input XOR cells over parity nets |
 | ρ, π | **zero cells, zero nets**; 25 offsets `0 4 3 1 2 / 1 4 2 5 2 / 6 6 3 7 5 / 4 7 1 5 0 / 3 4 7 0 6` and the map `(x,y) → (y, 2x+3y)` | index arithmetic over the χ cells' `b0` operands |
+| ρ·π, as the tool sees it | wiring tier: nothing, either export. Cone-support tier: nothing on `keccak_toy.vo`, the whole 200-bit map (200/200 links, no library match) on `keccak_retimed.vo` | `hal_crypto permutation` |
 | χ | one 5-bit map, **40 instances**, degree 2, DU 8, `keccak_chi_5` at tier `exact` | ANF role assignment + the `b1` row chain |
 | ι | 8 cells, 4 of them constant zero; `01 82 8A 00 8B 01 81 09 8A 88 09 0A 8B 8B 89 03 02 80` | enumerating the counter cones |
 | rounds | one 5-input terminal-count cell → **18** rounds, 19 cycles from an accepted `start` | the counter cone |

@@ -1,5 +1,7 @@
 {
+  "and_what_the_tool_gives_you": "on this export the wiring tier reports no layer at all, and the cone-support tier reports none either, because chi sits between theta and the register. Neither ever yields the 25 offsets or the lane map: a tier returns an index map over two vectors, and turning that into r[x][y] and (x,y) -> (y, 2x+3y) needs the lane geometry of the parity and chi steps",
   "cells_spent_on_rho_and_pi": 0,
+  "cone_support_tier_maps": [],
   "how": "the composite rho-then-pi is the 200-bit map from each chi cell's b0 operand to the flip-flop its output reaches; lanes are the (destination column, source column) pairs, rows are chi's own b1 chain, and the rotation amount is the bit-index difference across a lane, which is constant or the recovery fails",
   "lanes_rotated_by_zero": [
     [
@@ -193,5 +195,6 @@
       6
     ]
   ],
-  "rho_matches_published": true
+  "rho_matches_published": true,
+  "wiring_tier_layers": []
 }

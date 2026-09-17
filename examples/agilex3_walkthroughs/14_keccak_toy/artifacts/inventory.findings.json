@@ -72,7 +72,7 @@
       "title": "Every primitive in the export is inside the validated coverage"
     }
   ],
-  "generated_at": "2026-09-16T23:12:14Z",
+  "generated_at": "2026-09-17T00:26:58Z",
   "notes": [
     "export header: device=Altera A3CW135BM16AE6S Package MBGA896; exported_at=09/16/2026 17:29:04; tool=Quartus Prime; tool_version=Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
   ],

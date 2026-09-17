@@ -289,6 +289,14 @@ def check_structure(netlist, model, guide):
         and rhopi["nets_named_after_a_rotation"] == 0,
     )
     check(
+        "neither tier of the permutation pass sees them on this export",
+        rhopi["wiring_tier_layers"] == []
+        and rhopi["cone_support_tier_maps"] == [],
+        "wiring={} cone={}".format(
+            rhopi["wiring_tier_layers"], rhopi["cone_support_tier_maps"]
+        ),
+    )
+    check(
         "the 25 recovered rotation offsets are the published table mod 8",
         rhopi["recovered_rho_mod_8_spec"] == RHO_MOD_8
         and rhopi["rho_matches_published"],
@@ -529,6 +537,55 @@ def check_identification(guide):
         ),
         result["retimed"]["instances"] == RETIMED_FLIP_FLOPS + RETIMED_LCELLS,
         str(result["retimed"]["instances"]),
+    )
+
+    # The permutation pass's two tiers, which disagree between the two exports
+    # exactly as the chi extraction does -- and for the same reason, one cell
+    # per link versus two.  Neither tier ever produces the rotation offsets.
+    check(
+        "the wiring tier reports no permutation layer on either export",
+        result["canonical"]["wiring_permutation_layers"] == []
+        and result["retimed"]["wiring_permutation_layers"] == [],
+        "{} / {}".format(
+            result["canonical"]["wiring_permutation_layers"],
+            result["retimed"]["wiring_permutation_layers"],
+        ),
+    )
+    check(
+        "the cone-support tier reports nothing on keccak_toy",
+        result["canonical"]["cone_support_maps"] == [],
+        str(result["canonical"]["cone_support_maps"]),
+    )
+    check(
+        "... and the whole {}-bit rho-pi map on keccak_retimed".format(STATE_BITS),
+        result["retimed"]["cone_support_maps"]
+        == [
+            {
+                "kind": "general",
+                "source": "theta",
+                "destination": "register bank v",
+                "width": STATE_BITS,
+                "bits_observed": STATE_BITS,
+                "matches": [],
+            }
+        ],
+        str(result["retimed"]["cone_support_maps"]),
+    )
+    retimed_document = findings("identify_retimed.findings.json")
+    cone = finding_by_id(retimed_document, "hal_crypto/permutation/cone-support")
+    check(
+        "the committed retimed findings carry that cone-support finding",
+        cone is not None and cone["status"] == "proven_under_assumptions",
+        cone and cone["title"],
+    )
+    check(
+        "... and it matches nothing: no library carries a 200-bit Keccak rho-pi",
+        cone is not None and cone["data"]["matches"] == [],
+        str(cone and cone["data"]["matches"]),
+    )
+    check(
+        "the guide says which tier saw what",
+        "cone-support" in guide and "cone support" in guide.lower(),
     )
     check(
         "the guide states the sponge ambiguity in its own words",

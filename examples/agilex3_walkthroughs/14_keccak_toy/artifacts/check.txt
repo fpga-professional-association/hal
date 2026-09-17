@@ -78,6 +78,7 @@
 [ok  ] the guide prints the extracted table -- 00 09 12 0B 05 0C 16 0F 0A 03 18 01 0D 04 1E 07 14 15 06 17 11 10 02 13 1A 1B 08 19 1D 1C 0E 1F
 [ok  ] the S-box pass finds nothing here, because the cones are 33 wide -- [27, 28, 32, 33]
 [ok  ] rho and pi cost zero cells and zero nets
+[ok  ] neither tier of the permutation pass sees them on this export -- wiring=[] cone=[]
 [ok  ] the 25 recovered rotation offsets are the published table mod 8 -- [[0, 4, 3, 1, 2], [1, 4, 2, 5, 2], [6, 6, 3, 7, 5], [4, 7, 1, 5, 0], [3, 4, 7, 0, 6]]
 [ok  ] three lanes rotate by zero at this width -- [[0, 0], [3, 4], [4, 3]]
 [ok  ] the recovered pi is lane (x,y) -> (y, 2x+3y)
@@ -110,6 +111,12 @@
 [ok  ] re-running the classifier still says none-detected on keccak_toy -- none-detected / undetermined
 [ok  ] ... and sponge with 40 keccak_chi_5 matches on keccak_retimed -- 40 boxes
 [ok  ] the retimed export is the same permutation at 1067 instances -- 1067
+[ok  ] the wiring tier reports no permutation layer on either export -- [] / []
+[ok  ] the cone-support tier reports nothing on keccak_toy -- []
+[ok  ] ... and the whole 200-bit rho-pi map on keccak_retimed -- [{'kind': 'general', 'source': 'theta', 'destination': 'register bank v', 'width': 200, 'bits_observed': 200, 'matches': []}]
+[ok  ] the committed retimed findings carry that cone-support finding -- A 200-bit general bit map from theta into register bank v, recovered from the next-state cone support
+[ok  ] ... and it matches nothing: no library carries a 200-bit Keccak rho-pi -- []
+[ok  ] the guide says which tier saw what
 [ok  ] the guide states the sponge ambiguity in its own words
 [ok  ] reference.py reproduces XKCP, first permutation of the all-zero state -- 3C2826841CB35C171EAAE9B811134CEAA3852C69D2C5ABAFEA
 [ok  ] reference.py reproduces XKCP, second permutation -- 1BEF689492A8A543A5999FDB834E3166A14BE827D95040479E

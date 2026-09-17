@@ -526,9 +526,44 @@ twenty-five, which is <code>pi</code>.</p>
 12's pLayer was not a signal and had to be read off which cone drives which
 flip-flop. Here <em>both</em> a rotation and a permutation are free wiring at
 once, and they are recovered by the same move: the layer that costs no logic is
-the layer no tool hands you, so you read it out of the indices of an ordered cell
-layer. Say so when you report it &mdash; &ldquo;recovered from cone-to-register
-incidence&rdquo; is a different claim from &ldquo;the pass reported it&rdquo;.
+the layer no <em>wire-level</em> tool hands you, so you read it out of the
+indices of an ordered cell layer. Say so when you report it &mdash;
+&ldquo;recovered from cone-to-register incidence&rdquo; is a different claim from
+&ldquo;the pass reported it&rdquo;.
+</div>
+
+<h4>What the pass gives you, and what it does not</h4>
+<p><code>hal_crypto permutation</code> has two tiers, and on this design they
+give three different answers across the two exports:</p>
+
+<div class="scroll">
+<table>
+<tr><th>tier</th><th><code>keccak_toy.vo</code></th><th><code>keccak_retimed.vo</code></th></tr>
+<tr><td><strong>wiring</strong> &mdash; a net that is a differently indexed copy of another net</td><td>nothing</td><td>nothing</td></tr>
+<tr><td><strong>cone support</strong> &mdash; each destination bit's next state reads exactly one source bit, through one cell</td><td>nothing</td><td>the whole <strong>200-bit</strong> map, <code>theta</code> &rarr; register bank <code>v</code>, 200 of 200 links, matching nothing in the library</td></tr>
+<tr><td><strong>by hand</strong>, steps 2&ndash;5</td><td colspan="2" style="text-align:center">the 25 rotation offsets and <code>(x,y) &rarr; (y, 2x+3y)</code></td></tr>
+</table>
+</div>
+
+<div class="honest"><span class="tag">Three answers, and all three are right</span>
+<p>The wiring tier reports nothing on either export because rho and pi are not
+nets. The cone-support tier &mdash; the one walkthrough 12 needed to see the
+PRESENT pLayer through a round-key XOR &mdash; wants each destination bit to
+read <em>exactly one</em> source bit through <em>one</em> cell. On
+<code>keccak_retimed.vo</code> that holds: <code>theta</code> is a kept vector
+and only the final multiplexer sits between it and the register, so the tier
+returns the entire composite. On <code>keccak_toy.vo</code> it does not:
+<strong>chi</strong> sits between <code>theta</code> and the register, so no
+destination bit reads one source bit, and the tier correctly reports nothing.
+The same pipeline decision that hides chi from the S-box pass in section 6 hides
+rho/pi from the permutation pass here, and for the same reason &mdash; one cell
+per link versus two.</p>
+<p style="margin-bottom:0">And note what even the good answer is <em>not</em>. A
+200-bit index map matching nothing in the library is not twenty-five rotation
+offsets and a lane transposition: no library carries a 200-bit Keccak rho-pi,
+and turning the map into <code>r[x][y]</code> needs the lane geometry that
+steps 2 to 5 built. The tier tells you <em>that</em> there is a bit permutation
+and which bit goes where; it cannot tell you that the bits are lanes.</p>
 </div>
 </div>
 
@@ -668,6 +703,7 @@ flip-flops instead of last.</p>
 <tr><td>chi cone width at the registers</td><td>27&ndash;33 flip-flops</td><td><strong>3</strong> flip-flops</td></tr>
 <tr><td>S-boxes extracted</td><td>0</td><td><strong>40</strong></td></tr>
 <tr><td>library match</td><td>&mdash;</td><td><code>keccak_chi_5</code>, 37 <code>exact</code> + 3 <code>bit_permutation</code></td></tr>
+<tr><td>cone-support permutation</td><td>none</td><td>the 200-bit <code>rho</code>&middot;<code>pi</code> map (section 5)</td></tr>
 <tr><td>family</td><td><code>none-detected</code></td><td><code>sponge</code></td></tr>
 <tr><td>confidence</td><td><code>medium</code></td><td><code>high</code></td></tr>
 <tr><td>behaviour</td><td colspan="2" style="text-align:center">identical</td></tr>

@@ -71,7 +71,7 @@ GATE_LIBRARY = os.path.join(
 
 from hal_agilex import primitives, vo_netlist  # noqa: E402
 from hal_agilex.simulate import Simulator  # noqa: E402
-from hal_crypto import boolfunc, classify, known, sbox  # noqa: E402
+from hal_crypto import boolfunc, classify, known, permutation, sbox  # noqa: E402
 from hal_crypto.netlist_model import ConeTooWide, NetlistModel, UnsupportedCell  # noqa: E402
 
 #: The published Keccak-f[200] vectors this walkthrough uses.  Literature, not
@@ -797,7 +797,7 @@ def step_rhopi(netlist, model, gauge=None):
     """The 25 rotation offsets and the lane transposition, read off the wiring."""
     labels = coordinates(model)
     gauge = gauge or iota_gauge(model, labels)
-    permutation = labels["permutation"]
+    rho_pi = labels["permutation"]
     lanes = labels["lanes"]
     z_of_bit = labels["z_of_bit"]
     lane_of_bit = labels["lane_of_bit"]
@@ -806,14 +806,14 @@ def step_rhopi(netlist, model, gauge=None):
     lane_map = {}
     for label, members in sorted(lanes.items()):
         shifts = {
-            (gauge["z"](z_of_bit[bit]) - gauge["z"](z_of_bit[permutation[bit]])) % 8
+            (gauge["z"](z_of_bit[bit]) - gauge["z"](z_of_bit[rho_pi[bit]])) % 8
             for bit in members
         }
         if len(shifts) != 1:
             raise SystemExit(
                 "lane {} does not rotate by a single amount: {}".format(label, shifts)
             )
-        source_label = lane_of_bit[permutation[members[0]]]
+        source_label = lane_of_bit[rho_pi[members[0]]]
         destination = (gauge["x"](label[0]), labels["y_of_lane"][label])
         source = (gauge["x"](source_label[0]), labels["y_of_lane"][source_label])
         offsets[source] = shifts.pop()
@@ -826,9 +826,32 @@ def step_rhopi(netlist, model, gauge=None):
         for x in range(5)
         for y in range(5)
     )
+
+    # What the two tiers of the permutation pass see on *this* export, so the
+    # hand recovery above can be compared against them rather than asserted to
+    # be the only way.  The wiring tier wants a net that is a differently
+    # indexed copy of another net; the cone-support tier wants each destination
+    # bit's next state to read exactly one source bit through one cell.
+    wiring = permutation.find_permutations(model)
+    cone = permutation.cone_support_maps(model, wiring=wiring)
+
     return {
         "cells_spent_on_rho_and_pi": 0,
         "nets_named_after_a_rotation": 0,
+        "wiring_tier_layers": [
+            entry["kind"] for entry in wiring if entry["kind"] != "identity"
+        ],
+        "cone_support_tier_maps": [
+            {
+                "kind": entry["kind"],
+                "source": entry["source"],
+                "destination": entry["destination"],
+                "width": entry["width"],
+                "bits_observed": entry["bits_observed"],
+                "matches": [match["name"] for match in entry["matches"]],
+            }
+            for entry in cone
+        ],
         "recovered_rho_mod_8_spec": recovered,
         "published_rho_mod_8": published,
         "rho_matches_published": recovered == published,
@@ -847,6 +870,19 @@ def step_rhopi(netlist, model, gauge=None):
             "(destination column, source column) pairs, rows are chi's own "
             "b1 chain, and the rotation amount is the bit-index difference "
             "across a lane, which is constant or the recovery fails"
+        ),
+        "and_what_the_tool_gives_you": (
+            "on this export the wiring tier reports no layer at all, and the "
+            "cone-support tier reports {}. Neither ever yields the 25 offsets "
+            "or the lane map: a tier returns an index map over two vectors, and "
+            "turning that into r[x][y] and (x,y) -> (y, 2x+3y) needs the lane "
+            "geometry of the parity and chi steps".format(
+                "none either, because chi sits between theta and the register"
+                if not cone
+                else "the whole {}-bit map, {} of {} links".format(
+                    cone[0]["width"], cone[0]["bits_observed"], cone[0]["width"]
+                )
+            )
         ),
     }
 
@@ -1187,6 +1223,28 @@ def _identify(path):
         "matched_names": names,
         "match_tiers": tiers,
         "rejections": [entry["reason"] for entry in evidence["sbox"]["rejected"]],
+        # The permutation pass has two tiers and they disagree here, which is
+        # the point of step 5: the *wiring* tier needs a net that is a
+        # differently-indexed copy of another net, and rho/pi is not a net at
+        # all; the *cone-support* tier needs each destination bit's next state
+        # to read exactly one source bit through one cell, which is true in one
+        # of these two exports and false in the other.
+        "wiring_permutation_layers": [
+            entry["kind"]
+            for entry in evidence["permutations"]
+            if entry["kind"] != "identity"
+        ],
+        "cone_support_maps": [
+            {
+                "kind": entry["kind"],
+                "source": entry["source"],
+                "destination": entry["destination"],
+                "width": entry["width"],
+                "bits_observed": entry["bits_observed"],
+                "matches": [match["name"] for match in entry["matches"]],
+            }
+            for entry in evidence.get("cone_permutations", ())
+        ],
         "evidence": decision["evidence"][:4],
     }
 

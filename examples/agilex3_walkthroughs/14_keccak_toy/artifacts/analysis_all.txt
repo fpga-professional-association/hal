@@ -611,7 +611,9 @@
 
 == rhopi
 {
+  "and_what_the_tool_gives_you": "on this export the wiring tier reports no layer at all, and the cone-support tier reports none either, because chi sits between theta and the register. Neither ever yields the 25 offsets or the lane map: a tier returns an index map over two vectors, and turning that into r[x][y] and (x,y) -> (y, 2x+3y) needs the lane geometry of the parity and chi steps",
   "cells_spent_on_rho_and_pi": 0,
+  "cone_support_tier_maps": [],
   "how": "the composite rho-then-pi is the 200-bit map from each chi cell's b0 operand to the flip-flop its output reaches; lanes are the (destination column, source column) pairs, rows are chi's own b1 chain, and the rotation amount is the bit-index difference across a lane, which is constant or the recovery fails",
   "lanes_rotated_by_zero": [
     [
@@ -805,7 +807,8 @@
       6
     ]
   ],
-  "rho_matches_published": true
+  "rho_matches_published": true,
+  "wiring_tier_layers": []
 }[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
 [core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
 [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
@@ -857,7 +860,7 @@
 [gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work14/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
 [netlist_parser] [info] selected parser: Default Verilog Parser
 [netlist_parser] [info] parsing '/work14/examples/agilex3_walkthroughs/14_keccak_toy/netlist.hal.v'...
-[netlist_parser] [info] finished parsing in 0.10 seconds.
+[netlist_parser] [info] finished parsing in 0.09 seconds.
 [netlist_parser] [info] instantiating '/work14/examples/agilex3_walkthroughs/14_keccak_toy/netlist.hal.v' with gate library 'AGILEX_TENNM'...
 [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
 [stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
@@ -971,6 +974,7 @@
 == identify
 {
   "canonical": {
+    "cone_support_maps": [],
     "confidence": "medium",
     "evidence": [
       "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
@@ -991,10 +995,21 @@
     "sboxes_extracted": 0,
     "sboxes_matched": 0,
     "style": "undetermined",
-    "style_rationale": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography."
+    "style_rationale": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography.",
+    "wiring_permutation_layers": []
   },
   "reading": "sponge is the one family the classifier refuses to place on the classical/PQC axis, because the same permutation is SHA-3 and is the extendable-output function inside ML-KEM, ML-DSA and SPHINCS+",
   "retimed": {
+    "cone_support_maps": [
+      {
+        "bits_observed": 200,
+        "destination": "register bank v",
+        "kind": "general",
+        "matches": [],
+        "source": "theta",
+        "width": 200
+      }
+    ],
     "confidence": "high",
     "evidence": [
       "a 5-bit substitution over v[0], v[16], v[24], v[32], v[8] equals keccak_chi_5 (bit_permutation match)",
@@ -1023,7 +1038,8 @@
     "sboxes_extracted": 40,
     "sboxes_matched": 40,
     "style": "undetermined",
-    "style_rationale": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn."
+    "style_rationale": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn.",
+    "wiring_permutation_layers": []
   },
   "same_permutation": true,
   "style_is_undetermined_on_the_sponge": true

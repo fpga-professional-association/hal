@@ -1,5 +1,6 @@
 {
   "canonical": {
+    "cone_support_maps": [],
     "confidence": "medium",
     "evidence": [
       "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
@@ -20,10 +21,21 @@
     "sboxes_extracted": 0,
     "sboxes_matched": 0,
     "style": "undetermined",
-    "style_rationale": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography."
+    "style_rationale": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography.",
+    "wiring_permutation_layers": []
   },
   "reading": "sponge is the one family the classifier refuses to place on the classical/PQC axis, because the same permutation is SHA-3 and is the extendable-output function inside ML-KEM, ML-DSA and SPHINCS+",
   "retimed": {
+    "cone_support_maps": [
+      {
+        "bits_observed": 200,
+        "destination": "register bank v",
+        "kind": "general",
+        "matches": [],
+        "source": "theta",
+        "width": 200
+      }
+    ],
     "confidence": "high",
     "evidence": [
       "a 5-bit substitution over v[0], v[16], v[24], v[32], v[8] equals keccak_chi_5 (bit_permutation match)",
@@ -52,7 +64,8 @@
     "sboxes_extracted": 40,
     "sboxes_matched": 40,
     "style": "undetermined",
-    "style_rationale": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn."
+    "style_rationale": "A sponge permutation was found and no lattice/ring arithmetic was. That places the design on neither side of the classical/PQC axis, because the same permutation sits on both: SHA-3 and SHAKE are classical hashing, and SHAKE is also the extendable-output function inside ML-KEM and ML-DSA and the whole of SPHINCS+. 'A Keccak core is present' is therefore evidence about what the design computes and no evidence at all about which family of scheme uses it -- the surrounding arithmetic decides that, and none was found here. Structures found: sponge, spn.",
+    "wiring_permutation_layers": []
   },
   "same_permutation": true,
   "style_is_undetermined_on_the_sponge": true

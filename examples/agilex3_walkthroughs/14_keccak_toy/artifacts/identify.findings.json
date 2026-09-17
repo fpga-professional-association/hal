@@ -345,7 +345,7 @@
       "title": "No shift chain of at least 4 stages"
     }
   ],
-  "generated_at": "2026-09-16T23:13:02Z",
+  "generated_at": "2026-09-17T00:27:46Z",
   "notes": [
     "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
     "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."
