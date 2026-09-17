@@ -33,13 +33,75 @@
 #include "netlist_simulator/simulation.h"
 #include "netlist_simulator_controller/simulation_engine.h"
 
+#include <functional>
 #include <map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 
 namespace hal
 {
     class SimulationInput;
+
+    namespace netlist_simulator_utils
+    {
+        /**
+         * Orders nets by their ID rather than by their address.
+         *
+         * The engine collects the events a time slot generates in a map and hands out an event ID per entry
+         * when it drains it, so the order of the map decides the order of the IDs -- and with it the order in
+         * which same-time events are processed. Keyed by `const Net*` that order is the order of the
+         * addresses the netlist happens to have allocated: reproducible within one run of one process and
+         * nothing beyond that, which is exactly what a simulation that is to be diffed against another run
+         * byte for byte cannot have. Net IDs are a property of the netlist, so they are the same in every
+         * process that loads it.
+         *
+         * The address is still the last tiebreak so that two distinct nets never collapse into one key,
+         * which they would if a simulation ever spanned two netlists that number their nets independently.
+         */
+        struct NetIdLess
+        {
+            bool operator()(const Net* lhs, const Net* rhs) const
+            {
+                if (lhs == rhs)
+                {
+                    return false;
+                }
+                if (lhs == nullptr || rhs == nullptr)
+                {
+                    return rhs != nullptr;
+                }
+                if (lhs->get_id() != rhs->get_id())
+                {
+                    return lhs->get_id() < rhs->get_id();
+                }
+                return std::less<const Net*>()(lhs, rhs);
+            }
+        };
+
+        /** Orders (net, time) pairs by net ID and time. See NetIdLess. */
+        struct NetTimeLess
+        {
+            bool operator()(const std::pair<const Net*, u64>& lhs, const std::pair<const Net*, u64>& rhs) const
+            {
+                if (NetIdLess()(lhs.first, rhs.first))
+                {
+                    return true;
+                }
+                if (NetIdLess()(rhs.first, lhs.first))
+                {
+                    return false;
+                }
+                return lhs.second < rhs.second;
+            }
+        };
+
+        /** The events one net assumes at one point in time, ordered by net ID and time. */
+        using NetEventMap = std::map<std::pair<const Net*, u64>, BooleanFunction::Value, NetTimeLess>;
+
+        /** The initial value of a net, ordered by net ID. */
+        using NetValueMap = std::map<const Net*, BooleanFunction::Value, NetIdLess>;
+    }    // namespace netlist_simulator_utils
 
     /**
      * HAL's built-in event-driven simulation engine.
@@ -194,7 +256,7 @@ namespace hal
             SimulationGate(const Gate* gate);
             virtual ~SimulationGate() = default;
 
-            virtual bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) = 0;
+            virtual bool simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events) = 0;
         };
 
         /**
@@ -219,7 +281,7 @@ namespace hal
              */
             Result<std::monostate> initialize_functions();
 
-            bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
+            bool simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events) override;
         };
 
         /**
@@ -229,9 +291,9 @@ namespace hal
         {
             SimulationGateSequential(const Gate* gate);
 
-            virtual void initialize(std::map<const Net*, BooleanFunction::Value>& new_events, bool from_netlist, BooleanFunction::Value value)                    = 0;
-            virtual bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) = 0;
-            virtual void clock(const u64 current_time, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)                                  = 0;
+            virtual void initialize(netlist_simulator_utils::NetValueMap& new_events, bool from_netlist, BooleanFunction::Value value)                    = 0;
+            virtual bool simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events) = 0;
+            virtual void clock(const u64 current_time, netlist_simulator_utils::NetEventMap& new_events)                                  = 0;
         };
 
         /**
@@ -253,9 +315,9 @@ namespace hal
 
             SimulationGateFF(const Gate* gate);
 
-            void initialize(std::map<const Net*, BooleanFunction::Value>& new_events, bool from_netlist, BooleanFunction::Value value) override;
-            bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
-            void clock(const u64 current_time, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
+            void initialize(netlist_simulator_utils::NetValueMap& new_events, bool from_netlist, BooleanFunction::Value value) override;
+            bool simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events) override;
+            void clock(const u64 current_time, netlist_simulator_utils::NetEventMap& new_events) override;
         };
 
         /**
@@ -285,9 +347,9 @@ namespace hal
 
             SimulationGateRAM(const Gate* gate);
 
-            void initialize(std::map<const Net*, BooleanFunction::Value>& new_events, bool from_netlist, BooleanFunction::Value value) override;
-            bool simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
-            void clock(const u64 current_time, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events) override;
+            void initialize(netlist_simulator_utils::NetValueMap& new_events, bool from_netlist, BooleanFunction::Value value) override;
+            bool simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events) override;
+            void clock(const u64 current_time, netlist_simulator_utils::NetEventMap& new_events) override;
         };
 
         bool m_is_initialized = false;

@@ -43,7 +43,7 @@ namespace hal
         m_sr_behavior_out_inverted = behavior.second;
     }
 
-    void NetlistSimulator::SimulationGateFF::initialize(std::map<const Net*, BooleanFunction::Value>& new_events, bool from_netlist, BooleanFunction::Value value = BooleanFunction::Value::X)
+    void NetlistSimulator::SimulationGateFF::initialize(netlist_simulator_utils::NetValueMap& new_events, bool from_netlist, BooleanFunction::Value value = BooleanFunction::Value::X)
     {
         GateType* gate_type = m_gate->get_type();
 
@@ -95,7 +95,7 @@ namespace hal
         }
     }
 
-    bool NetlistSimulator::SimulationGateFF::simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)
+    bool NetlistSimulator::SimulationGateFF::simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events)
     {
         // compute delay, currently just a placeholder
         u64 delay = 0;
@@ -167,7 +167,7 @@ namespace hal
         return true;
     }
 
-    void NetlistSimulator::SimulationGateFF::clock(const u64 current_time, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)
+    void NetlistSimulator::SimulationGateFF::clock(const u64 current_time, netlist_simulator_utils::NetEventMap& new_events)
     {
         // compute delay, currently just a placeholder
         u64 delay = 0;

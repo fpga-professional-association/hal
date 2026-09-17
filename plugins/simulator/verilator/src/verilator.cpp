@@ -302,7 +302,7 @@ namespace hal
         bool VerilatorEngine::finalize()
         {
             mResultFilename = std::string(m_simulator_dir / "waveform.vcd");
-            mState          = Done;
+            // the terminal state is published by the runner, see SimulationEngine::finalize()
             return true;
         }
 

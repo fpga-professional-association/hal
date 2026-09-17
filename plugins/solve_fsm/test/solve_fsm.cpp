@@ -84,14 +84,22 @@ namespace hal
             return lib;
         }
 
+        /** What the secondary data pin of the flip-flop is connected to. */
+        enum class SecondDataPin
+        {
+            TiedToVcc,     ///< driven by the VCC gate of the netlist, which is what a real netlist does
+            Undriven,      ///< connected to a net that has no source at all
+            DrivenByLogic  ///< driven by logic of its own, which makes the data input ambiguous
+        };
+
         /**
          * A one-bit toggle FSM: the flip-flop's output is inverted back into its data input, so state 0
          * goes to state 1 and state 1 goes to state 0 unconditionally.
          *
-         * With `drive_second_data_pin`, the secondary data pin is driven by an inverter of its own
-         * instead of being tied to VCC, which makes the data input genuinely ambiguous.
+         * With `SecondDataPin::DrivenByLogic`, the secondary data pin is driven by an inverter of its own
+         * instead of being tied off, which makes the data input genuinely ambiguous.
          */
-        Fixture build(bool drive_second_data_pin)
+        Fixture build(SecondDataPin second_data_pin)
         {
             Fixture fixture;
             fixture.library = build_library();
@@ -124,23 +132,32 @@ namespace hal
             next->add_source(fixture.logic, "O");
             next->add_destination(fixture.flip_flop, "D");
 
-            if (drive_second_data_pin)
+            switch (second_data_pin)
             {
-                fixture.rogue = nl->create_gate(gl->get_gate_type_by_name("INV"), "second_data_logic");
-                Net* other_in = nl->create_net("other_in");
-                other_in->mark_global_input_net();
-                other_in->add_destination(fixture.rogue, "I");
-                Net* other = nl->create_net("other");
-                other->add_source(fixture.rogue, "O");
-                other->add_destination(fixture.flip_flop, "AD");
-            }
-            else
-            {
-                Gate* vcc_gate = nl->create_gate(gl->get_gate_type_by_name("VCC"), "vcc_gate");
-                nl->mark_vcc_gate(vcc_gate);
-                Net* one = nl->create_net("'1'");
-                one->add_source(vcc_gate, "O");
-                one->add_destination(fixture.flip_flop, "AD");
+                case SecondDataPin::DrivenByLogic: {
+                    fixture.rogue = nl->create_gate(gl->get_gate_type_by_name("INV"), "second_data_logic");
+                    Net* other_in = nl->create_net("other_in");
+                    other_in->mark_global_input_net();
+                    other_in->add_destination(fixture.rogue, "I");
+                    Net* other = nl->create_net("other");
+                    other->add_source(fixture.rogue, "O");
+                    other->add_destination(fixture.flip_flop, "AD");
+                    break;
+                }
+                case SecondDataPin::Undriven: {
+                    // a net without a source: nothing drives it, so it carries no logic either
+                    Net* dangling = nl->create_net("dangling");
+                    dangling->add_destination(fixture.flip_flop, "AD");
+                    break;
+                }
+                case SecondDataPin::TiedToVcc: {
+                    Gate* vcc_gate = nl->create_gate(gl->get_gate_type_by_name("VCC"), "vcc_gate");
+                    nl->mark_vcc_gate(vcc_gate);
+                    Net* one = nl->create_net("'1'");
+                    one->add_source(vcc_gate, "O");
+                    one->add_destination(fixture.flip_flop, "AD");
+                    break;
+                }
             }
 
             return fixture;
@@ -157,7 +174,7 @@ namespace hal
     {
         TEST_START
         {
-            Fixture fixture = build(false);
+            Fixture fixture = build(SecondDataPin::TiedToVcc);
             ASSERT_NE(fixture.netlist, nullptr);
             ASSERT_NE(fixture.flip_flop, nullptr);
 
@@ -194,7 +211,7 @@ namespace hal
     {
         TEST_START
         {
-            Fixture fixture = build(true);
+            Fixture fixture = build(SecondDataPin::DrivenByLogic);
             ASSERT_NE(fixture.netlist, nullptr);
             ASSERT_NE(fixture.flip_flop, nullptr);
 
@@ -206,6 +223,34 @@ namespace hal
             EXPECT_TRUE(test_utils::string_contains_substring(message, "data"));
             EXPECT_TRUE(test_utils::string_contains_substring(message, "D"));
             EXPECT_TRUE(test_utils::string_contains_substring(message, "AD"));
+        }
+        TEST_END
+    }
+
+    /**
+     * A second data pin connected to a net that nothing drives is as tied off as one connected to VCC.
+     * It used to count as a live candidate and made the data input ambiguous, which is the shape a netlist
+     * arrives in when it was cut out of a larger one or when the secondary input is simply left dangling.
+     *
+     * Functions: solve_fsm_brute_force
+     */
+    TEST_F(SolveFsmTest, check_second_data_pin_without_a_source_is_unconnected)
+    {
+        TEST_START
+        {
+            Fixture fixture = build(SecondDataPin::Undriven);
+            ASSERT_NE(fixture.netlist, nullptr);
+            ASSERT_NE(fixture.flip_flop, nullptr);
+
+            auto res = solve_fsm::solve_fsm_brute_force(fixture.netlist.get(), {fixture.flip_flop}, {fixture.logic});
+            ASSERT_TRUE(res.is_ok()) << res.get_error().get();
+            const std::map<u64, std::map<u64, BooleanFunction>> transitions = res.get();
+
+            ASSERT_EQ(transitions.size(), 2);
+            ASSERT_EQ(transitions.at(0).size(), 1);
+            EXPECT_EQ(transitions.at(0).count(1), 1);
+            ASSERT_EQ(transitions.at(1).size(), 1);
+            EXPECT_EQ(transitions.at(1).count(0), 1);
         }
         TEST_END
     }

@@ -29,7 +29,8 @@ namespace hal
 
     bool SimulationEngine::finalize()
     {
-        mState = Done;
+        // The state is published by the runner once the hand-off to the controller is complete, see
+        // SimulationThread::terminateThread().
         return true;
     }
 

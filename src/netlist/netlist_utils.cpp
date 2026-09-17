@@ -2,7 +2,11 @@
 
 #include "hal_core/netlist/decorators/netlist_modification_decorator.h"
 #include "hal_core/netlist/decorators/subgraph_netlist_decorator.h"
+#include "hal_core/netlist/endpoint.h"
 #include "hal_core/netlist/gate.h"
+#include "hal_core/netlist/gate_library/enums/pin_direction.h"
+#include "hal_core/netlist/gate_library/enums/pin_type.h"
+#include "hal_core/netlist/gate_library/gate_type.h"
 #include "hal_core/netlist/grouping.h"
 #include "hal_core/netlist/module.h"
 #include "hal_core/netlist/net.h"
@@ -1190,6 +1194,90 @@ namespace hal
             }
 
             return OK(std::vector<Gate*>(gate_chain.begin(), gate_chain.end()));
+        }
+
+        bool is_constant_net(const Net* net)
+        {
+            if (net == nullptr)
+            {
+                return false;
+            }
+
+            // the nets the parsers create for a literal carry the constant in their name and have no source
+            if (net->get_name() == "'0'" || net->get_name() == "'1'")
+            {
+                return true;
+            }
+
+            const std::vector<Endpoint*>& sources = net->get_sources();
+            if (sources.empty())
+            {
+                // nothing drives the net, which is not the same as being tied off
+                return false;
+            }
+
+            for (const Endpoint* source : sources)
+            {
+                const Gate* gate = source->get_gate();
+                if (gate == nullptr || !(gate->is_gnd_gate() || gate->is_vcc_gate()))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        Result<const GatePin*> get_data_pin(const Gate* ff)
+        {
+            if (ff == nullptr)
+            {
+                return ERR("gate is a nullptr.");
+            }
+
+            const std::vector<GatePin*> data_pins =
+                ff->get_type()->get_pins([](const GatePin* pin) { return pin->get_direction() == PinDirection::input && pin->get_type() == PinType::data; });
+
+            if (data_pins.size() == 1)
+            {
+                return OK((const GatePin*)data_pins.front());
+            }
+
+            if (data_pins.empty())
+            {
+                return ERR("gate type " + ff->get_type()->get_name() + " declares no input pin of type data.");
+            }
+
+            std::vector<const GatePin*> candidates;
+            std::string tied_off;
+            for (const GatePin* pin : data_pins)
+            {
+                const Net* net = ff->get_fan_in_net(pin);
+                // A net without sources carries no logic either: nothing can ever change its value, so it is
+                // as much a non-candidate as a constant one. Counting it as driven made a dangling secondary
+                // data pin -- which is how a netlist that was cut out of a larger one arrives -- ambiguous.
+                if (net == nullptr || net->get_sources().empty() || is_constant_net(net))
+                {
+                    tied_off += (tied_off.empty() ? "" : ", ") + pin->get_name();
+                    continue;
+                }
+                candidates.push_back(pin);
+            }
+
+            if (candidates.size() == 1)
+            {
+                return OK(candidates.front());
+            }
+
+            std::string names;
+            for (const GatePin* pin : candidates)
+            {
+                names += (names.empty() ? "" : ", ") + pin->get_name();
+            }
+
+            return ERR("gate type " + ff->get_type()->get_name() + " declares " + std::to_string(data_pins.size()) + " input pins of type data and " + std::to_string(candidates.size())
+                       + " of them are driven by logic at gate " + ff->get_name() + " with ID " + std::to_string(ff->get_id()) + ", so the data input cannot be identified: driven {" + names
+                       + "}, tied off or unconnected {" + tied_off + "}.");
         }
     }    // namespace netlist_utils
 }    // namespace hal

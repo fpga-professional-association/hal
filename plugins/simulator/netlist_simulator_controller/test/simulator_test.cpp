@@ -14,9 +14,11 @@
 #include "netlist_simulator_controller/simulation_engine.h"
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/wave_data.h"
+#include "netlist_simulator_controller/wave_event.h"
 #include "test_utils/include/netlist_test_utils.h"
 #include "test_utils/include/test_def.h"
 
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -1430,16 +1432,25 @@ namespace hal
                 const int state = engine->get_state();
                 if (state == (int)SimulationEngine::Done || state == (int)SimulationEngine::Failed)
                 {
-                    // The thread sets the state and only then reports back to the controller, so
-                    // reading the results -- or destroying the controller -- immediately races that
-                    // hand-off.
-                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                    // No settle wait: the thread reports to the controller first and publishes the
+                    // terminal state last, so this is the end of the run and not a moment before it.
                     return state;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
             ADD_FAILURE() << "engine still running after " << timeout_s << "s";
             return (int)SimulationEngine::Running;
+        }
+
+        /** The events the in-process engine recorded for one net, IDs included. */
+        std::vector<WaveEvent> events_of(SimulationEngine* engine, const Net* net)
+        {
+            SimulationEngineEventDriven* event_driven = dynamic_cast<SimulationEngineEventDriven*>(engine);
+            if (event_driven == nullptr || net == nullptr)
+            {
+                return {};
+            }
+            return event_driven->get_simulation_events(net->get_id());
         }
     };
 
@@ -1489,6 +1500,14 @@ namespace hal
 
             ASSERT_TRUE(ctrl->run_simulation());
             EXPECT_EQ(wait_for(engine), (int)SimulationEngine::Failed);
+
+            // The engine reports the failure from its own thread while run_simulation() is still on its
+            // way out of starting it, so the controller state used to depend on which of the two got
+            // there first: the run state was published after the engine was started and overwrote the
+            // EngineFailed the thread had just set.
+            // (compared rather than EXPECT_EQ'd: printing a hal enum gtest cannot resolve a string table
+            // for is an undefined symbol at link time)
+            EXPECT_TRUE(ctrl->get_state() == NetlistSimulatorController::SimulationState::EngineFailed);
         }
         TEST_END
     }
@@ -1551,11 +1570,8 @@ namespace hal
      * back to 2000 ps, and since the clock waveform is what the simulation thread replays, the run ended
      * there: every later sample repeated the last value instead of the simulation failing or saying so.
      *
-     * This samples a *combinational* net that follows the clock, which is also what pins the fix for
-     * issue #73 down: the clock net gets an event per half period from the waveform the simulation
-     * thread replays and another one from `NetlistSimulator::prepare_clock_events`, so every sample here
-     * is taken from a time slot that holds two events for the same net. A sequential net would read
-     * correctly no matter how those two resolve against each other; the inverter output does not.
+     * This samples a *combinational* net that follows the clock: it is defined at every point in time the
+     * clock reaches and frozen from the point on where the clock stops, which a sequential net would hide.
      */
     TEST_F(HalSimulatorRobustnessTest, check_default_clock_duration_covers_the_whole_simulation)
     {
@@ -1609,19 +1625,172 @@ namespace hal
     }
 
     /**
-     * The clock net of a `hal_simulator` run carries two events per half period -- one from the clock
-     * waveform the simulation thread replays, one from `NetlistSimulator::prepare_clock_events` -- and
-     * before #73 was fixed, which of the two ended up as the recorded value of the time slot was decided
-     * by whatever the uninitialized `WaveEvent::id` of the sort tiebreak happened to hold.
+     * Two events that affect the same net at the same point in time are ordered by their ID, and the ID is
+     * the order in which they were created: the event queue is sorted with `WaveEvent::operator<`, whose
+     * only tiebreak within one time slot is that ID, so an event that is handed an indeterminate one makes
+     * the comparator stop being an ordering at all and the recorded value of the slot a matter of what the
+     * stack happened to hold (#73).
      *
-     * The effect is only observable on a *combinational* net: a flip-flop is clocked by the first of the
-     * two events either way, so its output reads correctly no matter how the tiebreak goes, while the
-     * inverter below loses the value of the whole half period when the two resolve the wrong way round.
-     * The two same-time events are therefore sampled indirectly, through the net that can see them --
-     * repeating the same run and comparing it against the previous one, so that a tiebreak that is not
-     * merely defined but also stable is what the assertion rests on.
+     * This tests the ordering itself rather than a simulation that produces such a pair. There is no longer
+     * a route through the public API that reliably produces one -- the clock net used to carry two events
+     * per edge, one from the replayed waveform and one from the engine's own clock generator, and does not
+     * any more -- but the tiebreak is what every event the engine creates still relies on.
      */
     TEST_F(HalSimulatorRobustnessTest, check_same_time_events_on_one_net_resolve_deterministically)
+    {
+        TEST_START
+        {
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            Net* net = nl->create_net("net");
+            ASSERT_NE(net, nullptr);
+
+            WaveEvent first;
+            first.affected_net = net;
+            first.time         = 1000;
+            first.new_value    = BooleanFunction::Value::ZERO;
+            first.id           = 17;
+
+            WaveEvent second = first;
+            second.new_value = BooleanFunction::Value::ONE;
+            second.id        = 18;
+
+            EXPECT_TRUE(first < second);
+            EXPECT_FALSE(second < first);
+
+            // ... and time still comes first, whatever the IDs say
+            WaveEvent later = first;
+            later.time      = 2000;
+            later.id        = 3;
+            EXPECT_TRUE(first < later);
+            EXPECT_FALSE(later < first);
+
+            // An event that is handed no ID at all defaults to 0 rather than to whatever was on the stack,
+            // so even a producer that forgets to set one leaves a defined order behind.
+            WaveEvent fresh;
+            EXPECT_EQ(fresh.id, 0);
+
+            std::vector<WaveEvent> queue = {later, second, first};
+            std::sort(queue.begin(), queue.end());
+            ASSERT_EQ(queue.size(), 3);
+            EXPECT_EQ(queue[0].id, first.id);
+            EXPECT_EQ(queue[1].id, second.id);
+            EXPECT_EQ(queue[2].id, later.id);
+        }
+        TEST_END
+    }
+
+    /**
+     * The IDs the engine hands out to the events one time slot generates follow the IDs of the nets they
+     * belong to, not the addresses of those nets.
+     *
+     * The generated events of a time slot are collected in a map and given their IDs when it is drained, so
+     * the order of the map is the order of the IDs -- and with it the order in which the events are
+     * processed and recorded. Keyed by `const Net*`, as it used to be, that is the order of the addresses
+     * the netlist happens to have handed out: stable within one run and nothing beyond it, which is enough
+     * to keep two runs of the same simulation from being comparable event for event.
+     *
+     * The nets below are created after a batch of deleted ones so that the allocator is likely to hand out
+     * addresses that disagree with the IDs. That is what gives the assertion teeth -- in a netlist built
+     * front to back with nothing ever deleted the two orders agree by accident -- but the assertion itself
+     * holds for any netlist once the order is the netlist's rather than the heap's.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_generated_event_ids_follow_net_ids)
+    {
+        TEST_START
+        {
+            const u64 period      = 1000;
+            const u64 total       = 4 * period;
+            const int num_outputs = 8;
+
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            const GateLibrary* gl = nl->get_gate_library();
+
+            Net* clk = nl->create_net("clk");
+            ASSERT_NE(clk, nullptr);
+            clk->mark_global_input_net();
+
+            // free a couple of net objects again so that the output nets below are likely to be built in
+            // memory that was handed out before, i.e. out of order with respect to their IDs
+            std::vector<Net*> scratch;
+            for (int i = 0; i < num_outputs; i++)
+            {
+                scratch.push_back(nl->create_net("scratch_" + std::to_string(i)));
+            }
+            for (Net* n : scratch)
+            {
+                nl->delete_net(n);
+            }
+
+            std::vector<Net*> outputs;
+            for (int i = 0; i < num_outputs; i++)
+            {
+                Gate* inv = nl->create_gate(gl->get_gate_type_by_name("INV"), "clock_inverter_" + std::to_string(i));
+                ASSERT_NE(inv, nullptr);
+                clk->add_destination(inv, "I");
+                Net* out = nl->create_net("out_" + std::to_string(i));
+                ASSERT_NE(out, nullptr);
+                out->add_source(inv, "O");
+                out->mark_global_output_net();
+                outputs.push_back(out);
+            }
+
+            auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
+            ASSERT_NE(plugin, nullptr);
+            auto ctrl = plugin->create_simulator_controller("hal_simulator_event_ids");
+            ASSERT_NE(ctrl, nullptr);
+
+            ctrl->add_gates(nl->get_gates());
+            SimulationEngine* engine = ctrl->create_simulation_engine("hal_simulator");
+            ASSERT_NE(engine, nullptr);
+
+            ctrl->add_clock_period(clk, period);
+            ctrl->simulate(total);
+
+            ASSERT_TRUE(ctrl->run_simulation());
+            ASSERT_EQ(wait_for(engine), (int)SimulationEngine::Done);
+
+            // The inverters all follow the same clock, so they switch at the same points in time and their
+            // event vectors are parallel; every one of those events was created in the same drain.
+            std::sort(outputs.begin(), outputs.end(), [](const Net* lhs, const Net* rhs) { return lhs->get_id() < rhs->get_id(); });
+
+            std::vector<std::vector<WaveEvent>> recorded;
+            for (const Net* out : outputs)
+            {
+                std::vector<WaveEvent> events = events_of(engine, out);
+                ASSERT_FALSE(events.empty()) << "no events recorded for net " << out->get_name();
+                recorded.push_back(events);
+            }
+
+            for (size_t net_index = 1; net_index < recorded.size(); ++net_index)
+            {
+                ASSERT_EQ(recorded[net_index].size(), recorded[0].size()) << "net " << outputs[net_index]->get_name() << " switched a different number of times";
+                for (size_t event_index = 0; event_index < recorded[0].size(); ++event_index)
+                {
+                    const WaveEvent& previous = recorded[net_index - 1][event_index];
+                    const WaveEvent& current  = recorded[net_index][event_index];
+                    ASSERT_EQ(previous.time, current.time) << "the two nets did not switch at the same time";
+                    EXPECT_LT(previous.id, current.id) << "event IDs at t=" << current.time << " do not follow the net IDs " << outputs[net_index - 1]->get_id() << " and "
+                                                       << outputs[net_index]->get_id();
+                }
+            }
+        }
+        TEST_END
+    }
+
+    /**
+     * Repeating the same simulation produces the same waveform, sample for sample.
+     *
+     * The clock net used to carry two events per half period -- one from the waveform the simulation thread
+     * replays, one from `NetlistSimulator::prepare_clock_events` -- and which of the two ended up as the
+     * recorded value of the time slot was decided by whatever the uninitialized `WaveEvent::id` of the sort
+     * tiebreak happened to hold. The duplicate is gone (the replayed waveform is the only source of the
+     * clock now), and the effect of resolving such a pair the wrong way is only observable on a
+     * *combinational* net anyway: a flip-flop is clocked by the first of the two either way, while the
+     * inverter below loses the value of the whole half period.
+     */
+    TEST_F(HalSimulatorRobustnessTest, check_repeated_runs_produce_the_same_waveform)
     {
         TEST_START
         {
@@ -1645,7 +1814,7 @@ namespace hal
 
                 auto plugin = plugin_manager::get_plugin_instance<NetlistSimulatorControllerPlugin>("netlist_simulator_controller");
                 ASSERT_NE(plugin, nullptr);
-                auto ctrl = plugin->create_simulator_controller("hal_simulator_same_time_events_" + std::to_string(run));
+                auto ctrl = plugin->create_simulator_controller("hal_simulator_repeated_run_" + std::to_string(run));
                 ASSERT_NE(ctrl, nullptr);
 
                 ctrl->add_gates(nl->get_gates());
@@ -1670,15 +1839,13 @@ namespace hal
                 runs.push_back(samples);
             }
 
-            // Every run resolves the two same-time clock events the same way ...
+            // Every run samples the inverted clock the same way ...
             for (size_t run = 1; run < runs.size(); ++run)
             {
                 EXPECT_EQ(runs[run], runs[0]) << "run " << run << " sampled the inverted clock differently than run 0";
             }
 
-            // ... and the way it resolves them is the one that keeps the clock: both events describe the
-            // same clock and now carry the same value, so the second one is dropped as a no-op rather
-            // than overwriting the value the first one recorded.
+            // ... and it is the inverse of a clock that starts low and toggles every half period.
             ASSERT_FALSE(runs.empty());
             for (size_t i = 0; i < runs[0].size(); ++i)
             {
@@ -1687,4 +1854,5 @@ namespace hal
         }
         TEST_END
     }
+
 }    // namespace hal

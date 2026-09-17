@@ -384,9 +384,8 @@ class NetlistSimulatorTest(unittest.TestCase):
         while True:
             state = engine.get_state()
             if state in (ENGINE_DONE, ENGINE_FAILED):
-                # The thread sets Done inside finalize() and only then reports back to the
-                # controller, so reading the results immediately races that hand-off.
-                time.sleep(0.05)
+                # No settle wait: the thread reports the finished run to the controller and
+                # publishes the terminal state afterwards, so this is the end of the run.
                 return state
             if time.time() > deadline:
                 self.fail("engine still in state {} after {:.0f}s".format(state, timeout_s))

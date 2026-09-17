@@ -846,4 +846,81 @@ namespace hal
         TEST_END
     }
 
+    /**
+     * Testing the constant-net predicate that the flip-flop data pin selection rests on.
+     *
+     * Functions: is_constant_net
+     */
+    TEST_F(NetlistUtilsTest, check_is_constant_net)
+    {
+        TEST_START
+        {
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            const GateLibrary* gl = nl->get_gate_library();
+            ASSERT_NE(gl, nullptr);
+
+            Gate* gnd = nl->create_gate(gl->get_gate_type_by_name("GND"), "gnd_gate");
+            Gate* vcc = nl->create_gate(gl->get_gate_type_by_name("VCC"), "vcc_gate");
+            Gate* buf = nl->create_gate(gl->get_gate_type_by_name("BUF"), "buf_gate");
+            ASSERT_NE(gnd, nullptr);
+            ASSERT_NE(vcc, nullptr);
+            ASSERT_NE(buf, nullptr);
+            ASSERT_TRUE(nl->mark_gnd_gate(gnd));
+            ASSERT_TRUE(nl->mark_vcc_gate(vcc));
+
+            Net* zero = nl->create_net("net_gnd");
+            zero->add_source(gnd, "O");
+            Net* one = nl->create_net("net_vcc");
+            one->add_source(vcc, "O");
+            Net* driven = nl->create_net("net_driven");
+            driven->add_source(buf, "O");
+
+            EXPECT_TRUE(netlist_utils::is_constant_net(zero));
+            EXPECT_TRUE(netlist_utils::is_constant_net(one));
+            EXPECT_FALSE(netlist_utils::is_constant_net(driven));
+
+            // the nets the parsers create for a literal carry the constant in their name, nothing drives them
+            EXPECT_TRUE(netlist_utils::is_constant_net(nl->create_net("'0'")));
+            EXPECT_TRUE(netlist_utils::is_constant_net(nl->create_net("'1'")));
+
+            // a net that nothing drives is not tied off, it is simply undriven
+            EXPECT_FALSE(netlist_utils::is_constant_net(nl->create_net("dangling")));
+            EXPECT_FALSE(netlist_utils::is_constant_net(nullptr));
+        }
+        TEST_END
+    }
+
+    /**
+     * Testing the flip-flop data pin selection for a type that declares a single data pin, which is
+     * returned whatever drives it -- there is nothing to choose between.
+     *
+     * Functions: get_data_pin
+     */
+    TEST_F(NetlistUtilsTest, check_get_data_pin)
+    {
+        TEST_START
+        {
+            std::unique_ptr<Netlist> nl = test_utils::create_empty_netlist();
+            ASSERT_NE(nl, nullptr);
+            const GateLibrary* gl = nl->get_gate_library();
+            ASSERT_NE(gl, nullptr);
+
+            Gate* ff = nl->create_gate(gl->get_gate_type_by_name("DFF"), "ff");
+            ASSERT_NE(ff, nullptr);
+
+            auto res = netlist_utils::get_data_pin(ff);
+            ASSERT_TRUE(res.is_ok()) << res.get_error().get();
+            ASSERT_NE(res.get(), nullptr);
+            EXPECT_EQ(res.get()->get_name(), "D");
+
+            // a combinational gate type has no data pin at all, and the error says so
+            Gate* buf = nl->create_gate(gl->get_gate_type_by_name("BUF"), "buf_gate");
+            ASSERT_NE(buf, nullptr);
+            EXPECT_TRUE(netlist_utils::get_data_pin(buf).is_error());
+            EXPECT_TRUE(netlist_utils::get_data_pin(nullptr).is_error());
+        }
+        TEST_END
+    }
+
 }    //namespace hal

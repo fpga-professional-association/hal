@@ -84,7 +84,7 @@ namespace hal
         }
     }
 
-    void NetlistSimulator::SimulationGateRAM::initialize(std::map<const Net*, BooleanFunction::Value>& new_events, bool from_netlist, BooleanFunction::Value value)
+    void NetlistSimulator::SimulationGateRAM::initialize(netlist_simulator_utils::NetValueMap& new_events, bool from_netlist, BooleanFunction::Value value)
     {
         GateType* gate_type = m_gate->get_type();
 
@@ -168,7 +168,7 @@ namespace hal
         }
     }
 
-    bool NetlistSimulator::SimulationGateRAM::simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)
+    bool NetlistSimulator::SimulationGateRAM::simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events)
     {
         UNUSED(simulation);
         UNUSED(new_events);
@@ -202,7 +202,7 @@ namespace hal
         return true;
     }
 
-    void NetlistSimulator::SimulationGateRAM::clock(const u64 current_time, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)
+    void NetlistSimulator::SimulationGateRAM::clock(const u64 current_time, netlist_simulator_utils::NetEventMap& new_events)
     {
         // compute delay, currently just a placeholder
         u64 delay = 0;
