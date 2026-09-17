@@ -23,6 +23,7 @@ Recommended order — each introduces one or two techniques the later ones lean 
 | [12_present_sbox](12_present_sbox/) | PRESENT-80 encryption datapath | the S-box read out of LUT cones and matched to a published table (and what a match tier means); a bit permutation the wiring cannot show, recovered from the next-state cone support (and by hand first); a key schedule classified bit by bit; published test vectors out of the netlist; two counterfactual exports showing that the RTL, not the algorithm, decides what survives synthesis |
 | [13_trivium_stream](13_trivium_stream/) | Trivium keystream generator | the first *stream* cipher: three coupled nonlinear feedback shift registers that no pass could see at all until a load multiplexer was held, the three AND gates that separate them from walkthrough 05's linear LFSR, a feedback function recovered as an algebraic normal form rather than a polynomial, and a 1152-cycle warm-up read back as 64 x 18 |
 | [14_keccak_toy](14_keccak_toy/) | Keccak-f[200] sponge permutation | a 5 x 5 x 8 state grid recovered from XOR fan-in alone; two whole layers of the round (rho, pi) that cost zero cells, so 25 rotation offsets and a lane transposition come out of index arithmetic; one 5-bit substitution found 40 times and matched exactly; and the first verdict in the series that is honestly **`undetermined`** on classical-versus-PQC, because a sponge is SHA-3 *and* the XOF inside ML-KEM/ML-DSA/SPHINCS+. Two exports of the same cipher, differing only by a retiming, get opposite structural verdicts |
+| [15_ntt_mult](15_ntt_mult/) | toy negacyclic NTT polynomial multiplier | the first design whose secrets are *numbers*: a modulus that is a constant nowhere in the netlist (`q = 2^8 + 1` is too cheap to need a carry chain, so it is recovered from what the correction *computes* and re-checked on every sum the adder can make), eighty-one twiddle constants read off the multiplier's own operand by holding every coefficient at 1, a root of unity pinned by the address schedule, and a butterfly that no pass could see at all until a *vendor* subtracter — inversion folded into the cell mask, carry-in from a leading seed cell — was recognised. Ends **`pqc-style`**, and spends its last section on what that is not. A DSP counterfactual shows a synthesis setting creating a false positive |
 
 07 and 09 do not exist; the numbering is the series' history, not a promise.
 
@@ -49,6 +50,7 @@ the circuit rather than of its size:
 | 12_present_sbox | 379 | 1495 | 3 | wide and shallow: 153 independent cells in one rank, the SPN signature |
 | 13_trivium_stream | 613 | 1884 | 3 | wider and shallower still: 301 cells in one rank, because 288 of them are one shift stage each |
 | 14_keccak_toy | 868 | 3352 | 5 | one level per step of the round: parity planes, theta, chi, then iota fused with the load multiplexer. No carry chain anywhere |
+| 15_ntt_mult | 1211 | 5913 | 43 | the deepest in the series by a factor of two and a half: a 9 x 9 array multiplier *and* two modular corrections sit between one register bank and the next |
 
 Each also writes `images/dag.dot` and a standalone `images/dag.html` (inline
 SVG, legend, counts). Constants are drawn as one `0`/`1` tie-off stub per
@@ -63,8 +65,16 @@ rows above therefore count the hub's edges rather than the stubs'. 13 is also th
 design that shows why the *levelled* view earns its place: its 613-node
 **unlevelled** gate graph does not render with `dot` at all (ten minutes, no
 output — the graph is cyclic, so it cannot be layered), while the same 613 nodes
-levelled draw in seconds. Like 12, both 13 and 14 scope
+levelled draw in seconds. Like 12, 13, 14 and 15 all scope
 `images/netlist_graph.svg` to one gate's neighbourhood instead.
+
+15_ntt_mult is where that argument runs out: at 1211 nodes and **43** levels the
+*levelled* whole-netlist graph does not render either — `dot` runs for over an
+hour without finishing, because 256 input-port bits feed cells at level 42 and a
+long edge costs a dummy node on every rank it crosses. Its row above is computed
+with `-f none` (the counts and `dag.dot` are committed; the drawing is not), and
+the figure its guide embeds is `images/dag_datapath.svg`, a levelled drawing of
+the 901-gate cone behind the modular sum — 34 of the 43 levels, about a minute.
 
 Every walkthrough reruns end to end inside the build container:
 

@@ -1,0 +1,15 @@
+{
+  "degree": 16,
+  "forward_phase": 0,
+  "inverse_phase": 3,
+  "inverse_table_matches_omega_inverse": true,
+  "modulus": 257,
+  "note": "psi^16 = 256 = -1 modulo 257, so the transform is negacyclic: it multiplies in Z_q[x]/(x^n + 1), not Z_q[x]/(x^n - 1). That minus sign is what a lattice scheme's ring is made of.",
+  "omega": 225,
+  "omega_order": 16,
+  "post_scale": 241,
+  "post_scale_is_inverse_degree": true,
+  "psi": 15,
+  "psi_order": 32,
+  "ring": "Z_257[x] / (x^16 + 1)"
+}

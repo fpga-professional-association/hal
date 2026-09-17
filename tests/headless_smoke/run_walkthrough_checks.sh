@@ -114,6 +114,11 @@ if [[ "${TIER}" == "nohal" ]]; then
     # and still needs nothing but tools/hal_agilex and tools/hal_crypto; ~35 s.
     # --with-hal below adds the hal_py load and the SCC decomposition.
     run 14_keccak_toy
+    # 15 is the largest of these (1209 instances, two exports, two 600-cycle
+    # behaviour runs, four negative-control runs re-run live and a trace replay)
+    # and still needs nothing but tools/hal_agilex and tools/hal_crypto; ~90 s.
+    # --with-hal below adds the hal_py load and the SCC decomposition.
+    run 15_ntt_mult
 else
     for var in HAL_BASE_PATH HAL_PY_PATH PYTHONPATH; do
         if [[ -z "${!var:-}" ]]; then
@@ -138,6 +143,7 @@ else
     run 11_speck_toy --with-hal
     run 13_trivium_stream --with-hal
     run 14_keccak_toy --with-hal
+    run 15_ntt_mult --with-hal
 fi
 
 # Canary: the checks are supposed to read the committed artifacts, not

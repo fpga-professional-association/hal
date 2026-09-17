@@ -1,0 +1,63 @@
+{
+  "busy_register": "run",
+  "control_registers": [
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[4]",
+    "cnt[5]",
+    "fin",
+    "ph[0]",
+    "ph[1]",
+    "ph[2]",
+    "run"
+  ],
+  "counter_registers": [
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[4]",
+    "cnt[5]"
+  ],
+  "counter_toggles": {
+    "cnt[0]": 143,
+    "cnt[1]": 71,
+    "cnt[2]": 35,
+    "cnt[3]": 17,
+    "cnt[4]": 6,
+    "cnt[5]": 2
+  },
+  "counter_width": 6,
+  "cycles_from_load_to_done": 144,
+  "done_register": "fin",
+  "done_rises_at": 144,
+  "note": "Five phases of 64, 16, 16, 32 and 16 cycles. The 64 is two transforms of 32 butterflies each -- the counter's top bit selects which register bank -- and the 32 is one more transform. Sixteen-cycle phases touch one coefficient per cycle.",
+  "phase_codes": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "phase_count": 5,
+  "phase_lengths": [
+    64,
+    16,
+    16,
+    32,
+    16
+  ],
+  "phase_registers": [
+    "ph[0]",
+    "ph[1]",
+    "ph[2]"
+  ],
+  "phase_toggles": {
+    "ph[0]": 4,
+    "ph[1]": 2,
+    "ph[2]": 1
+  },
+  "phase_width": 3
+}

@@ -1,0 +1,39 @@
+{
+  "exports": {
+    "ntt_dsp": {
+      "confidence_tier": "medium",
+      "evidence": [
+        "1 verified add/subtract butterfly pair(s) over the same operand registers, stage depth 1",
+        "the butterfly's conditional correction subtracts 257, derived from the reduction logic and checked on every sum the adder can produce -- a modulus, but not one in the built-in library of published parameters",
+        "3 verified adder(s), 1 fixed rotation(s) and 10 XOR cell(s) (3 standalone), wired into a round"
+      ],
+      "families_present": [
+        "lattice-ntt",
+        "arx"
+      ],
+      "family": "lattice-ntt",
+      "ntt_title": "1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library",
+      "recovered_moduli": [
+        257
+      ],
+      "style": "pqc-style"
+    },
+    "ntt_mult": {
+      "confidence_tier": "medium",
+      "evidence": [
+        "1 verified add/subtract butterfly pair(s) over the same operand registers, stage depth 1",
+        "the butterfly's conditional correction subtracts 257, derived from the reduction logic and checked on every sum the adder can produce -- a modulus, but not one in the built-in library of published parameters"
+      ],
+      "families_present": [
+        "lattice-ntt"
+      ],
+      "family": "lattice-ntt",
+      "ntt_title": "1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library",
+      "recovered_moduli": [
+        257
+      ],
+      "style": "pqc-style"
+    }
+  },
+  "note": "The DSP export is the counterfactual: one attribute and two assignments away, the 9x9 multiplier becomes a tennm_mac and the export leaves hal_agilex's validated coverage entirely -- yet the butterfly and the modulus are still found, because they live outside the multiplier. What is lost is the ability to check the design at all, and what is gained is a spurious ARX reading."
+}

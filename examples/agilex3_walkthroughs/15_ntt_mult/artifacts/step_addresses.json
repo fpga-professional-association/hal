@@ -1,0 +1,3705 @@
+{
+  "butterfly_steps": 96,
+  "cross_bank_permutations": {
+    "2": {
+      "is_bit_reversal": true,
+      "map": [
+        0,
+        8,
+        4,
+        12,
+        2,
+        10,
+        6,
+        14,
+        1,
+        9,
+        5,
+        13,
+        3,
+        11,
+        7,
+        15
+      ]
+    },
+    "4": {
+      "is_bit_reversal": true,
+      "map": [
+        0,
+        8,
+        4,
+        12,
+        2,
+        10,
+        6,
+        14,
+        1,
+        9,
+        5,
+        13,
+        3,
+        11,
+        7,
+        15
+      ]
+    }
+  },
+  "note": "Every butterfly step writes two coefficients of one bank: the sum to index j and the difference to index j + len. The distance len is 8 for the first eight steps, then 4, then 2, then 1 -- four stages of eight butterflies, which is the loop nest of an iterative transform of length 16.",
+  "pair_distances_per_block_of_eight": [
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ],
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ],
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ]
+  ],
+  "reads_and_writes_are_the_same_pair": true,
+  "steps": [
+    {
+      "count": 0,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 16,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 17,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 18,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 19,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 20,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 21,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 22,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 23,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 24,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 25,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 26,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 27,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 28,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 29,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 30,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 31,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 32,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 33,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 34,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 35,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 36,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 37,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 38,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 39,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 40,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 41,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 42,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 43,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 44,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 45,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 46,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 47,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 48,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 49,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 50,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 51,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 52,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 53,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 54,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 55,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 56,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 57,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 58,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 59,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 60,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 61,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 62,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 63,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          0
+        ],
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ],
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ],
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ],
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ],
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ],
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ],
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ],
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ],
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ],
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ],
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ],
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ],
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ],
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ],
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ],
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          15
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          15
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 16,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 17,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 18,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 19,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 20,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 21,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 22,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 23,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 24,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 25,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 26,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 27,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 28,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 29,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 30,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 31,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          15
+        ]
+      ]
+    }
+  ]
+}

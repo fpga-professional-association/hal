@@ -1,0 +1,81 @@
+{
+  "analysis": {
+    "entry_point": "hal_agilex.inventory.build_document",
+    "plugin": {
+      "name": "hal_agilex",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "ntt_mult",
+      "description": "Quartus Prime Pro EDA netlist export (Version 26.1.0 Build 110 03/26/2026 SC Pro Edition)",
+      "design_name": "ntt_mult",
+      "device_name": "Altera A3CW135BM16AE6S Package MBGA896",
+      "gate_count": 1135,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "examples/agilex3_walkthroughs/15_ntt_mult/ntt_dsp.vo",
+      "sha256": "e1cc065cf996666b49af6b010a96b177d25cc40943fed1917a4f7f9d01bc2692",
+      "size_bytes": 607471
+    }
+  ],
+  "findings": [
+    {
+      "data": {
+        "examples": {
+          "tennm_mac": [
+            "mult_4~DATAOUTA0"
+          ]
+        }
+      },
+      "id": "hal_agilex/inventory/uncovered-primitives",
+      "method": {
+        "bounded": false,
+        "description": "Enumeration of every instance in the export and of the pin configuration of each one; no solver and no simulation involved.",
+        "kind": "structural",
+        "name": "primitive inventory"
+      },
+      "scope": {
+        "artifact_ids": [
+          "ntt_mult"
+        ],
+        "description": "every instance of the export",
+        "gate_types": [
+          "tennm_mac"
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "1 of 1135 instances are of a primitive type this package does not model; they are reported, never imported with invented semantics.",
+      "tags": [
+        "agilex",
+        "coverage"
+      ],
+      "title": "Primitives outside the validated Agilex coverage",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 1,
+            "gate_library": "AGILEX_TENNM",
+            "gate_type": "tennm_mac",
+            "reason": "DSP/MAC block: arithmetic mode, pipelining and pre-adder configuration are not modelled here"
+          }
+        ],
+        "reason": "hal_agilex models only tennm_lcell_comb and tennm_ff"
+      }
+    }
+  ],
+  "generated_at": "2026-09-17T02:52:38Z",
+  "notes": [
+    "export header: device=Altera A3CW135BM16AE6S Package MBGA896; exported_at=09/16/2026 20:57:24; tool=Quartus Prime; tool_version=Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
+  ],
+  "producer": {
+    "name": "hal_agilex.inventory",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

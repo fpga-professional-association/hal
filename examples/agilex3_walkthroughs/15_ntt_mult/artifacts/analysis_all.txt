@@ -1,0 +1,4895 @@
+== stats
+{
+  "carry_chain_lengths": [
+    7,
+    8,
+    9,
+    10,
+    10,
+    11,
+    11,
+    11,
+    12,
+    16
+  ],
+  "carry_chains": 10,
+  "cells_per_level": {
+    "1": 38,
+    "10": 6,
+    "11": 6,
+    "12": 6,
+    "13": 7,
+    "14": 7,
+    "15": 6,
+    "16": 5,
+    "17": 6,
+    "18": 6,
+    "19": 8,
+    "2": 43,
+    "20": 8,
+    "21": 8,
+    "22": 6,
+    "23": 5,
+    "24": 4,
+    "25": 3,
+    "26": 3,
+    "27": 2,
+    "28": 9,
+    "29": 2,
+    "3": 155,
+    "30": 4,
+    "31": 6,
+    "32": 8,
+    "33": 8,
+    "34": 8,
+    "35": 7,
+    "36": 6,
+    "37": 6,
+    "38": 6,
+    "39": 4,
+    "4": 99,
+    "40": 10,
+    "41": 9,
+    "42": 288,
+    "5": 68,
+    "6": 8,
+    "7": 6,
+    "8": 5,
+    "9": 5
+  },
+  "combinational_levels": 42,
+  "design": "ntt_mult",
+  "flip_flops": 299,
+  "gate_types": {
+    "tennm_ff": 299,
+    "tennm_lcell_comb": 910
+  },
+  "input_ports": {
+    "a_in": 128,
+    "b_in": 128,
+    "clk": 1,
+    "rst_n": 1,
+    "start": 1
+  },
+  "instances": 1209,
+  "output_ports": {
+    "busy": 1,
+    "c_out": 144,
+    "done": 1
+  }
+}
+
+== registers
+{
+  "bank_count": 2,
+  "banks": {
+    "a_in": {
+      "0": [
+        "pa[0][0]",
+        "pa[0][1]",
+        "pa[0][2]",
+        "pa[0][3]",
+        "pa[0][4]",
+        "pa[0][5]",
+        "pa[0][6]",
+        "pa[0][7]",
+        "pa[0][8]"
+      ],
+      "1": [
+        "pa[1][0]",
+        "pa[1][1]",
+        "pa[1][2]",
+        "pa[1][3]",
+        "pa[1][4]",
+        "pa[1][5]",
+        "pa[1][6]",
+        "pa[1][7]",
+        "pa[1][8]"
+      ],
+      "10": [
+        "pa[10][0]",
+        "pa[10][1]",
+        "pa[10][2]",
+        "pa[10][3]",
+        "pa[10][4]",
+        "pa[10][5]",
+        "pa[10][6]",
+        "pa[10][7]",
+        "pa[10][8]"
+      ],
+      "11": [
+        "pa[11][0]",
+        "pa[11][1]",
+        "pa[11][2]",
+        "pa[11][3]",
+        "pa[11][4]",
+        "pa[11][5]",
+        "pa[11][6]",
+        "pa[11][7]",
+        "pa[11][8]"
+      ],
+      "12": [
+        "pa[12][0]",
+        "pa[12][1]",
+        "pa[12][2]",
+        "pa[12][3]",
+        "pa[12][4]",
+        "pa[12][5]",
+        "pa[12][6]",
+        "pa[12][7]",
+        "pa[12][8]"
+      ],
+      "13": [
+        "pa[13][0]",
+        "pa[13][1]",
+        "pa[13][2]",
+        "pa[13][3]",
+        "pa[13][4]",
+        "pa[13][5]",
+        "pa[13][6]",
+        "pa[13][7]",
+        "pa[13][8]"
+      ],
+      "14": [
+        "pa[14][0]",
+        "pa[14][1]",
+        "pa[14][2]",
+        "pa[14][3]",
+        "pa[14][4]",
+        "pa[14][5]",
+        "pa[14][6]",
+        "pa[14][7]",
+        "pa[14][8]"
+      ],
+      "15": [
+        "pa[15][0]",
+        "pa[15][1]",
+        "pa[15][2]",
+        "pa[15][3]",
+        "pa[15][4]",
+        "pa[15][5]",
+        "pa[15][6]",
+        "pa[15][7]",
+        "pa[15][8]"
+      ],
+      "2": [
+        "pa[2][0]",
+        "pa[2][1]",
+        "pa[2][2]",
+        "pa[2][3]",
+        "pa[2][4]",
+        "pa[2][5]",
+        "pa[2][6]",
+        "pa[2][7]",
+        "pa[2][8]"
+      ],
+      "3": [
+        "pa[3][0]",
+        "pa[3][1]",
+        "pa[3][2]",
+        "pa[3][3]",
+        "pa[3][4]",
+        "pa[3][5]",
+        "pa[3][6]",
+        "pa[3][7]",
+        "pa[3][8]"
+      ],
+      "4": [
+        "pa[4][0]",
+        "pa[4][1]",
+        "pa[4][2]",
+        "pa[4][3]",
+        "pa[4][4]",
+        "pa[4][5]",
+        "pa[4][6]",
+        "pa[4][7]",
+        "pa[4][8]"
+      ],
+      "5": [
+        "pa[5][0]",
+        "pa[5][1]",
+        "pa[5][2]",
+        "pa[5][3]",
+        "pa[5][4]",
+        "pa[5][5]",
+        "pa[5][6]",
+        "pa[5][7]",
+        "pa[5][8]"
+      ],
+      "6": [
+        "pa[6][0]",
+        "pa[6][1]",
+        "pa[6][2]",
+        "pa[6][3]",
+        "pa[6][4]",
+        "pa[6][5]",
+        "pa[6][6]",
+        "pa[6][7]",
+        "pa[6][8]"
+      ],
+      "7": [
+        "pa[7][0]",
+        "pa[7][1]",
+        "pa[7][2]",
+        "pa[7][3]",
+        "pa[7][4]",
+        "pa[7][5]",
+        "pa[7][6]",
+        "pa[7][7]",
+        "pa[7][8]"
+      ],
+      "8": [
+        "pa[8][0]",
+        "pa[8][1]",
+        "pa[8][2]",
+        "pa[8][3]",
+        "pa[8][4]",
+        "pa[8][5]",
+        "pa[8][6]",
+        "pa[8][7]",
+        "pa[8][8]"
+      ],
+      "9": [
+        "pa[9][0]",
+        "pa[9][1]",
+        "pa[9][2]",
+        "pa[9][3]",
+        "pa[9][4]",
+        "pa[9][5]",
+        "pa[9][6]",
+        "pa[9][7]",
+        "pa[9][8]"
+      ]
+    },
+    "b_in": {
+      "0": [
+        "pb[0][0]",
+        "pb[0][1]",
+        "pb[0][2]",
+        "pb[0][3]",
+        "pb[0][4]",
+        "pb[0][5]",
+        "pb[0][6]",
+        "pb[0][7]",
+        "pb[0][8]"
+      ],
+      "1": [
+        "pb[1][0]",
+        "pb[1][1]",
+        "pb[1][2]",
+        "pb[1][3]",
+        "pb[1][4]",
+        "pb[1][5]",
+        "pb[1][6]",
+        "pb[1][7]",
+        "pb[1][8]"
+      ],
+      "10": [
+        "pb[10][0]",
+        "pb[10][1]",
+        "pb[10][2]",
+        "pb[10][3]",
+        "pb[10][4]",
+        "pb[10][5]",
+        "pb[10][6]",
+        "pb[10][7]",
+        "pb[10][8]"
+      ],
+      "11": [
+        "pb[11][0]",
+        "pb[11][1]",
+        "pb[11][2]",
+        "pb[11][3]",
+        "pb[11][4]",
+        "pb[11][5]",
+        "pb[11][6]",
+        "pb[11][7]",
+        "pb[11][8]"
+      ],
+      "12": [
+        "pb[12][0]",
+        "pb[12][1]",
+        "pb[12][2]",
+        "pb[12][3]",
+        "pb[12][4]",
+        "pb[12][5]",
+        "pb[12][6]",
+        "pb[12][7]",
+        "pb[12][8]"
+      ],
+      "13": [
+        "pb[13][0]",
+        "pb[13][1]",
+        "pb[13][2]",
+        "pb[13][3]",
+        "pb[13][4]",
+        "pb[13][5]",
+        "pb[13][6]",
+        "pb[13][7]",
+        "pb[13][8]"
+      ],
+      "14": [
+        "pb[14][0]",
+        "pb[14][1]",
+        "pb[14][2]",
+        "pb[14][3]",
+        "pb[14][4]",
+        "pb[14][5]",
+        "pb[14][6]",
+        "pb[14][7]",
+        "pb[14][8]"
+      ],
+      "15": [
+        "pb[15][0]",
+        "pb[15][1]",
+        "pb[15][2]",
+        "pb[15][3]",
+        "pb[15][4]",
+        "pb[15][5]",
+        "pb[15][6]",
+        "pb[15][7]",
+        "pb[15][8]"
+      ],
+      "2": [
+        "pb[2][0]",
+        "pb[2][1]",
+        "pb[2][2]",
+        "pb[2][3]",
+        "pb[2][4]",
+        "pb[2][5]",
+        "pb[2][6]",
+        "pb[2][7]",
+        "pb[2][8]"
+      ],
+      "3": [
+        "pb[3][0]",
+        "pb[3][1]",
+        "pb[3][2]",
+        "pb[3][3]",
+        "pb[3][4]",
+        "pb[3][5]",
+        "pb[3][6]",
+        "pb[3][7]",
+        "pb[3][8]"
+      ],
+      "4": [
+        "pb[4][0]",
+        "pb[4][1]",
+        "pb[4][2]",
+        "pb[4][3]",
+        "pb[4][4]",
+        "pb[4][5]",
+        "pb[4][6]",
+        "pb[4][7]",
+        "pb[4][8]"
+      ],
+      "5": [
+        "pb[5][0]",
+        "pb[5][1]",
+        "pb[5][2]",
+        "pb[5][3]",
+        "pb[5][4]",
+        "pb[5][5]",
+        "pb[5][6]",
+        "pb[5][7]",
+        "pb[5][8]"
+      ],
+      "6": [
+        "pb[6][0]",
+        "pb[6][1]",
+        "pb[6][2]",
+        "pb[6][3]",
+        "pb[6][4]",
+        "pb[6][5]",
+        "pb[6][6]",
+        "pb[6][7]",
+        "pb[6][8]"
+      ],
+      "7": [
+        "pb[7][0]",
+        "pb[7][1]",
+        "pb[7][2]",
+        "pb[7][3]",
+        "pb[7][4]",
+        "pb[7][5]",
+        "pb[7][6]",
+        "pb[7][7]",
+        "pb[7][8]"
+      ],
+      "8": [
+        "pb[8][0]",
+        "pb[8][1]",
+        "pb[8][2]",
+        "pb[8][3]",
+        "pb[8][4]",
+        "pb[8][5]",
+        "pb[8][6]",
+        "pb[8][7]",
+        "pb[8][8]"
+      ],
+      "9": [
+        "pb[9][0]",
+        "pb[9][1]",
+        "pb[9][2]",
+        "pb[9][3]",
+        "pb[9][4]",
+        "pb[9][5]",
+        "pb[9][6]",
+        "pb[9][7]",
+        "pb[9][8]"
+      ]
+    }
+  },
+  "bits_per_coefficient": [
+    9
+  ],
+  "coefficient_registers": 288,
+  "coefficients_per_bank": [
+    16
+  ],
+  "control_registers": [
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[4]",
+    "cnt[5]",
+    "fin",
+    "ph[0]",
+    "ph[1]",
+    "ph[2]",
+    "run"
+  ],
+  "note": "Nine bits of storage per coefficient and eight bits of input per coefficient: the ninth value a residue modulo 257 can take is not expressible on the port, which is the first hint that the modulus is 257 and not 256.",
+  "port_bits_per_coefficient": 8
+}
+
+== schedule
+{
+  "busy_register": "run",
+  "control_registers": [
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[4]",
+    "cnt[5]",
+    "fin",
+    "ph[0]",
+    "ph[1]",
+    "ph[2]",
+    "run"
+  ],
+  "counter_registers": [
+    "cnt[0]",
+    "cnt[1]",
+    "cnt[2]",
+    "cnt[3]",
+    "cnt[4]",
+    "cnt[5]"
+  ],
+  "counter_toggles": {
+    "cnt[0]": 143,
+    "cnt[1]": 71,
+    "cnt[2]": 35,
+    "cnt[3]": 17,
+    "cnt[4]": 6,
+    "cnt[5]": 2
+  },
+  "counter_width": 6,
+  "cycles_from_load_to_done": 144,
+  "done_register": "fin",
+  "done_rises_at": 144,
+  "note": "Five phases of 64, 16, 16, 32 and 16 cycles. The 64 is two transforms of 32 butterflies each -- the counter's top bit selects which register bank -- and the 32 is one more transform. Sixteen-cycle phases touch one coefficient per cycle.",
+  "phase_codes": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "phase_count": 5,
+  "phase_lengths": [
+    64,
+    16,
+    16,
+    32,
+    16
+  ],
+  "phase_registers": [
+    "ph[0]",
+    "ph[1]",
+    "ph[2]"
+  ],
+  "phase_toggles": {
+    "ph[0]": 4,
+    "ph[1]": 2,
+    "ph[2]": 1
+  },
+  "phase_width": 3
+}
+
+== butterfly
+{
+  "butterfly_count": 1,
+  "butterfly_width": 9,
+  "difference_nets": [
+    "add_4~1_sumout",
+    "add_4~11_sumout",
+    "add_4~16_sumout",
+    "add_4~21_sumout",
+    "add_4~26_sumout",
+    "add_4~31_sumout",
+    "add_4~36_sumout",
+    "add_4~41_sumout",
+    "add_4~46_sumout"
+  ],
+  "note": "One butterfly, nine bits wide, and the two chains read the *same* two operand vectors. The subtracter's second operand arrives inverted inside the arithmetic cell's own mask and its carry-in of one is emitted by a leading chain cell with no data operands: that is what a Quartus subtracter looks like, and it is why the hand-built fixtures in tools/hal_crypto/fixtures are not enough.",
+  "operand_nets": [
+    "t[0]",
+    "t[1]",
+    "t[2]",
+    "t[3]",
+    "t[4]",
+    "t[5]",
+    "t[6]",
+    "t[7]",
+    "t[8]",
+    "u[0]",
+    "u[1]",
+    "u[2]",
+    "u[3]",
+    "u[4]",
+    "u[5]",
+    "u[6]",
+    "u[7]",
+    "u[8]"
+  ],
+  "sum_nets": [
+    "add_2~1_sumout",
+    "add_2~6_sumout",
+    "add_2~11_sumout",
+    "add_2~16_sumout",
+    "add_2~21_sumout",
+    "add_2~26_sumout",
+    "add_2~31_sumout",
+    "add_2~36_sumout",
+    "add_2~41_sumout"
+  ],
+  "vectors_checked": 256,
+  "verified_adders": [
+    {
+      "carry_in": 0,
+      "cells": 10,
+      "left": [
+        "t[0]",
+        "t[1]",
+        "t[2]",
+        "t[3]",
+        "t[4]",
+        "t[5]",
+        "t[6]",
+        "t[7]",
+        "t[8]"
+      ],
+      "operation": "add",
+      "right": [
+        "u[0]",
+        "u[1]",
+        "u[2]",
+        "u[3]",
+        "u[4]",
+        "u[5]",
+        "u[6]",
+        "u[7]",
+        "u[8]"
+      ],
+      "width": 9
+    },
+    {
+      "carry_in": 1,
+      "cells": 10,
+      "left": [
+        "u[0]",
+        "u[1]",
+        "u[2]",
+        "u[3]",
+        "u[4]",
+        "u[5]",
+        "u[6]",
+        "u[7]",
+        "u[8]"
+      ],
+      "operation": "subtract",
+      "right": [
+        "t[0]",
+        "t[1]",
+        "t[2]",
+        "t[3]",
+        "t[4]",
+        "t[5]",
+        "t[6]",
+        "t[7]",
+        "t[8]"
+      ],
+      "width": 9
+    },
+    {
+      "carry_in": 1,
+      "cells": 10,
+      "left": [
+        "mult_4~6_sumout",
+        "mult_4~16_sumout",
+        "mult_4~26_sumout",
+        "mult_4~36_sumout",
+        "mult_4~46_sumout",
+        "mult_4~56_sumout",
+        "mult_4~66_sumout",
+        "mult_4~76_sumout",
+        "mult_4~81_sumout"
+      ],
+      "operation": "add",
+      "right": [
+        "mult_4~1_sumout",
+        "mult_4~11_sumout",
+        "mult_4~21_sumout",
+        "mult_4~31_sumout",
+        "mult_4~41_sumout",
+        "mult_4~51_sumout",
+        "mult_4~61_sumout",
+        "mult_4~71_sumout"
+      ],
+      "width": 9
+    }
+  ]
+}
+
+== modulus
+{
+  "checked_every_sum": true,
+  "constant_operand_chains": 0,
+  "difference_nets": [
+    "dif_mod[0]",
+    "dif_mod[1]",
+    "dif_mod[2]",
+    "dif_mod[3]",
+    "dif_mod[4]",
+    "dif_mod[5]",
+    "dif_mod[6]",
+    "dif_mod[7]",
+    "dif_mod[8]"
+  ],
+  "difference_select_net": "add_4~47",
+  "modulus": 257,
+  "modulus_form": "2**8 + 1 (a Fermat prime)",
+  "modulus_is_prime": true,
+  "note": "q = 257 is a real modulus read out of real logic, and it is in no published-parameter library: ML-KEM uses 3329 and ML-DSA 8380417. This is the shape of a lattice scheme's arithmetic at toy parameters, not a deployed scheme's parameters.",
+  "published_parameter_match": [],
+  "select_inverted": true,
+  "select_net": "sum_red[9]",
+  "sum_nets": [
+    "sum_mod[0]",
+    "sum_mod[1]",
+    "sum_mod[2]",
+    "sum_mod[3]",
+    "sum_mod[4]",
+    "sum_mod[5]",
+    "sum_mod[6]",
+    "sum_mod[7]",
+    "sum_mod[8]"
+  ],
+  "vectors_checked": 1023
+}
+
+== twiddles
+{
+  "constants_recovered": 81,
+  "held_values": [
+    1,
+    3
+  ],
+  "note": "Two 32-entry tables over the five low counter bits, one 16-entry table over the four low bits, and one phase whose 'twiddle' is the constant 1 -- a bit-reversal pass reusing the multiplier as a copy. The remaining phase's operand is not a constant at all: it scales with the held coefficient, so it is the other polynomial. That is the pointwise product.",
+  "phases": {
+    "0": {
+      "data_driven": false,
+      "distinct_values": 15,
+      "period": 32,
+      "steps": 64,
+      "table": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        253,
+        253,
+        253,
+        253,
+        193,
+        193,
+        193,
+        193,
+        225,
+        225,
+        2,
+        2,
+        128,
+        128,
+        249,
+        249,
+        15,
+        240,
+        197,
+        68,
+        34,
+        30,
+        121,
+        137
+      ]
+    },
+    "1": {
+      "data_driven": true,
+      "distinct_values": 1,
+      "period": null,
+      "steps": 16,
+      "table": null
+    },
+    "2": {
+      "data_driven": false,
+      "distinct_values": 1,
+      "period": 1,
+      "steps": 16,
+      "table": [
+        1
+      ]
+    },
+    "3": {
+      "data_driven": false,
+      "distinct_values": 8,
+      "period": 32,
+      "steps": 32,
+      "table": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        241,
+        241,
+        241,
+        241,
+        1,
+        1,
+        241,
+        241,
+        64,
+        64,
+        4,
+        4,
+        1,
+        241,
+        64,
+        4,
+        8,
+        129,
+        255,
+        32
+      ]
+    },
+    "4": {
+      "data_driven": false,
+      "distinct_values": 16,
+      "period": 16,
+      "steps": 16,
+      "table": [
+        241,
+        256,
+        4,
+        193,
+        129,
+        249,
+        32,
+        2,
+        136,
+        137,
+        223,
+        30,
+        60,
+        68,
+        242,
+        240
+      ]
+    }
+  }
+}
+
+== addresses
+{
+  "butterfly_steps": 96,
+  "cross_bank_permutations": {
+    "2": {
+      "is_bit_reversal": true,
+      "map": [
+        0,
+        8,
+        4,
+        12,
+        2,
+        10,
+        6,
+        14,
+        1,
+        9,
+        5,
+        13,
+        3,
+        11,
+        7,
+        15
+      ]
+    },
+    "4": {
+      "is_bit_reversal": true,
+      "map": [
+        0,
+        8,
+        4,
+        12,
+        2,
+        10,
+        6,
+        14,
+        1,
+        9,
+        5,
+        13,
+        3,
+        11,
+        7,
+        15
+      ]
+    }
+  },
+  "note": "Every butterfly step writes two coefficients of one bank: the sum to index j and the difference to index j + len. The distance len is 8 for the first eight steps, then 4, then 2, then 1 -- four stages of eight butterflies, which is the loop nest of an iterative transform of length 16.",
+  "pair_distances_per_block_of_eight": [
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ],
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ],
+    [
+      8
+    ],
+    [
+      4
+    ],
+    [
+      2
+    ],
+    [
+      1
+    ]
+  ],
+  "reads_and_writes_are_the_same_pair": true,
+  "steps": [
+    {
+      "count": 0,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 16,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 17,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 18,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 19,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 20,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 21,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 22,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 23,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 24,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 25,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 26,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 27,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 28,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 29,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 30,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 31,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 32,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 33,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 34,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 35,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 36,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 37,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 38,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 39,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 40,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 41,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 42,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 43,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 44,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 45,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 46,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 47,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 48,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 49,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 50,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 51,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 52,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 53,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 54,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 55,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 56,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 57,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 58,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 59,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 60,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 61,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 62,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 63,
+      "phase": 0,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          0
+        ],
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ],
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ],
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ],
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ],
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ],
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ],
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ],
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ],
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ],
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ],
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ],
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ],
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ],
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ],
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 1,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ],
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          15
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 2,
+      "reads_product_operand": [
+        [
+          "b_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "a_in",
+          15
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 16,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 17,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 18,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 19,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 20,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 21,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 22,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 23,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 24,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 25,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 26,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 27,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 28,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 29,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 30,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 31,
+      "phase": 3,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "writes_difference": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "writes_sum": [
+        [
+          "a_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 0,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          0
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          0
+        ]
+      ]
+    },
+    {
+      "count": 1,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          1
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          8
+        ]
+      ]
+    },
+    {
+      "count": 2,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          2
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          4
+        ]
+      ]
+    },
+    {
+      "count": 3,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          3
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          12
+        ]
+      ]
+    },
+    {
+      "count": 4,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          4
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          2
+        ]
+      ]
+    },
+    {
+      "count": 5,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          5
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          10
+        ]
+      ]
+    },
+    {
+      "count": 6,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          6
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          6
+        ]
+      ]
+    },
+    {
+      "count": 7,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          7
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          14
+        ]
+      ]
+    },
+    {
+      "count": 8,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          8
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          1
+        ]
+      ]
+    },
+    {
+      "count": 9,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          9
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          9
+        ]
+      ]
+    },
+    {
+      "count": 10,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          10
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          5
+        ]
+      ]
+    },
+    {
+      "count": 11,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          11
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          13
+        ]
+      ]
+    },
+    {
+      "count": 12,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          12
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          3
+        ]
+      ]
+    },
+    {
+      "count": 13,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          13
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          11
+        ]
+      ]
+    },
+    {
+      "count": 14,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          14
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          7
+        ]
+      ]
+    },
+    {
+      "count": 15,
+      "phase": 4,
+      "reads_product_operand": [
+        [
+          "a_in",
+          15
+        ]
+      ],
+      "reads_upper": [],
+      "writes_difference": [],
+      "writes_sum": [
+        [
+          "b_in",
+          15
+        ]
+      ]
+    }
+  ]
+}[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'core' was not registered so far, creating default channel.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_parser' was not registered so far, creating default channel.
+[gate_library_parser] [info] registered gate library parser 'Default HGL Parser' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/bitorder_propagation.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/graph_algorithm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hgl_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate_library_writer' was not registered so far, creating default channel.
+[gate_library_writer] [info] registered gate library writer 'Default HGL Writer' for file extension '.hgl'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/z3_utils.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_writer' was not registered so far, creating default channel.
+[netlist_writer] [info] registered netlist writer 'Default Verilog Writer' for file extension '.v'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/clock_tree_extractor.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/vhdl_parser.so'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist_parser' was not registered so far, creating default channel.
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhd'
+[netlist_parser] [info] registered netlist parser 'Default VHDL Parser' for file type '.vhdl'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/dataflow.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/liberty_parser.so'...
+[gate_library_parser] [info] registered gate library parser 'Default Liberty Parser' for file extension '.lib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_writer.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/module_identification.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/gexf_writer.so'...
+[netlist_writer] [info] registered netlist writer 'Default GEXF Writer' for file extension '.gexf'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/verilog_parser.so'...
+[netlist_parser] [info] registered netlist parser 'Default Verilog Parser' for file type '.v'
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_preprocessing.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_writer] [info] registered gate library writer 'Default Genlib Writer' for file extension '.genlib'.
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/sequential_symbolic_execution.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/solve_fsm.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/boolean_influence.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/python_shell.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/netlist_simulator_controller.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/example_analysis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/resynthesis.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/libtest_plugin.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/hawkeye.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/xilinx_toolbox.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/perf_test.so'...
+[core] [info] loading plugin '/work/build/lib/hal_plugins/genlib_writer.so'...
+[gate_library_parser] [info] selected gate library parser 'Default HGL Parser'.
+[gate_library_parser] [info] parsed gate library 'AGILEX_TENNM' from file '/work/plugins/gate_libraries/definitions/AGILEX_TENNM.hgl' in 0.00 seconds.
+[netlist_parser] [info] selected parser: Default Verilog Parser
+[netlist_parser] [info] parsing '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v'...
+[netlist_parser] [info] finished parsing in 0.11 seconds.
+[netlist_parser] [info] instantiating '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v' with gate library 'AGILEX_TENNM'...
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'gate' was not registered so far, creating default channel.
+[stdout] [warning] [/work/src/utilities/log.cpp:80] log channel 'netlist' was not registered so far, creating default channel.
+[netlist_parser] [info] instantiated '/work/examples/agilex3_walkthroughs/15_ntt_mult/netlist.hal.v' in 0.66 seconds.
+
+
+== ring
+{
+  "degree": 16,
+  "forward_phase": 0,
+  "inverse_phase": 3,
+  "inverse_table_matches_omega_inverse": true,
+  "modulus": 257,
+  "note": "psi^16 = 256 = -1 modulo 257, so the transform is negacyclic: it multiplies in Z_q[x]/(x^n + 1), not Z_q[x]/(x^n - 1). That minus sign is what a lattice scheme's ring is made of.",
+  "omega": 225,
+  "omega_order": 16,
+  "post_scale": 241,
+  "post_scale_is_inverse_degree": true,
+  "psi": 15,
+  "psi_order": 32,
+  "ring": "Z_257[x] / (x^16 + 1)"
+}
+
+== vectors
+{
+  "all_agree": true,
+  "cases": [
+    {
+      "agrees": true,
+      "case": "one times one",
+      "cycles_from_accepted_start_to_done": 145,
+      "netlist": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "schoolbook": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "agrees": true,
+      "case": "x^15 times x -- the negacyclic wrap",
+      "cycles_from_accepted_start_to_done": 145,
+      "netlist": [
+        256,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "schoolbook": [
+        256,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "agrees": true,
+      "case": "pseudo-random operands",
+      "cycles_from_accepted_start_to_done": 145,
+      "netlist": [
+        12,
+        60,
+        121,
+        91,
+        251,
+        140,
+        168,
+        31,
+        35,
+        77,
+        181,
+        142,
+        114,
+        121,
+        144,
+        76
+      ],
+      "schoolbook": [
+        12,
+        60,
+        121,
+        91,
+        251,
+        140,
+        168,
+        31,
+        35,
+        77,
+        181,
+        142,
+        114,
+        121,
+        144,
+        76
+      ]
+    },
+    {
+      "agrees": true,
+      "case": "all bytes at their maximum",
+      "cycles_from_accepted_start_to_done": 145,
+      "netlist": [
+        201,
+        209,
+        217,
+        225,
+        233,
+        241,
+        249,
+        0,
+        8,
+        16,
+        24,
+        32,
+        40,
+        48,
+        56,
+        64
+      ],
+      "schoolbook": [
+        201,
+        209,
+        217,
+        225,
+        233,
+        241,
+        249,
+        0,
+        8,
+        16,
+        24,
+        32,
+        40,
+        48,
+        56,
+        64
+      ]
+    }
+  ],
+  "note": "x^15 * x comes back as -1 and not as +1: the quotient is x^16 + 1, the ring is negacyclic, and that is a structural fact about the design confirmed behaviourally.",
+  "ring": "Z_257[x] / (x^16 + 1)",
+  "wrap_is_negative": true
+}
+
+== identify
+{
+  "exports": {
+    "ntt_dsp": {
+      "confidence_tier": "medium",
+      "evidence": [
+        "1 verified add/subtract butterfly pair(s) over the same operand registers, stage depth 1",
+        "the butterfly's conditional correction subtracts 257, derived from the reduction logic and checked on every sum the adder can produce -- a modulus, but not one in the built-in library of published parameters",
+        "3 verified adder(s), 1 fixed rotation(s) and 10 XOR cell(s) (3 standalone), wired into a round"
+      ],
+      "families_present": [
+        "lattice-ntt",
+        "arx"
+      ],
+      "family": "lattice-ntt",
+      "ntt_title": "1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library",
+      "recovered_moduli": [
+        257
+      ],
+      "style": "pqc-style"
+    },
+    "ntt_mult": {
+      "confidence_tier": "medium",
+      "evidence": [
+        "1 verified add/subtract butterfly pair(s) over the same operand registers, stage depth 1",
+        "the butterfly's conditional correction subtracts 257, derived from the reduction logic and checked on every sum the adder can produce -- a modulus, but not one in the built-in library of published parameters"
+      ],
+      "families_present": [
+        "lattice-ntt"
+      ],
+      "family": "lattice-ntt",
+      "ntt_title": "1 NTT-style butterfly pair(s) with modulus 257, in no published-parameter library",
+      "recovered_moduli": [
+        257
+      ],
+      "style": "pqc-style"
+    }
+  },
+  "note": "The DSP export is the counterfactual: one attribute and two assignments away, the 9x9 multiplier becomes a tennm_mac and the export leaves hal_agilex's validated coverage entirely -- yet the butterfly and the modulus are still found, because they live outside the multiplier. What is lost is the ability to check the design at all, and what is gained is a spurious ARX reading."
+}
+
+== hal
+{
+  "component_count": 3,
+  "components": [
+    {
+      "gate_types": {
+        "tennm_ff": 288,
+        "tennm_lcell_comb": 712
+      },
+      "registers": {
+        "pa": 144,
+        "pb": 144
+      },
+      "size": 1000
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 10,
+        "tennm_lcell_comb": 21
+      },
+      "registers": {
+        "cnt": 6,
+        "ph": 3,
+        "run": 1
+      },
+      "size": 31
+    },
+    {
+      "gate_types": {
+        "tennm_ff": 1,
+        "tennm_lcell_comb": 1
+      },
+      "registers": {
+        "fin": 1
+      },
+      "size": 2
+    }
+  ],
+  "edges": 11534,
+  "elaborated": 910,
+  "gate_library": "AGILEX_TENNM",
+  "gate_types": {
+    "HAL_GND": 1,
+    "HAL_VCC": 1,
+    "tennm_ff": 299,
+    "tennm_lcell_comb": 910
+  },
+  "gates": 1211,
+  "largest_component": {
+    "gate_types": {
+      "tennm_ff": 288,
+      "tennm_lcell_comb": 712
+    },
+    "registers": {
+      "pa": 144,
+      "pb": 144
+    },
+    "size": 1000
+  },
+  "modules": 1,
+  "nets": 1563,
+  "refused": [],
+  "vertices": 1211
+}
+
