@@ -1,0 +1,179 @@
+{
+  "call": {
+    "agrees_with_identify": true,
+    "all_reasons": [
+      {
+        "family": "lfsr-stream",
+        "reason": "3 autonomous feedback register(s) of 93 + 111 + 84 stages, visible only while port_i1 is held at 0",
+        "rule": "R5-stream",
+        "style": "classical-style"
+      }
+    ],
+    "confidence": "high",
+    "deciding_rule": "R5-stream",
+    "family": "lfsr-stream",
+    "identify_confidence": "high",
+    "identify_family": "lfsr-stream",
+    "identify_style": "classical-style",
+    "reason": "3 autonomous feedback register(s) of 93 + 111 + 84 stages, visible only while port_i1 is held at 0",
+    "rules_fired": [
+      "R5-stream"
+    ],
+    "style": "classical-style",
+    "style_confidence": "high"
+  },
+  "census": {
+    "adders": [],
+    "carry_chain_lengths": [],
+    "carry_chains": 0,
+    "constant_adders": [],
+    "design": "top",
+    "flip_flops": 301,
+    "gate_types": {
+      "tennm_ff": 301,
+      "tennm_lcell_comb": 310
+    },
+    "input_ports": {
+      "port_i0": 80,
+      "port_i1": 1,
+      "port_i2": 1,
+      "port_i3": 1,
+      "port_i4": 80
+    },
+    "instances": 611,
+    "output_ports": {
+      "port_o0": 1,
+      "port_o1": 1,
+      "port_o2": 1
+    },
+    "subtracters": [],
+    "two_operand_adders": []
+  },
+  "identify": {
+    "arx_rotations": 0,
+    "arx_verdict": "not-arx",
+    "confidence": "high",
+    "evidence": [
+      "a 93-stage NLFSR with feedback ANF s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] & s1[109]) (coupled to chain(s) 1), while port_i1 = 0",
+      "a 111-stage NLFSR with feedback ANF s1[86] ^ s2[68] ^ s2[83] ^ (s2[81] & s2[82]) (coupled to chain(s) 2), while port_i1 = 0",
+      "a 84-stage NLFSR with feedback ANF s0[65] ^ s0[92] ^ s2[77] ^ (s0[90] & s0[91]) (coupled to chain(s) 0), while port_i1 = 0"
+    ],
+    "families_present": [
+      "lfsr-stream"
+    ],
+    "family": "lfsr-stream",
+    "named_moduli": [],
+    "ntt_butterflies": 0,
+    "ntt_verdict": "no-modular-transform",
+    "recovered_moduli": [],
+    "sboxes": [],
+    "style": "classical-style"
+  },
+  "nonlinearity": {
+    "disjoint_register_xor_cells": {
+      "6": 1
+    },
+    "max_readable_degree": 13,
+    "next_state_degrees": {
+      "12": 1,
+      "13": 1,
+      "3": 290,
+      "4": 5,
+      "5": 2,
+      "6": 2
+    },
+    "parity_cells": 0,
+    "pure_register_xor_cells": {
+      "6": 1
+    },
+    "registers": 301,
+    "registers_linear_in_registers": 0,
+    "unreadable_cones": 0
+  },
+  "shape": {
+    "cells": 310,
+    "cells_per_level": {
+      "1": 301,
+      "2": 9
+    },
+    "combinational_levels": 2,
+    "dag_levels": 3,
+    "widest_level": 1,
+    "widest_level_cells": 301
+  },
+  "state": {
+    "autonomous_feedback_stages": [
+      111,
+      93,
+      84
+    ],
+    "chain_head_reads_only_inputs": false,
+    "component_sizes": [
+      288,
+      12
+    ],
+    "isolated_registers": 1,
+    "longest_single_predecessor_chain": 2,
+    "one_way_couplings": [
+      {
+        "from": 12,
+        "to": 288
+      }
+    ],
+    "registers": 301,
+    "shift_structures": [
+      {
+        "autonomous": true,
+        "chain": 0,
+        "coupled": true,
+        "coupled_chains": [
+          1
+        ],
+        "feedback_anf": "s0[68] ^ s1[110] ^ s1[65] ^ (s1[108] & s1[109])",
+        "feedback_degree": 2,
+        "kind": "nlfsr",
+        "length": 93,
+        "mode": {
+          "net": "port_i1",
+          "value": 0
+        },
+        "polynomial": null
+      },
+      {
+        "autonomous": true,
+        "chain": 1,
+        "coupled": true,
+        "coupled_chains": [
+          2
+        ],
+        "feedback_anf": "s1[86] ^ s2[68] ^ s2[83] ^ (s2[81] & s2[82])",
+        "feedback_degree": 2,
+        "kind": "nlfsr",
+        "length": 111,
+        "mode": {
+          "net": "port_i1",
+          "value": 0
+        },
+        "polynomial": null
+      },
+      {
+        "autonomous": true,
+        "chain": 2,
+        "coupled": true,
+        "coupled_chains": [
+          0
+        ],
+        "feedback_anf": "s0[65] ^ s0[92] ^ s2[77] ^ (s0[90] & s0[91])",
+        "feedback_degree": 2,
+        "kind": "nlfsr",
+        "length": 84,
+        "mode": {
+          "net": "port_i1",
+          "value": 0
+        },
+        "polynomial": null
+      }
+    ],
+    "single_predecessor_registers": 2
+  }
+}

@@ -1,0 +1,308 @@
+{
+  "about": "The answer key for walkthrough 16. Nothing reachable from analysis.py's blind half opens this file; analysis.py reveal and check.py do. Hashes are of the LF form of each file, so they hold on a CRLF checkout too.",
+  "cores": {
+    "core_a": {
+      "behaviour_cycles": 600,
+      "cryptographic": true,
+      "design": "Keccak-f[200] sponge permutation, one round per cycle",
+      "family": "sponge",
+      "files": {
+        "anonymize_map": {
+          "path": "ground_truth/maps/core_a.map.json",
+          "sha256": "1e15d23289fdce9c5b52855ff5d4424c9ff5a73b2f64dddd303fe776397f902c"
+        },
+        "blinded_export": {
+          "path": "cores/core_a.anon.hal.v",
+          "sha256": "a1ecd8c543fa37d089c2114391680090b6b45f7146b85fea06b9c5e3fc79462b"
+        },
+        "design": {
+          "path": "ground_truth/designs/core_a.v",
+          "sha256": "c754f4b2d6fb5ba3de13d87793f0dbee3038ac1af20ed80ae96dc06d7e1432ee"
+        },
+        "named_export": {
+          "path": "ground_truth/exports/core_a.vo",
+          "sha256": "74cb428aa56d558113b897aff8e293d035bea12c31cfd085e34b4700c0d882f3"
+        },
+        "named_import": {
+          "path": "ground_truth/exports/core_a.hal.v",
+          "sha256": "01812722ec766bd32a83c4e1f2de2f03255bc73ef8d2185da947399ae5a4a481"
+        },
+        "quartus_settings": {
+          "path": "ground_truth/quartus/core_a.qsf",
+          "sha256": "11ca88c558e24b95f582c6b8ccb3826f94da39b894aa8a9e149f3e3bf1871ba9"
+        },
+        "reference": {
+          "path": "ground_truth/references/core_a_reference.py",
+          "sha256": "1d6f9a39ad89d9694bafd35022eb0b420f73d13756d2f91cf1497c1bb1b56e6d"
+        }
+      },
+      "key_facts": [
+        {
+          "id": "a-state-200",
+          "statement": "the permutation state is 200 flip-flops in one component"
+        },
+        {
+          "id": "a-no-arithmetic",
+          "statement": "the round contains no carry chain at all"
+        },
+        {
+          "id": "a-parity-layer",
+          "statement": "forty cells, each the parity of exactly five state bits, with pairwise-disjoint sources"
+        },
+        {
+          "id": "a-nonlinear-layer",
+          "statement": "a nonlinear layer sits between the register bank and itself, so the next-state cones cannot be enumerated"
+        },
+        {
+          "id": "a-lane-geometry",
+          "statement": "the state is a 5 x 5 array of 8-bit lanes, and rho/pi move it by 25 rotation offsets and a transposition"
+        },
+        {
+          "id": "a-round-count",
+          "statement": "the permutation is 18 rounds of theta-rho-pi-chi-iota"
+        }
+      ],
+      "note": "Walkthrough 14's canonical export, not its retimed one: chi reads the register bank through theta, which is the pipeline placement that dissolves the substitution layer for a structural pass.",
+      "source": "examples/agilex3_walkthroughs/14_keccak_toy",
+      "style": "undetermined"
+    },
+    "core_b": {
+      "behaviour_cycles": 6000,
+      "cryptographic": false,
+      "design": "byte-framing receiver for a self-synchronising serial link",
+      "family": "none-detected",
+      "files": {
+        "anonymize_map": {
+          "path": "ground_truth/maps/core_b.map.json",
+          "sha256": "3a71b5cf80ac10822fac3b4064b2a612bca2ccbf0674f409c35fba19048fe706"
+        },
+        "blinded_export": {
+          "path": "cores/core_b.anon.hal.v",
+          "sha256": "f4a28f9825e0d25f2696a5d7c5dc74a33a04fab299cb3ff8b2b3c161ca57d42c"
+        },
+        "design": {
+          "path": "ground_truth/designs/core_b.v",
+          "sha256": "38240212a8b3a0735b1b456ae1f7c8e4b95d9c8f56362f0941e3ae7cd6c9f5c3"
+        },
+        "named_export": {
+          "path": "ground_truth/exports/core_b.vo",
+          "sha256": "bded267a9b71a9f80d3ccd8c41e5c9cb573b33d73a8b198653941847ff75ac88"
+        },
+        "named_import": {
+          "path": "ground_truth/exports/core_b.hal.v",
+          "sha256": "1aaafdc20db7d9b8cf50915ff4d3b7c5fce8d859de66f58a4595c6ac82fde98b"
+        },
+        "quartus_settings": {
+          "path": "ground_truth/quartus/core_b.qsf",
+          "sha256": "416c77a5e8a0daa59193210f7a17566fd9fe0e2080efab4306e7c4e0a652efc6"
+        },
+        "reference": {
+          "path": "ground_truth/references/core_b_reference.py",
+          "sha256": "edf01185b9a4bdba83cc49f1923a297d24b89f822cfac3c5241e15da1708467a"
+        }
+      },
+      "key_facts": [
+        {
+          "id": "b-not-cryptographic",
+          "statement": "there is no cryptography in this design"
+        },
+        {
+          "id": "b-absorbing-chain",
+          "statement": "an eight-stage shift register whose head reads a primary input, so it absorbs data instead of feeding itself"
+        },
+        {
+          "id": "b-counter-chain",
+          "statement": "a sixteen-bit carry chain that adds the constant 1 -- a counter, not an adder over two operands"
+        },
+        {
+          "id": "b-frame-protocol",
+          "statement": "the protocol is 0x7E, a length byte, that many payload bytes and a closing 0x7E, with a watchdog"
+        }
+      ],
+      "note": "The only core in the set that is not cryptography. It contains a shift register, a carry chain and two constant comparisons, which is what a cipher contains, and it is still a link framer.",
+      "source": "written for this walkthrough; the decoy",
+      "style": "undetermined"
+    },
+    "core_c": {
+      "behaviour_cycles": 3600,
+      "cryptographic": true,
+      "design": "Trivium keystream generator, one bit per cycle",
+      "family": "lfsr-stream",
+      "files": {
+        "anonymize_map": {
+          "path": "ground_truth/maps/core_c.map.json",
+          "sha256": "b89685b5e2aaefefa1af6a6673ac66f25f81ac7e565ff6743b4c5d4a3d9a5a92"
+        },
+        "blinded_export": {
+          "path": "cores/core_c.anon.hal.v",
+          "sha256": "d96c1a70611ad650579dd2542d2116a98d4c68a0d7b9c99738cad869d5af0f14"
+        },
+        "design": {
+          "path": "ground_truth/designs/core_c.v",
+          "sha256": "99db12b40de9f07178a2df7a70271898624d3ad6f944bc71b1217aced654c076"
+        },
+        "named_export": {
+          "path": "ground_truth/exports/core_c.vo",
+          "sha256": "ac7d00af490442d9e2d563d15a0c1da9054a7de885f7952b566e139bb70c8510"
+        },
+        "named_import": {
+          "path": "ground_truth/exports/core_c.hal.v",
+          "sha256": "f93b6a9603434a25b84abb41d948abd3d875df922185eeeb32897c5cc4f956fc"
+        },
+        "quartus_settings": {
+          "path": "ground_truth/quartus/core_c.qsf",
+          "sha256": "32bbb7f5c927dbc2e25f11349cf4ab410797e67a67d4054c3f388f319a325771"
+        },
+        "reference": {
+          "path": "ground_truth/references/core_c_reference.py",
+          "sha256": "b8701c01e00363743ce182bef203459d748305c46fd231e1151d5210efd89a2a"
+        }
+      },
+      "key_facts": [
+        {
+          "id": "c-three-segments",
+          "statement": "three feedback registers of 93, 84 and 111 stages"
+        },
+        {
+          "id": "c-coupled",
+          "statement": "no segment's feedback is a function of its own stages alone: they are coupled 93 -> 84 -> 111 -> 93"
+        },
+        {
+          "id": "c-nonlinear-feedback",
+          "statement": "every feedback function has algebraic degree 2 -- one AND term is the whole difference from a linear LFSR"
+        },
+        {
+          "id": "c-held-mode",
+          "statement": "none of it is visible until one external net is held at a constant, because every stage is a load multiplexer"
+        },
+        {
+          "id": "c-warmup",
+          "statement": "the key/IV load is followed by a 1152-step warm-up, counted as 64 x 18"
+        }
+      ],
+      "source": "examples/agilex3_walkthroughs/13_trivium_stream",
+      "style": "classical-style"
+    },
+    "core_d": {
+      "behaviour_cycles": 2000,
+      "cryptographic": true,
+      "design": "Speck32/64 block cipher, encryption only, one round per cycle",
+      "family": "arx",
+      "files": {
+        "anonymize_map": {
+          "path": "ground_truth/maps/core_d.map.json",
+          "sha256": "99d11ae0a6cdbd22a4454d7458f7be7c74d66b5889a037e1eff78b02e0e63a3d"
+        },
+        "blinded_export": {
+          "path": "cores/core_d.anon.hal.v",
+          "sha256": "f03588e8520cc3241d94b8805d325921f609b3b983150a64f72865e8e5dae8ff"
+        },
+        "design": {
+          "path": "ground_truth/designs/core_d.v",
+          "sha256": "8534636ff606cc27b41cdc57e37778b95d016de42fb5cfb3c93474be1a7f1948"
+        },
+        "named_export": {
+          "path": "ground_truth/exports/core_d.vo",
+          "sha256": "db48fe998c202aec5db8c2c1fc3a0b52e882326b83417b96e05a2aa278c78ea1"
+        },
+        "named_import": {
+          "path": "ground_truth/exports/core_d.hal.v",
+          "sha256": "b601c8bb596b4c246c2162e5a5b62d50de7c66185fc96e17405eaca0e1723e90"
+        },
+        "quartus_settings": {
+          "path": "ground_truth/quartus/core_d.qsf",
+          "sha256": "23b1fff1ac8a32c23fc672511a25a1da18be644e8476955ef668fd675d432673"
+        },
+        "reference": {
+          "path": "ground_truth/references/core_d_reference.py",
+          "sha256": "25a9860976099d0ae42e715744db67de33a19d808400aa88971c36d349e56f37"
+        }
+      },
+      "key_facts": [
+        {
+          "id": "d-two-adders",
+          "statement": "two carry chains of the same width, each adding two register-derived operands"
+        },
+        {
+          "id": "d-key-schedule-split",
+          "statement": "a 64-bit register state drives a 32-bit one and nothing comes back: a key schedule driving a data path"
+        },
+        {
+          "id": "d-depth",
+          "statement": "the round is deep and narrow -- a 16-bit carry ripples through seventeen levels of logic"
+        },
+        {
+          "id": "d-rotations",
+          "statement": "the round rotates by alpha = 7 and beta = 2, neither of which is a net in the netlist"
+        },
+        {
+          "id": "d-round-count",
+          "statement": "the cipher is 22 rounds and the block is 32 bits"
+        }
+      ],
+      "source": "examples/agilex3_walkthroughs/11_speck_toy",
+      "style": "classical-style"
+    },
+    "core_e": {
+      "behaviour_cycles": 600,
+      "cryptographic": true,
+      "design": "negacyclic NTT polynomial multiplier, n = 16, q = 257",
+      "family": "lattice-ntt",
+      "files": {
+        "anonymize_map": {
+          "path": "ground_truth/maps/core_e.map.json",
+          "sha256": "b8e2270b7e7b02e15086a6a434dbe3ed8d7ed7ad381cccbcfeb13217bf2660bf"
+        },
+        "blinded_export": {
+          "path": "cores/core_e.anon.hal.v",
+          "sha256": "4bb6c420051c0afb3137f3d6326fe2787c65680692ee410a19177a14b697840e"
+        },
+        "design": {
+          "path": "ground_truth/designs/core_e.v",
+          "sha256": "df24ba1e498286bc5de66d5a807804c15a6f3150eaa3828c85ac2134290ae37e"
+        },
+        "named_export": {
+          "path": "ground_truth/exports/core_e.vo",
+          "sha256": "bc55f0d98d921f291b799d94931511dd85e52e7fd8dd8fae71cd91ed305ee9b8"
+        },
+        "named_import": {
+          "path": "ground_truth/exports/core_e.hal.v",
+          "sha256": "8887f325b38fe58aadc3e2c2e7ab45d8fe13e69fdbf2d508bb298860d78caba7"
+        },
+        "quartus_settings": {
+          "path": "ground_truth/quartus/core_e.qsf",
+          "sha256": "a4085f9253023e2d493f281e9b70f804555c400b8662a6207d574284383a99b6"
+        },
+        "reference": {
+          "path": "ground_truth/references/core_e_reference.py",
+          "sha256": "46e34038e925a5f6505fc71c378b119eb36aef2ba13c55d92188170fa6bfd5f2"
+        }
+      },
+      "key_facts": [
+        {
+          "id": "e-butterfly",
+          "statement": "one butterfly: an add and a subtract over the same two operand vectors, shared by every transform stage"
+        },
+        {
+          "id": "e-modulus",
+          "statement": "the modulus is q = 257, recovered from what the correction logic computes rather than from a constant"
+        },
+        {
+          "id": "e-degree",
+          "statement": "the ring is Z_q[x]/(x^16 + 1): sixteen coefficients, nine bits each, in two banks"
+        },
+        {
+          "id": "e-twiddles",
+          "statement": "eighty-one twiddle constants and the root psi = 15"
+        }
+      ],
+      "note": "pqc-style is a claim about the arithmetic's shape. n = 16 and q = 257 are toy parameters and no deployed scheme uses them.",
+      "source": "examples/agilex3_walkthroughs/15_ntt_mult",
+      "style": "pqc-style"
+    }
+  },
+  "device": "A3CW135BM16AE6S",
+  "family": "Agilex 3",
+  "letters_are_meaningless": "The mapping from letter to design was fixed by shuffling. Neither the order in cores/ nor the size of a file says which walkthrough a core came from.",
+  "quartus": "Quartus Prime Pro 26.1"
+}

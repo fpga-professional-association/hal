@@ -1,0 +1,244 @@
+{
+  "analysis": {
+    "entry_point": "16_mystery_cores/analysis.py:blind",
+    "plugin": {
+      "name": "agilex3_walkthroughs",
+      "version": "1.0.0"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "core_d",
+      "description": "Quartus Prime Pro EDA netlist export (version not recorded in the header)",
+      "design_name": "top",
+      "gate_count": 241,
+      "gate_library": {
+        "name": "AGILEX_TENNM"
+      },
+      "kind": "netlist",
+      "path": "/work/examples/agilex3_walkthroughs/16_mystery_cores/cores/core_d.anon.hal.v",
+      "sha256": "f03588e8520cc3241d94b8805d325921f609b3b983150a64f72865e8e5dae8ff",
+      "size_bytes": 68185
+    }
+  ],
+  "findings": [
+    {
+      "assumptions": [
+        {
+          "description": "The analysed file is the anonymised import: module, port, net and instance names are meaningless and internal vector declarations have been split into unrelated scalars, so no claim here can rest on a name or on a word boundary the vendor tool happened to keep.",
+          "id": "blinding",
+          "kind": "naming"
+        },
+        {
+          "description": "The family is decided by the rule table in spec.md section 4, fixed before these exports were analysed and calibrated on walkthroughs 11-15. A rule that fires is a structural observation, never an identification of an algorithm.",
+          "id": "fixed-rule-table",
+          "kind": "tool"
+        }
+      ],
+      "confidence": "medium",
+      "data": {
+        "call": {
+          "agrees_with_identify": false,
+          "all_reasons": [
+            {
+              "family": "arx",
+              "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
+              "rule": "R4-arx",
+              "style": "classical-style"
+            }
+          ],
+          "confidence": "medium",
+          "deciding_rule": "R4-arx",
+          "family": "arx",
+          "identify_confidence": "medium",
+          "identify_family": "none-detected",
+          "identify_style": "undetermined",
+          "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
+          "rules_fired": [
+            "R4-arx"
+          ],
+          "style": "classical-style",
+          "style_confidence": "medium"
+        },
+        "census": {
+          "adders": [
+            {
+              "addend": null,
+              "constant": null,
+              "exhaustive": false,
+              "left_registers": 15,
+              "left_sources": 15,
+              "operation": "add",
+              "right_registers": 15,
+              "right_sources": 15,
+              "width": 15
+            },
+            {
+              "addend": null,
+              "constant": null,
+              "exhaustive": false,
+              "left_registers": 15,
+              "left_sources": 15,
+              "operation": "add",
+              "right_registers": 15,
+              "right_sources": 15,
+              "width": 15
+            }
+          ],
+          "carry_chain_lengths": [
+            16,
+            16
+          ],
+          "carry_chains": 2,
+          "constant_adders": [],
+          "design": "top",
+          "flip_flops": 104,
+          "gate_types": {
+            "tennm_ff": 104,
+            "tennm_lcell_comb": 137
+          },
+          "input_ports": {
+            "port_i0": 32,
+            "port_i1": 1,
+            "port_i2": 1,
+            "port_i3": 1,
+            "port_i4": 64
+          },
+          "instances": 241,
+          "output_ports": {
+            "port_o0": 32,
+            "port_o1": 1,
+            "port_o2": 1
+          },
+          "subtracters": [],
+          "two_operand_adders": [
+            15,
+            15
+          ]
+        },
+        "identify": {
+          "arx_rotations": 0,
+          "arx_verdict": "not-arx",
+          "confidence": "medium",
+          "evidence": [
+            "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
+            "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
+            "ARX: no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+            "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
+            "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+          ],
+          "families_present": [],
+          "family": "none-detected",
+          "named_moduli": [],
+          "ntt_butterflies": 0,
+          "ntt_verdict": "no-modular-transform",
+          "recovered_moduli": [],
+          "sboxes": [],
+          "style": "undetermined"
+        },
+        "nonlinearity": {
+          "disjoint_register_xor_cells": {},
+          "max_readable_degree": 8,
+          "next_state_degrees": {
+            "2": 3,
+            "3": 38,
+            "4": 5,
+            "5": 5,
+            "6": 5,
+            "7": 4,
+            "8": 4
+          },
+          "parity_cells": 0,
+          "pure_register_xor_cells": {},
+          "registers": 104,
+          "registers_linear_in_registers": 0,
+          "unreadable_cones": 40
+        },
+        "shape": {
+          "cells": 137,
+          "cells_per_level": {
+            "1": 43,
+            "10": 6,
+            "11": 6,
+            "12": 6,
+            "13": 6,
+            "14": 6,
+            "15": 6,
+            "16": 6,
+            "17": 4,
+            "2": 6,
+            "3": 6,
+            "4": 6,
+            "5": 6,
+            "6": 6,
+            "7": 6,
+            "8": 6,
+            "9": 6
+          },
+          "combinational_levels": 17,
+          "dag_levels": 18,
+          "widest_level": 1,
+          "widest_level_cells": 43
+        },
+        "state": {
+          "autonomous_feedback_stages": [],
+          "chain_head_reads_only_inputs": false,
+          "component_sizes": [
+            64,
+            32,
+            7
+          ],
+          "isolated_registers": 1,
+          "longest_single_predecessor_chain": 2,
+          "one_way_couplings": [
+            {
+              "from": 64,
+              "to": 32
+            },
+            {
+              "from": 7,
+              "to": 64
+            },
+            {
+              "from": 7,
+              "to": 32
+            }
+          ],
+          "registers": 104,
+          "shift_structures": [],
+          "single_predecessor_registers": 2
+        }
+      },
+      "id": "walkthrough16/core_d/call",
+      "method": {
+        "bounded": false,
+        "description": "The six steps of examples/agilex3_walkthroughs/16_mystery_cores/spec.md section 3 over an anonymized Quartus export, followed by the fixed rule table of section 4. No behavioural simulation and no reference model: a reference model is a hypothesis about what the design is, and there is nothing to compare one against until the reveal.",
+        "kind": "structural",
+        "name": "blind structural identification"
+      },
+      "scope": {
+        "artifact_ids": [
+          "core_d"
+        ],
+        "description": "the whole blinded export"
+      },
+      "status": "heuristic",
+      "summary": "Blind call: family arx, style classical-style, confidence medium. Deciding rule R4-arx -- 2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic. hal_crypto identify said none-detected (medium).",
+      "tags": [
+        "arx",
+        "blind",
+        "crypto-identification"
+      ],
+      "title": "Blind identification of core_d: arx"
+    }
+  ],
+  "generated_at": "2026-09-17T04:39:46Z",
+  "notes": [
+    "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
+  ],
+  "producer": {
+    "name": "agilex3_walkthroughs/16_mystery_cores",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

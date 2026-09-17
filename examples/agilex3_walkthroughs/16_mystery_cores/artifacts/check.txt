@@ -1,0 +1,133 @@
+== re-deriving every blind step from cores/ ==
+[ok  ] core_a: the committed step data re-derives exactly
+[ok  ] core_b: the committed step data re-derives exactly
+[ok  ] core_c: the committed step data re-derives exactly
+[ok  ] core_d: the committed step data re-derives exactly
+[ok  ] core_e: the committed step data re-derives exactly
+
+[ok  ] no blind step reads ground_truth/
+[ok  ] the blinded exports are the only input the blind pass names
+[ok  ] core_a is committed under cores/ -- examples/agilex3_walkthroughs/16_mystery_cores/cores/core_a.anon.hal.v
+[ok  ] core_b is committed under cores/ -- examples/agilex3_walkthroughs/16_mystery_cores/cores/core_b.anon.hal.v
+[ok  ] core_c is committed under cores/ -- examples/agilex3_walkthroughs/16_mystery_cores/cores/core_c.anon.hal.v
+[ok  ] core_d is committed under cores/ -- examples/agilex3_walkthroughs/16_mystery_cores/cores/core_d.anon.hal.v
+[ok  ] core_e is committed under cores/ -- examples/agilex3_walkthroughs/16_mystery_cores/cores/core_e.anon.hal.v
+[ok  ] all 35 files in MANIFEST.json hash as recorded
+[ok  ] the manifest covers all five cores
+[ok  ] core_a: every primitive is inside the validated coverage
+[ok  ] core_a: the committed inventory hashes the committed export -- byte-for-byte
+[ok  ] core_b: every primitive is inside the validated coverage
+[ok  ] core_b: the committed inventory hashes the committed export -- byte-for-byte
+[ok  ] core_c: every primitive is inside the validated coverage
+[ok  ] core_c: the committed inventory hashes the committed export -- byte-for-byte
+[ok  ] core_d: every primitive is inside the validated coverage
+[ok  ] core_d: the committed inventory hashes the committed export -- byte-for-byte
+[ok  ] core_e: every primitive is inside the validated coverage
+[ok  ] core_e: the committed inventory hashes the committed export -- byte-for-byte
+[ok  ] core_a: 866 instances = 207 tennm_ff + 659 tennm_lcell_comb -- {'tennm_ff': 207, 'tennm_lcell_comb': 659}
+[ok  ] core_a: 0 carry chain(s), 5 DAG levels -- 0 chains, 5 levels
+[ok  ] core_b: 120 instances = 49 tennm_ff + 71 tennm_lcell_comb -- {'tennm_ff': 49, 'tennm_lcell_comb': 71}
+[ok  ] core_b: 1 carry chain(s), 18 DAG levels -- 1 chains, 18 levels
+[ok  ] core_c: 611 instances = 301 tennm_ff + 310 tennm_lcell_comb -- {'tennm_ff': 301, 'tennm_lcell_comb': 310}
+[ok  ] core_c: 0 carry chain(s), 3 DAG levels -- 0 chains, 3 levels
+[ok  ] core_d: 241 instances = 104 tennm_ff + 137 tennm_lcell_comb -- {'tennm_ff': 104, 'tennm_lcell_comb': 137}
+[ok  ] core_d: 2 carry chain(s), 18 DAG levels -- 2 chains, 18 levels
+[ok  ] core_e: 1209 instances = 299 tennm_ff + 910 tennm_lcell_comb -- {'tennm_ff': 299, 'tennm_lcell_comb': 910}
+[ok  ] core_e: 10 carry chain(s), 43 DAG levels -- 10 chains, 43 levels
+[ok  ] the decoy's chain is as wide as the cipher's, 16 cells each -- [16] vs [16, 16]
+[ok  ] ... and as deep: both 18 levels
+[ok  ] what separates them is one operand: a + 1 versus two vectors -- [1] / [15, 15]
+[ok  ] the guide makes that comparison in prose
+[ok  ] core_a: register components [200, 6] -- [200, 6]
+[ok  ] core_b: register components [31] -- [31]
+[ok  ] core_c: register components [288, 12] -- [288, 12]
+[ok  ] core_d: register components [64, 32, 7] -- [64, 32, 7]
+[ok  ] core_e: register components [288, 10] -- [288, 10]
+[ok  ] core_d: a 64-bit state drives a 32-bit one and nothing comes back -- [{'from': 64, 'to': 32}, {'from': 7, 'to': 64}, {'from': 7, 'to': 32}]
+[ok  ] core_c: three coupled feedback registers of 84 + 93 + 111 stages -- [111, 93, 84]
+[ok  ] core_c: none of them is visible until an external net is held
+[ok  ] core_b: an 8-stage shift chain whose head reads only inputs -- 8
+[ok  ] core_b: hal_crypto's own chain walk finds nothing there -- which the guide files as a gap
+[ok  ] the guide says the tapped chain is a gap, not a result
+[ok  ] core_a: 40 disjoint cells, each a parity of exactly 5 registers -- {'5': 40, '11': 9}
+[ok  ] core_a: 200 next-state cones are too wide to enumerate -- 200
+[ok  ] the guide reads that refusal as evidence, not as a missing measurement
+[ok  ] no other core has a five-wide parity layer
+[ok  ] core_a: blind call sponge by R2-sponge -- sponge by R2-sponge
+[ok  ] core_a: hal_crypto identify said none-detected -- none-detected
+[ok  ] core_a: the committed blind findings document re-derives
+[ok  ] core_b: blind call none-detected by R6-none -- none-detected by R6-none
+[ok  ] core_b: hal_crypto identify said none-detected -- none-detected
+[ok  ] core_b: the committed blind findings document re-derives
+[ok  ] core_c: blind call lfsr-stream by R5-stream -- lfsr-stream by R5-stream
+[ok  ] core_c: hal_crypto identify said lfsr-stream -- lfsr-stream
+[ok  ] core_c: the committed blind findings document re-derives
+[ok  ] core_d: blind call arx by R4-arx -- arx by R4-arx
+[ok  ] core_d: hal_crypto identify said none-detected -- none-detected
+[ok  ] core_d: the committed blind findings document re-derives
+[ok  ] core_e: blind call lattice-ntt by R1-lattice -- lattice-ntt by R1-lattice
+[ok  ] core_e: hal_crypto identify said lattice-ntt -- lattice-ntt
+[ok  ] core_e: the committed blind findings document re-derives
+[ok  ] core_e: R1 fires on the tool *and* on the chain census -- which is why rule order, not evidence, keeps it out of R4
+[ok  ] the guide says rule order is what separates core_e from core_d
+[ok  ] core_e's confidence is clamped to the tool's own
+[ok  ] the committed score table re-derives exactly
+[ok  ] the method gets 5 of 5 right -- {'correct': 5}
+[ok  ] hal_crypto alone gets 3 of 5 on the blinded exports -- {'correct': 3, 'missed': 2}
+[ok  ] ... and 4 of 5 on the named ones -- 4
+[ok  ] blinding costs exactly one family, on core_d -- ['core_d']
+[ok  ] 16 of 24 key facts recovered -- 16/24
+[ok  ] the rules never exercised are reported: R3-spn -- ['R3-spn']
+[ok  ] every truth row matches ground_truth/MANIFEST.json
+[ok  ] core_e's modulus 257 came back from the blinded export
+[ok  ] the guide states the 5/3 headline
+[ok  ] core_a: the named export matches its reference for 600 cycles
+[ok  ] core_a: that run used the committed named export
+[ok  ] core_b: the named export matches its reference for 6000 cycles
+[ok  ] core_b: that run used the committed named export
+[ok  ] core_c: the named export matches its reference for 3600 cycles
+[ok  ] core_c: that run used the committed named export
+[ok  ] core_d: the named export matches its reference for 2000 cycles
+[ok  ] core_d: that run used the committed named export
+[ok  ] core_e: the named export matches its reference for 600 cycles
+[ok  ] core_e: that run used the committed named export
+[ok  ] core_a: negative control caught -- one rho offset moved by one -- at cycle 9
+[ok  ] core_b: negative control caught -- the frame delimiter moved from 0x7E to 0x7F -- at cycle 356
+[ok  ] core_b: negative control NOT caught, as documented -- the watchdog limit moved by one -- unreachable, so not caught -- an unreachable path cannot be observed by any bounded run
+[ok  ] core_c: negative control caught -- one feedback tap moved from s171 to s170 -- at cycle 77
+[ok  ] core_d: negative control caught -- the first rotation moved from 7 to 8 -- at cycle 3
+[ok  ] core_e: negative control caught -- the modulus moved from 257 to 251 -- at cycle 36
+[ok  ] images/dag_core_a.dot exists
+[ok  ] core_a: the drawing has the 5 levels the census measured -- 5 in the .dot
+[ok  ] images/dag_core_a.svg exists
+[ok  ] images/dag_core_b.dot exists
+[ok  ] core_b: the drawing has the 18 levels the census measured -- 18 in the .dot
+[ok  ] images/dag_core_b.svg exists
+[ok  ] images/dag_core_c.dot exists
+[ok  ] core_c: the drawing has the 3 levels the census measured -- 3 in the .dot
+[ok  ] images/dag_core_c.svg exists
+[ok  ] images/dag_core_d.dot exists
+[ok  ] core_d: the drawing has the 18 levels the census measured -- 18 in the .dot
+[ok  ] images/dag_core_d.svg exists
+[ok  ] images/dag_core_e.dot exists
+[ok  ] core_e: the drawing has the 43 levels the census measured -- 43 in the .dot
+[ok  ] core_e is committed as counts only, not as a drawing -- 1209 nodes over 43 levels does not lay out
+[ok  ] images/cell_counter_core_b.svg exists
+[ok  ] the guide embeds images/cell_counter_core_b.svg
+[ok  ] images/cell_adder_core_d.svg exists
+[ok  ] the guide embeds images/cell_adder_core_d.svg
+[ok  ] images/cell_parity_core_a.svg exists
+[ok  ] the guide embeds images/cell_parity_core_a.svg
+[ok  ] images/module_tree_core_b.svg exists
+[ok  ] the guide embeds images/module_tree_core_b.svg
+[ok  ] the guide's blind section comes before its reveal
+[ok  ] the guide names both tool gaps it found
+[ok  ] the guide says no hal_crypto pass was changed for this walkthrough
+[ok  ] the guide states the decoy is the only out-of-sample core
+[ok  ] the guide has a section for core_a
+[ok  ] the guide has a section for core_b
+[ok  ] the guide has a section for core_c
+[ok  ] the guide has a section for core_d
+[ok  ] the guide has a section for core_e
+
+all checks passed

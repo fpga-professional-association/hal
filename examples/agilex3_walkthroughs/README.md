@@ -25,7 +25,11 @@ Recommended order — each introduces one or two techniques the later ones lean 
 | [14_keccak_toy](14_keccak_toy/) | Keccak-f[200] sponge permutation | a 5 x 5 x 8 state grid recovered from XOR fan-in alone; two whole layers of the round (rho, pi) that cost zero cells, so 25 rotation offsets and a lane transposition come out of index arithmetic; one 5-bit substitution found 40 times and matched exactly; and the first verdict in the series that is honestly **`undetermined`** on classical-versus-PQC, because a sponge is SHA-3 *and* the XOF inside ML-KEM/ML-DSA/SPHINCS+. Two exports of the same cipher, differing only by a retiming, get opposite structural verdicts |
 | [15_ntt_mult](15_ntt_mult/) | toy negacyclic NTT polynomial multiplier | the first design whose secrets are *numbers*: a modulus that is a constant nowhere in the netlist (`q = 2^8 + 1` is too cheap to need a carry chain, so it is recovered from what the correction *computes* and re-checked on every sum the adder can make), eighty-one twiddle constants read off the multiplier's own operand by holding every coefficient at 1, a root of unity pinned by the address schedule, and a butterfly that no pass could see at all until a *vendor* subtracter — inversion folded into the cell mask, carry-in from a leading seed cell — was recognised. Ends **`pqc-style`**, and spends its last section on what that is not. A DSP counterfactual shows a synthesis setting creating a false positive |
 
+| [16_mystery_cores](16_mystery_cores/) | five anonymized cores, blind | **the capstone, and the series is complete at it.** Five blinded netlists — four of the designs above re-synthesized under neutral names, plus one that is *not* cryptography — run through the whole method with a decision rule fixed in advance, and only then scored against an answer key. The method calls **five of five** families and styles correctly; `hal_crypto identify` on its own calls **three of five**, and its two misses are false negatives on real cryptography. The decoy's carry chain is exactly as wide as the block cipher's and its logic exactly as deep; what separates them is that one adds the constant 1. Running the same tool on the *named* and the *blinded* copy of each core makes a miss attributable, and turns one of two identical-looking failures into a filed bug (rotations keyed on vector names) while leaving the other as a documented pipeline property |
+
 07 and 09 do not exist; the numbering is the series' history, not a promise.
+The series is **complete**: 16 is the capstone, and the method it distils is
+`ai/skills/re-walkthrough-method`.
 
 ## The netlist as a graph
 
@@ -51,6 +55,18 @@ the circuit rather than of its size:
 | 13_trivium_stream | 613 | 1884 | 3 | wider and shallower still: 301 cells in one rank, because 288 of them are one shift stage each |
 | 14_keccak_toy | 868 | 3352 | 5 | one level per step of the round: parity planes, theta, chi, then iota fused with the load multiplexer. No carry chain anywhere |
 | 15_ntt_mult | 1211 | 5913 | 43 | the deepest in the series by a factor of two and a half: a 9 x 9 array multiplier *and* two modular corrections sit between one register bank and the next |
+| 16_mystery_cores/core_a | 868 | 3346 | 5 | (blinded re-synthesis of 14) |
+| 16_mystery_cores/core_b | 120 | 1146 | 18 | the decoy: seventeen of those eighteen levels are one sixteen-cell carry chain, and it is a *counter* |
+| 16_mystery_cores/core_c | 613 | 1882 | 3 | (blinded re-synthesis of 13) |
+| 16_mystery_cores/core_d | 243 | 942 | 18 | (blinded re-synthesis of 11) — the same profile as core_b above, which is the trap |
+| 16_mystery_cores/core_e | 1211 | 5913 | 43 | (blinded re-synthesis of 15) |
+
+The four re-synthesized rows reproduce their originals' shape exactly, which is
+the point: blinding removes names, not structure. Only `core_b`'s row is a new
+design, and it was built to sit on top of `core_d`'s — same chain width, same
+depth, different arithmetic. `core_e` is again `-f none` for walkthrough 15's
+reason, and `core_b` is the one drawn with per-pin constant stubs rather than
+`--const-hub`, which is why its edge count is mostly tie-offs.
 
 Each also writes `images/dag.dot` and a standalone `images/dag.html` (inline
 SVG, legend, counts). Constants are drawn as one `0`/`1` tie-off stub per

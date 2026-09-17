@@ -1,0 +1,314 @@
+{
+  "blind_correct": 5,
+  "blind_outcomes": {
+    "correct": 5
+  },
+  "blinding_delta": [
+    {
+      "blinded_confidence": "medium",
+      "blinded_family": "none-detected",
+      "blinded_style": "undetermined",
+      "changed": false,
+      "core": "core_a",
+      "named_confidence": "medium",
+      "named_family": "none-detected",
+      "named_style": "undetermined"
+    },
+    {
+      "blinded_confidence": "medium",
+      "blinded_family": "none-detected",
+      "blinded_style": "undetermined",
+      "changed": false,
+      "core": "core_b",
+      "named_confidence": "medium",
+      "named_family": "none-detected",
+      "named_style": "undetermined"
+    },
+    {
+      "blinded_confidence": "high",
+      "blinded_family": "lfsr-stream",
+      "blinded_style": "classical-style",
+      "changed": false,
+      "core": "core_c",
+      "named_confidence": "high",
+      "named_family": "lfsr-stream",
+      "named_style": "classical-style"
+    },
+    {
+      "blinded_confidence": "medium",
+      "blinded_family": "none-detected",
+      "blinded_style": "undetermined",
+      "changed": true,
+      "core": "core_d",
+      "named_confidence": "high",
+      "named_family": "arx",
+      "named_style": "classical-style"
+    },
+    {
+      "blinded_confidence": "medium",
+      "blinded_family": "lattice-ntt",
+      "blinded_style": "pqc-style",
+      "changed": false,
+      "core": "core_e",
+      "named_confidence": "medium",
+      "named_family": "lattice-ntt",
+      "named_style": "pqc-style"
+    }
+  ],
+  "blinding_losses": [
+    "core_d"
+  ],
+  "cores": [
+    {
+      "blind_confidence": "medium",
+      "blind_family": "sponge",
+      "blind_outcome": "correct",
+      "blind_style": "undetermined",
+      "core": "core_a",
+      "deciding_rule": "R2-sponge",
+      "facts": [
+        {
+          "attempted": true,
+          "id": "a-state-200",
+          "recovered": true,
+          "statement": "the permutation state is 200 flip-flops in one component"
+        },
+        {
+          "attempted": true,
+          "id": "a-no-arithmetic",
+          "recovered": true,
+          "statement": "the round contains no carry chain at all"
+        },
+        {
+          "attempted": true,
+          "id": "a-parity-layer",
+          "recovered": true,
+          "statement": "forty cells, each the parity of exactly five state bits, with pairwise-disjoint sources"
+        },
+        {
+          "attempted": true,
+          "id": "a-nonlinear-layer",
+          "recovered": true,
+          "statement": "a nonlinear layer sits between the register bank and itself, so the next-state cones cannot be enumerated"
+        },
+        {
+          "attempted": false,
+          "id": "a-lane-geometry",
+          "recovered": false,
+          "statement": "the state is a 5 x 5 array of 8-bit lanes, and rho/pi move it by 25 rotation offsets and a transposition"
+        },
+        {
+          "attempted": false,
+          "id": "a-round-count",
+          "recovered": false,
+          "statement": "the permutation is 18 rounds of theta-rho-pi-chi-iota"
+        }
+      ],
+      "facts_recovered": 4,
+      "facts_total": 6,
+      "tool_confidence": "medium",
+      "tool_family": "none-detected",
+      "tool_outcome": "missed",
+      "tool_style": "undetermined",
+      "truth_design": "Keccak-f[200] sponge permutation, one round per cycle",
+      "truth_family": "sponge",
+      "truth_style": "undetermined"
+    },
+    {
+      "blind_confidence": "high",
+      "blind_family": "none-detected",
+      "blind_outcome": "correct",
+      "blind_style": "undetermined",
+      "core": "core_b",
+      "deciding_rule": "R6-none",
+      "facts": [
+        {
+          "attempted": true,
+          "id": "b-not-cryptographic",
+          "recovered": true,
+          "statement": "there is no cryptography in this design"
+        },
+        {
+          "attempted": true,
+          "id": "b-absorbing-chain",
+          "recovered": true,
+          "statement": "an eight-stage shift register whose head reads a primary input, so it absorbs data instead of feeding itself"
+        },
+        {
+          "attempted": true,
+          "id": "b-counter-chain",
+          "recovered": true,
+          "statement": "a sixteen-bit carry chain that adds the constant 1 -- a counter, not an adder over two operands"
+        },
+        {
+          "attempted": false,
+          "id": "b-frame-protocol",
+          "recovered": false,
+          "statement": "the protocol is 0x7E, a length byte, that many payload bytes and a closing 0x7E, with a watchdog"
+        }
+      ],
+      "facts_recovered": 3,
+      "facts_total": 4,
+      "tool_confidence": "medium",
+      "tool_family": "none-detected",
+      "tool_outcome": "correct",
+      "tool_style": "undetermined",
+      "truth_design": "byte-framing receiver for a self-synchronising serial link",
+      "truth_family": "none-detected",
+      "truth_style": "undetermined"
+    },
+    {
+      "blind_confidence": "high",
+      "blind_family": "lfsr-stream",
+      "blind_outcome": "correct",
+      "blind_style": "classical-style",
+      "core": "core_c",
+      "deciding_rule": "R5-stream",
+      "facts": [
+        {
+          "attempted": true,
+          "id": "c-three-segments",
+          "recovered": true,
+          "statement": "three feedback registers of 93, 84 and 111 stages"
+        },
+        {
+          "attempted": true,
+          "id": "c-coupled",
+          "recovered": true,
+          "statement": "no segment's feedback is a function of its own stages alone: they are coupled 93 -> 84 -> 111 -> 93"
+        },
+        {
+          "attempted": true,
+          "id": "c-nonlinear-feedback",
+          "recovered": true,
+          "statement": "every feedback function has algebraic degree 2 -- one AND term is the whole difference from a linear LFSR"
+        },
+        {
+          "attempted": true,
+          "id": "c-held-mode",
+          "recovered": true,
+          "statement": "none of it is visible until one external net is held at a constant, because every stage is a load multiplexer"
+        },
+        {
+          "attempted": false,
+          "id": "c-warmup",
+          "recovered": false,
+          "statement": "the key/IV load is followed by a 1152-step warm-up, counted as 64 x 18"
+        }
+      ],
+      "facts_recovered": 4,
+      "facts_total": 5,
+      "tool_confidence": "high",
+      "tool_family": "lfsr-stream",
+      "tool_outcome": "correct",
+      "tool_style": "classical-style",
+      "truth_design": "Trivium keystream generator, one bit per cycle",
+      "truth_family": "lfsr-stream",
+      "truth_style": "classical-style"
+    },
+    {
+      "blind_confidence": "medium",
+      "blind_family": "arx",
+      "blind_outcome": "correct",
+      "blind_style": "classical-style",
+      "core": "core_d",
+      "deciding_rule": "R4-arx",
+      "facts": [
+        {
+          "attempted": true,
+          "id": "d-two-adders",
+          "recovered": true,
+          "statement": "two carry chains of the same width, each adding two register-derived operands"
+        },
+        {
+          "attempted": true,
+          "id": "d-key-schedule-split",
+          "recovered": true,
+          "statement": "a 64-bit register state drives a 32-bit one and nothing comes back: a key schedule driving a data path"
+        },
+        {
+          "attempted": true,
+          "id": "d-depth",
+          "recovered": true,
+          "statement": "the round is deep and narrow -- a 16-bit carry ripples through seventeen levels of logic"
+        },
+        {
+          "attempted": false,
+          "id": "d-rotations",
+          "recovered": false,
+          "statement": "the round rotates by alpha = 7 and beta = 2, neither of which is a net in the netlist"
+        },
+        {
+          "attempted": false,
+          "id": "d-round-count",
+          "recovered": false,
+          "statement": "the cipher is 22 rounds and the block is 32 bits"
+        }
+      ],
+      "facts_recovered": 3,
+      "facts_total": 5,
+      "tool_confidence": "medium",
+      "tool_family": "none-detected",
+      "tool_outcome": "missed",
+      "tool_style": "undetermined",
+      "truth_design": "Speck32/64 block cipher, encryption only, one round per cycle",
+      "truth_family": "arx",
+      "truth_style": "classical-style"
+    },
+    {
+      "blind_confidence": "medium",
+      "blind_family": "lattice-ntt",
+      "blind_outcome": "correct",
+      "blind_style": "pqc-style",
+      "core": "core_e",
+      "deciding_rule": "R1-lattice",
+      "facts": [
+        {
+          "attempted": true,
+          "id": "e-butterfly",
+          "recovered": true,
+          "statement": "one butterfly: an add and a subtract over the same two operand vectors, shared by every transform stage"
+        },
+        {
+          "attempted": true,
+          "id": "e-modulus",
+          "recovered": true,
+          "statement": "the modulus is q = 257, recovered from what the correction logic computes rather than from a constant"
+        },
+        {
+          "attempted": false,
+          "id": "e-degree",
+          "recovered": false,
+          "statement": "the ring is Z_q[x]/(x^16 + 1): sixteen coefficients, nine bits each, in two banks"
+        },
+        {
+          "attempted": false,
+          "id": "e-twiddles",
+          "recovered": false,
+          "statement": "eighty-one twiddle constants and the root psi = 15"
+        }
+      ],
+      "facts_recovered": 2,
+      "facts_total": 4,
+      "tool_confidence": "medium",
+      "tool_family": "lattice-ntt",
+      "tool_outcome": "correct",
+      "tool_style": "pqc-style",
+      "truth_design": "negacyclic NTT polynomial multiplier, n = 16, q = 257",
+      "truth_family": "lattice-ntt",
+      "truth_style": "pqc-style"
+    }
+  ],
+  "facts_recovered": 16,
+  "facts_total": 24,
+  "rules_never_exercised": [
+    "R3-spn"
+  ],
+  "tool_correct": 3,
+  "tool_correct_named": 4,
+  "tool_outcomes": {
+    "correct": 3,
+    "missed": 2
+  },
+  "total": 5
+}

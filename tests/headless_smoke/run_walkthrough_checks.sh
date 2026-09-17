@@ -119,6 +119,12 @@ if [[ "${TIER}" == "nohal" ]]; then
     # and still needs nothing but tools/hal_agilex and tools/hal_crypto; ~90 s.
     # --with-hal below adds the hal_py load and the SCC decomposition.
     run 15_ntt_mult
+    # 16 is the series capstone and the most expensive entry here: five blinded
+    # exports (3047 instances between them) re-analysed from scratch, the whole
+    # score table re-derived, and six negative controls re-run live -- one of
+    # which must *not* be caught, because it moves a constant on an unreachable
+    # path.  Still nothing but tools/hal_agilex and tools/hal_crypto; ~90 s.
+    run 16_mystery_cores
 else
     for var in HAL_BASE_PATH HAL_PY_PATH PYTHONPATH; do
         if [[ -z "${!var:-}" ]]; then
@@ -144,6 +150,7 @@ else
     run 13_trivium_stream --with-hal
     run 14_keccak_toy --with-hal
     run 15_ntt_mult --with-hal
+    run 16_mystery_cores --with-hal
 fi
 
 # Canary: the checks are supposed to read the committed artifacts, not

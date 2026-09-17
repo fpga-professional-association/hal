@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Strip every identifier from netlist.hal.v that leaks the original design.
+"""Strip every identifier from a .hal.v import that leaks the original design.
 
-Quartus is generous to a reverse engineer: it keeps RTL signal names, so the
+Byte for byte the script walkthrough 10 ships, reused here because the blinding
+has to be the *same* blinding: a capstone that graded itself against a weaker
+anonymiser than the one the series already publishes would be grading nothing.
+The only change is this docstring.
+
+Quartus is generous to a reverse engineer: it keeps RTL signal names, so an
 export literally contains `crc_r[7:0]`, an instance called `feedback` and a
 `reduce_nor_0`.  A walkthrough that leans on those names teaches nothing, and a
 real target (an obfuscated netlist, a netlist recovered from a bitstream, a
 design built with name mangling on) will not have them.
 
-So the walkthrough runs on *two* copies of the same circuit:
+So walkthrough 16 keeps *two* copies of each circuit:
 
-  netlist.hal.v        as exported -- names intact, used only to check answers
-  netlist.anon.hal.v   identical structure, every design name replaced
+  ground_truth/exports/core_x.hal.v   as exported -- names intact, answer key
+  cores/core_x.anon.hal.v             identical structure, every name replaced
 
 Only the things a reverse engineer genuinely has are preserved:
 
@@ -26,8 +31,8 @@ Everything else becomes `top`, `port_i<n>`, `port_o<n>`, `n<n>`, `u<n>`, and the
 numbering is deliberately scrambled so that neither the instance order nor an
 internal vector declaration hands over which flip-flops form a word.
 
-    python anonymize.py netlist/netlist.hal.v netlist/netlist.anon.hal.v \
-        [netlist/anonymize_map.json]
+    python anonymize.py ground_truth/exports/core_a.hal.v \
+        cores/core_a.anon.hal.v [ground_truth/maps/core_a.map.json]
 
 The optional third argument writes the mapping out.  It is not needed to *do*
 the walkthrough -- knowing the answers is the opposite of the exercise -- but
@@ -111,8 +116,7 @@ def split_internal_buses(text):
     one of its sixteen `key[0..15]` references rewritten to `ke__bit_y_0__`,
     which HAL's Verilog parser then refused as an assignment to an undeclared
     net.  A substring replace over a netlist is a bug waiting for two names to
-    be a suffix of each other, and in a netlist they eventually are.  This
-    design's own output is unchanged by the fix.
+    be a suffix of each other, and in a netlist they eventually are.
     """
     ports = {_norm(name) for _, _, name in PORT_DECL.findall(text)}
 

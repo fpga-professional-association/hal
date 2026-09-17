@@ -125,6 +125,13 @@ What the words are allowed to mean:
   (`conditional: true` plus the `cofactor`). `standalone_xor_cells` and
   `conditional_xor_cells` are reported separately; the first is the stronger
   evidence. Do not read `xor_cells: 54` as 54 XOR gates.
+- **A *tapped* shift chain is not found at all.** `shiftreg`'s walk follows
+  successors and stops at the first stage with more than one, so a shift register
+  whose stages each also drive a capture register — the receive path of
+  `16_mystery_cores`' `core_b`, and any Galois-style layout — comes back as no
+  structure whatsoever, not as a short one. Walking the *predecessor* instead
+  (each stage has exactly one register feeding it, and fan-out cannot change
+  that) finds it; that is what that walkthrough's `analysis.py` does.
 - **A parallel load makes every shift link invisible, and the pass holds a net
   to get them back.** `s[i] <= load ? init[i] : s[i-1]` is a multiplexer, so on
   `13_trivium_stream` -- a real Trivium export -- the plain reading found *zero*
@@ -224,6 +231,17 @@ What the words are allowed to mean:
   tier to `medium` — it is never turned into a clean negative. Adder
   verification falls back to 256 seeded operand vectors and the finding then
   says `heuristic` with the vector count.
+- **Blinding a netlist costs the ARX verdict, and nothing else measured so far.**
+  `16_mystery_cores` runs `identify` on the *named* and the *anonymized* copy of
+  five real exports. Four verdicts are identical; Speck32/64 goes from `arx`
+  (high) to `none-detected` (medium). The adders and all 54 XOR cells are still
+  found — what is lost is the **rotations**, 4 to 0, because
+  `arx.adder_operand_rotations` groups an operand's source nets by the text
+  before the `[` in their names to decide which *word* they belong to, and
+  blinding splits every internal vector into scalars. A netlist recovered from a
+  bitstream has no vector declarations at all, so expect this on real targets and
+  **run the pass on the least-blinded copy you have before believing a negative**.
+  `sbox`, `shiftreg`, `ntt` and the permutation tiers were unaffected on that set.
 - **`--strict` will not catch `none-detected`.** It is deliberately an
   `unknown` finding. Gate on `data.family` if you want a script to react to it.
 - Findings record the input's **sha256**, so the CRLF pitfall from
