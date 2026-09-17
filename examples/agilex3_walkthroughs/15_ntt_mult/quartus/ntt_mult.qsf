@@ -1,0 +1,25 @@
+# Quartus settings for the ntt_mult walkthrough.
+# Same device / family / flow as tools/hal_agilex/fixtures (see its README).
+set_global_assignment -name FAMILY "Agilex 3"
+set_global_assignment -name DEVICE A3CW135BM16AE6S
+set_global_assignment -name TOP_LEVEL_ENTITY ntt_mult
+set_global_assignment -name VERILOG_FILE design.v
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+
+# Keep the load selection out of the flip-flop's `sload` and `sclr` ports and
+# inside the LUT logic instead.  Both are real tennm_ff ports but they are
+# outside the configuration hal_agilex validated (see tools/hal_agilex,
+# "Coverage"), so an export using them would be reported `unsupported`.  Same
+# assignment, same reason, as walkthroughs 06, 11, 13 and 14.
+set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF
+
+# The one new hazard this design brings.  `w * v` is a 9 x 9 multiply, and
+# Quartus will put it in a tennm_mac (a DSP block) unless told not to.  A
+# tennm_mac is not in hal_agilex's validated coverage, so the export would be
+# reported `unsupported` -- and, worse for the analysis, the entire modular
+# multiplier would vanish into one opaque primitive.  The `multstyle = "logic"`
+# attribute in design.v says the same thing at the RTL; this says it for the
+# whole project, so that dropping the attribute alone is not enough to get a
+# DSP back.  quartus/ntt_dsp.qsf is the counterfactual that drops both.
+set_global_assignment -name AUTO_DSP_RECOGNITION OFF
+set_global_assignment -name DSP_BLOCK_BALANCING "LOGIC ELEMENTS"
