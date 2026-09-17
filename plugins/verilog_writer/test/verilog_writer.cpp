@@ -6,8 +6,11 @@
 #include "hal_core/plugin_system/plugin_manager.h"
 #include "hal_core/netlist/gate_library/gate_library_manager.h"
 
+#include <cctype>
 #include <fstream>
+#include <set>
 #include <sstream>
+#include <string>
 
 namespace hal
 {
@@ -19,6 +22,155 @@ namespace hal
             std::stringstream ss;
             ss << ifs.rdbuf();
             return ss.str();
+        }
+
+        /**
+         * Collect every Verilog identifier of a piece of written Verilog.
+         *
+         * An escaped identifier runs from its backslash to the next whitespace and may hold anything in between,
+         * parentheses and brackets included, so it is taken as a whole. A number literal such as `1'bz` starts with a
+         * digit and is not an identifier, and neither is the index of a bit select, which is skipped along with it.
+         */
+        std::set<std::string> identifiers_in(const std::string& text)
+        {
+            std::set<std::string> identifiers;
+
+            for (size_t pos = 0; pos < text.size();)
+            {
+                const unsigned char c = (unsigned char)text.at(pos);
+
+                if (c == '\\')
+                {
+                    size_t end = pos;
+                    while (end < text.size() && !std::isspace((unsigned char)text.at(end)))
+                    {
+                        end++;
+                    }
+                    identifiers.insert(text.substr(pos, end - pos));
+                    pos = end;
+                }
+                else if (std::isalpha(c) || c == '_')
+                {
+                    size_t end = pos;
+                    while (end < text.size() && (std::isalnum((unsigned char)text.at(end)) || text.at(end) == '_' || text.at(end) == '$'))
+                    {
+                        end++;
+                    }
+                    identifiers.insert(text.substr(pos, end - pos));
+                    pos = end;
+                }
+                else if (std::isdigit(c))
+                {
+                    // a number literal or a bit select index -- runs up to the next separator
+                    while (pos < text.size() && text.at(pos) != ',' && text.at(pos) != '}' && text.at(pos) != ')' && !std::isspace((unsigned char)text.at(pos)))
+                    {
+                        pos++;
+                    }
+                }
+                else
+                {
+                    pos++;
+                }
+            }
+
+            return identifiers;
+        }
+
+        /**
+         * Collect every identifier that the written Verilog declares, i.e., every port and every wire.
+         */
+        std::set<std::string> declared_identifiers(const std::string& content)
+        {
+            std::set<std::string> declared;
+
+            std::istringstream stream(content);
+            std::string line;
+            while (std::getline(stream, line))
+            {
+                // an attribute instance may precede the declaration
+                if (const size_t attribute_end = line.find("*)"); attribute_end != std::string::npos)
+                {
+                    line = line.substr(attribute_end + 2);
+                }
+
+                std::istringstream line_stream(line);
+                std::string keyword;
+                line_stream >> keyword;
+                if (keyword != "wire" && keyword != "input" && keyword != "output" && keyword != "inout")
+                {
+                    continue;
+                }
+
+                std::string rest;
+                std::getline(line_stream, rest);
+
+                // a wire may be declared with a continuous assignment, which is not a declaration of its right-hand side
+                if (const size_t assignment = rest.find('='); assignment != std::string::npos)
+                {
+                    rest = rest.substr(0, assignment);
+                }
+
+                for (const std::string& identifier : identifiers_in(rest))
+                {
+                    declared.insert(identifier);
+                }
+            }
+
+            return declared;
+        }
+
+        /**
+         * Extract the text between the parentheses of the `.<port>(...)` connection of an instance.
+         *
+         * @returns The connection, or an empty string if the port is not connected anywhere in the file.
+         */
+        std::string port_connection(const std::string& content, const std::string& port)
+        {
+            const size_t start = content.find("." + port + "(");
+            if (start == std::string::npos)
+            {
+                return "";
+            }
+
+            const size_t body = start + port.size() + 2;
+            size_t pos        = body;
+            u32 depth         = 1;
+            while (pos < content.size())
+            {
+                const char c = content.at(pos);
+                if (c == '\\')
+                {
+                    // an escaped identifier may hold parentheses of its own
+                    while (pos < content.size() && !std::isspace((unsigned char)content.at(pos)))
+                    {
+                        pos++;
+                    }
+                    continue;
+                }
+
+                if (c == '(')
+                {
+                    depth++;
+                }
+                else if (c == ')' && --depth == 0)
+                {
+                    break;
+                }
+
+                pos++;
+            }
+
+            return content.substr(body, pos - body);
+        }
+
+        u32 count_occurrences(const std::string& content, const std::string& needle)
+        {
+            u32 count = 0;
+            for (size_t pos = content.find(needle); pos != std::string::npos; pos = content.find(needle, pos + needle.size()))
+            {
+                count++;
+            }
+            return count;
         }
     }
     class VerilogWriterTest : public ::testing::Test {
@@ -671,8 +823,9 @@ namespace hal
     /**
      * Issue #59: the unconnected members of a partially connected gate pin group used to be written as
      * 'HAL_UNUSED_SIGNAL_<n>' identifiers that were never declared as wires, so HAL refused to re-parse its own output.
-     * The slot now carries the high-impedance literal, which the parser skips, so the pin comes back unconnected
-     * instead of being driven by a dangling net.
+     * An input slot now carries the high-impedance literal, which the parser skips, and an output slot an idle wire of
+     * its own (issue #86, see below), which the parser drops -- either way the pin comes back unconnected instead of
+     * being driven by a dangling net.
      *
      * Functions: write
      */
@@ -725,6 +878,108 @@ namespace hal
                 EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(0)"), nullptr);
                 EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(3)"), nullptr);
                 EXPECT_EQ(parsed_nl->get_nets().size(), 2);
+            }
+        TEST_END
+    }
+
+    /**
+     * Issue #86: an output port connection is a net lvalue, and IEEE 1364 allows only nets there -- so the high-impedance
+     * literal that fills the unconnected members of a partially connected *input* pin group (issue #59) is not legal in
+     * the same position of an *output* group, even though HAL itself reads it back fine. Such a slot gets an idle wire
+     * of its own instead: declared, driven by that one pin and read by nothing, which every tool accepts. The wire
+     * carries the HAL_UNCONNECTED attribute, which HAL's parser handles like the literal, so the pin still comes back
+     * unconnected and the round trip neither gains a net nor turns an unconnected pin into a dangling one.
+     *
+     * Functions: write
+     */
+    TEST_F(VerilogWriterTest, check_partially_connected_output_pin_group) {
+        TEST_START
+            {
+                std::filesystem::path path_netlist = test_utils::create_sandbox_path("test_partial_output_pin_group.v");
+                std::unique_ptr<Netlist> nl = std::make_unique<Netlist>(m_gl);
+
+                {
+                    Module* top_module = nl->get_top_module();
+                    Gate* ram = nl->create_gate(m_gl->get_gate_type_by_name("RAM"), "ram_0");
+
+                    // only one bit of the four-bit DATA_IN and DATA_OUT groups is connected
+                    Net* data_in_3 = test_utils::connect_global_in(nl.get(), ram, "DATA_IN(3)", "data_in_3");
+                    Net* data_out_0 = test_utils::connect_global_out(nl.get(), ram, "DATA_OUT(0)", "data_out_0");
+
+                    for (Net* net : std::vector<Net*>({data_in_3, data_out_0}))
+                    {
+                        ModulePin* pin = top_module->get_pin_by_net(net);
+                        ASSERT_NE(pin, nullptr);
+                        ASSERT_TRUE(top_module->set_pin_name(pin, net->get_name()));
+                    }
+                }
+
+                VerilogWriter verilog_writer;
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist).is_ok());
+
+                const std::string file_content = read_file(path_netlist);
+
+                // (a) no constant literal anywhere inside the output concatenation -- it would not be a legal net lvalue
+                const std::string data_out_connection = port_connection(file_content, "DATA_OUT");
+                ASSERT_FALSE(data_out_connection.empty()) << file_content;
+                EXPECT_EQ(data_out_connection.find('\''), std::string::npos) << file_content;
+
+                // the input side keeps the high-impedance literal, which is a legal expression in that position
+                const std::string data_in_connection = port_connection(file_content, "DATA_IN");
+                ASSERT_FALSE(data_in_connection.empty()) << file_content;
+                EXPECT_NE(data_in_connection.find("1'bz"), std::string::npos) << file_content;
+
+                // the three unconnected output bits get one declared, marked wire each -- never a single shared one,
+                // which would leave three drivers on one net
+                EXPECT_EQ(count_occurrences(file_content, "(* HAL_UNCONNECTED *) wire "), 3) << file_content;
+
+                // (b) every identifier the file uses is declared
+                const std::set<std::string> declared = declared_identifiers(file_content);
+                std::set<std::string> used;
+                for (const std::string& port : std::vector<std::string>({"DATA_IN", "DATA_OUT"}))
+                {
+                    for (const std::string& identifier : identifiers_in(port_connection(file_content, port)))
+                    {
+                        used.insert(identifier);
+                    }
+                }
+                ASSERT_FALSE(used.empty()) << file_content;
+                for (const std::string& identifier : used)
+                {
+                    EXPECT_EQ(declared.count(identifier), 1) << "identifier '" << identifier << "' is used but never declared:" << std::endl << file_content;
+                }
+
+                // the placeholder names are derived from the instance, the port and the bit position, so writing the
+                // same netlist twice yields the same file -- no counter that depends on how much has been written before
+                std::filesystem::path path_netlist_again = test_utils::create_sandbox_path("test_partial_output_pin_group_again.v");
+                ASSERT_TRUE(verilog_writer.write(nl.get(), path_netlist_again).is_ok());
+                EXPECT_EQ(read_file(path_netlist_again), file_content);
+
+                // (c) the re-parsed netlist is the one that was written
+                VerilogParser verilog_parser;
+                auto parsed_nl_res = verilog_parser.parse_and_instantiate(path_netlist, m_gl);
+                ASSERT_TRUE(parsed_nl_res.is_ok());
+                std::unique_ptr<Netlist> parsed_nl = parsed_nl_res.get();
+                ASSERT_NE(parsed_nl, nullptr);
+
+                ASSERT_EQ(parsed_nl->get_gates().size(), 1);
+                const Gate* parsed_ram = parsed_nl->get_gates().front();
+                ASSERT_NE(parsed_ram->get_fan_out_net("DATA_OUT(0)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(0)")->get_name(), "data_out_0");
+                ASSERT_NE(parsed_ram->get_fan_in_net("DATA_IN(3)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_in_net("DATA_IN(3)")->get_name(), "data_in_3");
+
+                // the placeholder wires are gone and the pins they stood in for are unconnected, not dangling
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(1)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(2)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_net("DATA_OUT(3)"), nullptr);
+                EXPECT_EQ(parsed_ram->get_fan_out_endpoints().size(), 1);
+                EXPECT_EQ(parsed_nl->get_nets().size(), 2);
+
+                for (const Net* net : parsed_nl->get_nets())
+                {
+                    EXPECT_EQ(net->get_name().rfind("hal_unconnected_", 0), std::string::npos) << net->get_name();
+                }
             }
         TEST_END
     }

@@ -26,10 +26,12 @@
 #pragma once
 
 #include "hal_core/defines.h"
+#include "hal_core/netlist/gate_library/enums/pin_direction.h"
 #include "hal_core/netlist/netlist_writer/netlist_writer.h"
 
 #include <set>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -64,6 +66,25 @@ namespace hal
     private:
         static const std::set<std::string> valid_types;
 
+        /**
+         * A port connection of a gate or module instance.
+         *
+         * The direction is carried alongside the nets because it decides what an unconnected bit of a partially
+         * connected port may be filled with: only an input port connection may hold an arbitrary expression, every
+         * other one is a net lvalue. See `write_pin_assignments`.
+         */
+        struct PinAssignment
+        {
+            /// The name of the pin or pin group the connection is made to.
+            std::string name;
+
+            /// The direction of the pin or pin group.
+            PinDirection direction;
+
+            /// The net connected to each bit of the pin group, a `nullptr` for a bit that is not connected.
+            std::vector<const Net*> nets;
+        };
+
         Result<std::monostate> write_module_declaration(std::stringstream& res_stream,
                                                         const Module* module,
                                                         std::unordered_map<const Module*, std::string>& module_type_aliases,
@@ -71,16 +92,21 @@ namespace hal
         Result<std::monostate> write_gate_instance(std::stringstream& res_stream,
                                                    const Gate* gate,
                                                    std::unordered_map<const DataContainer*, std::string>& aliases,
-                                                   std::unordered_map<std::string, u32>& identifier_occurrences) const;
+                                                   std::unordered_map<std::string, u32>& identifier_occurrences,
+                                                   std::vector<std::string>& placeholder_wires) const;
         Result<std::monostate> write_module_instance(std::stringstream& res_stream,
                                                      const Module* module,
                                                      std::unordered_map<const DataContainer*, std::string>& aliases,
                                                      std::unordered_map<std::string, u32>& identifier_occurrences,
-                                                     std::unordered_map<const Module*, std::string>& module_type_aliases) const;
+                                                     std::unordered_map<const Module*, std::string>& module_type_aliases,
+                                                     std::vector<std::string>& placeholder_wires) const;
         Result<std::monostate> write_parameter_assignments(std::stringstream& res_stream, const DataContainer* container) const;
         Result<std::monostate> write_pin_assignments(std::stringstream& res_stream,
-                                                     const std::vector<std::pair<std::string, std::vector<const Net*>>>& pin_assignments,
-                                                     std::unordered_map<const DataContainer*, std::string>& aliases) const;
+                                                     const std::string& instance_name,
+                                                     const std::vector<PinAssignment>& pin_assignments,
+                                                     std::unordered_map<const DataContainer*, std::string>& aliases,
+                                                     std::unordered_map<std::string, u32>& identifier_occurrences,
+                                                     std::vector<std::string>& placeholder_wires) const;
         Result<std::monostate> write_parameter_value(std::stringstream& res_stream, const std::string& type, const std::string& value) const;
         std::string get_unique_alias(std::unordered_map<std::string, u32>& name_occurrences, const std::string& name) const;
         std::string escape(const std::string& s) const;
