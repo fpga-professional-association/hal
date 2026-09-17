@@ -113,8 +113,9 @@ against, not the CI minutes themselves.
   those three you must push a branch or open a PR.
 - `.github/workflows/nightly-fuzz.yml` -- the only *scheduled* workflow (04:10
   UTC). It rebuilds Ubuntu 24.04 with `-DBUILD_FUZZ_TESTS=ON` and runs
-  `tests/fuzz/run_fuzz_matrix.sh`: `ctest -L fuzz`, a `FUZZ_ITERS=500` sweep,
-  twelve extra fixed seeds, and one seed that is new every night. The same
+  `tests/fuzz/run_fuzz_matrix.sh`: `ctest -L fuzz`, a 500-seed sweep per harness
+  in 25-seed chunks, twelve extra fixed seeds, and one seed that is new every
+  night. The same
   script runs in the bench container, which is how to reproduce a red nightly:
   `NIGHTLY_SEED=<the seed from the job summary> bash tests/fuzz/run_fuzz_matrix.sh`.
   A finding there is a bug in HAL, not usually in the day's change.

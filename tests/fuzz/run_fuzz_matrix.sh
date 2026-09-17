@@ -11,10 +11,17 @@
 #                 per-push job runs, through the same entry point, so a nightly
 #                 that goes red on them means the regression is not seed-specific
 #                 (skipped when FUZZ_CTEST_BUILD_DIR is unset)
-#   deep-sweep    FUZZ_ITERS=$FUZZ_MATRIX_ITERS: the first N seeds of each
-#                 harness' deterministic seed_sequence(), i.e. the 25 fixed ones
-#                 plus N-25 derived ones. Deterministic across nights: a finding
-#                 here is reproducible from the seed printed with it
+#   deep-sweep    the first $FUZZ_MATRIX_ITERS seeds of each harness'
+#                 deterministic seed_sequence(), i.e. the 25 fixed ones plus the
+#                 derived ones after them, walked in chunks of
+#                 $FUZZ_MATRIX_CHUNK seeds per process (FUZZ_ITERS_OFFSET +
+#                 FUZZ_ITERS). The chunking is a memory bound, not a scheduling
+#                 trick: neither harness releases the hal_py objects it builds,
+#                 so a single 500-seed BooleanFunction process peaks around
+#                 12 GB and is killed on a runner, while a 25-seed process peaks
+#                 at 0.7 GB and is also measurably faster. Deterministic across
+#                 nights: a finding here is reproducible from the seed printed
+#                 with it, whatever chunk it was found in
 #   extra-seeds   $FUZZ_MATRIX_SEEDS, one harness run per seed with
 #                 FUZZ_SAMPLES=$FUZZ_MATRIX_SAMPLES -- deeper per seed rather
 #                 than more seeds, which is the axis that grows the trees and the
@@ -31,6 +38,7 @@
 #   FUZZ_CTEST_BUILD_DIR   build tree to run `ctest -L fuzz` in; unset = skip
 #   FUZZ_LOG_DIR           where the per-case logs go (default: ./fuzz-logs)
 #   FUZZ_MATRIX_ITERS      seeds for the deep sweep (default: 500)
+#   FUZZ_MATRIX_CHUNK      seeds per deep-sweep process (default: 25)
 #   FUZZ_MATRIX_SEEDS      extra fixed seeds, space separated
 #   FUZZ_MATRIX_SAMPLES    FUZZ_SAMPLES for the extra seeds (default: 250)
 #   FUZZ_RANDOM_SAMPLES    FUZZ_SAMPLES for the random seed (default: 500)
@@ -52,10 +60,11 @@ VERILOG=tests/fuzz/fuzz_verilog_roundtrip.py
 # The harnesses read these three themselves; an inherited value would silently
 # override a tier below (a FUZZ_SEED in the environment turns every sweep into a
 # single-seed run), so the matrix owns them and nothing else does.
-unset FUZZ_SEED FUZZ_ITERS FUZZ_SAMPLES
+unset FUZZ_SEED FUZZ_ITERS FUZZ_ITERS_OFFSET FUZZ_SAMPLES
 
 LOG_DIR=${FUZZ_LOG_DIR:-$REPO_ROOT/fuzz-logs}
 MATRIX_ITERS=${FUZZ_MATRIX_ITERS:-500}
+MATRIX_CHUNK=${FUZZ_MATRIX_CHUNK:-25}
 MATRIX_SAMPLES=${FUZZ_MATRIX_SAMPLES:-250}
 RANDOM_SAMPLES=${FUZZ_RANDOM_SAMPLES:-500}
 # Twelve seeds outside DEFAULT_SEEDS and outside the range seed_sequence()
@@ -113,18 +122,31 @@ if [ -n "${FUZZ_CTEST_BUILD_DIR:-}" ]; then
     else
         status=FAILED
         FAILED_CASES="$FAILED_CASES fixed-seeds-ctest"
-        excerpt "$log" | sed 's/^/    | /'
     fi
     elapsed=$(( $(date +%s) - start ))
     printf '    %s in %ds -> %s\n' "$status" "$elapsed" "$log"
+    if [ "$status" = FAILED ]; then
+        excerpt "$log" | sed 's/^/    | /'
+    fi
     RESULT_ROWS="${RESULT_ROWS}fixed-seeds-ctest	${status}	${elapsed}	ctest -L fuzz
 "
 fi
 
-# ---- deep deterministic sweep --------------------------------------------- #
+# ---- deep deterministic sweep, one process per chunk of seeds ------------- #
 
-run_case deep-sweep-boolean "$BOOLEAN" "FUZZ_ITERS=$MATRIX_ITERS"
-run_case deep-sweep-verilog "$VERILOG" "FUZZ_ITERS=$MATRIX_ITERS"
+offset=0
+while [ "$offset" -lt "$MATRIX_ITERS" ]; do
+    chunk=$MATRIX_CHUNK
+    if [ $(( offset + chunk )) -gt "$MATRIX_ITERS" ]; then
+        chunk=$(( MATRIX_ITERS - offset ))
+    fi
+    label=$(printf 'deep-sweep-%04d-%04d' "$offset" "$(( offset + chunk - 1 ))")
+    run_case "${label}-boolean" "$BOOLEAN" \
+        "FUZZ_ITERS_OFFSET=$offset" "FUZZ_ITERS=$chunk"
+    run_case "${label}-verilog" "$VERILOG" \
+        "FUZZ_ITERS_OFFSET=$offset" "FUZZ_ITERS=$chunk"
+    offset=$(( offset + chunk ))
+done
 
 # ---- extra fixed seeds, deeper per seed ----------------------------------- #
 
@@ -143,14 +165,25 @@ run_case "random-seed-verilog" "$VERILOG" "FUZZ_SEED=$NIGHTLY_SEED"
 
 # ---- report --------------------------------------------------------------- #
 
+total_cases=$(printf '%s' "$RESULT_ROWS" | grep -c .)
+failed_count=0
+for _name in $FAILED_CASES; do
+    failed_count=$(( failed_count + 1 ))
+done
+
 summary=${GITHUB_STEP_SUMMARY:-/dev/null}
 {
     printf '## Nightly fuzz tier\n\n'
+    printf '%d cases, %d failed. Deep sweep: %d seeds per harness in chunks of %d.\n\n' \
+        "$total_cases" "$failed_count" "$MATRIX_ITERS" "$MATRIX_CHUNK"
     printf "tonight's random seed: \`%s\` -- reproduce with\n\n" "$NIGHTLY_SEED"
     printf '```\n'
     printf 'FUZZ_SEED=%s FUZZ_SAMPLES=%s python3 %s\n' "$NIGHTLY_SEED" "$RANDOM_SAMPLES" "$BOOLEAN"
     printf 'FUZZ_SEED=%s python3 %s\n' "$NIGHTLY_SEED" "$VERILOG"
     printf '```\n\n'
+    # Folded: the deep sweep alone is 40 rows, and on a green night nobody reads
+    # them. The findings below are never folded.
+    printf '<details><summary>All %d cases</summary>\n\n' "$total_cases"
     printf '| case | result | seconds | parameters |\n'
     printf '| --- | --- | --- | --- |\n'
     printf '%s' "$RESULT_ROWS" | while IFS=$'\t' read -r name status elapsed params; do
@@ -158,7 +191,7 @@ summary=${GITHUB_STEP_SUMMARY:-/dev/null}
         [ "$status" = ok ] && mark='ok' || mark='**FAILED**'
         printf '| `%s` | %s | %s | `%s` |\n' "$name" "$mark" "$elapsed" "$params"
     done
-    printf '\n'
+    printf '\n</details>\n\n'
 
     if [ -n "$FAILED_CASES" ]; then
         printf '### Findings\n\n'

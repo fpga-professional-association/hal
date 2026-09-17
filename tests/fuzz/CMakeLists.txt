@@ -25,10 +25,11 @@
 #     sweep does run on every push, on the one platform whose result is known (this file and that
 #     flag were added together, with both harnesses green there);
 #   * .github/workflows/nightly-fuzz.yml (issue #51) widens that once a night on the same platform:
-#     `ctest -L fuzz` for the fixed seeds, a FUZZ_ITERS=500 deterministic sweep, twelve extra fixed
-#     seeds run deeper per seed, and one seed derived from the run id and date that is new every
-#     night. tests/fuzz/run_fuzz_matrix.sh is the driver, and it is runnable by hand exactly as the
-#     workflow runs it.
+#     `ctest -L fuzz` for the fixed seeds, a 500-seed deterministic sweep per harness (in 25-seed
+#     chunks -- neither harness releases the hal_py objects it builds, so one long process would
+#     need ~12 GB), twelve extra fixed seeds run deeper per seed, and one seed derived from the run
+#     id and date that is new every night. tests/fuzz/run_fuzz_matrix.sh is the driver, and it is
+#     runnable by hand exactly as the workflow runs it.
 #
 #   cmake ... -DBUILD_TESTS=ON -DBUILD_FUZZ_TESTS=ON && ctest -L fuzz
 #

@@ -27,6 +27,10 @@ Usage
     FUZZ_SEED=12345 python3 tests/fuzz/fuzz_verilog_roundtrip.py   # one-off repro
     FUZZ_ITERS=200  python3 tests/fuzz/fuzz_verilog_roundtrip.py   # deeper sweep
 
+    # seeds 100..124 of the same deterministic sequence FUZZ_ITERS walks, so a
+    # long sweep can be split over several processes (see main())
+    FUZZ_ITERS_OFFSET=100 FUZZ_ITERS=25 python3 tests/fuzz/fuzz_verilog_roundtrip.py
+
     # re-enable the generator features that only reproduce the already-known
     # bugs listed in KNOWN_BUGS below (off by default so the sweep keeps
     # hunting for *new* bugs instead of rediscovering these); only KB-4 is
@@ -849,16 +853,23 @@ were -- so the bug cannot come back unnoticed."""
 
 def main():
     env_seed = os.environ.get("FUZZ_SEED")
+    offset = int(os.environ.get("FUZZ_ITERS_OFFSET", "0"), 0)
     if env_seed:
         seeds = [int(env_seed, 0)]
     else:
         iters = int(os.environ.get("FUZZ_ITERS", str(len(DEFAULT_SEEDS))))
-        seeds = seed_sequence(iters)
+        # seed_sequence() is a prefix-stable list, so seeds [offset:offset+iters]
+        # are the same seeds whether a long sweep runs in one process or in
+        # chunks -- which is how tests/fuzz/run_fuzz_matrix.sh keeps the nightly
+        # sweep inside a runner's memory, the netlists and the BooleanFunction
+        # trees of the harness next door both being retained for the life of the
+        # process.
+        seeds = seed_sequence(offset + iters)[offset:]
 
     workdir = tempfile.mkdtemp(prefix="hal_fuzz_verilog_")
     print("fuzz_verilog_roundtrip: gate library %s" % GATE_LIBRARY_PATH)
-    print("fuzz_verilog_roundtrip: %d cell types, %d seeds, known-bug triggers %s"
-          % (len(CELLS), len(seeds), "ON" if ENABLE_KNOWN_BUG_TRIGGERS else "off"))
+    print("fuzz_verilog_roundtrip: %d cell types, %d seeds (offset %d), known-bug triggers %s"
+          % (len(CELLS), len(seeds), offset, "ON" if ENABLE_KNOWN_BUG_TRIGGERS else "off"))
 
     unexpected = []
     expected = []

@@ -27,6 +27,11 @@ Usage
     FUZZ_ITERS=200  python3 tests/fuzz/fuzz_boolean_function.py   # deeper sweep
     FUZZ_SAMPLES=50 python3 tests/fuzz/fuzz_boolean_function.py   # trees per seed
 
+    # seeds 100..124 of the same deterministic sequence FUZZ_ITERS walks, so a
+    # long sweep can be split over several processes and stay inside a runner's
+    # memory (see main())
+    FUZZ_ITERS_OFFSET=100 FUZZ_ITERS=25 python3 tests/fuzz/fuzz_boolean_function.py
+
 The harness exits 0 as long as every failure it sees is an *expected* one and
 every expected failure it declares still fails, so it can gate CI. Unexpected
 failures exit 1 and print a one-line repro command -- and so does an unexpected
@@ -556,14 +561,21 @@ def run_known_bugs():
 
 def main():
     env_seed = os.environ.get("FUZZ_SEED")
+    offset = int(os.environ.get("FUZZ_ITERS_OFFSET", "0"), 0)
     if env_seed:
         seeds = [int(env_seed, 0)]
     else:
         iters = int(os.environ.get("FUZZ_ITERS", str(len(DEFAULT_SEEDS))))
-        seeds = seed_sequence(iters)
+        # seed_sequence() is a prefix-stable list, so seeds [offset:offset+iters]
+        # of a long sweep are the same seeds whether they are run in one process
+        # or in chunks. Chunking matters: a BooleanFunction tree costs roughly
+        # 0.6 MB of resident memory that this process never gets back, so a
+        # 500-seed run needs ~12 GB while twenty 25-seed runs need under 1 GB
+        # each (tests/fuzz/run_fuzz_matrix.sh splits the nightly sweep that way).
+        seeds = seed_sequence(offset + iters)[offset:]
 
-    print("fuzz_boolean_function: %d seeds x %d trees, <= %d variables"
-          % (len(seeds), SAMPLES_PER_SEED, MAX_VARS))
+    print("fuzz_boolean_function: %d seeds (offset %d) x %d trees, <= %d variables"
+          % (len(seeds), offset, SAMPLES_PER_SEED, MAX_VARS))
 
     unexpected = []
     expected = []
