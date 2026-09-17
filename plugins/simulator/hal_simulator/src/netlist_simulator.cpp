@@ -297,7 +297,7 @@ namespace hal
 
         std::unordered_map<const Gate*, SimulationGate*> sim_gates_map;
         std::unordered_set<const Net*> all_nets;
-        std::map<const Net*, BooleanFunction::Value> init_events;
+        netlist_simulator_utils::NetValueMap init_events;
 
         // precompute everything that is gate-related
         for (const Gate* gate : mSimulationInput->get_gates())
@@ -437,6 +437,18 @@ namespace hal
                 continue;
             }
 
+            if (mSimulationInput->is_input_net(c.clock_net))
+            {
+                // The clock arrives as regular input events: the controller generates a clock waveform for
+                // every clock net that is an input net of the simulation and the simulation thread replays
+                // it into inputEvent(). That waveform is the single source of the clock -- it is also what
+                // decides how far the run goes, since the engine is only ever advanced from one replayed
+                // event to the next -- so generating the same switches here as well put a second event of
+                // the same time and value on the net for every edge. They resolved to the same result, but
+                // only because the two agreed; two events per edge is one too many either way.
+                continue;
+            }
+
             u64 base_time = m_current_time - (m_current_time % c.switch_time);
             u64 time      = 0;
 
@@ -445,12 +457,7 @@ namespace hal
             // number of half periods that fit into base_time is the state. This counts half periods,
             // not picoseconds -- base_time is a multiple of the half period, so `base_time & 1` was
             // 0 for every clock whose half period is an even number of picoseconds and the generated
-            // clock restarted at its start value from the base time of every call. The caller may
-            // well be replaying a clock waveform of its own for the same net -- the simulation thread
-            // replays what `NetlistSimulatorController::add_clock_period` generated -- so the clock
-            // net can hold two events of the same point in time. With the phase right both of them
-            // describe the same clock, and whichever one is processed second is dropped as a no-op
-            // instead of overwriting the value the first one recorded.
+            // clock restarted at its start value from the base time of every call.
             BooleanFunction::Value v = static_cast<BooleanFunction::Value>((base_time / c.switch_time) & 1);
             if (!c.start_at_zero)
             {
@@ -488,7 +495,7 @@ namespace hal
 
         while (!m_event_queue.empty() || !clocked_gates.empty())
         {
-            std::map<std::pair<const Net*, u64>, BooleanFunction::Value> new_events;
+            netlist_simulator_utils::NetEventMap new_events;
 
             // sort events by time
             std::sort(m_event_queue.begin(), m_event_queue.end());
@@ -670,12 +677,20 @@ namespace hal
             const Net* net = net_changes.first;
             if ((net != nullptr) && (nets.empty() || nets.find(net) != nets.end()))
             {
-                // maping net ids to net names
-                vcd << "$var wire 1 n" << net->get_id() << " " << net->get_name() << " $end" << std::endl;
-
                 // collect all simulated nets
                 simulated_nets.push_back(net);
             }
+        }
+
+        // The events are kept in an unordered map keyed by the net, so iterating it lists the nets in the
+        // order of their addresses. Sorting by ID is what makes two VCD files of the same simulation
+        // comparable line by line instead of only equivalent.
+        std::sort(simulated_nets.begin(), simulated_nets.end(), netlist_simulator_utils::NetIdLess());
+
+        for (const Net* net : simulated_nets)
+        {
+            // maping net ids to net names
+            vcd << "$var wire 1 n" << net->get_id() << " " << net->get_name() << " $end" << std::endl;
         }
 
         vcd << "$upscope $end" << std::endl;
@@ -684,7 +699,7 @@ namespace hal
         std::unordered_map<const Net*, BooleanFunction::Value> change_tracker;
         vcd << "#" << 0 << std::endl;
 
-        std::map<u32, std::map<const Net*, BooleanFunction::Value>> time_to_changes_map;
+        std::map<u32, netlist_simulator_utils::NetValueMap> time_to_changes_map;
 
         std::unordered_map<const Net*, std::vector<WaveEvent>> event_tracker = m_simulation.get_events();
 

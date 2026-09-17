@@ -29,6 +29,7 @@
 #include "netlist_simulator_controller/simulation_input.h"
 #include "netlist_simulator_controller/wave_event.h"
 
+#include <atomic>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -59,7 +60,8 @@ namespace hal
         bool mRequireClockEvents;
         bool mCanShareMemory;
         std::string mResultFilename;
-        State mState;
+        //! Written by the thread or process that runs the engine, read by whoever waits for the run.
+        std::atomic<State> mState;
         std::unordered_map<std::string, std::string> mProperties;
         SimulationInput* mSimulationInput;
         std::string mWorkDir;
@@ -79,11 +81,16 @@ namespace hal
 
         /**
          * State of the engine
+         *
+         * Reaching `Done` or `Failed` is the signal that the run is over. It is published as the very last
+         * step of the run, after the controller has been told about it, so a caller that waits for it can
+         * read the results or dispose of the controller without racing the thread that ran the engine.
+         *
          * @return possible state values are Preparing, Running, Done, Failed
          */
         State state() const
         {
-            return mState;
+            return mState.load();
         }
 
         /**
@@ -92,7 +99,7 @@ namespace hal
          */
         int get_state() const
         {
-            return mState;
+            return mState.load();
         }
 
         /**
@@ -109,6 +116,13 @@ namespace hal
 
         /**
          * Request clock change as regular net input event
+         *
+         * The controller generates a clock waveform for every clock net that is an input net of the
+         * simulation and the thread replays it to whichever engine is running, so clock events are in fact
+         * delivered to all of them -- the waveform is what the run is stepped along, an engine that is not
+         * fed it is not advanced at all. An engine that generates a clock of its own therefore has to leave
+         * those nets alone; this flag says that it does not generate one in the first place.
+         *
          * @return `true` if clock events are required by engine, `false` otherwise
          */
         bool clock_events_required() const
@@ -180,6 +194,10 @@ namespace hal
          * SimulationEngineEventDriven:   all input events have been processed
          * SimulationEngineScripted:      all comands executed successfully
          *
+         * Does *not* set the state: the thread or process that runs the engine publishes it through
+         * setRunTerminated() once it has nothing left to do, so that a caller waiting for `Done` cannot
+         * observe the end of the run before the controller has been told about it.
+         *
          * @return `true` if successful, `false` otherwise.
          */
         virtual bool finalize();
@@ -191,6 +209,19 @@ namespace hal
          * aborted. Engine might want to do some final clean up.
          */
         virtual void failed();
+
+        /**
+         * Publish the terminal state of a finished run.
+         *
+         * Called by the thread or process that ran the engine as its very last step, after the controller
+         * has been told that the run is over. See state().
+         *
+         * @param[in] success `true` if the run finished successfully, `false` otherwise.
+         */
+        void setRunTerminated(bool success)
+        {
+            mState = success ? Done : Failed;
+        }
 
         /**
          * Set property which can be evaluated by engine

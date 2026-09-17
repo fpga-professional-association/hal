@@ -63,12 +63,6 @@ ENGINE_FAILED = -1
 DEFAULT_ENGINE_TIMEOUT_S = 900.0
 _POLL_INTERVAL_S = 0.02
 
-#: The engine thread sets Done inside ``finalize()`` and only afterwards reports
-#: back to the controller (``SimulationThread::terminateThread``). Waiting a beat
-#: after Done rather than racing that hand-off costs nothing and avoids reading
-#: -- or destroying -- the controller from under a thread that is still using it.
-_ENGINE_HANDOFF_SETTLE_S = 0.05
-
 
 def available_engines(controller):
     try:
@@ -172,8 +166,10 @@ def run_trace(hal_py, controller_plugin, netlist, grid, cycles, schedule, clock_
             "run_simulation() refused to start the {!r} engine; see the HAL log and "
             "{}".format(engine_name, controller.get_working_directory())
         )
+    # The engine publishes Done or Failed after it has reported the finished run to the
+    # controller, so there is nothing left to settle: the results can be read, and the
+    # controller disposed of, as soon as the state has left Running.
     state = _wait_for_engine(engine, engine_timeout_s)
-    time.sleep(_ENGINE_HANDOFF_SETTLE_S)
     if state == ENGINE_FAILED:
         raise SimulationError(
             "the {!r} engine failed; its working directory is {}".format(

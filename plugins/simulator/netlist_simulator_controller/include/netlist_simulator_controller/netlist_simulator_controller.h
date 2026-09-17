@@ -31,6 +31,7 @@
 #include "hal_core/netlist/net.h"
 #include "hal_core/netlist/netlist_writer/netlist_writer.h"
 
+#include <atomic>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -436,9 +437,13 @@ public:
 
     /**
      * Getter for controller state
+     *
+     * The state is written by the thread or process that runs the engine as well as by the caller, hence
+     * the atomic: the run is finished on another thread than the one that started it.
+     *
      * @return state of type SimulationState
      */
-    SimulationState get_state() const { return mState; }
+    SimulationState get_state() const { return mState.load(); }
 
     /**
      * Getter for a single waveform
@@ -530,6 +535,11 @@ public:
 
     /**
      * Called by simulation thread or process when the simulation engine terminated.
+     *
+     * Called on the engine's thread, before the engine publishes its terminal state: everything the
+     * controller has to know about the finished run is in place by the time `SimulationEngine::state()`
+     * reports `Done` or `Failed`, which is what a caller polls to find out that the run is over.
+     *
      * @param[in] success `true` if the engine finished successfully, `false` otherwise.
      */
     void handleRunFinished(bool success);
@@ -537,7 +547,14 @@ public:
 private:
     std::vector<const Net*> getFilterNets(FilterInputFlag filter) const;
     void initSimulator();
-    void setState(SimulationState stat);
+    /**
+     * Set the controller state.
+     *
+     * @param[in] stat - The new state.
+     * @param[in] notify_engine - `false` when the engine is the one reporting the failure, so that it, and
+     *                            not the controller, decides when its own terminal state becomes visible.
+     */
+    void setState(SimulationState stat, bool notify_engine = true);
     bool getResultsInternal();
 
     bool isInputSet() const;
@@ -547,7 +564,7 @@ private:
     u32 mId;
     std::string mName;
 
-    SimulationState mState;
+    std::atomic<SimulationState> mState;
     SimulationEngine* mSimulationEngine;
 
     std::string mWorkDir;

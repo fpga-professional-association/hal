@@ -48,6 +48,12 @@ namespace hal {
         SimulationInputNetEvent mSimulationInputNetEvent;
         std::string mSaleaeDirectoryFilename;
         std::thread mThread;
+        //! Set when the engine refused an input event. Kept here rather than in the engine state so that
+        //! the engine only reports a terminal state once this thread is done with the controller.
+        bool mEngineFailed;
+
+        /// Whether the run has to be given up, either because this thread or because the engine said so.
+        bool runFailed() const;
 
         void terminateThread(bool success, const char* failedStep = nullptr);
 

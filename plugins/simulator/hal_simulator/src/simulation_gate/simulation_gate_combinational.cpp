@@ -83,7 +83,7 @@ namespace hal
         return OK({});
     }
 
-    bool NetlistSimulator::SimulationGateCombinational::simulate(const Simulation& simulation, const WaveEvent& event, std::map<std::pair<const Net*, u64>, BooleanFunction::Value>& new_events)
+    bool NetlistSimulator::SimulationGateCombinational::simulate(const Simulation& simulation, const WaveEvent& event, netlist_simulator_utils::NetEventMap& new_events)
     {
         UNUSED(simulation);
 

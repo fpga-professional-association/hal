@@ -113,12 +113,18 @@ namespace hal
 
     void SimulationProcess::processFinished(bool success)
     {
+        // Controller first, terminal engine state last -- see SimulationThread::terminateThread().
         if (mController) mController->handleRunFinished(success);
+
+        // failed() is the engine's clean-up hook for an aborted run and publishes Failed itself
+        if (success)
+            mEngine->setRunTerminated(true);
+        else
+            mEngine->failed();
     }
 
     void SimulationProcess::abortOnError()
     {
-        mEngine->failed();
         processFinished(false);
     }
 

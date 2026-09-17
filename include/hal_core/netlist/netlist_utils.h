@@ -371,5 +371,35 @@ namespace hal
          * @return A vector of connecting vectors with gates that connect the start with end gate.
          */
         CORE_API std::vector<std::vector<Gate*> > get_shortest_path(Module* start_module, Module* end_module);
+
+        /**
+         * Check whether a net carries a constant value.
+         *
+         * A net counts as constant if every one of its sources is the GND or the VCC gate of the netlist, or
+         * if it is one of the `'0'` / `'1'` nets that the netlist parsers create for a literal in the source
+         * file -- those carry the constant in their name and have no source at all.
+         *
+         * A net without sources that is not one of those two is *not* constant: nothing drives it, which is
+         * a different thing from being tied off.
+         *
+         * @param[in] net - The net to check.
+         * @returns `true` if the net carries a constant value, `false` otherwise.
+         */
+        CORE_API bool is_constant_net(const Net* net);
+
+        /**
+         * Determine the pin that carries the next state of a flip-flop.
+         *
+         * A gate type may declare more than one pin of type `data` without the design using more than one of
+         * them: the Agilex `tennm_ff` has `d` and a secondary `asdata` that every netlist seen so far ties to
+         * a constant. Refusing such a type outright rejects every netlist built from that library, so the pin
+         * is picked by what drives it: a pin whose fan-in net is constant, absent, or driven by nothing at all
+         * is not a candidate, and only a genuine ambiguity -- two data pins that both carry logic -- is an
+         * error. A type that declares a single data pin is returned unconditionally, whatever drives it.
+         *
+         * @param[in] ff - The flip-flop gate to determine the data input pin of.
+         * @returns The data input pin on success, an error naming the pins it could not choose between otherwise.
+         */
+        CORE_API Result<const GatePin*> get_data_pin(const Gate* ff);
     }    // namespace netlist_utils
 }    // namespace hal

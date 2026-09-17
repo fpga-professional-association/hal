@@ -31,7 +31,7 @@ namespace hal {
     bool DummyEngine::finalize()
     {
         log_info("simulation_plugin", "DummyEngine::finalize");
-        mState = Done;
+        // the terminal state is published by the runner, see SimulationEngine::finalize()
         return true;
     }
 

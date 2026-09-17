@@ -221,14 +221,14 @@ namespace hal
         mLogReceiver = logrec;
     }
 
-    void NetlistSimulatorController::setState(SimulationState stat)
+    void NetlistSimulatorController::setState(SimulationState stat, bool notify_engine)
     {
-        if (stat == mState)
+        if (stat == get_state())
         {
             return;
         }
         mState = stat;
-        switch (mState)
+        switch (stat)
         {
             case NoGatesSelected:
                 log_info(get_name(), "Select gates for simulation");
@@ -247,7 +247,7 @@ namespace hal
                 break;
             case EngineFailed:
                 log_info(get_name(), "Simulation engine process error");
-                if (mSimulationEngine)
+                if (mSimulationEngine && notify_engine)
                 {
                     mSimulationEngine->failed();
                 }
@@ -604,9 +604,9 @@ namespace hal
             }
         }
 
-        if (mState != ParameterReady)
+        if (get_state() != ParameterReady)
         {
-            log_warning(get_name(), "wrong state {}.", (u32)mState);
+            log_warning(get_name(), "wrong state {}.", (u32)get_state());
             return false;
         }
 
@@ -625,6 +625,11 @@ namespace hal
         // needs this, not just the ones that want the clock as regular input events: the waveform is
         // what the simulation thread replays, so a clock that stops early stops the whole run there.
         // A duration that was passed to add_clock_period() explicitly still wins.
+        //
+        // This is also what makes the waveform the *single* source of the clock: every clock net that is
+        // an input net of the simulation gets one here and is replayed to the engine as regular input
+        // events, so an engine that generates a clock of its own -- `hal_simulator` does, for a clock net
+        // nothing replays -- must not generate one for these. See NetlistSimulator::prepare_clock_events.
         for (const Net* n : mSimulationInput->get_input_nets())
         {
             if (!mSimulationInput->is_clock(n))
@@ -668,6 +673,13 @@ namespace hal
             return false;
         }
 
+        // The run state has to be published *before* the engine is started: run() hands the work to a
+        // thread or a process that reports back through handleRunFinished(), and a short run can be over
+        // before run() has even returned. Setting the state afterwards raced that hand-off and overwrote
+        // the EngineFailed the thread had just set with SimulationRun, so a failed run looked like one
+        // that was still going on -- which is what the settle wait in the tests was hiding.
+        setState(SimulationRun);
+
         // start simulation process (might be external process)
         if (!mSimulationEngine->run(this, mLogReceiver))
         {
@@ -675,7 +687,6 @@ namespace hal
             setState(EngineFailed);
             return false;
         }
-        setState(SimulationRun);
         return true;
     }
 
@@ -741,7 +752,7 @@ namespace hal
     bool NetlistSimulatorController::can_import_data() const
     {
         // TODO : check for ongoing import ?
-        if (mState == ParameterReady || mState == ParameterSetup || mState == ShowResults)
+        if (get_state() == ParameterReady || get_state() == ParameterSetup || get_state() == ShowResults)
         {
             return true;
         }
@@ -969,7 +980,11 @@ namespace hal
         if (!success)
         {
             log_warning(get_name(), "simulation engine error during run.");
-            setState(EngineFailed);
+            // The engine is the one reporting the failure and publishes its own terminal state once this
+            // returns, so the controller must not set it from here: that would make the engine report
+            // Failed while this thread is still inside the hand-off, which is the window a caller that
+            // polls the engine state uses to read the results or to destroy the controller.
+            setState(EngineFailed, false);
         }
 
         /*
@@ -1058,7 +1073,7 @@ namespace hal
 
     void NetlistSimulatorController::checkReadyState()
     {
-        if (mState >= ParameterReady)
+        if (get_state() >= ParameterReady)
         {
             return;    // nothing to do
         }
@@ -1137,7 +1152,7 @@ namespace hal
 
     void NetlistSimulatorController::add_gates(const std::vector<Gate*>& gates)
     {
-        if (mState != NoGatesSelected)
+        if (get_state() != NoGatesSelected)
         {
             log_warning(get_name(), "Command failed, gates for simulation already selected in this controller.");
             return;
@@ -1164,7 +1179,7 @@ namespace hal
         {
             mWaveDataList->remove(id);
         }
-        if (mState == NoGatesSelected && mSimulationInput->has_gates())
+        if (get_state() == NoGatesSelected && mSimulationInput->has_gates())
         {
             setState(ParameterSetup);
         }
