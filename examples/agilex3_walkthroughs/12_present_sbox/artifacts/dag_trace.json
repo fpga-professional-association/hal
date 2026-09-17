@@ -9620,7 +9620,7 @@
   "schema": "hal_agilex/trace/1",
   "source": {
     "path": "examples/agilex3_walkthroughs/12_present_sbox/present_sbox.vo",
-    "sha256": "75e3179cc10a56f3bb243da93ab513f829207c658047f85492417f2524981efe"
+    "sha256": "71e45618ba8cf627aecd2807de00e3228a56f8b018a4ac2dfe9a0d94b1f5f4d6"
   },
   "stimulus": {
     "clear_cycles": [

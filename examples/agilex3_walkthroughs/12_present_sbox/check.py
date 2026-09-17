@@ -103,6 +103,27 @@ def _hashes(path):
     )
 
 
+def check_export_digest(label, recorded):
+    """A committed document's recorded sha256 is the *LF* reading of the export.
+
+    Every findings document records the sha256 of the ``.vo`` it was built
+    from, so this is the reproducibility check the hal_agilex skill's CRLF
+    pitfall is about (see issue #98): on a CRLF checkout the raw bytes
+    differ, but matching after normalising line endings still shows the
+    committed document belongs to the committed export, and says which of
+    the two happened.
+    """
+    raw, normalised = _hashes(VO)
+    check("%s hashes the committed export" % label,
+          recorded in (raw, normalised),
+          "byte-for-byte"
+          if recorded == raw
+          else ("matched only after normalising CRLF -- this checkout "
+                "is not LF"
+                if recorded == normalised
+                else "%s vs %s" % (recorded, raw)))
+
+
 def check_dag():
     """The committed levelled DAG still says what guide.html says it says.
 
@@ -146,6 +167,7 @@ def check_dag_interactive():
 
     with open(trace_path, encoding="utf-8") as handle:
         committed = json.load(handle)
+    check_export_digest("dag_trace.json", committed["source"]["sha256"])
     fresh = agilex_trace.run_trace(
         vo_netlist.parse_file(VO),
         agilex_trace.load_reference(REFERENCE),
@@ -452,23 +474,7 @@ def check_committed_findings():
             finding = [item for item in document["findings"] if item["id"] == finding_id][0]
             check("%s says family %s" % (name, family),
                   finding["data"]["family"] == family, finding["data"]["family"])
-        if name == "identify.findings.json":
-            # The document records the input's sha256, so this is the
-            # reproducibility check the hal_agilex skill's CRLF pitfall is
-            # about (see issue #98): on a CRLF checkout the raw bytes differ,
-            # but matching after normalising line endings still shows the
-            # committed document belongs to the committed export, and says
-            # which of the two happened.
-            recorded = document["artifacts"][0].get("sha256")
-            raw, normalised = _hashes(VO)
-            check("%s hashes the committed export" % name,
-                  recorded in (raw, normalised),
-                  "byte-for-byte"
-                  if recorded == raw
-                  else ("matched only after normalising CRLF -- this "
-                        "checkout is not LF"
-                        if recorded == normalised
-                        else "%s vs %s" % (recorded, raw)))
+        check_export_digest(name, document["artifacts"][0].get("sha256"))
 
     for name in ("behavior_negative_control_sbox.findings.json",
                  "behavior_negative_control_rounds.findings.json"):
@@ -480,6 +486,7 @@ def check_committed_findings():
         statuses = {finding["status"] for finding in document["findings"]}
         check("%s is a counterexample" % name,
               "bounded_counterexample" in statuses, str(statuses))
+        check_export_digest(name, document["artifacts"][0].get("sha256"))
 
 
 def check_guide():
