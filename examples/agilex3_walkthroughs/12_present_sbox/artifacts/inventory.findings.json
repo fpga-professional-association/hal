@@ -18,8 +18,8 @@
       },
       "kind": "netlist",
       "path": "examples/agilex3_walkthroughs/12_present_sbox/present_sbox.vo",
-      "sha256": "75e3179cc10a56f3bb243da93ab513f829207c658047f85492417f2524981efe",
-      "size_bytes": 189937
+      "sha256": "71e45618ba8cf627aecd2807de00e3228a56f8b018a4ac2dfe9a0d94b1f5f4d6",
+      "size_bytes": 181742
     }
   ],
   "findings": [
@@ -72,7 +72,7 @@
       "title": "Every primitive in the export is inside the validated coverage"
     }
   ],
-  "generated_at": "2026-09-15T04:33:46Z",
+  "generated_at": "2026-09-17T01:11:41Z",
   "notes": [
     "export header: device=Altera A3CW135BM16AE6S Package MBGA896; exported_at=09/14/2026 22:29:47; tool=Quartus Prime; tool_version=Version 26.1.0 Build 110 03/26/2026 SC Pro Edition"
   ],
