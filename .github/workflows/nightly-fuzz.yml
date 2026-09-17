@@ -20,12 +20,12 @@ on:
         required: false
         type: string
       matrix_iters:
-        description: 'Seeds for the deep deterministic sweep (FUZZ_ITERS)'
+        description: 'Seeds per harness for the deep deterministic sweep, walked in chunks of 25 (FUZZ_MATRIX_ITERS)'
         required: false
         default: '500'
         type: string
       matrix_samples:
-        description: 'Trees/netlists per seed for the extra-seed tier (FUZZ_SAMPLES)'
+        description: 'Trees/netlists per seed for the extra-seed tier (FUZZ_MATRIX_SAMPLES)'
         required: false
         default: '250'
         type: string
