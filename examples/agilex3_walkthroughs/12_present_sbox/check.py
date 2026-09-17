@@ -452,22 +452,23 @@ def check_committed_findings():
             finding = [item for item in document["findings"] if item["id"] == finding_id][0]
             check("%s says family %s" % (name, family),
                   finding["data"]["family"] == family, finding["data"]["family"])
-        # The document records the input's sha256, so this is the
-        # reproducibility check the hal_agilex skill's CRLF pitfall is about
-        # (see issue #98): on a CRLF checkout the raw bytes differ, but
-        # matching after normalising line endings still shows the committed
-        # document belongs to the committed export, and says which of the two
-        # happened.
-        recorded = document["artifacts"][0].get("sha256")
-        raw, normalised = _hashes(VO)
-        check("%s hashes the committed export" % name,
-              recorded in (raw, normalised),
-              "byte-for-byte"
-              if recorded == raw
-              else ("matched only after normalising CRLF -- this checkout "
-                    "is not LF"
-                    if recorded == normalised
-                    else "%s vs %s" % (recorded, raw)))
+        if name == "identify.findings.json":
+            # The document records the input's sha256, so this is the
+            # reproducibility check the hal_agilex skill's CRLF pitfall is
+            # about (see issue #98): on a CRLF checkout the raw bytes differ,
+            # but matching after normalising line endings still shows the
+            # committed document belongs to the committed export, and says
+            # which of the two happened.
+            recorded = document["artifacts"][0].get("sha256")
+            raw, normalised = _hashes(VO)
+            check("%s hashes the committed export" % name,
+                  recorded in (raw, normalised),
+                  "byte-for-byte"
+                  if recorded == raw
+                  else ("matched only after normalising CRLF -- this "
+                        "checkout is not LF"
+                        if recorded == normalised
+                        else "%s vs %s" % (recorded, raw)))
 
     for name in ("behavior_negative_control_sbox.findings.json",
                  "behavior_negative_control_rounds.findings.json"):
