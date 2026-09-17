@@ -53,6 +53,23 @@ SUCCESS_STATUSES = ("success", "reused")
 
 #: Fields excluded from :func:`digest` because they cannot be reproduced.
 #: ``"[]"`` marks a list of objects whose every element is stripped.
+#:
+#: ``execution.timed_out``/``execution.killed`` and ``diagnostic.digest`` are in
+#: this list, not the step's ``status``.  Whether a wall-clock limit is tripped,
+#: and whether SIGTERM or SIGKILL was the one that landed, are races against a
+#: timer, exactly like ``duration_s`` -- on a loaded machine the same step can
+#: finish just inside its budget in one run and just outside it in the next
+#: without anything about the inputs, the configuration or the code changing.
+#: ``diagnostic.digest`` is included here for the same reason: a timeout's
+#: diagnostic finding records the observed wall-clock time in its
+#: ``limits.wall_time_s``, and that value is exactly as volatile as
+#: ``duration_s`` is everywhere else, so the digest computed over it cannot be
+#: reproducible either.  ``status`` itself stays significant -- unlike a stray
+#: timeout on a step that finishes in a few milliseconds, a step that
+#: *consistently* fails to finish is a real regression a rerun should not hide,
+#: the same way ``reused`` legitimately differs from ``success``.  Only the
+#: mechanics of *how* a given outcome was reached (the exact process signal, the
+#: exact wall-clock reading) are stripped; the outcome itself is not.
 VOLATILE = {
     "generated_at": True,
     "run": {"id": True, "started_at": True, "finished_at": True, "duration_s": True},
@@ -71,8 +88,9 @@ VOLATILE = {
             "output_dir": True,
             "command": True,
             "logs": True,
-            "execution": {"command": True, "duration_s": True},
+            "execution": {"command": True, "duration_s": True, "timed_out": True, "killed": True},
             "cache": {"path": True},
+            "diagnostic": {"digest": True},
         },
     ],
 }

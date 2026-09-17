@@ -564,12 +564,52 @@ class ManifestTests(unittest.TestCase):
         for mutate in (
             lambda d: d["inputs"][0].__setitem__("digest", "def"),
             lambda d: d["steps"][0].__setitem__("status", "failed"),
+            lambda d: d["steps"][0].__setitem__("status", "timeout"),
             lambda d: d["steps"][0]["artifacts"][0].__setitem__("sha256", "other"),
             lambda d: d["tool"]["hal"].__setitem__("version", "4.6.0"),
         ):
             document = self.manifest()
             mutate(document)
             self.assertNotEqual(base, manifest_module.digest(document))
+
+    def test_digest_ignores_which_signal_stopped_a_timed_out_step(self):
+        """Issue #97: whether SIGTERM landed in time or SIGKILL was needed is a
+        race against the OS's response time, not a property of the step's
+        inputs -- two reruns that both timed out must not be told apart by it.
+        """
+        one = self.manifest()
+        one["steps"][0]["status"] = "timeout"
+        one["steps"][0]["execution"] = {"timed_out": True, "killed": False, "duration_s": 5.001}
+        two = copy.deepcopy(one)
+        two["steps"][0]["execution"]["killed"] = True
+        two["steps"][0]["execution"]["timed_out"] = True
+        self.assertEqual(manifest_module.digest(one), manifest_module.digest(two))
+
+    def test_digest_ignores_the_observed_wall_clock_of_a_timeout_diagnostic(self):
+        """The timeout diagnostic's findings document records the observed
+        wall-clock time in ``limits.wall_time_s`` (see
+        ``diagnostics.timeout_document``), so ``diagnostic.digest`` differs
+        between two runs of the same step purely because one took 5.001s and
+        the other 5.043s to be killed. That must not destabilize the manifest
+        digest either -- ``diagnostic.message`` still does, so a genuinely
+        different diagnostic is still visible.
+        """
+        one = self.manifest()
+        one["steps"][0]["status"] = "timeout"
+        one["steps"][0]["execution"] = {"timed_out": True, "killed": True, "duration_s": 5.001}
+        one["steps"][0]["diagnostic"] = {
+            "path": "steps/s/diagnostic.json",
+            "message": "the step exceeded its time limit",
+            "digest": "a" * 64,
+        }
+        two = copy.deepcopy(one)
+        two["steps"][0]["execution"]["duration_s"] = 5.043
+        two["steps"][0]["diagnostic"]["digest"] = "b" * 64
+        self.assertEqual(manifest_module.digest(one), manifest_module.digest(two))
+
+        three = copy.deepcopy(one)
+        three["steps"][0]["diagnostic"]["message"] = "a completely different diagnostic"
+        self.assertNotEqual(manifest_module.digest(one), manifest_module.digest(three))
 
     def test_serialization_is_deterministic(self):
         document = self.manifest()
@@ -933,6 +973,31 @@ class RunnerTests(TempCase):
         _, second = again.run()
         self.assertEqual(manifest_module.digest(first), manifest_module.digest(second))
         self.assertNotEqual(first["run"]["id"], second["run"]["id"])
+
+    def test_the_manifest_digest_is_stable_across_reruns_of_a_timed_out_step(self):
+        """Issue #97: a step that trips its wall-clock limit is still the same
+        rerun of the same configuration on the same inputs, so its digest must
+        match too, even though the exact wall-clock reading and which signal
+        stopped the process (see ``ExecutionResult.killed``) are real, measured
+        values that are never bit-for-bit identical between two runs.
+        """
+        steps = [
+            {
+                "id": "components",
+                "analysis": "graph_algorithm.connected_components",
+                "config": {"strong": True, "min_size": 2},
+                "timeout_s": 1,
+            }
+        ]
+        runner, _, netlist = self.build(behaviour=StubExecutor.hang, steps=steps, use_cache=False)
+        _, first = runner.run()
+        again, _, _ = self.build(
+            behaviour=StubExecutor.hang, steps=steps, netlist=netlist, use_cache=False
+        )
+        _, second = again.run()
+        self.assertEqual(first["steps"][0]["status"], "timeout")
+        self.assertEqual(second["steps"][0]["status"], "timeout")
+        self.assertEqual(manifest_module.digest(first), manifest_module.digest(second))
 
 
 # ---------------------------------------------------------------------------
