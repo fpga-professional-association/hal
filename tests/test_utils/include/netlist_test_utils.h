@@ -260,12 +260,17 @@ namespace hal
          * Create a sandbox directory within the build folder, where temporary files can be stored. Please use the function
          * remove_sandbox_directory() at the end of the test in order to remove the directory.
          *
+         * The directory returned is a fresh, uniquely named subdirectory of the shared sandbox root (unique per
+         * process and per call, incorporating the PID and, if available, the currently running gtest name). This
+         * keeps concurrently running test binaries (e.g. `ctest -j`) and successive tests within the same binary
+         * from writing into the same files.
+         *
          * @returns the absolute path of the sandbox directory
          */
         std::filesystem::path create_sandbox_directory();
 
         /**
-         * Remove the sandbox directory if it was created before
+         * Remove the sandbox directory created by the most recent call to create_sandbox_directory() (if any).
          */
         void remove_sandbox_directory();
 
