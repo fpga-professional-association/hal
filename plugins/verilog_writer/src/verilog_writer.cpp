@@ -100,6 +100,16 @@ namespace hal
 
             return indices;
         }
+
+        // The attribute that marks a wire as the placeholder of an unconnected bit of an output port connection, see
+        // `write_pin_assignments`. HAL's Verilog parser knows this attribute and drops the wire together with the
+        // connection it stands in for; every other tool sees a plain, if idle, net. Keep it in sync with the parser
+        // (plugins/verilog_parser/src/verilog_parser.cpp).
+        const std::string UNCONNECTED_ATTRIBUTE = "HAL_UNCONNECTED";
+
+        // The identifier prefix of such a placeholder wire. It is only there to make the file readable -- the parser
+        // goes by the attribute, not by the name, so a design that happens to use the prefix itself is harmless.
+        const std::string UNCONNECTED_PREFIX = "hal_unconnected_";
     }    // namespace
 
     const std::set<std::string> VerilogWriter::valid_types = {"string", "integer", "floating_point", "bit_value", "bit_vector", "bit_string"};
@@ -369,11 +379,17 @@ namespace hal
             res_stream << "    wire " << alias << " = " << ((net_name == "'0'") ? "1'b0" : "1'b1") << ";" << std::endl;
         }
 
+        // The instances are written to a temporary stream: an unconnected bit of an output port connection is filled
+        // with a wire of its own (see write_pin_assignments), and while Verilog puts no ordering constraint on the
+        // items of a module, a net that is declared before the instance referencing it is what every reader expects.
+        std::stringstream instance_stream;
+        std::vector<std::string> placeholder_wires;
+
         // write gate instances
         for (const Gate* gate : module->get_gates())
         {
-            res_stream << std::endl;
-            if (auto res = write_gate_instance(res_stream, gate, aliases, identifier_occurrences); res.is_error())
+            instance_stream << std::endl;
+            if (auto res = write_gate_instance(instance_stream, gate, aliases, identifier_occurrences, placeholder_wires); res.is_error())
             {
                 return ERR_APPEND(res.get_error(),
                                   "could not write declaration of module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to write gate '" + gate->get_name()
@@ -384,14 +400,21 @@ namespace hal
         // write module instances
         for (const Module* sub_module : module->get_submodules())
         {
-            res_stream << std::endl;
-            if (auto res = write_module_instance(res_stream, sub_module, aliases, identifier_occurrences, module_type_aliases); res.is_error())
+            instance_stream << std::endl;
+            if (auto res = write_module_instance(instance_stream, sub_module, aliases, identifier_occurrences, module_type_aliases, placeholder_wires); res.is_error())
             {
                 return ERR_APPEND(res.get_error(),
                                   "could not write declaration of module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to write sub-module '"
                                       + sub_module->get_name() + "' with ID " + std::to_string(sub_module->get_id()));
             }
         }
+
+        for (const std::string& placeholder_wire : placeholder_wires)
+        {
+            res_stream << "    (* " << UNCONNECTED_ATTRIBUTE << " *) wire " << placeholder_wire << ";" << std::endl;
+        }
+
+        res_stream << instance_stream.str();
 
         res_stream << "endmodule" << std::endl;
 
@@ -401,7 +424,8 @@ namespace hal
     Result<std::monostate> VerilogWriter::write_gate_instance(std::stringstream& res_stream,
                                                               const Gate* gate,
                                                               std::unordered_map<const DataContainer*, std::string>& aliases,
-                                                              std::unordered_map<std::string, u32>& identifier_occurrences) const
+                                                              std::unordered_map<std::string, u32>& identifier_occurrences,
+                                                              std::vector<std::string>& placeholder_wires) const
     {
         const GateType* gate_type = gate->get_type();
 
@@ -426,7 +450,7 @@ namespace hal
         }
 
         // extract pin assignments (in order, respecting pin groups)
-        std::vector<std::pair<std::string, std::vector<const Net*>>> pin_assignments;
+        std::vector<PinAssignment> pin_assignments;
         for (const PinGroup<GatePin>* pin_group : gate_type->get_pin_groups())
         {
             std::vector<const Net*> nets;
@@ -445,11 +469,11 @@ namespace hal
             // only append if at least one pin of the group is connected
             if (std::any_of(nets.begin(), nets.end(), [](const Net* net) { return net != nullptr; }))
             {
-                pin_assignments.push_back(std::make_pair(pin_group->get_name(), nets));
+                pin_assignments.push_back(PinAssignment{pin_group->get_name(), pin_group->get_direction(), std::move(nets)});
             }
         }
 
-        if (auto res = write_pin_assignments(res_stream, pin_assignments, aliases); res.is_error())
+        if (auto res = write_pin_assignments(res_stream, gate->get_name(), pin_assignments, aliases, identifier_occurrences, placeholder_wires); res.is_error())
         {
             return ERR_APPEND(res.get_error(), "could not write gate '" + gate->get_name() + "' with ID " + std::to_string(gate->get_id()) + ": failed to write pin assignments");
         }
@@ -463,7 +487,8 @@ namespace hal
                                                                 const Module* module,
                                                                 std::unordered_map<const DataContainer*, std::string>& aliases,
                                                                 std::unordered_map<std::string, u32>& identifier_occurrences,
-                                                                std::unordered_map<const Module*, std::string>& module_type_aliases) const
+                                                                std::unordered_map<const Module*, std::string>& module_type_aliases,
+                                                                std::vector<std::string>& placeholder_wires) const
     {
         res_stream << "    " << escape(module_type_aliases.at(module));
         if (auto res = write_parameter_assignments(res_stream, module); res.is_error())
@@ -474,7 +499,7 @@ namespace hal
         res_stream << " " << aliases.at(module);
 
         // extract port assignments (in order, respecting pin groups)
-        std::vector<std::pair<std::string, std::vector<const Net*>>> port_assignments;
+        std::vector<PinAssignment> port_assignments;
 
         for (const PinGroup<ModulePin>* pin_group : module->get_pin_groups())
         {
@@ -492,18 +517,18 @@ namespace hal
                 {
                     nets.push_back(pin->get_net());
                 }
-                port_assignments.push_back(std::make_pair(pin_group->get_name(), std::move(nets)));
+                port_assignments.push_back(PinAssignment{pin_group->get_name(), pins.front()->get_direction(), std::move(nets)});
             }
             else
             {
                 for (const ModulePin* pin : pins)
                 {
-                    port_assignments.push_back(std::make_pair(pin->get_name(), std::vector<const Net*>({pin->get_net()})));
+                    port_assignments.push_back(PinAssignment{pin->get_name(), pin->get_direction(), std::vector<const Net*>({pin->get_net()})});
                 }
             }
         }
 
-        if (auto res = write_pin_assignments(res_stream, port_assignments, aliases); res.is_error())
+        if (auto res = write_pin_assignments(res_stream, module->get_name(), port_assignments, aliases, identifier_occurrences, placeholder_wires); res.is_error())
         {
             return ERR_APPEND(res.get_error(), "could not write sub-module '" + module->get_name() + "' with ID " + std::to_string(module->get_id()) + ": failed to write pin assignments");
         }
@@ -557,12 +582,15 @@ namespace hal
     }
 
     Result<std::monostate> VerilogWriter::write_pin_assignments(std::stringstream& res_stream,
-                                                                const std::vector<std::pair<std::string, std::vector<const Net*>>>& pin_assignments,
-                                                                std::unordered_map<const DataContainer*, std::string>& aliases) const
+                                                                const std::string& instance_name,
+                                                                const std::vector<PinAssignment>& pin_assignments,
+                                                                std::unordered_map<const DataContainer*, std::string>& aliases,
+                                                                std::unordered_map<std::string, u32>& identifier_occurrences,
+                                                                std::vector<std::string>& placeholder_wires) const
     {
         res_stream << " (" << std::endl;
         bool first_pin = true;
-        for (const auto& [pin, nets] : pin_assignments)
+        for (const auto& [pin, direction, nets] : pin_assignments)
         {
             if (first_pin)
             {
@@ -579,16 +607,14 @@ namespace hal
                 res_stream << "{" << std::endl << "            ";
             }
 
-            bool first_net = true;
-            for (auto it = nets.begin(); it != nets.end(); it++)
+            for (u32 net_index = 0; net_index < nets.size(); net_index++)
             {
-                const Net* net = *it;
+                const Net* net = nets.at(net_index);
 
-                if (!first_net)
+                if (net_index != 0)
                 {
                     res_stream << "," << std::endl << "            ";
                 }
-                first_net = false;
 
                 if (net != nullptr)
                 {
@@ -601,7 +627,7 @@ namespace hal
                         return ERR("could not write pin assignments: no alias for net '" + net->get_name() + "' with ID " + std::to_string(net->get_id()) + " found");
                     }
                 }
-                else
+                else if (direction == PinDirection::input)
                 {
                     // An unconnected pin of a group of which at least one other pin is connected. A concatenation slot cannot
                     // be left empty in Verilog, so it is filled with the high-impedance literal, which the parser skips: the
@@ -609,6 +635,27 @@ namespace hal
                     // is never declared -- which HAL refuses to re-parse -- or, once declared, turn a pin that is unconnected
                     // into one that is driven by a dangling net.
                     res_stream << "1'bz";
+                }
+                else
+                {
+                    // The same slot of an output or inout port connection, where the literal above is not an option: such a
+                    // connection is a net lvalue, and IEEE 1364-2001 permits only nets there (issue #86). HAL would read the
+                    // literal back just fine, but strict external consumers reject the file over it. The slot gets a wire of
+                    // its own instead -- declared, driven by this one pin and read by nothing, which is legal everywhere.
+                    //
+                    // To keep the pin unconnected rather than dangling on re-parse, that wire is declared carrying the
+                    // HAL_UNCONNECTED attribute, which HAL's Verilog parser treats exactly like the 'Z' above: the connection
+                    // is skipped and the wire, now unused, is dropped, so neither the netlist shape nor the net count changes
+                    // across a HAL-to-HAL round trip. A third-party tool that ignores the attribute -- as it may -- sees an
+                    // output driving a net that nothing reads, which is the closest legal rendering of "not connected".
+                    //
+                    // The name is derived from the instance, the port and the bit position, so it is stable across runs, and
+                    // it is passed through the module's identifier bookkeeping, so it cannot collide with a net, a port or an
+                    // instance. The parser goes by the attribute alone and never by the name.
+                    const std::string placeholder_wire =
+                        escape(get_unique_alias(identifier_occurrences, UNCONNECTED_PREFIX + instance_name + "_" + pin + "_" + std::to_string(net_index)));
+                    placeholder_wires.push_back(placeholder_wire);
+                    res_stream << placeholder_wire;
                 }
             }
 

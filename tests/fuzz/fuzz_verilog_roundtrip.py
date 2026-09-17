@@ -139,8 +139,10 @@ KEEP_TEMP = os.environ.get("FUZZ_KEEP", "") not in ("", "0")
 FEATURES = {
     # was KB-1 (issue #59, fixed): the writer emitted undeclared
     # HAL_UNUSED_SIGNAL_* identifiers for the unconnected members of a partially
-    # connected gate pin group, so its own output did not re-parse. The slot now
-    # carries the high-impedance literal, which the parser skips.
+    # connected gate pin group, so its own output did not re-parse. An input slot
+    # now carries the high-impedance literal, which the parser skips, and an
+    # output slot an idle wire marked HAL_UNCONNECTED, which the parser drops
+    # (issue #86 -- a literal is not a legal net lvalue).
     "partial_pin_groups": True,
     # was KB-2 (issue #60, fixed): HAL's internal constant nets '0' / '1' were
     # escaped to \'0' / \'1' on write, which renamed them and collided with
@@ -526,8 +528,14 @@ def generate(seed):
             else:
                 if rnd.random() < 0.6:
                     continue
+                connected = pins
+                if FEATURES["partial_pin_groups"] and rnd.random() < 0.4:
+                    # a partially connected *output* group: the writer cannot fill the open slots with the
+                    # high-impedance literal it uses on the input side, because an output port connection is a
+                    # net lvalue (issue #86)
+                    connected = pins[: rnd.randint(1, len(pins) - 1)]
                 refs = []
-                for _ in pins:
+                for _ in connected:
                     wire = names.fresh()
                     design.wires.append(wire)
                     refs.append(tok(wire))

@@ -21,6 +21,11 @@ namespace hal
         // a literal wider than this is a typo rather than a value, and padding a result to that width would exhaust the memory
         const u32 MAX_LITERAL_WIDTH = 1 << 20;
 
+        // The attribute with which HAL's Verilog writer marks a wire that only exists to fill an unconnected bit of an
+        // output port connection, where a literal such as `1'bz` would not be a legal net lvalue. Keep it in sync with
+        // the writer (plugins/verilog_writer/src/verilog_writer.cpp); see `instantiate_module` for the handling.
+        const std::string UNCONNECTED_ATTRIBUTE = "HAL_UNCONNECTED";
+
         /**
          * Get the declared width of a sized number literal such as `8'hFF`, without ever throwing on a width that does not fit into an integer.
          */
@@ -1833,6 +1838,14 @@ namespace hal
         std::unordered_map<std::string, std::string> signal_alias;
         std::unordered_map<std::string, std::string> instance_alias;
 
+        // Nets that stand in for a bit of an output port connection that is not connected at all. A concatenation slot
+        // cannot be left empty in Verilog and an output port connection is a net lvalue, so a literal such as the 'Z'
+        // below is not an option there either; HAL's Verilog writer therefore declares one idle wire per such slot and
+        // marks it with the attribute below (see plugins/verilog_writer/src/verilog_writer.cpp and issue #86). Such a
+        // wire is treated exactly like a 'Z': the connection is skipped, leaving the pin unconnected, and the wire
+        // itself is dropped by the unused-net sweep at the end of the parse.
+        std::unordered_set<std::string> unconnected_placeholder_nets;
+
         // TODO check parent module assignments for port aliases
 
         const std::string parent_name       = (parent == nullptr) ? "" : parent->get_name();
@@ -1936,6 +1949,12 @@ namespace hal
                 // assign signal attributes
                 for (const VerilogDataEntry& attribute : signal->m_attributes)
                 {
+                    if (attribute.m_name == UNCONNECTED_ATTRIBUTE)
+                    {
+                        unconnected_placeholder_nets.insert(signal_alias.at(expanded_name));
+                        continue;
+                    }
+
                     if (!signal_net->set_data("attribute", attribute.m_name, "unknown", attribute.m_value))
                     {
                         log_warning("verilog_parser",
@@ -2023,6 +2042,12 @@ namespace hal
                 {
                     if (const auto alias_it = signal_alias.find(assignment); alias_it != signal_alias.end())
                     {
+                        // a placeholder for an unconnected output bit leaves the port unconnected, just like a 'Z' does
+                        if (unconnected_placeholder_nets.find(alias_it->second) != unconnected_placeholder_nets.end())
+                        {
+                            continue;
+                        }
+
                         instance_assignments[port] = alias_it->second;
                     }
                     else if (assignment == "'0'" || assignment == "'1'")
@@ -2094,6 +2119,12 @@ namespace hal
 
                     if (const auto alias_it = signal_alias.find(assignment); alias_it != signal_alias.end())
                     {
+                        // a placeholder for an unconnected output bit leaves the pin unconnected, just like a 'Z' does
+                        if (unconnected_placeholder_nets.find(alias_it->second) != unconnected_placeholder_nets.end())
+                        {
+                            continue;
+                        }
+
                         signal = alias_it->second;
                     }
                     else if (assignment == "'0'" || assignment == "'1'")
