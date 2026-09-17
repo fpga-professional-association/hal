@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-220-g4459fe630</span>
+   &#160;<span id="projectnumber">v4.5.0-221-g1befbde11</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -173,7 +173,7 @@ $(document).ready(function(){initNavTree('simulation__gate__combinational_8cpp_s
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a>({});</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    }</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateCombinational::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, std::map&lt;std::pair&lt;const Net*, u64&gt;, BooleanFunction::Value&gt;&amp; new_events)</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateCombinational::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, <a class="code" href="namespacehal_1_1netlist__simulator__utils.html#a87141cb7f5a8bff587c8cd1ebe8eb018">netlist_simulator_utils::NetEventMap</a>&amp; new_events)</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    {</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        <a class="code" href="defines_8h.html#aea1d71af1a30c261dbd16745c82e94ba">UNUSED</a>(simulation);</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
@@ -195,6 +195,7 @@ $(document).ready(function(){initNavTree('simulation__gate__combinational_8cpp_s
 <div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_a1c3e89a5c947d0af52de06b706adcf09"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#a1c3e89a5c947d0af52de06b706adcf09">ERR</a></div><div class="ttdeci">#define ERR(message)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00060">result.h:60</a></div></div>
 <div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_a5ad667153a89697b109f5b8e64da7fe7"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#a5ad667153a89697b109f5b8e64da7fe7">OK</a></div><div class="ttdeci">#define OK(...)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00056">result.h:56</a></div></div>
 <div class="ttc" id="ainclude_2hal__core_2utilities_2result_8h_html_af20e293cf442ddedc129f87bbb6a69e9"><div class="ttname"><a href="include_2hal__core_2utilities_2result_8h.html#af20e293cf442ddedc129f87bbb6a69e9">ERR_APPEND</a></div><div class="ttdeci">#define ERR_APPEND(prev_error, message)</div><div class="ttdef"><b>Definition:</b> <a href="include_2hal__core_2utilities_2result_8h_source.html#l00064">result.h:64</a></div></div>
+<div class="ttc" id="anamespacehal_1_1netlist__simulator__utils_html_a87141cb7f5a8bff587c8cd1ebe8eb018"><div class="ttname"><a href="namespacehal_1_1netlist__simulator__utils.html#a87141cb7f5a8bff587c8cd1ebe8eb018">hal::netlist_simulator_utils::NetEventMap</a></div><div class="ttdeci">std::map&lt; std::pair&lt; const Net *, u64 &gt;, BooleanFunction::Value, NetTimeLess &gt; NetEventMap</div><div class="ttdef"><b>Definition:</b> <a href="netlist__simulator_8h_source.html#l00100">netlist_simulator.h:100</a></div></div>
 <div class="ttc" id="anamespacehal_html"><div class="ttname"><a href="namespacehal.html">hal</a></div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00044">defines.h:45</a></div></div>
 <div class="ttc" id="anamespacehal_html_adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b"><div class="ttname"><a href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">hal::GateTypeProperty::delay</a></div><div class="ttdeci">@ delay</div></div>
 <div class="ttc" id="anetlist__simulator_8h_html"><div class="ttname"><a href="netlist__simulator_8h.html">netlist_simulator.h</a></div></div>

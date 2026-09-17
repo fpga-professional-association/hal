@@ -62,6 +62,10 @@ var annotated_dup =
       [ "netlist_parser_manager", "namespacehal_1_1netlist__parser__manager.html", [
         [ "ParserOptions", "structhal_1_1netlist__parser__manager_1_1_parser_options.html", "structhal_1_1netlist__parser__manager_1_1_parser_options" ]
       ] ],
+      [ "netlist_simulator_utils", "namespacehal_1_1netlist__simulator__utils.html", [
+        [ "NetIdLess", "structhal_1_1netlist__simulator__utils_1_1_net_id_less.html", "structhal_1_1netlist__simulator__utils_1_1_net_id_less" ],
+        [ "NetTimeLess", "structhal_1_1netlist__simulator__utils_1_1_net_time_less.html", "structhal_1_1netlist__simulator__utils_1_1_net_time_less" ]
+      ] ],
       [ "plugin_manager", "namespacehal_1_1plugin__manager.html", [
         [ "PluginFeature", "structhal_1_1plugin__manager_1_1_plugin_feature.html", "structhal_1_1plugin__manager_1_1_plugin_feature" ]
       ] ],

@@ -3,6 +3,7 @@ var netlist__utils_8h =
     [ "copy_netlist", "netlist__utils_8h.html#a5e81261c6bc8c9602a2e53bf0f0c9b90", null ],
     [ "get_common_inputs", "netlist__utils_8h.html#aea70c3bec835e4f88d4e208c59f5edee", null ],
     [ "get_complex_gate_chain", "netlist__utils_8h.html#a5c4ea0dd29bd644bfef98f098b1b9b06", null ],
+    [ "get_data_pin", "netlist__utils_8h.html#a8ac0e8591292f728f22b086851ccd1b5", null ],
     [ "get_ff_dependency_matrix", "netlist__utils_8h.html#af2c5370e1cfb407c98dd5c855e1e9022", null ],
     [ "get_gate_chain", "netlist__utils_8h.html#a1ebaa80d5e0b2e73d48b71d2f9b3639e", null ],
     [ "get_nets_at_pins", "netlist__utils_8h.html#adfa7f9849d87135f19d69b492c988331", null ],
@@ -22,6 +23,7 @@ var netlist__utils_8h =
     [ "get_shortest_path", "netlist__utils_8h.html#a0f602e5a5bc38492bdcaea8b7de36ad7", null ],
     [ "get_subgraph_function", "netlist__utils_8h.html#a1ead75d8378f342e967ed7cd3a538bbc", null ],
     [ "get_subgraph_function", "netlist__utils_8h.html#a2b896d1beaf904d43b220b7a80e6e7e3", null ],
+    [ "is_constant_net", "netlist__utils_8h.html#a72e497dc2ecca3e59130741b6b3fe520", null ],
     [ "remove_buffers", "netlist__utils_8h.html#a4cf477c0c0dfc61a6187d79d38a3ef4d", null ],
     [ "remove_unused_lut_endpoints", "netlist__utils_8h.html#a0f3e95b97b15ab4a8388495115fd923b", null ],
     [ "replace_gate", "netlist__utils_8h.html#ac697b6f91cdf40de86672f35d0317237", null ]

@@ -24,6 +24,7 @@ var classhal_1_1_simulation_engine =
     [ "set_engine_property", "classhal_1_1_simulation_engine.html#a9f634ac850e8fd4f1dd9c2ec20be7688", null ],
     [ "set_working_directory", "classhal_1_1_simulation_engine.html#ad3d504677efbc9331cf2db550d2318f6", null ],
     [ "setResultFilename", "classhal_1_1_simulation_engine.html#aabffd86765f49389abc98ddd76648de3", null ],
+    [ "setRunTerminated", "classhal_1_1_simulation_engine.html#ae67b60c0b32c0a8fba892015c9ca6fa8", null ],
     [ "setSimulationInput", "classhal_1_1_simulation_engine.html#abfe6ef9ace74880b48aba2b722756be9", null ],
     [ "state", "classhal_1_1_simulation_engine.html#a0d78eb3a46f27bb429ecdd073f87e169", null ],
     [ "mCanShareMemory", "classhal_1_1_simulation_engine.html#a999b8c258989de10c2e9c4586ec1d5f7", null ],
@@ -31,6 +32,6 @@ var classhal_1_1_simulation_engine =
     [ "mRequireClockEvents", "classhal_1_1_simulation_engine.html#a3dd3ec2bf212b68ce8934d1cb76b4e65", null ],
     [ "mResultFilename", "classhal_1_1_simulation_engine.html#ad7bf00efa26949cae265e78c6d06f0a5", null ],
     [ "mSimulationInput", "classhal_1_1_simulation_engine.html#aaa20a9994e5a83bf9859dfe4011bebe8", null ],
-    [ "mState", "classhal_1_1_simulation_engine.html#ae6acfc77a8c27c998ae3cac01d77749b", null ],
+    [ "mState", "classhal_1_1_simulation_engine.html#ac25b4410adb82b90eec347974b63cfdf", null ],
     [ "mWorkDir", "classhal_1_1_simulation_engine.html#a8f7aeb62323fe767d6376d86c5061e48", null ]
 ];

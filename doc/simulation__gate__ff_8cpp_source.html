@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-220-g4459fe630</span>
+   &#160;<span id="projectnumber">v4.5.0-221-g1befbde11</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -133,7 +133,7 @@ $(document).ready(function(){initNavTree('simulation__gate__ff_8cpp_source.html'
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        m_sr_behavior_out_inverted = behavior.second;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    }</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="namespacehal.html#a45f4052286462e64763c142a3e26ab93">NetlistSimulator::SimulationGateFF::initialize</a>(std::map&lt;const Net*, BooleanFunction::Value&gt;&amp; new_events, <span class="keywordtype">bool</span> from_netlist, BooleanFunction::Value value = BooleanFunction::Value::X)</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="namespacehal.html#a45f4052286462e64763c142a3e26ab93">NetlistSimulator::SimulationGateFF::initialize</a>(<a class="code" href="namespacehal_1_1netlist__simulator__utils.html#a51f82b6a819fc7828c3e63a97513de4c">netlist_simulator_utils::NetValueMap</a>&amp; new_events, <span class="keywordtype">bool</span> from_netlist, BooleanFunction::Value value = BooleanFunction::Value::X)</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    {</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        GateType* gate_type = m_gate-&gt;get_type();</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
@@ -185,7 +185,7 @@ $(document).ready(function(){initNavTree('simulation__gate__ff_8cpp_source.html'
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        }</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    }</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateFF::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, std::map&lt;std::pair&lt;const Net*, u64&gt;, BooleanFunction::Value&gt;&amp; new_events)</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">bool</span> NetlistSimulator::SimulationGateFF::simulate(<span class="keyword">const</span> Simulation&amp; simulation, <span class="keyword">const</span> WaveEvent&amp; event, <a class="code" href="namespacehal_1_1netlist__simulator__utils.html#a87141cb7f5a8bff587c8cd1ebe8eb018">netlist_simulator_utils::NetEventMap</a>&amp; new_events)</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    {</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="comment">// compute delay, currently just a placeholder</span></div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> <a class="code" href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">delay</a> = 0;</div>
@@ -257,7 +257,7 @@ $(document).ready(function(){initNavTree('simulation__gate__ff_8cpp_source.html'
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    }</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160; </div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">void</span> NetlistSimulator::SimulationGateFF::clock(<span class="keyword">const</span> <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> current_time, std::map&lt;std::pair&lt;const Net*, u64&gt;, BooleanFunction::Value&gt;&amp; new_events)</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordtype">void</span> NetlistSimulator::SimulationGateFF::clock(<span class="keyword">const</span> <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> current_time, <a class="code" href="namespacehal_1_1netlist__simulator__utils.html#a87141cb7f5a8bff587c8cd1ebe8eb018">netlist_simulator_utils::NetEventMap</a>&amp; new_events)</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    {</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <span class="comment">// compute delay, currently just a placeholder</span></div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        <a class="code" href="defines_8h.html#a1af9f95651e921615e75917a6dd1b574">u64</a> <a class="code" href="namespacehal.html#adb8da04d2161f277bd489e806a2721caa7243f8be75253afbadf7477867021f8b">delay</a> = 0;</div>
@@ -281,6 +281,8 @@ $(document).ready(function(){initNavTree('simulation__gate__ff_8cpp_source.html'
 <div class="ttc" id="aff__component_8h_html"><div class="ttname"><a href="ff__component_8h.html">ff_component.h</a></div></div>
 <div class="ttc" id="agroup__utilities_html_ga522d6d0c8a408128993be37c86656280"><div class="ttname"><a href="group__utilities.html#ga522d6d0c8a408128993be37c86656280">log_error</a></div><div class="ttdeci">#define log_error(channel,...)</div><div class="ttdef"><b>Definition:</b> <a href="log_8h_source.html#l00078">log.h:78</a></div></div>
 <div class="ttc" id="ainit__component_8h_html"><div class="ttname"><a href="init__component_8h.html">init_component.h</a></div></div>
+<div class="ttc" id="anamespacehal_1_1netlist__simulator__utils_html_a51f82b6a819fc7828c3e63a97513de4c"><div class="ttname"><a href="namespacehal_1_1netlist__simulator__utils.html#a51f82b6a819fc7828c3e63a97513de4c">hal::netlist_simulator_utils::NetValueMap</a></div><div class="ttdeci">std::map&lt; const Net *, BooleanFunction::Value, NetIdLess &gt; NetValueMap</div><div class="ttdef"><b>Definition:</b> <a href="netlist__simulator_8h_source.html#l00103">netlist_simulator.h:103</a></div></div>
+<div class="ttc" id="anamespacehal_1_1netlist__simulator__utils_html_a87141cb7f5a8bff587c8cd1ebe8eb018"><div class="ttname"><a href="namespacehal_1_1netlist__simulator__utils.html#a87141cb7f5a8bff587c8cd1ebe8eb018">hal::netlist_simulator_utils::NetEventMap</a></div><div class="ttdeci">std::map&lt; std::pair&lt; const Net *, u64 &gt;, BooleanFunction::Value, NetTimeLess &gt; NetEventMap</div><div class="ttdef"><b>Definition:</b> <a href="netlist__simulator_8h_source.html#l00100">netlist_simulator.h:100</a></div></div>
 <div class="ttc" id="anamespacehal_1_1simulation__utils_html_a6f13e55e925602ab65ca112c33900640"><div class="ttname"><a href="namespacehal_1_1simulation__utils.html#a6f13e55e925602ab65ca112c33900640">hal::simulation_utils::toggle</a></div><div class="ttdeci">BooleanFunction::Value toggle(BooleanFunction::Value v)</div><div class="ttdef"><b>Definition:</b> <a href="simulation__utils_8cpp_source.html#l00007">simulation_utils.cpp:7</a></div></div>
 <div class="ttc" id="anamespacehal_1_1simulation__utils_html_ae50da9e74fadf4924c7be1cc1af8797e"><div class="ttname"><a href="namespacehal_1_1simulation__utils.html#ae50da9e74fadf4924c7be1cc1af8797e">hal::simulation_utils::process_clear_preset_behavior</a></div><div class="ttdeci">BooleanFunction::Value process_clear_preset_behavior(AsyncSetResetBehavior behavior, BooleanFunction::Value previous_output)</div><div class="ttdef"><b>Definition:</b> <a href="simulation__utils_8cpp_source.html#l00016">simulation_utils.cpp:16</a></div></div>
 <div class="ttc" id="anamespacehal_html"><div class="ttname"><a href="namespacehal.html">hal</a></div><div class="ttdef"><b>Definition:</b> <a href="defines_8h_source.html#l00044">defines.h:45</a></div></div>

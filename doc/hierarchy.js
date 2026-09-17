@@ -158,6 +158,7 @@ var hierarchy =
     [ "hal::ModuleEvent", "classhal_1_1_module_event.html", null ],
     [ "hal::NetEvent", "classhal_1_1_net_event.html", null ],
     [ "hal::SimulationInput::NetGroup", "structhal_1_1_simulation_input_1_1_net_group.html", null ],
+    [ "hal::netlist_simulator_utils::NetIdLess", "structhal_1_1netlist__simulator__utils_1_1_net_id_less.html", null ],
     [ "hal::Netlist", "classhal_1_1_netlist.html", null ],
     [ "hal::dataflow::NetlistAbstraction", "structhal_1_1dataflow_1_1_netlist_abstraction.html", null ],
     [ "hal::NetlistEvent", "classhal_1_1_netlist_event.html", null ],
@@ -175,6 +176,7 @@ var hierarchy =
       [ "hal::GexfWriter", "classhal_1_1_gexf_writer.html", null ],
       [ "hal::VerilogWriter", "classhal_1_1_verilog_writer.html", null ]
     ] ],
+    [ "hal::netlist_simulator_utils::NetTimeLess", "structhal_1_1netlist__simulator__utils_1_1_net_time_less.html", null ],
     [ "hal::BooleanFunction::Node", "structhal_1_1_boolean_function_1_1_node.html", null ],
     [ "hal::BooleanFunction::NodeType", "structhal_1_1_boolean_function_1_1_node_type.html", null ],
     [ "std::ofstream", null, [

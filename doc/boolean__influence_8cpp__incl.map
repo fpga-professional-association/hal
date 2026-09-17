@@ -1,30 +1,31 @@
 <map id="plugins/boolean_influence/src/boolean_influence.cpp" name="plugins/boolean_influence/src/boolean_influence.cpp">
-<area shape="rect" id="node1" title=" " alt="" coords="1593,5,1787,47"/>
-<area shape="rect" id="node2" href="$boolean__influence_8h.html" title=" " alt="" coords="1137,95,1333,136"/>
-<area shape="rect" id="node4" title=" " alt="" coords="1977,527,2067,553"/>
-<area shape="rect" id="node7" href="$z3__utils_8h.html" title=" " alt="" coords="1166,191,1305,218"/>
-<area shape="rect" id="node8" href="$boolean__function_8h.html" title=" " alt="" coords="1601,273,1779,315"/>
-<area shape="rect" id="node14" href="$netlist_8h.html" title=" " alt="" coords="358,281,537,307"/>
-<area shape="rect" id="node17" href="$boolean__function__net__decorator_8h.html" title=" " alt="" coords="1796,95,2043,136"/>
-<area shape="rect" id="node18" href="$net_8h.html" title=" " alt="" coords="1940,191,2099,218"/>
-<area shape="rect" id="node20" href="$netlist__traversal__decorator_8h.html" title=" " alt="" coords="5,184,217,225"/>
-<area shape="rect" id="node22" href="$endpoint_8h.html" title=" " alt="" coords="291,191,486,218"/>
-<area shape="rect" id="node23" href="$gate_8h.html" title=" " alt="" coords="845,102,1012,129"/>
-<area shape="rect" id="node24" href="$gate__type_8h.html" title=" " alt="" coords="1406,184,1561,225"/>
-<area shape="rect" id="node25" href="$pin__direction_8h.html" title=" " alt="" coords="2123,95,2342,136"/>
-<area shape="rect" id="node26" href="$pin__type_8h.html" title=" " alt="" coords="2367,95,2557,136"/>
-<area shape="rect" id="node27" href="$subgraph__function__generation_8h.html" title=" " alt="" coords="2057,273,2253,315"/>
-<area shape="rect" id="node28" title=" " alt="" coords="2633,102,2707,129"/>
-<area shape="rect" id="node3" href="$defines_8h.html" title=" " alt="" coords="1379,452,1519,479"/>
-<area shape="rect" id="node5" href="$include_2hal__core_2utilities_2result_8h.html" title=" " alt="" coords="2090,363,2221,404"/>
-<area shape="rect" id="node10" title=" " alt="" coords="1309,370,1359,397"/>
-<area shape="rect" id="node12" title=" " alt="" coords="823,370,947,397"/>
-<area shape="rect" id="node13" title=" " alt="" coords="1912,370,1975,397"/>
-<area shape="rect" id="node6" title=" " alt="" coords="1828,452,1915,479"/>
-<area shape="rect" id="node9" title=" " alt="" coords="1657,370,1728,397"/>
-<area shape="rect" id="node11" title=" " alt="" coords="1539,370,1582,397"/>
-<area shape="rect" id="node15" href="$event__handler_8h.html" title=" " alt="" coords="561,363,747,404"/>
-<area shape="rect" id="node16" title=" " alt="" coords="459,370,537,397"/>
-<area shape="rect" id="node19" href="$data__container_8h.html" title=" " alt="" coords="1371,273,1526,315"/>
-<area shape="rect" id="node21" title=" " alt="" coords="149,281,223,307"/>
+<area shape="rect" id="node1" title=" " alt="" coords="1232,5,1426,47"/>
+<area shape="rect" id="node2" href="$boolean__influence_8h.html" title=" " alt="" coords="418,95,614,136"/>
+<area shape="rect" id="node4" title=" " alt="" coords="1606,527,1697,553"/>
+<area shape="rect" id="node7" href="$z3__utils_8h.html" title=" " alt="" coords="948,191,1086,218"/>
+<area shape="rect" id="node8" href="$boolean__function_8h.html" title=" " alt="" coords="678,273,857,315"/>
+<area shape="rect" id="node14" href="$netlist_8h.html" title=" " alt="" coords="1870,281,2049,307"/>
+<area shape="rect" id="node17" href="$boolean__function__net__decorator_8h.html" title=" " alt="" coords="851,95,1098,136"/>
+<area shape="rect" id="node18" href="$net_8h.html" title=" " alt="" coords="1627,191,1786,218"/>
+<area shape="rect" id="node20" href="$netlist__traversal__decorator_8h.html" title=" " alt="" coords="2031,184,2243,225"/>
+<area shape="rect" id="node22" href="$endpoint_8h.html" title=" " alt="" coords="132,191,326,218"/>
+<area shape="rect" id="node23" href="$gate_8h.html" title=" " alt="" coords="1186,102,1352,129"/>
+<area shape="rect" id="node24" href="$gate__type_8h.html" title=" " alt="" coords="1313,184,1468,225"/>
+<area shape="rect" id="node25" href="$pin__direction_8h.html" title=" " alt="" coords="2334,95,2553,136"/>
+<area shape="rect" id="node26" href="$pin__type_8h.html" title=" " alt="" coords="2578,95,2768,136"/>
+<area shape="rect" id="node27" href="$netlist__utils_8h.html" title=" " alt="" coords="604,184,771,225"/>
+<area shape="rect" id="node28" href="$subgraph__function__generation_8h.html" title=" " alt="" coords="255,273,451,315"/>
+<area shape="rect" id="node29" title=" " alt="" coords="2792,102,2866,129"/>
+<area shape="rect" id="node3" href="$defines_8h.html" title=" " alt="" coords="814,452,954,479"/>
+<area shape="rect" id="node5" href="$include_2hal__core_2utilities_2result_8h.html" title=" " alt="" coords="1545,363,1676,404"/>
+<area shape="rect" id="node10" title=" " alt="" coords="1034,370,1085,397"/>
+<area shape="rect" id="node12" title=" " alt="" coords="1214,370,1338,397"/>
+<area shape="rect" id="node13" title=" " alt="" coords="660,370,723,397"/>
+<area shape="rect" id="node6" title=" " alt="" coords="2094,452,2180,479"/>
+<area shape="rect" id="node9" title=" " alt="" coords="318,370,388,397"/>
+<area shape="rect" id="node11" title=" " alt="" coords="1457,370,1500,397"/>
+<area shape="rect" id="node15" href="$event__handler_8h.html" title=" " alt="" coords="1751,363,1936,404"/>
+<area shape="rect" id="node16" title=" " alt="" coords="2062,370,2140,397"/>
+<area shape="rect" id="node19" href="$data__container_8h.html" title=" " alt="" coords="982,273,1137,315"/>
+<area shape="rect" id="node21" title=" " alt="" coords="2276,281,2350,307"/>
 </map>

@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-220-g4459fe630</span>
+   &#160;<span id="projectnumber">v4.5.0-221-g1befbde11</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -154,6 +154,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad066fcd4f0242b5d8a46a42acdbf1378 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8eb430b51b660c95b315011c9628161e inherit pub_methods_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#a8eb430b51b660c95b315011c9628161e">failed</a> ()</td></tr>
 <tr class="separator:a8eb430b51b660c95b315011c9628161e inherit pub_methods_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae67b60c0b32c0a8fba892015c9ca6fa8 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#ae67b60c0b32c0a8fba892015c9ca6fa8">setRunTerminated</a> (bool success)</td></tr>
+<tr class="separator:ae67b60c0b32c0a8fba892015c9ca6fa8 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f634ac850e8fd4f1dd9c2ec20be7688 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#a9f634ac850e8fd4f1dd9c2ec20be7688">set_engine_property</a> (const std::string &amp;key, const std::string &amp;value)</td></tr>
 <tr class="separator:a9f634ac850e8fd4f1dd9c2ec20be7688 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1937fb96d379423c99506463a8e6cd2 inherit pub_methods_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#aa1937fb96d379423c99506463a8e6cd2">get_engine_property</a> (const std::string &amp;key)</td></tr>
@@ -179,8 +181,9 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a999b8c258989de10c2e9c4586ec1d5f7 inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7bf00efa26949cae265e78c6d06f0a5 inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#ad7bf00efa26949cae265e78c6d06f0a5">mResultFilename</a></td></tr>
 <tr class="separator:ad7bf00efa26949cae265e78c6d06f0a5 inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6acfc77a8c27c998ae3cac01d77749b inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classhal_1_1_simulation_engine.html#ac9e8ccfbc7655bd1f3604e688db438f2">State</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#ae6acfc77a8c27c998ae3cac01d77749b">mState</a></td></tr>
-<tr class="separator:ae6acfc77a8c27c998ae3cac01d77749b inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac25b4410adb82b90eec347974b63cfdf inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; <a class="el" href="classhal_1_1_simulation_engine.html#ac9e8ccfbc7655bd1f3604e688db438f2">State</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#ac25b4410adb82b90eec347974b63cfdf">mState</a></td></tr>
+<tr class="memdesc:ac25b4410adb82b90eec347974b63cfdf inherit pro_attribs_classhal_1_1_simulation_engine"><td class="mdescLeft">&#160;</td><td class="mdescRight">Written by the thread or process that runs the engine, read by whoever waits for the run.  <a href="classhal_1_1_simulation_engine.html#ac25b4410adb82b90eec347974b63cfdf">More...</a><br /></td></tr>
+<tr class="separator:ac25b4410adb82b90eec347974b63cfdf inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab179f51dff5ac9af9313f7f4a0e1557c inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#ab179f51dff5ac9af9313f7f4a0e1557c">mProperties</a></td></tr>
 <tr class="separator:ab179f51dff5ac9af9313f7f4a0e1557c inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa20a9994e5a83bf9859dfe4011bebe8 inherit pro_attribs_classhal_1_1_simulation_engine"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classhal_1_1_simulation_input.html">SimulationInput</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classhal_1_1_simulation_engine.html#aaa20a9994e5a83bf9859dfe4011bebe8">mSimulationInput</a></td></tr>
@@ -191,7 +194,7 @@ Additional Inherited Members</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The base class for simulation engines that run as external processes driven by a sequence of shell commands. </p>
 
-<p class="definition">Definition at line <a class="el" href="simulation__engine_8h_source.html#l00257">257</a> of file <a class="el" href="simulation__engine_8h_source.html">simulation_engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation__engine_8h_source.html#l00288">288</a> of file <a class="el" href="simulation__engine_8h_source.html">simulation_engine.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ade91451c995c6eaaa17c6f1123f17af8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ade91451c995c6eaaa17c6f1123f17af8">&#9670;&nbsp;</a></span>SimulationEngineScripted()</h2>
@@ -217,7 +220,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="simulation__engine_8h_source.html#l00262">262</a> of file <a class="el" href="simulation__engine_8h_source.html">simulation_engine.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="simulation__engine_8h_source.html#l00293">293</a> of file <a class="el" href="simulation__engine_8h_source.html">simulation_engine.h</a>.</p>
 
 </div>
 </div>

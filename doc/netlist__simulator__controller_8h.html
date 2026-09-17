@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="hal_icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HAL
-   &#160;<span id="projectnumber">v4.5.0-220-g4459fe630</span>
+   &#160;<span id="projectnumber">v4.5.0-221-g1befbde11</span>
    </div>
    <div id="projectbrief">The Hardware Analyzer - a comprehensive reverse engineering and manipulation framework for gate-level netlists.</div>
   </td>
@@ -96,6 +96,7 @@ $(document).ready(function(){initNavTree('netlist__simulator__controller_8h.html
 <code>#include &quot;<a class="el" href="module_8h_source.html">hal_core/netlist/module.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="net_8h_source.html">hal_core/netlist/net.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="netlist__writer_8h_source.html">hal_core/netlist/netlist_writer/netlist_writer.h</a>&quot;</code><br />
+<code>#include &lt;atomic&gt;</code><br />
 <code>#include &lt;filesystem&gt;</code><br />
 <code>#include &lt;functional&gt;</code><br />
 <code>#include &lt;map&gt;</code><br />
@@ -113,46 +114,47 @@ Include dependency graph for netlist_simulator_controller.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="netlist__simulator__controller_8h__incl.png" border="0" usemap="#aplugins_2simulator_2netlist__simulator__controller_2include_2netlist__simulator__controller_2netlist__simulator__controller_8h" alt=""/></div>
 <map name="aplugins_2simulator_2netlist__simulator__controller_2include_2netlist__simulator__controller_2netlist__simulator__controller_8h" id="aplugins_2simulator_2netlist__simulator__controller_2include_2netlist__simulator__controller_2netlist__simulator__controller_8h">
-<area shape="rect" title=" " alt="" coords="1948,5,2164,76"/>
-<area shape="rect" href="defines_8h.html" title=" " alt="" coords="1306,749,1446,776"/>
-<area shape="rect" title=" " alt="" coords="4347,824,4437,851"/>
-<area shape="rect" href="gate_8h.html" title=" " alt="" coords="1523,310,1690,337"/>
-<area shape="rect" title=" " alt="" coords="3683,749,3733,776"/>
-<area shape="rect" title=" " alt="" coords="570,667,657,694"/>
-<area shape="rect" title=" " alt="" coords="693,578,736,605"/>
-<area shape="rect" title=" " alt="" coords="3011,578,3135,605"/>
-<area shape="rect" title=" " alt="" coords="2209,578,2271,605"/>
-<area shape="rect" title=" " alt="" coords="3916,578,3975,605"/>
-<area shape="rect" title=" " alt="" coords="448,489,525,515"/>
-<area shape="rect" href="module_8h.html" title=" " alt="" coords="2656,221,2843,247"/>
-<area shape="rect" href="net_8h.html" title=" " alt="" coords="1350,399,1509,426"/>
-<area shape="rect" href="netlist__writer_8h.html" title=" " alt="" coords="1005,481,1173,523"/>
-<area shape="rect" title=" " alt="" coords="4533,131,4608,158"/>
-<area shape="rect" href="simulation__engine_8h.html" title=" " alt="" coords="2107,124,2309,165"/>
-<area shape="rect" href="simulation__input_8h.html" title=" " alt="" coords="2246,213,2447,255"/>
-<area shape="rect" href="wave__data_8h.html" title=" " alt="" coords="1817,124,2018,165"/>
-<area shape="rect" title=" " alt="" coords="1222,824,1309,851"/>
-<area shape="rect" title=" " alt="" coords="1333,824,1419,851"/>
-<area shape="rect" title=" " alt="" coords="1443,824,1514,851"/>
-<area shape="rect" href="boolean__function_8h.html" title=" " alt="" coords="1941,481,2120,523"/>
-<area shape="rect" href="data__container_8h.html" title=" " alt="" coords="1299,481,1453,523"/>
-<area shape="rect" href="endpoint_8h.html" title=" " alt="" coords="668,399,863,426"/>
-<area shape="rect" href="event__handler_8h.html" title=" " alt="" coords="1529,481,1714,523"/>
-<area shape="rect" href="gate__type_8h.html" title=" " alt="" coords="2841,392,2996,433"/>
-<area shape="rect" href="enums_8h.html" title=" " alt="" coords="2805,660,2936,701"/>
-<area shape="rect" href="include_2hal__core_2utilities_2result_8h.html" title=" " alt="" coords="1521,571,1652,612"/>
-<area shape="rect" title=" " alt="" coords="2499,667,2591,694"/>
-<area shape="rect" title=" " alt="" coords="941,578,995,605"/>
-<area shape="rect" href="pin__group_8h.html" title=" " alt="" coords="3113,481,3266,523"/>
-<area shape="rect" title=" " alt="" coords="2720,489,2835,515"/>
-<area shape="rect" href="pin__direction_8h.html" title=" " alt="" coords="3211,571,3429,612"/>
-<area shape="rect" href="pin__type_8h.html" title=" " alt="" coords="3454,571,3645,612"/>
-<area shape="rect" title=" " alt="" coords="3797,578,3840,605"/>
-<area shape="rect" href="pin__event_8h.html" title=" " alt="" coords="2447,481,2646,523"/>
-<area shape="rect" href="gate__library_8h.html" title=" " alt="" coords="2787,303,2949,344"/>
-<area shape="rect" href="module__pin_8h.html" title=" " alt="" coords="2449,303,2602,344"/>
-<area shape="rect" href="wave__event_8h.html" title=" " alt="" coords="1817,303,2018,344"/>
-<area shape="rect" href="saleae__directory_8h.html" title=" " alt="" coords="3342,481,3543,523"/>
+<area shape="rect" title=" " alt="" coords="2811,5,3027,76"/>
+<area shape="rect" href="defines_8h.html" title=" " alt="" coords="3019,749,3159,776"/>
+<area shape="rect" title=" " alt="" coords="61,824,152,851"/>
+<area shape="rect" href="gate_8h.html" title=" " alt="" coords="2662,310,2829,337"/>
+<area shape="rect" title=" " alt="" coords="999,749,1049,776"/>
+<area shape="rect" title=" " alt="" coords="1098,667,1185,694"/>
+<area shape="rect" title=" " alt="" coords="2123,578,2165,605"/>
+<area shape="rect" title=" " alt="" coords="3630,578,3754,605"/>
+<area shape="rect" title=" " alt="" coords="4082,578,4145,605"/>
+<area shape="rect" title=" " alt="" coords="2291,578,2349,605"/>
+<area shape="rect" title=" " alt="" coords="1045,489,1123,515"/>
+<area shape="rect" href="module_8h.html" title=" " alt="" coords="1168,221,1355,247"/>
+<area shape="rect" href="net_8h.html" title=" " alt="" coords="1563,399,1722,426"/>
+<area shape="rect" href="netlist__writer_8h.html" title=" " alt="" coords="296,481,464,523"/>
+<area shape="rect" title=" " alt="" coords="2931,221,2997,247"/>
+<area shape="rect" title=" " alt="" coords="4229,131,4304,158"/>
+<area shape="rect" href="simulation__engine_8h.html" title=" " alt="" coords="3010,124,3211,165"/>
+<area shape="rect" href="simulation__input_8h.html" title=" " alt="" coords="3174,213,3375,255"/>
+<area shape="rect" href="wave__data_8h.html" title=" " alt="" coords="3414,124,3615,165"/>
+<area shape="rect" title=" " alt="" coords="2935,824,3022,851"/>
+<area shape="rect" title=" " alt="" coords="3046,824,3133,851"/>
+<area shape="rect" title=" " alt="" coords="3157,824,3227,851"/>
+<area shape="rect" href="boolean__function_8h.html" title=" " alt="" coords="3069,481,3248,523"/>
+<area shape="rect" href="data__container_8h.html" title=" " alt="" coords="2688,481,2843,523"/>
+<area shape="rect" href="endpoint_8h.html" title=" " alt="" coords="3427,399,3621,426"/>
+<area shape="rect" href="event__handler_8h.html" title=" " alt="" coords="2377,481,2562,523"/>
+<area shape="rect" href="gate__type_8h.html" title=" " alt="" coords="1983,392,2137,433"/>
+<area shape="rect" href="enums_8h.html" title=" " alt="" coords="2021,660,2152,701"/>
+<area shape="rect" href="include_2hal__core_2utilities_2result_8h.html" title=" " alt="" coords="1076,571,1207,612"/>
+<area shape="rect" title=" " alt="" coords="862,667,954,694"/>
+<area shape="rect" title=" " alt="" coords="1891,578,1946,605"/>
+<area shape="rect" href="pin__group_8h.html" title=" " alt="" coords="1401,481,1554,523"/>
+<area shape="rect" title=" " alt="" coords="1781,489,1896,515"/>
+<area shape="rect" href="pin__direction_8h.html" title=" " alt="" coords="1383,571,1601,612"/>
+<area shape="rect" href="pin__type_8h.html" title=" " alt="" coords="1677,571,1867,612"/>
+<area shape="rect" title=" " alt="" coords="952,578,995,605"/>
+<area shape="rect" href="pin__event_8h.html" title=" " alt="" coords="3474,481,3673,523"/>
+<area shape="rect" href="gate__library_8h.html" title=" " alt="" coords="1960,303,2123,344"/>
+<area shape="rect" href="module__pin_8h.html" title=" " alt="" coords="1731,303,1885,344"/>
+<area shape="rect" href="wave__event_8h.html" title=" " alt="" coords="2385,303,2586,344"/>
+<area shape="rect" href="saleae__directory_8h.html" title=" " alt="" coords="3849,481,4050,523"/>
 </map>
 </div>
 </div>
