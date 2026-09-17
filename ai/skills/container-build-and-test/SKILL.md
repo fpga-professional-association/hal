@@ -107,9 +107,16 @@ against, not the CI minutes themselves.
   either.
 - `.github/workflows/ubuntu22.04.yml`, `ubuntu24.04.yml`, `ubuntu26.04.yml`,
   `arm64.yml`, `macOS.yml` -- the CI authority. Only `ubuntu22.04.yml`,
-  `ubuntu24.04.yml` and `arm64.yml` declare `workflow_dispatch`; `ubuntu26.04.yml`,
-  `macOS.yml` and `releaseDoc.yml` run on push/PR only, so there is no way to
-  dispatch them by hand -- to exercise those three you must push a branch or
-  open a PR.
+  `ubuntu24.04.yml`, `arm64.yml` and `nightly-fuzz.yml` declare
+  `workflow_dispatch`; `ubuntu26.04.yml`, `macOS.yml` and `releaseDoc.yml` run
+  on push/PR only, so there is no way to dispatch them by hand -- to exercise
+  those three you must push a branch or open a PR.
+- `.github/workflows/nightly-fuzz.yml` -- the only *scheduled* workflow (04:10
+  UTC). It rebuilds Ubuntu 24.04 with `-DBUILD_FUZZ_TESTS=ON` and runs
+  `tests/fuzz/run_fuzz_matrix.sh`: `ctest -L fuzz`, a `FUZZ_ITERS=500` sweep,
+  twelve extra fixed seeds, and one seed that is new every night. The same
+  script runs in the bench container, which is how to reproduce a red nightly:
+  `NIGHTLY_SEED=<the seed from the job summary> bash tests/fuzz/run_fuzz_matrix.sh`.
+  A finding there is a bug in HAL, not usually in the day's change.
 - Build flags CI uses: `-DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON` (Debug for
   CI's own build; the bench's `/work/build` is also Debug).
