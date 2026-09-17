@@ -18,8 +18,8 @@
       },
       "kind": "netlist",
       "path": "examples/agilex3_walkthroughs/12_present_sbox/present_sbox.vo",
-      "sha256": "75e3179cc10a56f3bb243da93ab513f829207c658047f85492417f2524981efe",
-      "size_bytes": 189937
+      "sha256": "71e45618ba8cf627aecd2807de00e3228a56f8b018a4ac2dfe9a0d94b1f5f4d6",
+      "size_bytes": 181742
     }
   ],
   "findings": [
@@ -2093,7 +2093,7 @@
       "title": "No shift chain of at least 4 stages"
     }
   ],
-  "generated_at": "2026-09-16T22:48:05Z",
+  "generated_at": "2026-09-17T01:06:13Z",
   "notes": [
     "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
     "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."
