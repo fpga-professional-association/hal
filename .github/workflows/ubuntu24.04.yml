@@ -90,11 +90,11 @@ jobs:
         # and build directories, but this is only available with CMake 3.13 and higher.
         # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
         #
-        # BUILD_FUZZ_TESTS is ON here and nowhere else. The two seeded harnesses in tests/fuzz run
-        # their fixed 25 seeds in 14 seconds together, so the ctest step below covers them on every
-        # push -- on this platform, where they are known to be green, rather than on the four that
-        # have never run them. Issue #51's nightly is what widens that to a seed matrix and a fresh
-        # random seed; see tests/fuzz/CMakeLists.txt.
+        # BUILD_FUZZ_TESTS is ON here and in .github/workflows/nightly-fuzz.yml, nowhere else. The
+        # two seeded harnesses in tests/fuzz run their fixed 25 seeds in 14 seconds together, so the
+        # ctest step below covers them on every push -- on this platform, where they are known to be
+        # green, rather than on the four that have never run them. The nightly is what widens that
+        # to a seed matrix and a fresh random seed; see tests/fuzz/CMakeLists.txt.
         run: |
           mkdir -p build/doc
           cd build

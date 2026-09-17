@@ -36,8 +36,12 @@ Usage
     FUZZ_GATE_LIBRARY=/path/to/lib.hgl                             # override library
     FUZZ_KEEP=1                                                    # keep temp files
 
-The harness exits 0 as long as every failure it sees is an *expected* one, so it
-can gate CI. Unexpected failures exit 1 and print a one-line repro command.
+The harness exits 0 as long as every failure it sees is an *expected* one and
+every expected failure it declares still fails, so it can gate CI. Unexpected
+failures exit 1 and print a one-line repro command -- and so does an unexpected
+*pass*: a KNOWN_BUGS entry or an EXPECTED_FAILURE_SEEDS seed that has stopped
+failing means the marker outlived the bug, and the fix belongs in an assertion
+rather than in this list.
 """
 
 import os
@@ -161,7 +165,9 @@ FEATURES = {
 # Seeds from DEFAULT_SEEDS that are known to fail with the default feature set.
 # Empty: with the known-bug triggers disabled, all 25 default seeds round-trip.
 # Add entries as ``seed: "reason"`` when a new real failure is found and
-# minimized; the harness then keeps exiting 0 while still reporting the finding.
+# minimized; the harness then keeps exiting 0 on that failure while still
+# reporting the finding -- but it exits 1 again as soon as the seed stops
+# failing (see main()).
 EXPECTED_FAILURE_SEEDS = {}
 
 # --------------------------------------------------------------------------- #
@@ -763,6 +769,11 @@ def minimize(design, workdir, budget=200):
 #                       plugins/verilog_parser/test/verilog_parser.cpp
 # The generator features that used to reproduce them are enabled by default in
 # FEATURES above, so the sweep keeps covering those shapes.
+#
+# An entry that stops reproducing exits the harness 1 (see main()): the premise
+# of this tier is that a result nobody predicted is a finding, and an unexpected
+# *pass* is one of those -- the behaviour changed somewhere and the change needs
+# an assertion of its own before the entry disappears.
 KNOWN_BUGS = [
     {
         "id": "KB-4",
@@ -820,6 +831,22 @@ def repro_command(seed):
     return "FUZZ_SEED=%d python3 tests/fuzz/fuzz_verilog_roundtrip.py" % seed
 
 
+# Printed, and exited 1 on, when an expected failure stops failing. The premise
+# of this tier is that any result nobody predicted is a finding; an unexpected
+# pass is one, and the only way it stays visible is a red run.
+STALE_MARKER_ADVICE = """\
+expected failures that NO LONGER fail -- this run is red on purpose:
+%s
+
+Something fixed these and the marker outlived the bug. Re-running will not make
+it green: remove the named entry from KNOWN_BUGS / EXPECTED_FAILURE_SEEDS in
+tests/fuzz/fuzz_verilog_roundtrip.py and assert the now-fixed behaviour in its
+place -- the minimized repro of a fixed round-trip bug belongs in
+plugins/verilog_writer/test/verilog_writer.cpp or
+plugins/verilog_parser/test/verilog_parser.cpp, as KB-1, KB-2, KB-3 and KB-5
+were -- so the bug cannot come back unnoticed."""
+
+
 def main():
     env_seed = os.environ.get("FUZZ_SEED")
     if env_seed:
@@ -835,6 +862,8 @@ def main():
 
     unexpected = []
     expected = []
+    # Expected failures that did not fail. Red on purpose: see STALE_MARKER_ADVICE.
+    stale = []
     passed = 0
     try:
         for seed in seeds:
@@ -862,11 +891,15 @@ def main():
                 traceback.print_exc()
             else:
                 if seed in EXPECTED_FAILURE_SEEDS:
-                    print("XPASS seed=%d unexpectedly passed -- drop it from "
-                          "EXPECTED_FAILURE_SEEDS" % seed)
+                    print("XPASS seed=%d unexpectedly passed" % seed)
+                    stale.append(
+                        "EXPECTED_FAILURE_SEEDS entry %d (%s) no longer fails; repro: %s"
+                        % (seed, EXPECTED_FAILURE_SEEDS[seed], repro_command(seed)))
                 passed += 1
 
         xfail, xpass, drifted = run_known_bugs(workdir)
+        for bug_id in xpass:
+            stale.append("KNOWN_BUGS entry %s no longer reproduces" % bug_id)
     finally:
         if KEEP_TEMP:
             print("fuzz_verilog_roundtrip: temp files kept in %s" % workdir)
@@ -888,6 +921,10 @@ def main():
         print("unexpected failures (real findings, please escalate):")
         for seed, _ in unexpected:
             print("  %s" % repro_command(seed))
+    if stale:
+        print("")
+        print(STALE_MARKER_ADVICE % "\n".join("  - %s" % note for note in stale))
+    if unexpected or stale:
         return 1
     print("fuzz_verilog_roundtrip: OK")
     return 0

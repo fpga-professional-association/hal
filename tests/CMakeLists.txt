@@ -47,6 +47,7 @@ add_subdirectory(roundtrip)
 
 # The fuzz tier is a search rather than a fixed set of assertions, so it is registered only with
 # -DBUILD_FUZZ_TESTS=ON and labelled "fuzz": the Ubuntu 24.04 workflow turns it on and runs the
-# fixed-seed sweep on every push, and issue #51's nightly is what widens it to a seed matrix. See
-# tests/fuzz/CMakeLists.txt for the reasoning and the measured runtimes.
+# fixed-seed sweep on every push, and .github/workflows/nightly-fuzz.yml (issue #51) widens it to a
+# seed matrix plus a fresh random seed once a night. See tests/fuzz/CMakeLists.txt for the
+# reasoning and the measured runtimes.
 add_subdirectory(fuzz)
