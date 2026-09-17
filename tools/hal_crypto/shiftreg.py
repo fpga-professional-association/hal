@@ -39,6 +39,14 @@ Quartus export of Trivium:
   polynomial of its own** (a polynomial describes a recurrence over one
   register's own history), so ``polynomial`` is ``None`` there and the algebraic
   normal form is the whole report.
+* **the chain is read from the side.**  Tapping a shift register is what shift
+  registers are for: a serial-in/parallel-out converter captures every stage, a
+  Galois LFSR XORs its last stage into several stages along the chain, and a
+  bit-serial datapath reads the stage it is shifting.  Each of those gives a
+  stage more than one successor, so the chain has to be walked by the
+  **predecessor** -- every stage has exactly one register feeding it and fan-out
+  cannot change that.  :func:`_walk` does, and the branches that leave the line
+  are reported as taps in ``ambiguity`` rather than ending the walk.
 
 Storage polarity is a synthesis artefact, not a design choice.  Quartus
 implements an asynchronous load of a non-zero seed by storing some stages
@@ -328,6 +336,12 @@ def _structures(model, updates, mode):
     for value in successors.values():
         value.sort()
 
+    # Only needed where a stage has more than one successor, but cheap and
+    # uniform: see :func:`_walk` for what it separates.
+    clocking = {
+        name: _clock_group(model, update.ff) for name, update in updates.items()
+    }
+
     # Two sweeps: open chains have a head that nothing shifts into; closed ones
     # do not, so their head is found as "the stage that is not a shift link".
     chains = []
@@ -342,7 +356,7 @@ def _structures(model, updates, mode):
                     continue
             elif start in links:
                 continue
-            chain, ambiguity = _walk(start, successors)
+            chain, ambiguity = _walk(start, successors, clocking)
             if len(chain) < MIN_CHAIN_LENGTH:
                 continue
             used.update(chain)
@@ -389,27 +403,87 @@ def _gauge_of(chain, inverted):
     return gauge
 
 
-def _walk(start, successors):
-    chain = [start]
+def _walk(start, successors, groups=None):
+    """The longest line of shift links that starts at *start*.
+
+    The relation walked is the **predecessor** one, even though the path is
+    assembled forwards: ``links`` gives every stage exactly one register that
+    feeds it, so "the stage before this one" is unambiguous no matter how many
+    stages read the value afterwards.  Reading it the other way round is not
+    safe, and that is not a corner case -- *tapping* a shift register is what
+    shift registers are for.  A serial-in/parallel-out converter has a capture
+    register on every stage, a Galois LFSR XORs its last stage into several
+    stages along the chain, and a bit-serial datapath reads the stage it is
+    shifting; every one of those forks the successor map.  A walk that stopped
+    at the first fork returned a chain of length one for all of them, which is
+    below :data:`MIN_CHAIN_LENGTH`, so the answer was not "a short chain" but
+    *no structure at all* in a design that is a shift register.
+
+    Where the successor map does fork, the longest line through the fork is the
+    chain and the branches that leave it are taps: they are named in
+    ``ambiguity`` rather than dropped silently, because "this chain is also read
+    from the side" is part of what the caller is being told.
+
+    Two branches of the same length are separated by *groups*, the ``(clk, ena,
+    clrn)`` signature of each stage: the branch that keeps the chain inside one
+    clocking group is the chain, and the one that changes it is a capture
+    register hanging off it.  That is the shape of a serial receiver, where the
+    capture stage is exactly the stage whose enable differs.  Any tie left after
+    that is broken by the sort order of the stage names, so the walk is
+    deterministic.
+    """
+    groups = groups or {}
+    # The reachable subgraph is a tree -- every stage has exactly one
+    # predecessor -- so one post-order pass gives the longest suffix at every
+    # stage, and the chain is the longest suffix at the head.
+    order = []
     seen = {start}
+    stack = [(start, False)]
+    while stack:
+        node, expanded = stack.pop()
+        if expanded:
+            order.append(node)
+            continue
+        stack.append((node, True))
+        for nxt in reversed(successors.get(node, ())):
+            if nxt in seen:
+                continue
+            seen.add(nxt)
+            stack.append((nxt, False))
+
+    longest = {}
+    for node in order:
+        best = []
+        best_rank = None
+        for nxt in successors.get(node, ()):
+            candidate = longest.get(nxt)
+            if candidate is None:
+                continue
+            rank = (len(candidate), groups.get(nxt) == groups.get(node))
+            if best_rank is None or rank > best_rank:
+                best_rank = rank
+                best = candidate
+        longest[node] = [node] + best
+
+    chain = longest[start]
+    on_chain = set(chain)
+    taps = [
+        (name, sorted(set(successors.get(name, ())) - on_chain))
+        for name in chain
+        if len(successors.get(name, ())) > 1
+    ]
+    taps = [entry for entry in taps if entry[1]]
     ambiguity = None
-    current = start
-    while True:
-        following = successors.get(current, [])
-        if len(following) > 1:
-            ambiguity = (
-                "stage {} shifts into {} registers; the chain is not a line, so it "
-                "was cut here".format(current, len(following))
+    if taps:
+        ambiguity = (
+            "{} stage(s) of this chain are also read by a register that is not the "
+            "next stage ({}); the chain is the longest line of shift links through "
+            "them and the other {} register(s) are taps off it".format(
+                len(taps),
+                ", ".join(name for name, _ in taps[:4]),
+                sum(len(branch) for _, branch in taps),
             )
-            break
-        if not following:
-            break
-        nxt = following[0]
-        if nxt in seen:
-            break
-        chain.append(nxt)
-        seen.add(nxt)
-        current = nxt
+        )
     return chain, ambiguity
 
 

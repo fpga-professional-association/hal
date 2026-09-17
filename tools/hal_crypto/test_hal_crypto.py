@@ -57,6 +57,7 @@ from hal_crypto import (
     permutation,
     sbox,
     shiftreg,
+    wordorder,
 )
 from hal_crypto.cli import main as cli_main
 from hal_crypto.fixtures import synth
@@ -85,6 +86,20 @@ PRESENT_NOKEEP_EXPORT = os.path.join(
 PRESENT_TEXTBOOK_EXPORT = os.path.join(
     WALKTHROUGHS, "12_present_sbox", "variants", "present_textbook.vo"
 )
+#: Walkthrough 16 committed the same five designs twice: once as a Quartus
+#: export with its RTL names, and once anonymised -- module, port, net and
+#: instance names replaced and every internal vector declaration split into
+#: unrelated scalars.  That pair is the only fixture in the repository that
+#: isolates *naming* as a variable, which is what the name-free readings have to
+#: be measured against: the blinded file must give the same structural answer as
+#: its named twin, and the named twin must keep giving exactly the answer it
+#: gave before those readings existed.
+MYSTERY = os.path.join(WALKTHROUGHS, "16_mystery_cores")
+BLIND_SPECK_EXPORT = os.path.join(MYSTERY, "cores", "core_d.anon.hal.v")
+NAMED_SPECK_EXPORT = os.path.join(MYSTERY, "ground_truth", "exports", "core_d.vo")
+BLIND_FRAMER_EXPORT = os.path.join(MYSTERY, "cores", "core_b.anon.hal.v")
+BLIND_TRIVIUM_EXPORT = os.path.join(MYSTERY, "cores", "core_c.anon.hal.v")
+
 KECCAK_EXPORT = os.path.join(WALKTHROUGHS, "14_keccak_toy", "keccak_toy.vo")
 KECCAK_RETIMED_EXPORT = os.path.join(
     WALKTHROUGHS, "14_keccak_toy", "keccak_retimed.vo"
@@ -500,6 +515,76 @@ class ShiftRegisterPassTest(unittest.TestCase):
         self.assertEqual(15, shiftreg.lfsr_period(4, [2, 3]))
 
 
+class TappedChainTest(unittest.TestCase):
+    """A shift chain read from the side is still a shift chain (issue #102).
+
+    Tapping a shift register is what shift registers are for, so a walk that
+    stopped at the first fork returned *no structure at all* for a
+    serial-in/parallel-out converter -- not a short chain, nothing.  The
+    fixture is walkthrough 16's serial link framer, whose eight-stage receive
+    register has a capture register hanging off every stage; it is a decoy with
+    no cryptography in it, which is the point: the honest answer is an open
+    chain, and the fix must not turn one into a feedback register.
+    """
+
+    def test_the_framer_receive_register_is_found_at_all(self):
+        for path in (BLIND_FRAMER_EXPORT, os.path.join(
+            MYSTERY, "ground_truth", "exports", "core_b.vo"
+        )):
+            structures = shiftreg.find_shift_structures(load(path))
+            self.assertEqual(1, len(structures), path)
+            entry = structures[0]
+            self.assertEqual(8, entry["length"], path)
+            self.assertEqual("shift_register", entry["kind"], path)
+            self.assertIn("does not feed back", entry["reason"])
+            self.assertIsNone(entry["mode"], path)
+            self.assertIn("taps off it", entry["ambiguity"])
+
+    def test_an_open_chain_is_not_promoted_to_a_generator(self):
+        """The decoy must stay a decoy: a chain that absorbs data is not a cipher."""
+        netlist = vo_netlist.parse_file(BLIND_FRAMER_EXPORT)
+        decision = classify.verdict(classify.run_passes(netlist))
+        self.assertEqual("none-detected", decision["family"])
+        self.assertEqual([], decision["families_present"])
+
+    def test_the_coupled_trivium_segments_are_untouched(self):
+        """13_trivium_stream is the case a chain-walk change can break."""
+        for path in (TRIVIUM_EXPORT, BLIND_TRIVIUM_EXPORT):
+            structures = shiftreg.find_shift_structures(load(path))
+            self.assertEqual(
+                [84, 93, 111], sorted(entry["length"] for entry in structures), path
+            )
+            for entry in structures:
+                self.assertEqual("nlfsr", entry["kind"], path)
+                self.assertTrue(entry["coupled"], path)
+                self.assertIsNone(entry["ambiguity"], path)
+                self.assertIsNotNone(entry["mode"], path)
+
+    def test_the_walk_takes_the_longest_line_through_a_fork(self):
+        successors = {"a": ["b", "tap"], "b": ["c"], "c": ["d"]}
+        chain, ambiguity = shiftreg._walk("a", successors)  # noqa: SLF001
+        self.assertEqual(["a", "b", "c", "d"], chain)
+        self.assertIn("taps off it", ambiguity)
+
+    def test_two_branches_of_one_length_are_split_by_the_clocking(self):
+        """The branch that changes the enable is the capture register."""
+        successors = {"head": ["capture", "stage"]}
+        groups = {
+            "head": ("clk", "const:1", "rst"),
+            "stage": ("clk", "const:1", "rst"),
+            "capture": ("clk", "take", "rst"),
+        }
+        self.assertEqual(
+            ["head", "stage"],
+            shiftreg._walk("head", successors, groups)[0],  # noqa: SLF001
+        )
+        # with nothing to separate them the sort order decides, deterministically
+        self.assertEqual(
+            ["head", "capture"],
+            shiftreg._walk("head", successors)[0],  # noqa: SLF001
+        )
+
+
 class LoadableChainTest(unittest.TestCase):
     """A parallel load turns every shift link into a multiplexer."""
 
@@ -880,6 +965,94 @@ class ArxPassTest(unittest.TestCase):
         for path in (COUNTER_EXPORT, CRC_EXPORT):
             result = arx.identify(load(path))
             self.assertEqual("not-arx", result["verdict"], path)
+
+
+class BlindedRotationTest(unittest.TestCase):
+    """The rotations have to survive a netlist with no vector names (issue #101).
+
+    Walkthrough 16 committed the same Speck32/64 export twice, named and
+    anonymised, which makes naming the only variable between them.  Before the
+    carry-chain reading the blinded copy lost all four rotations -- and with
+    them the family -- while both carry chains and all 54 XOR cells were still
+    found.  The two halves of the requirement are in tension and both are
+    tested: the blinded copy must reach the same verdict, and the named copy
+    must still answer exactly what it answered when the only readings were the
+    name-keyed ones.
+    """
+
+    def test_both_copies_of_the_same_export_reach_the_same_verdict(self):
+        for path in (NAMED_SPECK_EXPORT, BLIND_SPECK_EXPORT):
+            result = arx.identify(load(path))
+            self.assertEqual("arx-candidate", result["verdict"], path)
+            self.assertEqual(2, len(result["adders"]), path)
+            self.assertEqual([16], result["word_bits"], path)
+            self.assertEqual(
+                ["speck_32"],
+                [entry["name"] for entry in result["rotation_families"]],
+                path,
+            )
+            self.assertTrue(result["rotation_on_adder_operand"], path)
+
+    def test_the_blinded_rotations_name_flip_flops_and_not_vectors(self):
+        result = arx.identify(load(BLIND_SPECK_EXPORT))
+        self.assertEqual({7, 14}, {entry["rotation"] for entry in result["rotations"]})
+        self.assertEqual(
+            {9, 2}, {entry["rotate_left_by"] for entry in result["rotations"]}
+        )
+        for entry in result["rotations"]:
+            # a blinded netlist has no vector to point at, so the finding points
+            # at the registers instead, and says where it read them
+            self.assertTrue(entry["registers"])
+            self.assertIn("no name in the netlist", entry["source"])
+            self.assertIn("carry chain", entry["read_from"] + entry["destination"])
+
+    def test_the_named_copy_still_answers_off_the_names(self):
+        result = arx.identify(load(NAMED_SPECK_EXPORT))
+        self.assertEqual(4, len(result["rotations"]))
+        self.assertEqual(
+            {"x": 7, "l0": 7, "y": 14, "k": 14},
+            {entry["source"]: entry["rotation"] for entry in result["rotations"]},
+        )
+        self.assertEqual(
+            {"carry-chain operand order", "register-bank next-state cells"},
+            {entry["read_from"] for entry in result["rotations"]},
+        )
+        # the structural tier found the same two rotations and was dropped: the
+        # reading that needed less inference is the one that is reported
+        for entry in result["rotations"]:
+            self.assertNotIn("registers", entry)
+
+    def test_the_word_width_comes_from_the_chain_not_from_the_slice_count(self):
+        """Quartus drops the dead generate half of the top slice; the sum stays.
+
+        15 is the number of slices ``arith.adders`` can classify and 16 is the
+        width of the word the chain writes.  Reporting the rotation at 15 bits
+        would match no published set, so the difference is the whole result.
+        """
+        model = load(BLIND_SPECK_EXPORT)
+        self.assertEqual(
+            [16, 16], [len(keys) for _cells, keys in wordorder.chain_frames(model)]
+        )
+        self.assertEqual([15, 15], [entry["width"] for entry in arith.adders(model)])
+
+    def test_nothing_without_a_rotation_in_it_grows_one(self):
+        """The negative controls: an adder alone must stay an adder alone."""
+        for name in ("counter8", "butterfly4", "ntt_fermat17", "ntt_stage13"):
+            model = fixture(name)
+            self.assertEqual(
+                [], wordorder.structural_rotations(model, arith.adders(model)), name
+            )
+        for path in (COUNTER_EXPORT, CRC_EXPORT, BLIND_FRAMER_EXPORT):
+            model = load(path)
+            self.assertEqual(
+                [], wordorder.structural_rotations(model, arith.adders(model)), path
+            )
+
+    def test_a_netlist_with_no_carry_chain_is_left_alone(self):
+        for name in ("rotate16", "shift16_plain", "present_sbox_layer"):
+            model = fixture(name)
+            self.assertEqual([], wordorder.chain_frames(model), name)
+            self.assertEqual([], wordorder.structural_rotations(model, []), name)
 
 
 class PermutationPassTest(unittest.TestCase):

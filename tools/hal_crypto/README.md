@@ -26,7 +26,8 @@ chance to be wrong about what the vendor wrote.
 Two shared layers sit under them: `netlist_model.py` (cone extraction and exact
 truth-table evaluation) and `arith.py` (carry chains read as verified
 arithmetic). `boolfunc.py` is the Boolean algebra; `known.py` is the library of
-published constants.
+published constants; `wordorder.py` recovers which flip-flops are one word, and
+which bit of it each is, from the carry chain rather than from the net names.
 
 ## Commands
 
@@ -134,6 +135,21 @@ chains in a design that is three shift registers:
   register's own history, so `polynomial` is `None` there and the ANF is the
   whole report.
 
+A third shape came out of `examples/agilex3_walkthroughs/16_mystery_cores`, on
+a *decoy* rather than on a cipher, which is why it had cost nothing until then:
+
+- **the chain is read from the side.** Tapping a shift register is what shift
+  registers are for — a serial-in/parallel-out converter captures every stage, a
+  Galois LFSR XORs its last stage into several stages along the chain, a
+  bit-serial datapath reads the stage it is shifting. Each of those gives a
+  stage more than one *successor*, and a walk that followed successors stopped
+  at the first one: an eight-stage receive register with a capture stage on
+  every link came back as **no structure at all**. The chain is walked by the
+  **predecessor** — every stage has exactly one register feeding it and fan-out
+  cannot change that — and the branches that leave the line are reported as taps
+  in `ambiguity`. Two branches of equal length are separated by the `(clk, ena,
+  clrn)` group: the one that changes the enable is the capture register.
+
 ### An ARX round in a vendor export names neither its R nor its X
 
 Both were measured on `examples/agilex3_walkthroughs/11_speck_toy`, a Quartus
@@ -157,6 +173,46 @@ Prime Pro export of Speck32/64, and both defeat the obvious reading:
 
 Holding one input is deliberately the limit: freeze enough inputs and almost
 any function turns affine.
+
+### ... and a netlist with no names at all still has the rotation in it
+
+Both readings above recover the *order*; they still take the **word** from the
+net names — which bits are one operand, and which bit of it each of them is.
+`examples/agilex3_walkthroughs/16_mystery_cores` measured what that costs by
+running `identify` on the same Speck32/64 export twice, once named and once
+anonymised: both carry chains verified, all 54 XOR cells found, and **all four
+rotations gone**, because the anonymiser splits every internal vector
+declaration into unrelated scalars. A netlist recovered from a bitstream never
+had those declarations in the first place, so the pass was strongest exactly
+where it was least needed.
+
+`wordorder.py` takes both facts from the carry chain instead, which is the one
+ordered object a vendor export contains unambiguously:
+
+- **the word's own bit order is where the chain writes it.** Bit *i* of the
+  destination word is the flip-flop whose next-state cone reads sum bit *i* —
+  one sum bit, exactly, whatever else is mixed into it. The width is the
+  chain's: Quartus drops the dead generate half of the top slice, so a 16-bit
+  add classifies as 15 slices while the 16th `sumout` is still there and still
+  drives bit 15, and reporting the rotation at 15 bits would match no published
+  set;
+- **a rotation is an offset between two orderings of the same flip-flops.** The
+  chain reading a register at slice *i* that it writes at slice `(i + c) mod w`
+  is `x <= ROR(x, c) + y` with nothing named; a flip-flop the chain writes at
+  position *i* whose cell reads exactly one sibling the chain writes at
+  `(i + c) mod w` is `y <= ROL(y, -c) ^ ...`. Which of the adder's two operand
+  vectors a slice's input belongs to is never asked — `arith.classify_chain`
+  splits the two sides by sorting net keys, which is arbitrary once the keys
+  are meaningless — so every operand net is placed independently and the
+  offsets are grouped.
+
+This is the **third** tier and the weakest: an entry it produces is dropped when
+a named-vector or cell-pin reading already reports the same amount at the same
+width over flip-flops it covers, so a named export answers exactly what it
+answered before this existed. What it reports instead of a vector name is the
+list of flip-flops, under `registers` — in a blinded netlist there is nothing
+else to point at. An amount of 0 is straight wiring, and for the register-bank
+reading ±1 is the shift-chain shape, which `shiftreg.py` names properly.
 
 ### A pLayer in a vendor export is not a wire either
 
@@ -214,7 +270,7 @@ fixture the shared reader would refuse cannot exist.
 python -m unittest discover -s tools/hal_crypto -t tools -p "test_*.py"
 ```
 
-115 tests, no HAL, ~16 s. Registered with ctest as
+133 tests, no HAL, ~30 s. Registered with ctest as
 `runTest-hal_crypto_standalone` in `tests/headless_smoke/CMakeLists.txt`. The
 end-to-end cases are the acceptance criteria of the issues this package came
 from: `05_lfsr_prng` must classify `lfsr-stream` with the polynomial its own
@@ -234,7 +290,12 @@ moved half a round — must classify `sponge` at `high` with forty `keccak_chi_5
 matches and style `undetermined`. `15_ntt_mult` is the arithmetic case: it must
 classify `lattice-ntt` / `pqc-style` at `medium` confidence with the modulus
 **257** named and reported as matching nothing published, from a netlist that
-contains no constant-operand carry chain at all.
+contains no constant-operand carry chain at all. `16_mystery_cores` contributes
+the pair that isolates *naming* as a variable: the anonymised copy of its
+Speck32/64 export must reach the same `arx` verdict and the same SPECK-32/64
+rotation set as the named copy, and its serial link framer — a decoy with no
+cryptography in it — must yield its eight-stage receive register as an open
+`shift_register` and stay `none-detected`.
 
 ### A vendor's subtracter, and a modulus that is not a constant
 
@@ -292,6 +353,8 @@ to keeps loading HAL's plugins — which is precisely what that audit checks.
 - `netlist_model.py` — cones, sources, exact and sampled evaluation.
 - `arith.py` — carry chains classified *and verified* as add / subtract /
   add-constant.
+- `wordorder.py` — word membership and bit order recovered from the carry
+  chain, for netlists whose names carry nothing.
 - `sbox.py`, `shiftreg.py`, `arx.py`, `permutation.py`, `ntt.py` — the passes.
 - `classify.py` — the aggregation rules and every findings builder.
 - `findings.py` — artifact, method descriptors and document envelope.

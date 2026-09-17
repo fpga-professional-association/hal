@@ -35,10 +35,10 @@
           "kind": "tool"
         }
       ],
-      "confidence": "medium",
+      "confidence": "high",
       "data": {
         "call": {
-          "agrees_with_identify": false,
+          "agrees_with_identify": true,
           "all_reasons": [
             {
               "family": "arx",
@@ -47,18 +47,18 @@
               "style": "classical-style"
             }
           ],
-          "confidence": "medium",
+          "confidence": "high",
           "deciding_rule": "R4-arx",
           "family": "arx",
-          "identify_confidence": "medium",
-          "identify_family": "none-detected",
-          "identify_style": "undetermined",
+          "identify_confidence": "high",
+          "identify_family": "arx",
+          "identify_style": "classical-style",
           "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
           "rules_fired": [
             "R4-arx"
           ],
           "style": "classical-style",
-          "style_confidence": "medium"
+          "style_confidence": "high"
         },
         "census": {
           "adders": [
@@ -117,24 +117,23 @@
           ]
         },
         "identify": {
-          "arx_rotations": 0,
-          "arx_verdict": "not-arx",
-          "confidence": "medium",
+          "arx_rotations": 3,
+          "arx_verdict": "arx-candidate",
+          "confidence": "high",
           "evidence": [
-            "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
-            "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
-            "ARX: no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
-            "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
-            "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+            "2 verified adder(s), 3 fixed rotation(s) and 54 XOR cell(s) (0 standalone), wired into a round",
+            "the rotation amounts include the published set of speck_32"
           ],
-          "families_present": [],
-          "family": "none-detected",
+          "families_present": [
+            "arx"
+          ],
+          "family": "arx",
           "named_moduli": [],
           "ntt_butterflies": 0,
           "ntt_verdict": "no-modular-transform",
           "recovered_moduli": [],
           "sboxes": [],
-          "style": "undetermined"
+          "style": "classical-style"
         },
         "nonlinearity": {
           "disjoint_register_xor_cells": {},
@@ -223,7 +222,7 @@
         "description": "the whole blinded export"
       },
       "status": "heuristic",
-      "summary": "Blind call: family arx, style classical-style, confidence medium. Deciding rule R4-arx -- 2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic. hal_crypto identify said none-detected (medium).",
+      "summary": "Blind call: family arx, style classical-style, confidence high. Deciding rule R4-arx -- 2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic. hal_crypto identify said arx (high).",
       "tags": [
         "arx",
         "blind",
@@ -232,7 +231,7 @@
       "title": "Blind identification of core_d: arx"
     }
   ],
-  "generated_at": "2026-09-17T04:39:46Z",
+  "generated_at": "2026-09-17T05:54:09Z",
   "notes": [
     "Produced without reading anything under ground_truth/. The letter in the artifact id is the only thing this document knows about the design it describes."
   ],

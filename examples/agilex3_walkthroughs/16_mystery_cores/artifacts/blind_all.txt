@@ -66,7 +66,7 @@
 
 == core_d -- blind
 {
-  "agrees_with_identify": false,
+  "agrees_with_identify": true,
   "all_reasons": [
     {
       "family": "arx",
@@ -75,18 +75,18 @@
       "style": "classical-style"
     }
   ],
-  "confidence": "medium",
+  "confidence": "high",
   "deciding_rule": "R4-arx",
   "family": "arx",
-  "identify_confidence": "medium",
-  "identify_family": "none-detected",
-  "identify_style": "undetermined",
+  "identify_confidence": "high",
+  "identify_family": "arx",
+  "identify_style": "classical-style",
   "reason": "2 carry chains adding two register operands, 15 bits wide, behind 17 levels of combinational logic",
   "rules_fired": [
     "R4-arx"
   ],
   "style": "classical-style",
-  "style_confidence": "medium"
+  "style_confidence": "high"
 }
 
 == core_e -- blind

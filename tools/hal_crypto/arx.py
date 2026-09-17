@@ -40,9 +40,21 @@ above does not find, and both were measured on the Quartus export in
   chooses the round result brings the XOR back exactly -- see the ``cofactor``
   entries :func:`xor_nets` reports.  A conditional XOR is weaker evidence than
   a standalone one and is counted separately.
+
+Both of those readings still need the *word*: which bits are one operand, and
+which bit of it each of them is.  They take it from the net names, which is
+right when the names are there and finds nothing when they are not -- an
+anonymised export, or one recovered from a bitstream, has no vector
+declarations, and ``examples/agilex3_walkthroughs/16_mystery_cores`` measured a
+Speck32/64 export losing all four of its rotations to exactly that while both
+carry chains and all 54 XOR cells survived.  :mod:`hal_crypto.wordorder`
+recovers the word from the carry chain instead, and its two readings are merged
+in here as a third tier, below the named vector and below the cell-pin reading:
+a structural rotation is dropped when a reading that needed less inference
+already reported the same amount over the same flip-flops.
 """
 
-from . import arith, known, permutation
+from . import arith, known, permutation, wordorder
 from .boolfunc import TruthTable
 from .netlist_model import ConeTooWide, UnsupportedCell
 
@@ -156,6 +168,23 @@ def _base(key):
     return key
 
 
+def _registers_behind(model, keys):
+    """The flip-flops *keys* peel back to, for cross-tier de-duplication only.
+
+    Never reported: it is bookkeeping that lets "the same rotation, read a
+    second way" be recognised as the same rotation.  Entries that carry it use
+    the private ``_registers`` key; the structural tier of
+    :mod:`hal_crypto.wordorder` has nothing but flip-flops to point at and
+    reports them under ``registers``.
+    """
+    names = []
+    for key in keys or ():
+        register = model.register_of(model.peel(key)[0])
+        if register is not None:
+            names.append(register.name)
+    return names
+
+
 def adder_operand_rotations(model, adders):
     """Rotations visible only in the order an adder's slices read a bank.
 
@@ -186,8 +215,31 @@ def adder_operand_rotations(model, adders):
                 entry.get("left_inverted" if side == "left_sources" else "right_inverted")
             )
             found["adder_cells"] = entry["cells"]
+            found["_registers"] = _registers_behind(model, sources)
             results.append(found)
     return results
+
+
+def _rotation_report(entry):
+    """One rotation as it is reported: the same fields for every tier.
+
+    ``registers`` is the exception and appears only on the structural tier,
+    because there it is the only handle the finding has on what was rotated --
+    a netlist with no vector names has nothing else to point at.
+    """
+    report = {
+        "destination": entry["destination"],
+        "source": entry["source"],
+        "width": entry["width"],
+        "rotation": entry["rotation"],
+        "rotate_left_by": entry["rotate_left_by"],
+        "all_inverted": entry["all_inverted"],
+        "read_from": entry["read_from"],
+        "bits_observed": entry.get("bits_observed", entry["width"]),
+    }
+    if entry.get("registers"):
+        report["registers"] = list(entry["registers"])
+    return report
 
 
 def identify(model, adders=None, permutations=None):
@@ -202,24 +254,51 @@ def identify(model, adders=None, permutations=None):
         for entry in adders
         if entry["width"] >= MIN_ARX_WIDTH and entry["operation"] in ("add", "subtract")
     ]
+    vectors = permutation.vector_bits(model.netlist)
     named = [
-        dict(entry, read_from="named vector")
+        dict(
+            entry,
+            read_from="named vector",
+            _registers=_registers_behind(model, vectors.get(entry["source"])),
+        )
         for entry in permutations
         if entry.get("kind") == "rotation" and entry["width"] >= MIN_ARX_WIDTH
     ]
     # A vendor export names neither of the other two; see the module docstring.
     layered = adder_operand_rotations(model, wide_adders)
     layered += permutation.register_bank_rotations(model)
+    # ... and an anonymised or bitstream-recovered export names none of the
+    # three, so the same two readings are taken again off the carry chain.
+    structural = wordorder.structural_rotations(model, wide_adders)
     # One rotation can be visible in two places at once -- a named vector that
     # the adder then reads, say.  Report it once, preferring the reading that
     # needed the least inference, so the count stays a count of rotations.
     rotations = []
     seen = set()
+    claimed = []
     for entry in named + [item for item in layered if item["width"] >= MIN_ARX_WIDTH]:
         signature = (entry["source"], entry["width"], entry["rotation"])
         if signature in seen:
             continue
         seen.add(signature)
+        claimed.append(
+            (entry["width"], entry["rotation"], set(entry.get("_registers") or ()))
+        )
+        rotations.append(entry)
+    # A structural entry has no name to collide on, so it is matched against
+    # what is already reported by the flip-flops it maps: the same amount over
+    # the same width on registers a stronger reading already covered is the same
+    # rotation, and saying it twice would inflate the count.
+    for entry in structural:
+        if entry["width"] < MIN_ARX_WIDTH:
+            continue
+        here = set(entry["registers"])
+        if any(
+            width == entry["width"] and rotation == entry["rotation"] and names & here
+            for width, rotation, names in claimed
+        ):
+            continue
+        claimed.append((entry["width"], entry["rotation"], here))
         rotations.append(entry)
     xors = xor_nets(model)
     standalone_xors = [entry for entry in xors if not entry["conditional"]]
@@ -237,19 +316,7 @@ def identify(model, adders=None, permutations=None):
             }
             for entry in wide_adders
         ],
-        "rotations": [
-            {
-                "destination": entry["destination"],
-                "source": entry["source"],
-                "width": entry["width"],
-                "rotation": entry["rotation"],
-                "rotate_left_by": entry["rotate_left_by"],
-                "all_inverted": entry["all_inverted"],
-                "read_from": entry["read_from"],
-                "bits_observed": entry.get("bits_observed", entry["width"]),
-            }
-            for entry in rotations
-        ],
+        "rotations": [_rotation_report(entry) for entry in rotations],
         "xor_cells": len(xors),
         "standalone_xor_cells": len(standalone_xors),
         "conditional_xor_cells": len(xors) - len(standalone_xors),
@@ -283,7 +350,8 @@ def identify(model, adders=None, permutations=None):
         for entry in xors
     )
     rotation_on_operand = any(
-        entry["source"] in operand_vectors
+        entry.get("on_adder_operand")
+        or entry["source"] in operand_vectors
         or _base(entry["destination"]) in operand_vectors
         for entry in rotations
     )

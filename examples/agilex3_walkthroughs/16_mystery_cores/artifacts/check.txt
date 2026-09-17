@@ -47,8 +47,9 @@
 [ok  ] core_c: three coupled feedback registers of 84 + 93 + 111 stages -- [111, 93, 84]
 [ok  ] core_c: none of them is visible until an external net is held
 [ok  ] core_b: an 8-stage shift chain whose head reads only inputs -- 8
-[ok  ] core_b: hal_crypto's own chain walk finds nothing there -- which the guide files as a gap
-[ok  ] the guide says the tapped chain is a gap, not a result
+[ok  ] core_b: hal_crypto's chain walk now finds the tapped chain too -- [(8, 'shift_register')]
+[ok  ] core_b: ... and does not turn the decoy into a feedback register
+[ok  ] the guide says the tapped chain was a gap, and what closed it
 [ok  ] core_a: 40 disjoint cells, each a parity of exactly 5 registers -- {'5': 40, '11': 9}
 [ok  ] core_a: 200 next-state cones are too wide to enumerate -- 200
 [ok  ] the guide reads that refusal as evidence, not as a missing measurement
@@ -63,7 +64,7 @@
 [ok  ] core_c: hal_crypto identify said lfsr-stream -- lfsr-stream
 [ok  ] core_c: the committed blind findings document re-derives
 [ok  ] core_d: blind call arx by R4-arx -- arx by R4-arx
-[ok  ] core_d: hal_crypto identify said none-detected -- none-detected
+[ok  ] core_d: hal_crypto identify said arx -- arx
 [ok  ] core_d: the committed blind findings document re-derives
 [ok  ] core_e: blind call lattice-ntt by R1-lattice -- lattice-ntt by R1-lattice
 [ok  ] core_e: hal_crypto identify said lattice-ntt -- lattice-ntt
@@ -73,14 +74,16 @@
 [ok  ] core_e's confidence is clamped to the tool's own
 [ok  ] the committed score table re-derives exactly
 [ok  ] the method gets 5 of 5 right -- {'correct': 5}
-[ok  ] hal_crypto alone gets 3 of 5 on the blinded exports -- {'correct': 3, 'missed': 2}
+[ok  ] hal_crypto alone gets 4 of 5 on the blinded exports -- {'correct': 4, 'missed': 1}
 [ok  ] ... and 4 of 5 on the named ones -- 4
-[ok  ] blinding costs exactly one family, on core_d -- ['core_d']
+[ok  ] blinding costs no family at all, on any of the five -- []
+[ok  ] core_d: the blinded copy reaches the same family as the named one
 [ok  ] 16 of 24 key facts recovered -- 16/24
 [ok  ] the rules never exercised are reported: R3-spn -- ['R3-spn']
 [ok  ] every truth row matches ground_truth/MANIFEST.json
 [ok  ] core_e's modulus 257 came back from the blinded export
-[ok  ] the guide states the 5/3 headline
+[ok  ] the guide states the 5/4 headline
+[ok  ] ... and keeps the number it started from, so the move is on the page
 [ok  ] core_a: the named export matches its reference for 600 cycles
 [ok  ] core_a: that run used the committed named export
 [ok  ] core_b: the named export matches its reference for 6000 cycles
@@ -123,6 +126,7 @@
 [ok  ] the guide's blind section comes before its reveal
 [ok  ] the guide names both tool gaps it found
 [ok  ] the guide says no hal_crypto pass was changed for this walkthrough
+[ok  ] ... and says the two it filed were fixed afterwards and re-measured
 [ok  ] the guide states the decoy is the only out-of-sample core
 [ok  ] the guide has a section for core_a
 [ok  ] the guide has a section for core_b

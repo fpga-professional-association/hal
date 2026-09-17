@@ -350,18 +350,24 @@ them; the table's ordering does.
 Two cores came back `none-detected` from `hal_crypto` and one came back
 correctly negative, and from the verdicts alone they are indistinguishable.
 Re-running the same command on the named export separates them: Speck's `arx`
-verdict exists on the named netlist and disappears on the blinded one (a
-*blinding* failure -- `arx.adder_operand_rotations` groups operand bits by the
+verdict existed on the named netlist and disappeared on the blinded one (a
+*blinding* failure -- `arx.adder_operand_rotations` grouped operand bits by the
 text before the `[` in their net names, so splitting vectors into scalars
-destroys the word it needs), while Keccak's `none-detected` is identical on both
-(a pipeline property `14` already documents). One is a bug, the other is not, and
-only the control tells you which.
+destroyed the word it needed), while Keccak's `none-detected` is identical on
+both (a pipeline property `14` already documents). One was a bug, the other is
+not, and only the control tells you which. The bug was filed as #101 and fixed
+(`hal_crypto/wordorder.py` takes the word and its bit order off the carry chain
+instead), and re-running `16` against the repaired tool is what proved it: the
+blinding now costs nothing on any of the five, and the tool alone scores four of
+five rather than three. That loop -- measure, file, fix, re-measure with the same
+committed procedure -- is what a capstone is for, and it only closes because the
+walkthrough re-derives its numbers instead of quoting them.
 
-**`none-detected` on three of five, with one of them right, is the shape of the
-problem.** A structural verdict of "nothing found" carries no information about
-*why* nothing was found. Ask, in order: could the pipeline have dissolved the
-layer (`14`), could the coding style have (`12`), could the blinding have
-(`16`), and is the design simply not cryptography.
+**`none-detected` with one of them right is the shape of the problem.** A
+structural verdict of "nothing found" carries no information about *why* nothing
+was found. Ask, in order: could the pipeline have dissolved the layer (`14`),
+could the coding style have (`12`), could the blinding have (`16`), and is the
+design simply not cryptography.
 
 ## The epistemics this series is actually teaching
 

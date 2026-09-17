@@ -23,6 +23,7 @@
   ],
   "findings": [
     {
+      "confidence": 0.65,
       "data": {
         "adders": [
           {
@@ -143,13 +144,109 @@
           }
         ],
         "conditional_xor_cells": 54,
-        "missing": [
-          "no fixed rotation, in a named vector or in the order a cell layer reads a register bank"
+        "rotation_families": [
+          {
+            "amounts": [
+              7,
+              2
+            ],
+            "family": "arx",
+            "name": "speck_32",
+            "reference": "SPECK-32/64 round rotations alpha=7, beta=2 (Beaulieu et al., 2013)",
+            "word_bits": 16
+          }
         ],
-        "rotation_on_adder_operand": false,
-        "rotations": [],
+        "rotation_on_adder_operand": true,
+        "rotations": [
+          {
+            "all_inverted": false,
+            "bits_observed": 15,
+            "destination": "operand order of the carry chain at u3",
+            "read_from": "carry-chain operand order against the chain's own bit order",
+            "registers": [
+              "u101",
+              "u103",
+              "u105",
+              "u107",
+              "u109",
+              "u113",
+              "u115",
+              "u117",
+              "u119",
+              "u121",
+              "u123",
+              "u125",
+              "u127",
+              "u129",
+              "u99"
+            ],
+            "rotate_left_by": 9,
+            "rotation": 7,
+            "source": "a 16-bit register word with no name in the netlist",
+            "width": 16
+          },
+          {
+            "all_inverted": false,
+            "bits_observed": 16,
+            "destination": "next-state fan-in of the word the carry chain at u3 writes",
+            "read_from": "next-state cells of a carry chain's destination word",
+            "registers": [
+              "u67",
+              "u69",
+              "u71",
+              "u73",
+              "u75",
+              "u77",
+              "u79",
+              "u81",
+              "u83",
+              "u85",
+              "u87",
+              "u89",
+              "u91",
+              "u93",
+              "u95",
+              "u97"
+            ],
+            "rotate_left_by": 2,
+            "rotation": 14,
+            "source": "a 16-bit register word with no name in the netlist",
+            "width": 16
+          },
+          {
+            "all_inverted": false,
+            "bits_observed": 16,
+            "destination": "next-state fan-in of the word the carry chain at u35 writes",
+            "read_from": "next-state cells of a carry chain's destination word",
+            "registers": [
+              "u135",
+              "u141",
+              "u145",
+              "u149",
+              "u153",
+              "u157",
+              "u161",
+              "u165",
+              "u169",
+              "u173",
+              "u177",
+              "u181",
+              "u185",
+              "u189",
+              "u193",
+              "u197"
+            ],
+            "rotate_left_by": 2,
+            "rotation": 14,
+            "source": "a 16-bit register word with no name in the netlist",
+            "width": 16
+          }
+        ],
         "standalone_xor_cells": 0,
-        "verdict": "not-arx",
+        "verdict": "arx-candidate",
+        "word_bits": [
+          16
+        ],
         "xor_cells": 54,
         "xor_layer_nets": [
           "n38",
@@ -209,12 +306,15 @@
         ],
         "xor_layer_reads_adder_output": true
       },
-      "id": "hal_crypto/arx/not-arx",
+      "id": "hal_crypto/arx/round",
       "method": {
-        "bounded": false,
-        "description": "Walks the netlist graph produced by hal_agilex.vo_netlist: register chains, carry chains, pure-wire bit maps and LUT cones. No solver and no simulation.",
-        "kind": "structural",
-        "name": "structural crypto pattern match"
+        "bounded": true,
+        "description": "Drives the recognized datapath on a fixed, seeded sample of operand vectors because the operand space is too large to enumerate.",
+        "kind": "simulation",
+        "name": "sampled operand evaluation",
+        "parameters": {
+          "vectors": 256
+        }
       },
       "scope": {
         "artifact_ids": [
@@ -225,25 +325,23 @@
           "tennm_lcell_comb"
         ]
       },
-      "status": "unknown",
-      "summary": "ARX needs adders, rotations and an XOR layer together; no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
+      "status": "heuristic",
+      "summary": "2 verified adder(s), 3 fixed rotation(s) (0 of them read off a named vector, the rest off the order a cell layer reads a register bank) and 54 XOR cell(s) (0 standalone, 54 recovered by holding one packed multiplexer input) are present and wired to one another. This is the shape of an ARX round; it is not a proof that the design is a cipher, and it names no algorithm.",
       "tags": [
         "arx",
         "crypto"
       ],
-      "title": "No ARX round structure"
+      "title": "Add-Rotate-XOR round structure"
     },
     {
+      "confidence": 0.85,
       "data": {
-        "confidence_tier": "medium",
+        "confidence_tier": "high",
         "evidence": [
-          "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
-          "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
-          "ARX: no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
-          "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
-          "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+          "2 verified adder(s), 3 fixed rotation(s) and 54 XOR cell(s) (0 standalone), wired into a round",
+          "the rotation amounts include the published set of speck_32"
         ],
-        "style": "undetermined"
+        "style": "classical-style"
       },
       "id": "hal_crypto/identify/classical-vs-pqc",
       "method": {
@@ -262,27 +360,27 @@
           "tennm_lcell_comb"
         ]
       },
-      "status": "unknown",
-      "summary": "No structure this package recognises as cryptographic was found, so there is nothing to place on the classical/PQC axis. That is a statement about the six passes below, not a proof that the design computes no cryptography.",
+      "status": "heuristic",
+      "summary": "The structures found (arx) are the ones classical symmetric primitives are built from, and no lattice/ring arithmetic was found. This does NOT rule out post-quantum cryptography: a hash-based or code-based scheme contains neither NTTs nor S-boxes and would come back none-detected here.",
       "tags": [
         "crypto",
         "identify",
         "pqc"
       ],
-      "title": "Classical / PQC style: undetermined"
+      "title": "Classical / PQC style: classical-style"
     },
     {
+      "confidence": 0.85,
       "data": {
-        "confidence_tier": "medium",
+        "confidence_tier": "high",
         "evidence": [
-          "S-box extraction: 0 bijective non-affine substitution(s) of 3..8 bits found in the LUT cones",
-          "shift registers: 0 chain(s) of at least 4 stages, 0 of them closed by a feedback function",
-          "ARX: no fixed rotation, in a named vector or in the order a cell layer reads a register bank",
-          "modular arithmetic: no add/subtract pair over the same operand registers; no carry chain with a constant operand, so no modulus to read",
-          "permutation layers: 0 non-identity bit map(s) between equally wide vectors"
+          "2 verified adder(s), 3 fixed rotation(s) and 54 XOR cell(s) (0 standalone), wired into a round",
+          "the rotation amounts include the published set of speck_32"
         ],
-        "families_present": [],
-        "family": "none-detected"
+        "families_present": [
+          "arx"
+        ],
+        "family": "arx"
       },
       "id": "hal_crypto/identify/family",
       "method": {
@@ -301,13 +399,13 @@
           "tennm_lcell_comb"
         ]
       },
-      "status": "unknown",
-      "summary": "The six passes agree on 'none-detected'. Families with evidence: none. Every line of the evidence list below is a structural observation; none of them names an algorithm.",
+      "status": "heuristic",
+      "summary": "The six passes agree on 'arx'. Families with evidence: arx. Every line of the evidence list below is a structural observation; none of them names an algorithm.",
       "tags": [
         "crypto",
         "identify"
       ],
-      "title": "Structural family: none-detected"
+      "title": "Structural family: arx"
     },
     {
       "data": {
@@ -433,7 +531,7 @@
       "title": "No shift chain of at least 4 stages"
     }
   ],
-  "generated_at": "2026-09-17T04:39:22Z",
+  "generated_at": "2026-09-17T05:53:55Z",
   "notes": [
     "Structure-bounded claims only: every finding is about what the netlist is wired to compute, never about what the design is for.",
     "none-detected is a result, not a failure: it means none of the six passes fired, and the per-pass findings say what each one looked for."

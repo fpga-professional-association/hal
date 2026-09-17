@@ -15,16 +15,27 @@ half of the analysis never opens it.
 | `core_a` | Keccak-f[200] permutation | `sponge` / `undetermined` | **correct** | `none-detected` — **missed** | 4 / 6 |
 | `core_b` | serial link framer — the decoy | `none-detected` | **correct** | correct | 3 / 4 |
 | `core_c` | Trivium keystream generator | `lfsr-stream` / `classical-style` | **correct** | correct | 4 / 5 |
-| `core_d` | Speck32/64 block cipher | `arx` / `classical-style` | **correct** | `none-detected` — **missed** | 3 / 5 |
+| `core_d` | Speck32/64 block cipher | `arx` / `classical-style` | **correct** | correct *(was: missed)* | 3 / 5 |
 | `core_e` | NTT multiplier, n = 16, q = 257 | `lattice-ntt` / `pqc-style` | **correct** | correct | 2 / 4 |
 
-The published method gets **5 / 5**. `hal_crypto identify` alone gets **3 / 5**
+The published method gets **5 / 5**. `hal_crypto identify` alone gets **4 / 5**
 on the blinded exports and **4 / 5** on the same netlists with their names
 intact — the reveal runs both and reports the delta, which is what makes a miss
 attributable.
 
-Three of the five tool verdicts are `none-detected`, and only one of those three
-is right. That sentence is why this walkthrough exists.
+Two of the five tool verdicts are `none-detected`, and only one of those two is
+right. That sentence is why this walkthrough exists.
+
+**This page has been re-measured once.** The blind pass found two things
+`hal_crypto` could not do and they were filed, not fixed, here — issues #101
+(rotations keyed on vector names) and #102 (a tapped shift chain is not found).
+Both were fixed afterwards, and every number above was re-derived against the
+repaired tool rather than left as a snapshot. On the day, the tool alone scored
+**3 / 5** blinded, the blinding cost `core_d`'s whole family, and `core_b`
+yielded no shift structure at all; now the blinding costs nothing on any of the
+five and `core_b` yields its eight-stage receive register as an open
+`shift_register`. The method's 5 / 5 is unchanged, because steps 1–4 never read
+the tool's verdict. `guide.html` section 7 keeps both columns.
 
 ## What it teaches
 
@@ -41,7 +52,9 @@ is right. That sentence is why this walkthrough exists.
 * what blinding costs a structural pass, measured rather than assumed — and two
   concrete gaps it exposed (issues #101 and #102), written up and filed rather
   than patched, because a capstone that tunes the instrument it is calibrating
-  measures nothing.
+  measures nothing. They were fixed in a later change and this page was re-run
+  against the repaired tool, which is the other half of the same discipline: a
+  measurement nobody re-takes is an anecdote.
 
 ## Layout
 

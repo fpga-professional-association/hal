@@ -129,6 +129,19 @@ the calls are scored &mdash; including the ones a tool got wrong, which is the
 part worth staying for.</p>
 </div>
 
+<div class="honest"><span class="tag">this page has been re-measured once</span>
+The blind pass found two things <code>hal_crypto</code> could not do, and they
+were filed as <a href="https://github.com/fpga-professional-association/hal/issues/101">#101</a>
+and <a href="https://github.com/fpga-professional-association/hal/issues/102">#102</a>
+rather than fixed here &mdash; a capstone that tunes the instrument it is
+calibrating measures nothing. Both have since been fixed, and every number on
+this page has been re-derived against the repaired tool, because a measurement
+that is not re-taken is an anecdote. The tool alone scored <strong>3 of 5</strong>
+blinded when this walkthrough was written and scores <strong>4 of 5</strong>
+now; <a href="#gaps">section 7</a> keeps both numbers and says what moved
+between them.
+</div>
+
 <h2 id="contents">Contents</h2>
 <ol class="toc">
 <li><a href="#setup">The experiment</a></li>
@@ -137,7 +150,7 @@ part worth staying for.</p>
 <li><a href="#calls">Five calls, side by side</a></li>
 <li><a href="#reveal">The reveal</a></li>
 <li><a href="#blinding">What the blinding cost</a></li>
-<li><a href="#gaps">Two gaps, filed not fixed</a></li>
+<li><a href="#gaps">Two gaps, filed not fixed &mdash; and since closed</a></li>
 <li><a href="#honesty">What this measured, and what it did not</a></li>
 <li><a href="#template">The template for a real target</a></li>
 <li><a href="#repro">Reproducing all of it</a></li>
@@ -350,15 +363,19 @@ case where a negative gets to be strong.</p>
 export is flat, which is why none of these walkthroughs start from hierarchy.</figcaption>
 </figure>
 
-<div class="honest"><span class="tag">a gap, found on the decoy</span>
-<code>hal_crypto</code>'s own chain walk finds <strong>no</strong> shift structure
-in core_b, in a design with an eight-stage shift register in it. Its stages are
-<strong>tapped</strong>: every stage also drives a capture register, so each has
-two successors and the walk stops at the first fork. The walk that found the
-chain here follows the <em>predecessor</em> instead, which fan-out cannot break.
-It costs nothing here &mdash; an open chain is not evidence of cryptography
-either way &mdash; but a tapped Galois LFSR would disappear the same way, and
-that would cost something. Filed in section 7.
+<div class="honest"><span class="tag">a gap, found on the decoy &mdash; since closed</span>
+When this walkthrough was written, <code>hal_crypto</code>'s own chain walk found
+<strong>no</strong> shift structure in core_b at all, in a design with an
+eight-stage shift register in it. Its stages are <strong>tapped</strong>: every
+stage also drives a capture register, so each has two successors and the walk
+stopped at the first fork. The walk that found the chain here follows the
+<em>predecessor</em> instead, which fan-out cannot break. It cost nothing here
+&mdash; an open chain is not evidence of cryptography either way &mdash; but a
+tapped Galois LFSR would have disappeared the same way, and that would have cost
+something. Filed as issue #102 and fixed since; <code>find_shift_structures</code>
+now returns the eight stages as an open <code>shift_register</code>, with the six
+capture registers named as taps, and core_b's call is unchanged: an absorbing
+chain is still not a generator.
 </div>
 
 <h3 id="core_c">3.3 core_c &mdash; 611 gates, three levels, one ring</h3>
@@ -491,15 +508,18 @@ said on its own:</p>
 <tr><td>core_a</td><td><code>none-detected</code></td><td>medium</td></tr>
 <tr><td>core_b</td><td><code>none-detected</code></td><td>medium</td></tr>
 <tr><td>core_c</td><td><code>lfsr-stream</code> / <code>classical-style</code></td><td>high</td></tr>
-<tr><td>core_d</td><td><code>none-detected</code></td><td>medium</td></tr>
+<tr><td>core_d</td><td><code>arx</code> / <code>classical-style</code></td><td>high</td></tr>
 <tr><td>core_e</td><td><code>lattice-ntt</code> / <code>pqc-style</code></td><td>medium</td></tr>
 </tbody>
 </table>
 </div>
 
-<p>Three of the five come back <code>none-detected</code>, and the tool has no way
-to tell you that only <em>one</em> of those three is right. That sentence is the
-reason this walkthrough exists.</p>
+<p>Two of the five come back <code>none-detected</code>, and the tool has no way
+to tell you that only <em>one</em> of those two is right. That sentence is the
+reason this walkthrough exists &mdash; and when it was written there were
+<em>three</em> of them, of which one was right. core_d moved into the table above
+only because this walkthrough measured why it was not there; see
+<a href="#gaps">section 7</a>.</p>
 
 <h2 id="reveal">5. The reveal</h2>
 
@@ -553,17 +573,21 @@ changes and it becomes reachable, the check notices.
 <tr><td>core_a</td><td>Keccak-f[200] permutation</td><td><code>sponge</code> / <code>undetermined</code></td><td><strong>correct</strong></td><td><code>none-detected</code> &mdash; missed</td><td>4 / 6</td></tr>
 <tr><td>core_b</td><td>serial link framer &mdash; the decoy</td><td><code>none-detected</code></td><td><strong>correct</strong></td><td>correct</td><td>3 / 4</td></tr>
 <tr><td>core_c</td><td>Trivium keystream generator</td><td><code>lfsr-stream</code> / <code>classical-style</code></td><td><strong>correct</strong></td><td>correct</td><td>4 / 5</td></tr>
-<tr><td>core_d</td><td>Speck32/64 block cipher</td><td><code>arx</code> / <code>classical-style</code></td><td><strong>correct</strong></td><td><code>none-detected</code> &mdash; missed</td><td>3 / 5</td></tr>
+<tr><td>core_d</td><td>Speck32/64 block cipher</td><td><code>arx</code> / <code>classical-style</code></td><td><strong>correct</strong></td><td>correct <span class="kbd">was: missed</span></td><td>3 / 5</td></tr>
 <tr><td>core_e</td><td>NTT multiplier, n = 16, q = 257</td><td><code>lattice-ntt</code> / <code>pqc-style</code></td><td><strong>correct</strong></td><td>correct</td><td>2 / 4</td></tr>
 </tbody>
 </table>
 </div>
 
 <p>The method gets <strong>five of five</strong> families and styles right.
-<code>hal_crypto identify</code> on its own gets <strong>three of five</strong>,
-and both of its misses are false negatives on real cryptography. 16 of the 24
-listed key facts were recovered; the other 8 are things the blind pass does not
-attempt, and it says so in advance rather than after the fact.</p>
+<code>hal_crypto identify</code> on its own gets <strong>four of five</strong>,
+and its one miss is a false negative on real cryptography. When this walkthrough
+was written the tool got <strong>three of five</strong> and both of <em>its</em>
+misses were false negatives; the second one was this experiment's own finding and
+is gone because of it, which is the only sense in which a number on this page has
+ever been allowed to move. 16 of the 24 listed key facts were recovered; the
+other 8 are things the blind pass does not attempt, and it says so in advance
+rather than after the fact.</p>
 
 <p><code>R3-spn</code> never fired, on any core. That is reported too: an
 unexercised rule is an untested rule, and the score table carries a
@@ -572,12 +596,13 @@ unexercised rule is an untested rule, and the score table carries a
 
 <h2 id="blinding">6. What the blinding cost</h2>
 
-<p>The obvious question about the two misses is whether they are about
-<em>blinding</em> or about the passes. So the reveal runs the same
-<code>hal_crypto identify</code> on both copies of every core &mdash; the named
-export with its RTL identifiers intact, and the blinded one &mdash; and writes
-the difference to <code>artifacts/score.json</code> as
-<code>blinding_delta</code>:</p>
+<p>The obvious question about a miss is whether it is about <em>blinding</em> or
+about the passes. So the reveal runs the same <code>hal_crypto identify</code> on
+both copies of every core &mdash; the named export with its RTL identifiers
+intact, and the blinded one &mdash; and writes the difference to
+<code>artifacts/score.json</code> as <code>blinding_delta</code>. This control is
+the whole reason the two misses could be told apart at all, and it is now the
+measurement that says the repair worked:</p>
 
 <div class="scroll">
 <table>
@@ -586,16 +611,18 @@ the difference to <code>artifacts/score.json</code> as
 <tr><td>core_a</td><td><code>none-detected</code> (medium)</td><td><code>none-detected</code> (medium)</td><td>no</td></tr>
 <tr><td>core_b</td><td><code>none-detected</code> (medium)</td><td><code>none-detected</code> (medium)</td><td>no</td></tr>
 <tr><td>core_c</td><td><code>lfsr-stream</code> (high)</td><td><code>lfsr-stream</code> (high)</td><td>no</td></tr>
-<tr><td>core_d</td><td><strong><code>arx</code> (high)</strong></td><td><strong><code>none-detected</code> (medium)</strong></td><td><strong>yes</strong></td></tr>
+<tr><td>core_d</td><td><code>arx</code> (high)</td><td><code>arx</code> (high) <span class="kbd">was: <code>none-detected</code> (medium)</span></td><td>no <span class="kbd">was: yes</span></td></tr>
 <tr><td>core_e</td><td><code>lattice-ntt</code> (medium)</td><td><code>lattice-ntt</code> (medium)</td><td>no</td></tr>
 </tbody>
 </table>
 </div>
 
-<p>So the two misses have two different causes, and the control separates
-them.</p>
+<p><code>blinding_losses</code> is now empty: on these five designs, taking every
+name away costs the tool nothing. When this walkthrough was written it cost
+core_d's entire family, and the two misses of that run had two different causes
+which this control is what separated.</p>
 
-<p><strong>core_a's miss is not about blinding.</strong> The tool returns
+<p><strong>The remaining miss, core_a's, is not about blinding.</strong> The tool returns
 <code>none-detected</code> on the named export too, and walkthrough 14 explains
 why: in this pipeline placement <code>chi</code> reads the register bank
 <em>through</em> <code>theta</code>, so every chi cone is 33 flip-flops wide, the
@@ -605,25 +632,70 @@ stops existing as cones. The same permutation retimed by half a round returns
 property of a structural pass, and the tool signals it by dropping its
 <code>none-detected</code> to medium confidence because it refused a cone.</p>
 
-<p><strong>core_d's miss is entirely about blinding.</strong> On the named export
-the ARX pass finds two verified adders, 54 XOR cells and <strong>four fixed
-rotations</strong>, and returns <code>arx</code> at high confidence. On the
-blinded export it finds the same two adders and the same 54 XOR cells, and
-<strong>zero</strong> rotations:</p>
+<p><strong>core_d's miss was entirely about blinding</strong>, and that is what
+made it fixable. On the named export the ARX pass found two verified adders, 54
+XOR cells and <strong>four fixed rotations</strong>, and returned
+<code>arx</code> at high confidence. On the blinded export it found the same two
+adders and the same 54 XOR cells, and <strong>zero</strong> rotations:</p>
 
 <pre><code>named   : verdict arx-candidate   adders 2  rotations 4  xor 54
 blinded : verdict not-arx         adders 2  rotations 0  xor 54
           missing: ['no fixed rotation, in a named vector or in the
                      order a cell layer reads a register bank']</code></pre>
 
-<h2 id="gaps">7. Two gaps, filed not fixed</h2>
+<p>Nothing in that pair is about the netlist and everything in it is about the
+names, which is the whole argument of issue #101. With the carry-chain reading in
+place the same command now returns three rotations on the blinded export &mdash;
+15 of 16 bits of one adder operand at an offset of 7, and two register words each
+reading itself rotated left by 2 &mdash; and the amounts <code>{7, 2}</code> are
+the published SPECK-32/64 pair, recovered from a netlist in which no word has a
+name:</p>
+
+<pre><code>blinded : verdict arx-candidate   adders 2  rotations 3  xor 54
+          rotation_families: ['speck_32']</code></pre>
+
+<p>The named export still answers exactly what it answered before &mdash; the
+same four rotations, off the same named vectors &mdash; because the structural
+reading is the weakest of the three tiers and stands down whenever a stronger one
+covers the same flip-flops.</p>
+
+<h2 id="gaps">7. Two gaps, filed not fixed &mdash; and since closed</h2>
 
 <p><strong>No pass in <code>tools/hal_crypto</code> was changed for this
 walkthrough.</strong> A capstone that tunes the instrument it is calibrating
-measures nothing, so both gaps below are written up here and filed as issues,
-and the score table above is what the tools do today.</p>
+measures nothing, so both gaps below were written up here and filed as issues,
+and the score table was what the tools did on the day.</p>
 
-<h3>7.1 Rotation recovery is keyed on vector names <span class="kbd">(issue #101)</span></h3>
+<p>Both issues were then fixed in a separate change, and this page was re-run
+against the repaired tool rather than left as a snapshot &mdash; a measurement
+nobody re-takes is an anecdote, which is the sentence <code>check.py</code>
+opens with. What moved:</p>
+
+<div class="scroll">
+<table>
+<thead><tr><th></th><th>at the capstone</th><th>after #101 and #102</th></tr></thead>
+<tbody>
+<tr><td>tool alone, blinded</td><td>3 of 5</td><td><strong>4 of 5</strong></td></tr>
+<tr><td>tool alone, named</td><td>4 of 5</td><td>4 of 5</td></tr>
+<tr><td>the method</td><td>5 of 5</td><td>5 of 5</td></tr>
+<tr><td>families lost to blinding</td><td><code>core_d</code></td><td><strong>none</strong></td></tr>
+<tr><td>core_b's shift structures</td><td>none found</td><td>one 8-stage open chain</td></tr>
+<tr><td>key facts recovered</td><td>16 of 24</td><td>16 of 24</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Two things deliberately did <em>not</em> move. The <strong>method</strong>
+still scores five of five, because steps 1&ndash;4 never read the tool's verdict
+and the rule table was fixed in advance: R4 fired on core_d off the chain census
+before and after. And core_d's blind <em>confidence</em> did move, from medium to
+high, for the one reason section 4 gives &mdash; the call is more confident when
+the tool agrees with it, and now it does. That is the comparison this walkthrough
+is for: the method was never the thing that needed repairing, and the gap between
+the two columns above is the value a fixed procedure adds on top of a tool, being
+paid back as tool improvements.</p>
+
+<h3>7.1 Rotation recovery is keyed on vector names <span class="kbd">(issue #101, fixed)</span></h3>
 
 <p><code>arx.adder_operand_rotations</code> looks at the order an adder's slices
 read their operand, which is exactly right &mdash; a rotation costs no cell, so
@@ -635,22 +707,38 @@ so fifteen operand bits become fifteen unrelated names, the grouping finds
 fifteen "words" of one bit each, and no rotation is found &mdash; on a netlist
 where the ordered cell layer is completely intact.</p>
 
-<p>The fix is not to look at names: the operand bits peel back to flip-flops, and
-those flip-flops are still one register component with one clock/enable
-signature. Recovering the word from the <em>register bank</em> rather than from
-the net name would make the pass work on exactly the netlists it matters most on
-&mdash; the ones recovered from a bitstream, which have no vectors at all.</p>
+<p>The fix is not to look at names. What replaced them is the
+<strong>carry chain</strong>, which is the one ordered object a vendor export
+contains unambiguously &mdash; a dedicated <code>cout &rarr; cin</code> wire needs
+no heuristic. Bit <em>i</em> of a word is the flip-flop whose next-state cone
+reads sum bit <em>i</em>, and a rotation is a constant offset between two
+orderings of the same flip-flops: the chain reading a register at slice <em>i</em>
+that it writes at slice <code>(i + c) mod w</code>, or a written register whose
+own cell reads exactly one sibling the chain writes. Two details decided whether
+it worked at all. The width has to come from the chain's <em>sum outputs</em>,
+not from the slice count &mdash; Quartus drops the dead generate half of the top
+slice, so a 16-bit add classifies as 15 slices and a rotation reported at 15 bits
+matches nothing published. And which of the two operand vectors a slice input
+belongs to must never be asked: <code>arith.classify_chain</code> splits the two
+sides by sorting net keys, which is perfectly stable and completely arbitrary
+once the keys are <code>n124</code> and <code>n269</code>. The reading lives in
+<code>tools/hal_crypto/wordorder.py</code>, and because it is weaker evidence
+than a name it is the last tier asked and the first dropped.</p>
 
-<h3>7.2 A tapped shift chain is not found <span class="kbd">(issue #102)</span></h3>
+<h3>7.2 A tapped shift chain is not found <span class="kbd">(issue #102, fixed)</span></h3>
 
-<p><code>shiftreg</code>'s chain walk follows successors and stops at the first
-stage with more than one. core_b's receive register has a capture register
-hanging off every stage, so every stage has two successors and the walk stops at
-length one; <code>find_shift_structures</code> returns nothing on a design with
-an eight-stage shift register in it. Walking the <em>predecessor</em> instead
-&mdash; each stage has exactly one register feeding it, and fan-out cannot change
-that &mdash; finds the chain immediately. It costs nothing on this decoy, and it
-would cost a Galois LFSR whose stages are tapped.</p>
+<p><code>shiftreg</code>'s chain walk followed successors and stopped at the
+first stage with more than one. core_b's receive register has a capture register
+hanging off every stage, so every stage has two successors and the walk stopped
+at length one; <code>find_shift_structures</code> returned nothing on a design
+with an eight-stage shift register in it. Walking the <em>predecessor</em>
+instead &mdash; each stage has exactly one register feeding it, and fan-out
+cannot change that &mdash; finds the chain immediately, and the branches that
+leave the line are reported as taps rather than ending the walk. It cost nothing
+on this decoy, and it would have cost a Galois LFSR whose stages are tapped.
+core_b now yields its eight stages as an open <code>shift_register</code>, which
+is the honest answer and is still not evidence of anything: the decoy's call and
+its confidence are both unchanged.</p>
 
 <h2 id="honesty">8. What this measured, and what it did not</h2>
 
@@ -679,10 +767,14 @@ says so rather than quietly shipping the corrected table.</p>
 statement about what a netlist is wired to compute. "There is a sponge in here"
 does not name SHA-3; "there is lattice-style ring arithmetic in here" does not
 name ML-KEM, and at <code>n = 16</code>, <code>q = 257</code> it very much does
-not; "there is an ARX round in here" does not name Speck, and the blind pass
-never recovered the rotation constants that would have started that argument. The
-useful output of a page like this is not a name. It is a short list of things to
-go and look for next.</p>
+not; "there is an ARX round in here" does not name Speck. The blind pass's own
+six steps never recover a rotation constant &mdash; R4 fires on the chain census
+alone, and that is unchanged. <code>hal_crypto</code> does now recover
+<code>{7, 2}</code> from the blinded core_d and reports them as the published
+SPECK-32/64 pair, and the finding says in its own words what that means: the
+amounts in this wiring equal that published set, which is not an identification
+of the cipher. The useful output of a page like this is not a name. It is a short
+list of things to go and look for next.</p>
 
 <h2 id="template">9. The template for a real target</h2>
 

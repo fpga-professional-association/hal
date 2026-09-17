@@ -86,16 +86,25 @@ VERDICTS = {
     "core_a": ("sponge", "sponge", "R2-sponge", "none-detected"),
     "core_b": ("none-detected", "none-detected", "R6-none", "none-detected"),
     "core_c": ("lfsr-stream", "lfsr-stream", "R5-stream", "lfsr-stream"),
-    "core_d": ("arx", "arx", "R4-arx", "none-detected"),
+    "core_d": ("arx", "arx", "R4-arx", "arx"),
     "core_e": ("lattice-ntt", "lattice-ntt", "R1-lattice", "lattice-ntt"),
 }
 
-#: The headline: the method gets all five, the tool gets three of five blinded
+#: The headline: the method gets all five, the tool gets four of five blinded
 #: and four of five named.
+#:
+#: The tool's blinded score and the blinding delta are the two numbers this
+#: walkthrough *moved*.  On the day it was written the tool scored three of five
+#: blinded and lost core_d's family to the anonymiser; the two gaps behind that
+#: were filed as issues #101 and #102 rather than patched here, and fixing them
+#: afterwards is what closed the delta.  The numbers below are therefore the
+#: re-measurement, not the original run, and guide.html section 7 carries both
+#: columns -- a measurement nobody re-takes is an anecdote, which is why this
+#: file re-derives the score table live instead of reading it.
 BLIND_CORRECT = 5
-TOOL_CORRECT_BLINDED = 3
+TOOL_CORRECT_BLINDED = 4
 TOOL_CORRECT_NAMED = 4
-BLINDING_LOSSES = ["core_d"]
+BLINDING_LOSSES = []
 FACTS_RECOVERED = 16
 FACTS_TOTAL = 24
 RULES_NEVER_EXERCISED = ["R3-spn"]
@@ -369,14 +378,30 @@ def check_state(blind_steps, guide):
         and blind_steps["core_b"]["state"]["chain_head_reads_only_inputs"],
         str(blind_steps["core_b"]["state"]["longest_single_predecessor_chain"]),
     )
+    # Issue #102, filed by this walkthrough and fixed afterwards: the chain walk
+    # followed successors, every stage of the receive register has a capture
+    # register hanging off it, and the walk stopped at the first fork -- so the
+    # answer was not "a short chain" but no structure at all.  What the fix is
+    # allowed to produce is exactly this: an *open* chain, honestly labelled.
+    # Turning the decoy's receive register into a feedback register would be a
+    # false positive on the one core that has no cryptography in it.
+    structures = blind_steps["core_b"]["state"]["shift_structures"]
     check(
-        "core_b: hal_crypto's own chain walk finds nothing there",
-        blind_steps["core_b"]["state"]["shift_structures"] == [],
-        "which the guide files as a gap",
+        "core_b: hal_crypto's chain walk now finds the tapped chain too",
+        len(structures) == 1
+        and structures[0]["length"] == SHIFT_STAGES
+        and structures[0]["kind"] == "shift_register"
+        and structures[0]["mode"] is None,
+        str([(entry["length"], entry["kind"]) for entry in structures]),
     )
     check(
-        "the guide says the tapped chain is a gap, not a result",
-        "tapped" in guide,
+        "core_b: ... and does not turn the decoy into a feedback register",
+        blind_steps["core_b"]["state"]["autonomous_feedback_stages"] == []
+        and blind_steps["core_b"]["call"]["identify_family"] == "none-detected",
+    )
+    check(
+        "the guide says the tapped chain was a gap, and what closed it",
+        "tapped" in guide and "issue #102" in guide,
     )
 
 
@@ -479,9 +504,26 @@ def check_score(blind_steps, guide):
         str(table["tool_correct_named"]),
     )
     check(
-        "blinding costs exactly one family, on {}".format(", ".join(BLINDING_LOSSES)),
+        "blinding costs no family at all, on any of the five"
+        if not BLINDING_LOSSES
+        else "blinding costs exactly one family, on {}".format(
+            ", ".join(BLINDING_LOSSES)
+        ),
         table["blinding_losses"] == BLINDING_LOSSES,
         str(table["blinding_losses"]),
+    )
+    # Issue #101, the other gap this walkthrough filed: the blinded Speck export
+    # lost all four rotations to the anonymiser, and with them the family, while
+    # both carry chains and all 54 XOR cells survived.  The fix has to bring the
+    # family back on the *blinded* copy without moving the named one, so both
+    # halves are checked here rather than only the score.
+    check(
+        "core_d: the blinded copy reaches the same family as the named one",
+        all(
+            entry["named_family"] == entry["blinded_family"] == "arx"
+            for entry in table["blinding_delta"]
+            if entry["core"] == "core_d"
+        ),
     )
     check(
         "{} of {} key facts recovered".format(FACTS_RECOVERED, FACTS_TOTAL),
@@ -510,7 +552,11 @@ def check_score(blind_steps, guide):
         "the guide states the {}/{} headline".format(
             BLIND_CORRECT, TOOL_CORRECT_BLINDED
         ),
-        "five of five" in guide and "three of five" in guide,
+        "five of five" in guide and "four of five" in guide,
+    )
+    check(
+        "... and keeps the number it started from, so the move is on the page",
+        "three of five" in guide and "3 of 5" in guide,
     )
 
 
@@ -635,6 +681,10 @@ def check_guide(guide):
     check(
         "the guide says no hal_crypto pass was changed for this walkthrough",
         "was changed" in guide or "not patched" in guide or "were changed" in guide,
+    )
+    check(
+        "... and says the two it filed were fixed afterwards and re-measured",
+        "issue #101" in guide and "issue #102" in guide and "re-measured" in guide,
     )
     check(
         "the guide states the decoy is the only out-of-sample core",
