@@ -1,0 +1,195 @@
+name: Nightly fuzz
+
+# The fuzz tier of issue #51. The two harnesses in tests/fuzz are a search, not a
+# fixed set of assertions: .github/workflows/ubuntu24.04.yml runs their fixed 25
+# seeds on every push (14 seconds, one sample of the space), and this job is what
+# widens that once a night -- a deep deterministic sweep, twelve extra fixed
+# seeds run deeper per seed, and one seed that is new every night. A finding from
+# a random seed is a bug report rather than a regression in the change under
+# test, which is exactly why it does not belong in the per-push gate.
+#
+# 04:10 UTC: after the day's pushes, well before European working hours, and off
+# the hour so it does not queue behind everyone else's nightly.
+on:
+  schedule:
+    - cron: '10 4 * * *'
+  workflow_dispatch:
+    inputs:
+      nightly_seed:
+        description: 'Seed for the random-seed tier (default: derived from the run id and date). Set it to the seed a red nightly printed to reproduce that night.'
+        required: false
+        type: string
+      matrix_iters:
+        description: 'Seeds per harness for the deep deterministic sweep, walked in chunks of 25 (FUZZ_MATRIX_ITERS)'
+        required: false
+        default: '500'
+        type: string
+      matrix_samples:
+        description: 'Trees/netlists per seed for the extra-seed tier (FUZZ_MATRIX_SAMPLES)'
+        required: false
+        default: '250'
+        type: string
+
+# One nightly at a time, and never cancel one that is running: a half-finished
+# search reports nothing useful.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  nightly_fuzz:
+    name: Seed matrix on Ubuntu 24.04
+
+    runs-on: ubuntu-24.04
+
+    # The build dominates (~30 min cold, less with a warm ccache) and the matrix
+    # itself is single-digit minutes; this bound is for a hung harness, not an
+    # estimate. tests/fuzz/CMakeLists.txt puts a 3600 s ctest timeout under it.
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # cmake/hal_cmake_tools.cmake derives the HAL version through 'git describe --tags',
+          # so the full history including tags is required
+          fetch-depth: 0
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Prepare ccache timestamp
+        id: ccache_cache_timestamp
+        shell: bash
+        run: echo "timestamp=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> "$GITHUB_OUTPUT"
+
+      # A cache namespace of its own, deliberately not the "<OS>-ccache-" prefix
+      # the push jobs use: this build is configured without BUILD_COVERAGE, and
+      # coverage appends compiler flags globally, so the two builds' object hashes
+      # do not match. Sharing the prefix would mean each job restoring the other's
+      # unusable cache and neither ever warming up. The first nightly after a
+      # cache expiry compiles cold (~30-40 min, inside the timeout below).
+      - name: ccache cache files
+        uses: actions/cache@v4
+        with:
+          path: ${{runner.workspace}}/.ccache
+          key: ${{ runner.OS }}-nightly-fuzz-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ runner.OS }}-nightly-fuzz-ccache-
+
+      - name: Install Dependencies
+        run: ./install_dependencies.sh
+
+      # $GITHUB_WORKSPACE/build, which is where the Ubuntu 24.04 push job builds
+      # too (its `cd build` runs from the workspace) and what every path below
+      # refers to -- spelled out rather than through ${{runner.workspace}}/hal,
+      # which only resolves to the same directory while the repository is named
+      # "hal".
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{ github.workspace }}/build
+
+      # The same recipe as the Ubuntu 24.04 push job, minus coverage and
+      # documentation: nothing here reads either, and the harnesses need hal_py,
+      # the Verilog parser/writer and the HGL parser, which BUILD_ALL_PLUGINS
+      # covers. BUILD_FUZZ_TESTS=ON is what registers the `fuzz` ctest label the
+      # fixed-seed tier below runs.
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          export BUILD_TYPE=Debug
+          $GITHUB_WORKSPACE/tools/genversion.py $GITHUB_WORKSPACE
+          cmake -G Ninja $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_ALL_PLUGINS=ON -DBUILD_TESTS=ON -DBUILD_FUZZ_TESTS=ON -DPACKAGE_DEB=OFF -DCMAKE_INSTALL_PREFIX=/usr/
+        env:
+          CCACHE_DIR: ${{runner.workspace}}/.ccache
+          CCACHE_COMPRESS: true
+          CCACHE_COMPRESSLEVEL: 6
+          CCACHE_MAXSIZE: 400M
+          HAL_BASE_PATH: ${{ github.workspace }}/build
+
+      - name: Build
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          echo "==> Disk usage before clean"
+          df -h .
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/hostedtoolcache
+          echo "==> Disk usage after clean"
+          df -h .
+          ninja
+        env:
+          CCACHE_DIR: ${{runner.workspace}}/.ccache
+          CCACHE_COMPRESS: true
+          CCACHE_COMPRESSLEVEL: 6
+          CCACHE_MAXSIZE: 400M
+          HAL_BASE_PATH: ${{ github.workspace }}/build
+
+      # One seed that nobody chose, recorded in the log and in the job summary so
+      # any finding is reproducible afterwards: run id and attempt make it new on
+      # every run, the date makes it new on every night, and the modulus keeps it
+      # inside the range random.Random() and the harnesses' own seeds live in.
+      # A dispatch can pin it to replay a night that went red.
+      - name: Pick tonight's seed
+        id: seed
+        shell: bash
+        env:
+          # Through the environment, not through ${{ }} in the script: a
+          # dispatch input is user text and must never be pasted into a shell.
+          REQUESTED_SEED: ${{ github.event.inputs.nightly_seed }}
+        run: |
+          requested="${REQUESTED_SEED:-}"
+          if [ -n "$requested" ]; then
+            case "$requested" in
+              ''|*[!0-9]*)
+                echo "nightly_seed must be a non-negative integer, got '$requested'" >&2
+                exit 1 ;;
+            esac
+            seed="$requested"
+            echo "seed pinned by workflow_dispatch: $seed"
+          else
+            today=$(date -u +%Y%m%d)
+            seed=$(( (${{ github.run_id }} * 1000003 + ${{ github.run_attempt }} * 97 + today) % 2147483629 ))
+            echo "seed derived from run ${{ github.run_id }} attempt ${{ github.run_attempt }} on $today: $seed"
+          fi
+          echo "nightly_seed=$seed" >> "$GITHUB_OUTPUT"
+
+      # tests/fuzz/run_fuzz_matrix.sh runs every tier even after one fails -- a
+      # nightly that stops at the first finding wastes the night -- writes a
+      # per-case log into fuzz-logs/ and a Markdown report into the job summary,
+      # and exits 1 if any case failed. The fixed-seed tier goes through ctest so
+      # it is the same entry point the per-push job uses.
+      - name: Fuzz seed matrix
+        id: matrix
+        shell: bash
+        run: bash "$GITHUB_WORKSPACE/tests/fuzz/run_fuzz_matrix.sh"
+        env:
+          FUZZ_CTEST_BUILD_DIR: ${{ github.workspace }}/build
+          FUZZ_LOG_DIR: ${{ github.workspace }}/build/fuzz-logs
+          FUZZ_MATRIX_ITERS: ${{ github.event.inputs.matrix_iters || '500' }}
+          FUZZ_MATRIX_SAMPLES: ${{ github.event.inputs.matrix_samples || '250' }}
+          NIGHTLY_SEED: ${{ steps.seed.outputs.nightly_seed }}
+          HAL_BASE_PATH: ${{ github.workspace }}/build
+          HAL_PY_PATH: ${{ github.workspace }}/build/lib
+          PYTHONPATH: ${{ github.workspace }}/build/lib
+
+      # Kept on green runs too: the logs of a night that found nothing are the
+      # baseline the next red night is read against, and they are small.
+      - name: Upload fuzz logs
+        if: always() && steps.matrix.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-fuzz-logs
+          path: ${{ github.workspace }}/build/fuzz-logs
+          if-no-files-found: warn
+          retention-days: 30

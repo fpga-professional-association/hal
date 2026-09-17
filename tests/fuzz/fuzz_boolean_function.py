@@ -27,8 +27,17 @@ Usage
     FUZZ_ITERS=200  python3 tests/fuzz/fuzz_boolean_function.py   # deeper sweep
     FUZZ_SAMPLES=50 python3 tests/fuzz/fuzz_boolean_function.py   # trees per seed
 
-The harness exits 0 as long as every failure it sees is an *expected* one, so it
-can gate CI. Unexpected failures exit 1 and print a one-line repro command.
+    # seeds 100..124 of the same deterministic sequence FUZZ_ITERS walks, so a
+    # long sweep can be split over several processes and stay inside a runner's
+    # memory (see main())
+    FUZZ_ITERS_OFFSET=100 FUZZ_ITERS=25 python3 tests/fuzz/fuzz_boolean_function.py
+
+The harness exits 0 as long as every failure it sees is an *expected* one and
+every expected failure it declares still fails, so it can gate CI. Unexpected
+failures exit 1 and print a one-line repro command -- and so does an unexpected
+*pass*: a KNOWN_BUGS entry or an EXPECTED_FAILURE_SEEDS seed that has stopped
+failing means the marker outlived the bug, and the fix belongs in an assertion
+rather than in this list.
 """
 
 import os
@@ -105,16 +114,19 @@ NAME_STYLES = ("plain", "indexed")
 
 # Seeds that are known to fail. Empty: all 25 default seeds pass. Add entries as
 # ``seed: "reason"`` when a new real failure is found and minimized; the harness
-# then keeps exiting 0 while still reporting the finding.
+# then keeps exiting 0 on that failure while still reporting the finding -- but
+# it exits 1 again as soon as the seed stops failing (see main()).
 EXPECTED_FAILURE_SEEDS = {}
 
 
 # Minimized repros of already-known defects, run on every invocation as
-# expected failures. If one of them stops reproducing, the harness says so (and
-# still exits 0) so the entry can be removed. Empty: BF-1, BF-2a and BF-2b (see
-# issue #62) are fixed and are asserted as *properties* now -- BF-1 by bf_str()
-# calling the instance method unconditionally, BF-2 by rendering 0b-constants
-# together with whitespace-AND in check_tree() below.
+# expected failures. If one of them stops reproducing, the harness exits 1: the
+# premise of this tier is that a result nobody predicted is a finding, and an
+# unexpected *pass* is one of those -- the bug was fixed somewhere and the fix
+# needs an assertion of its own before the entry disappears. Empty: BF-1, BF-2a
+# and BF-2b (see issue #62) are fixed and are asserted as *properties* now --
+# BF-1 by bf_str() calling the instance method unconditionally, BF-2 by
+# rendering 0b-constants together with whitespace-AND in check_tree() below.
 KNOWN_BUGS = []
 
 
@@ -508,6 +520,20 @@ def repro_command(seed):
     return "FUZZ_SEED=%d python3 tests/fuzz/fuzz_boolean_function.py" % seed
 
 
+# Printed, and exited 1 on, when an expected failure stops failing. The premise
+# of this tier is that any result nobody predicted is a finding; an unexpected
+# pass is one, and the only way it stays visible is a red run.
+STALE_MARKER_ADVICE = """\
+expected failures that NO LONGER fail -- this run is red on purpose:
+%s
+
+Something fixed these and the marker outlived the bug. Re-running will not make
+it green: remove the named entry from KNOWN_BUGS / EXPECTED_FAILURE_SEEDS in
+tests/fuzz/fuzz_boolean_function.py and assert the now-fixed behaviour in its
+place -- as a property in check_tree() here, or as a regression test in the C++
+suite that owns the code -- so the bug cannot come back unnoticed."""
+
+
 def run_seed(seed, samples):
     for index, (tree, variables) in enumerate(generate(seed, samples)):
         try:
@@ -535,17 +561,26 @@ def run_known_bugs():
 
 def main():
     env_seed = os.environ.get("FUZZ_SEED")
+    offset = int(os.environ.get("FUZZ_ITERS_OFFSET", "0"), 0)
     if env_seed:
         seeds = [int(env_seed, 0)]
     else:
         iters = int(os.environ.get("FUZZ_ITERS", str(len(DEFAULT_SEEDS))))
-        seeds = seed_sequence(iters)
+        # seed_sequence() is a prefix-stable list, so seeds [offset:offset+iters]
+        # of a long sweep are the same seeds whether they are run in one process
+        # or in chunks. Chunking matters: a BooleanFunction tree costs roughly
+        # 0.6 MB of resident memory that this process never gets back, so a
+        # 500-seed run needs ~12 GB while twenty 25-seed runs need under 1 GB
+        # each (tests/fuzz/run_fuzz_matrix.sh splits the nightly sweep that way).
+        seeds = seed_sequence(offset + iters)[offset:]
 
-    print("fuzz_boolean_function: %d seeds x %d trees, <= %d variables"
-          % (len(seeds), SAMPLES_PER_SEED, MAX_VARS))
+    print("fuzz_boolean_function: %d seeds (offset %d) x %d trees, <= %d variables"
+          % (len(seeds), offset, SAMPLES_PER_SEED, MAX_VARS))
 
     unexpected = []
     expected = []
+    # Expected failures that did not fail. Red on purpose: see STALE_MARKER_ADVICE.
+    stale = []
     passed = 0
     for seed in seeds:
         try:
@@ -574,11 +609,15 @@ def main():
             traceback.print_exc()
         else:
             if seed in EXPECTED_FAILURE_SEEDS:
-                print("XPASS seed=%d unexpectedly passed -- drop it from "
-                      "EXPECTED_FAILURE_SEEDS" % seed)
+                print("XPASS seed=%d unexpectedly passed" % seed)
+                stale.append(
+                    "EXPECTED_FAILURE_SEEDS entry %d (%s) no longer fails; repro: %s"
+                    % (seed, EXPECTED_FAILURE_SEEDS[seed], repro_command(seed)))
             passed += 1
 
     xfail, xpass = run_known_bugs()
+    for bug_id in xpass:
+        stale.append("KNOWN_BUGS entry %s no longer reproduces" % bug_id)
 
     print("")
     if KNOWN_BUGS:
@@ -595,6 +634,10 @@ def main():
         print("unexpected failures (real findings, please escalate):")
         for seed, _ in unexpected:
             print("  %s" % repro_command(seed))
+    if stale:
+        print("")
+        print(STALE_MARKER_ADVICE % "\n".join("  - %s" % note for note in stale))
+    if unexpected or stale:
         return 1
     print("fuzz_boolean_function: OK")
     return 0
