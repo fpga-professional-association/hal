@@ -9,3 +9,18 @@
 !agilex3_walkthroughs/
 !agilex3_walkthroughs/**
 agilex3_walkthroughs/**/__pycache__/
+!janestreet_asic_2026/
+!janestreet_asic_2026/**
+# upstream Jane Street puzzle files (no redistribution license — tools/fetch_puzzle.py)
+janestreet_asic_2026/puzzle.gds
+janestreet_asic_2026/example_inputs.vcd
+janestreet_asic_2026/layout.png
+janestreet_asic_2026/upstream_README.md
+janestreet_asic_2026/warmup/
+# heavy derived outputs, regenerable from the fetched GDS
+janestreet_asic_2026/artifacts/puzzle_netlist.v
+janestreet_asic_2026/artifacts/puzzle_netlist.json
+janestreet_asic_2026/artifacts/warmup_netlist.v
+janestreet_asic_2026/artifacts/warmup_netlist.json
+janestreet_asic_2026/artifacts/warmup_adder_demo.netlist.json
+janestreet_asic_2026/**/__pycache__/

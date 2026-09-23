@@ -1,0 +1,979 @@
+{
+ "design": "warmup/01_netlist.v (adder_demo)",
+ "simulator": "tools/sc_sim.py",
+ "passed": true,
+ "shift_direction": "MSB first (parallel_out <= {parallel_out[6:0], serial_in})",
+ "structure": {
+  "module": "adder_demo",
+  "inputs": [
+   "A",
+   "B",
+   "clk",
+   "en",
+   "rst_n"
+  ],
+  "outputs": [
+   "S"
+  ],
+  "instances": 230,
+  "combinational_cells": 63,
+  "flip_flops": 16,
+  "physical_cells": 151,
+  "logic_depth": 8,
+  "clock": "clk",
+  "negedge_flops": [],
+  "unclocked_flops": [],
+  "undriven_nets": [],
+  "multiply_driven_nets": []
+ },
+ "cell_histogram": {
+  "sky130_fd_sc_hd__a21bo_2": 1,
+  "sky130_fd_sc_hd__a21boi_2": 1,
+  "sky130_fd_sc_hd__a21o_2": 1,
+  "sky130_fd_sc_hd__a31o_2": 5,
+  "sky130_fd_sc_hd__and2_2": 7,
+  "sky130_fd_sc_hd__and3_2": 1,
+  "sky130_fd_sc_hd__and4bb_2": 2,
+  "sky130_fd_sc_hd__clkbuf_16": 3,
+  "sky130_fd_sc_hd__decap_3": 58,
+  "sky130_fd_sc_hd__dfrtp_2": 16,
+  "sky130_fd_sc_hd__mux2_1": 16,
+  "sky130_fd_sc_hd__nand2_2": 4,
+  "sky130_fd_sc_hd__nor2_2": 8,
+  "sky130_fd_sc_hd__o21bai_2": 1,
+  "sky130_fd_sc_hd__or2_2": 5,
+  "sky130_fd_sc_hd__tapvpwrvgnd_1": 93,
+  "sky130_fd_sc_hd__xnor2_2": 3,
+  "sky130_fd_sc_hd__xor2_2": 5
+ },
+ "library_cells": [
+  "a2111o",
+  "a2111oi",
+  "a211o",
+  "a211oi",
+  "a21bo",
+  "a21boi",
+  "a21o",
+  "a21oi",
+  "a221o",
+  "a221oi",
+  "a222oi",
+  "a22o",
+  "a22oi",
+  "a2bb2o",
+  "a2bb2oi",
+  "a311o",
+  "a311oi",
+  "a31o",
+  "a31oi",
+  "a32o",
+  "a32oi",
+  "a41o",
+  "a41oi",
+  "and2",
+  "and2b",
+  "and3",
+  "and3b",
+  "and4",
+  "and4b",
+  "and4bb",
+  "buf",
+  "bufinv",
+  "clkbuf",
+  "clkdlybuf4s15",
+  "clkdlybuf4s18",
+  "clkdlybuf4s25",
+  "clkdlybuf4s50",
+  "clkinv",
+  "clkinvlp",
+  "conb",
+  "decap",
+  "decaphe",
+  "decaphetap",
+  "decapkapwr",
+  "dfbbn",
+  "dfbbp",
+  "dfrbp",
+  "dfrtp",
+  "dfsbp",
+  "dfstp",
+  "dfxbp",
+  "dfxtp",
+  "diode",
+  "dlygate4sd1",
+  "dlygate4sd2",
+  "dlygate4sd3",
+  "dlymetal6s2s",
+  "dlymetal6s4s",
+  "dlymetal6s6s",
+  "edfxtp",
+  "fa",
+  "fah",
+  "fahcin",
+  "fahcon",
+  "fill",
+  "fill_diode",
+  "fillcap",
+  "ha",
+  "inv",
+  "lpflow_clkbufkapwr",
+  "lpflow_decapkapwr",
+  "maj3",
+  "mux2",
+  "mux2i",
+  "mux4",
+  "nand2",
+  "nand2b",
+  "nand3",
+  "nand3b",
+  "nand4",
+  "nand4b",
+  "nand4bb",
+  "nor2",
+  "nor2b",
+  "nor3",
+  "nor3b",
+  "nor4",
+  "nor4b",
+  "nor4bb",
+  "o2111a",
+  "o2111ai",
+  "o211a",
+  "o211ai",
+  "o21a",
+  "o21ai",
+  "o21ba",
+  "o21bai",
+  "o221a",
+  "o221ai",
+  "o22a",
+  "o22ai",
+  "o2bb2a",
+  "o2bb2ai",
+  "o311a",
+  "o311ai",
+  "o31a",
+  "o31ai",
+  "o32a",
+  "o32ai",
+  "o41a",
+  "o41ai",
+  "or2",
+  "or2b",
+  "or3",
+  "or3b",
+  "or4",
+  "or4b",
+  "or4bb",
+  "probe_p",
+  "sdfrtp",
+  "sdfstp",
+  "sdfxbp",
+  "sdfxtp",
+  "tap",
+  "tapmet1",
+  "tapvgnd",
+  "tapvgnd2",
+  "tapvpwrvgnd",
+  "xnor2",
+  "xnor3",
+  "xor2",
+  "xor3"
+ ],
+ "puzzle_cell_types": [
+  "sky130_fd_sc_hd__a2111oi_2",
+  "sky130_fd_sc_hd__a211o_2",
+  "sky130_fd_sc_hd__a211oi_2",
+  "sky130_fd_sc_hd__a21bo_2",
+  "sky130_fd_sc_hd__a21boi_2",
+  "sky130_fd_sc_hd__a21o_2",
+  "sky130_fd_sc_hd__a21oi_2",
+  "sky130_fd_sc_hd__a221o_2",
+  "sky130_fd_sc_hd__a221oi_2",
+  "sky130_fd_sc_hd__a22o_2",
+  "sky130_fd_sc_hd__a22oi_2",
+  "sky130_fd_sc_hd__a311o_2",
+  "sky130_fd_sc_hd__a31o_2",
+  "sky130_fd_sc_hd__a31oi_2",
+  "sky130_fd_sc_hd__a32o_2",
+  "sky130_fd_sc_hd__a41oi_2",
+  "sky130_fd_sc_hd__and2_2",
+  "sky130_fd_sc_hd__and2b_2",
+  "sky130_fd_sc_hd__and3_2",
+  "sky130_fd_sc_hd__and3b_2",
+  "sky130_fd_sc_hd__and4_2",
+  "sky130_fd_sc_hd__and4b_2",
+  "sky130_fd_sc_hd__and4bb_2",
+  "sky130_fd_sc_hd__buf_2",
+  "sky130_fd_sc_hd__clkbuf_16",
+  "sky130_fd_sc_hd__clkbuf_4",
+  "sky130_fd_sc_hd__clkbuf_8",
+  "sky130_fd_sc_hd__conb_1",
+  "sky130_fd_sc_hd__decap_3",
+  "sky130_fd_sc_hd__dfrtp_2",
+  "sky130_fd_sc_hd__dfstp_2",
+  "sky130_fd_sc_hd__dfxtp_2",
+  "sky130_fd_sc_hd__diode_2",
+  "sky130_fd_sc_hd__inv_2",
+  "sky130_fd_sc_hd__mux2_1",
+  "sky130_fd_sc_hd__nand2_2",
+  "sky130_fd_sc_hd__nand2b_2",
+  "sky130_fd_sc_hd__nand3_2",
+  "sky130_fd_sc_hd__nand3b_2",
+  "sky130_fd_sc_hd__nand4_2",
+  "sky130_fd_sc_hd__nor2_2",
+  "sky130_fd_sc_hd__nor3_2",
+  "sky130_fd_sc_hd__nor3b_2",
+  "sky130_fd_sc_hd__nor4_2",
+  "sky130_fd_sc_hd__nor4b_2",
+  "sky130_fd_sc_hd__o211a_2",
+  "sky130_fd_sc_hd__o211ai_2",
+  "sky130_fd_sc_hd__o21a_2",
+  "sky130_fd_sc_hd__o21ai_2",
+  "sky130_fd_sc_hd__o21ba_2",
+  "sky130_fd_sc_hd__o21bai_2",
+  "sky130_fd_sc_hd__o221a_2",
+  "sky130_fd_sc_hd__o22a_2",
+  "sky130_fd_sc_hd__o22ai_2",
+  "sky130_fd_sc_hd__o2bb2a_2",
+  "sky130_fd_sc_hd__o311a_2",
+  "sky130_fd_sc_hd__o31a_2",
+  "sky130_fd_sc_hd__o31ai_2",
+  "sky130_fd_sc_hd__o32a_2",
+  "sky130_fd_sc_hd__o32ai_2",
+  "sky130_fd_sc_hd__or2_2",
+  "sky130_fd_sc_hd__or3_2",
+  "sky130_fd_sc_hd__or3b_2",
+  "sky130_fd_sc_hd__or4_2",
+  "sky130_fd_sc_hd__or4b_2",
+  "sky130_fd_sc_hd__or4bb_2",
+  "sky130_fd_sc_hd__tapvpwrvgnd_1",
+  "sky130_fd_sc_hd__xnor2_2",
+  "sky130_fd_sc_hd__xor2_2"
+ ],
+ "puzzle_cells_covered": true,
+ "exhaustive_496_pairs": 15,
+ "random_pairs": 80,
+ "cases": [
+  {
+   "a": 250,
+   "b": 246,
+   "sum": 496,
+   "S": 1,
+   "expected_S": 1,
+   "group": "named"
+  },
+  {
+   "a": 241,
+   "b": 255,
+   "sum": 496,
+   "S": 1,
+   "expected_S": 1,
+   "group": "named"
+  },
+  {
+   "a": 255,
+   "b": 241,
+   "sum": 496,
+   "S": 1,
+   "expected_S": 1,
+   "group": "named"
+  },
+  {
+   "a": 248,
+   "b": 248,
+   "sum": 496,
+   "S": 1,
+   "expected_S": 1,
+   "group": "named"
+  },
+  {
+   "a": 1,
+   "b": 2,
+   "sum": 3,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 0,
+   "b": 0,
+   "sum": 0,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 255,
+   "b": 255,
+   "sum": 510,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 248,
+   "b": 247,
+   "sum": 495,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 248,
+   "b": 249,
+   "sum": 497,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 240,
+   "b": 255,
+   "sum": 495,
+   "S": 0,
+   "expected_S": 0,
+   "group": "named"
+  },
+  {
+   "a": 157,
+   "b": 100,
+   "sum": 257,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 216,
+   "b": 124,
+   "sum": 340,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 232,
+   "b": 229,
+   "sum": 461,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 135,
+   "b": 27,
+   "sum": 162,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 240,
+   "b": 193,
+   "sum": 433,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 4,
+   "b": 104,
+   "sum": 108,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 11,
+   "b": 197,
+   "sum": 208,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 49,
+   "b": 227,
+   "sum": 276,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 82,
+   "b": 235,
+   "sum": 317,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 177,
+   "b": 195,
+   "sum": 372,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 137,
+   "b": 230,
+   "sum": 367,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 120,
+   "b": 76,
+   "sum": 196,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 0,
+   "b": 37,
+   "sum": 37,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 17,
+   "b": 215,
+   "sum": 232,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 195,
+   "b": 75,
+   "sum": 270,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 94,
+   "b": 126,
+   "sum": 220,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 61,
+   "b": 117,
+   "sum": 178,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 133,
+   "b": 254,
+   "sum": 387,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 158,
+   "b": 36,
+   "sum": 194,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 183,
+   "b": 232,
+   "sum": 415,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 58,
+   "b": 16,
+   "sum": 74,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 127,
+   "b": 126,
+   "sum": 253,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 44,
+   "b": 229,
+   "sum": 273,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 218,
+   "b": 151,
+   "sum": 369,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 2,
+   "b": 252,
+   "sum": 254,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 187,
+   "b": 92,
+   "sum": 279,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 220,
+   "b": 115,
+   "sum": 335,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 114,
+   "b": 94,
+   "sum": 208,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 2,
+   "b": 111,
+   "sum": 113,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 99,
+   "b": 120,
+   "sum": 219,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 148,
+   "b": 120,
+   "sum": 268,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 86,
+   "b": 188,
+   "sum": 274,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 144,
+   "b": 54,
+   "sum": 198,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 48,
+   "b": 219,
+   "sum": 267,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 88,
+   "b": 130,
+   "sum": 218,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 156,
+   "b": 247,
+   "sum": 403,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 62,
+   "b": 212,
+   "sum": 274,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 93,
+   "b": 252,
+   "sum": 345,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 108,
+   "b": 90,
+   "sum": 198,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 103,
+   "b": 87,
+   "sum": 190,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 26,
+   "b": 72,
+   "sum": 98,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 222,
+   "b": 7,
+   "sum": 229,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 204,
+   "b": 218,
+   "sum": 422,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 220,
+   "b": 249,
+   "sum": 469,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 229,
+   "b": 79,
+   "sum": 308,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 132,
+   "b": 169,
+   "sum": 301,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 10,
+   "b": 105,
+   "sum": 115,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 73,
+   "b": 11,
+   "sum": 84,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 45,
+   "b": 128,
+   "sum": 173,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 17,
+   "b": 172,
+   "sum": 189,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 111,
+   "b": 124,
+   "sum": 235,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 57,
+   "b": 36,
+   "sum": 93,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 232,
+   "b": 255,
+   "sum": 487,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 57,
+   "b": 98,
+   "sum": 155,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 224,
+   "b": 21,
+   "sum": 245,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 77,
+   "b": 249,
+   "sum": 326,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 108,
+   "b": 202,
+   "sum": 310,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 0,
+   "b": 176,
+   "sum": 176,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 156,
+   "b": 191,
+   "sum": 347,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 104,
+   "b": 190,
+   "sum": 294,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 61,
+   "b": 154,
+   "sum": 215,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 119,
+   "b": 106,
+   "sum": 225,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 197,
+   "b": 253,
+   "sum": 450,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 70,
+   "b": 254,
+   "sum": 324,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 166,
+   "b": 19,
+   "sum": 185,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 173,
+   "b": 216,
+   "sum": 389,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 20,
+   "b": 45,
+   "sum": 65,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 64,
+   "b": 226,
+   "sum": 290,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 214,
+   "b": 251,
+   "sum": 465,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 19,
+   "b": 191,
+   "sum": 210,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 239,
+   "b": 31,
+   "sum": 270,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 254,
+   "b": 8,
+   "sum": 262,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 212,
+   "b": 58,
+   "sum": 270,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 250,
+   "b": 2,
+   "sum": 252,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 160,
+   "b": 39,
+   "sum": 199,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 78,
+   "b": 46,
+   "sum": 124,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 1,
+   "b": 203,
+   "sum": 204,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 227,
+   "b": 90,
+   "sum": 317,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 147,
+   "b": 207,
+   "sum": 354,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  },
+  {
+   "a": 73,
+   "b": 138,
+   "sum": 211,
+   "S": 0,
+   "expected_S": 0,
+   "group": "random"
+  }
+ ]
+}

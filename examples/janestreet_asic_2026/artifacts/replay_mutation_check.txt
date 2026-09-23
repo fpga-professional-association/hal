@@ -1,0 +1,75 @@
+mutation sensitivity of the VCD replay
+======================================================================
+netlist  : D:\hal\examples\janestreet_asic_2026\artifacts\puzzle_netlist.json
+baseline : 0 mismatching edges (must be 0)
+
+  dfrtp_2_118220_133280        sky130_fd_sc_hd__dfrtp_2       RESET_B<->D        mismatching edges=0
+  and2b_2_81880_32640          sky130_fd_sc_hd__and2b_2       A_N    <->B        mismatching edges=0
+  dfrtp_2_116380_277440        sky130_fd_sc_hd__dfrtp_2       CLK    <->RESET_B  mismatching edges=0
+  o21a_2_112700_228480         sky130_fd_sc_hd__o21a_2        A1     <->B1       mismatching edges=0
+  dfrtp_2_113620_236640        sky130_fd_sc_hd__dfrtp_2       D      <->RESET_B  mismatching edges=0
+  o32a_2_181240_35360          sky130_fd_sc_hd__o32a_2        A1     <->B2       mismatching edges=0
+  nand2b_2_119140_149600       sky130_fd_sc_hd__nand2b_2      B      <->A_N      mismatching edges=0
+  a22o_2_170200_231200         sky130_fd_sc_hd__a22o_2        A1     <->B2       mismatching edges=0
+  and2b_2_108100_76160         sky130_fd_sc_hd__and2b_2       A_N    <->B        mismatching edges=0
+  o21a_2_111780_146880         sky130_fd_sc_hd__o21a_2        B1     <->A1       mismatching edges=0
+  o21a_2_112700_239360         sky130_fd_sc_hd__o21a_2        B1     <->A2       mismatching edges=0
+  mux2_1_78660_141440          sky130_fd_sc_hd__mux2_1        A0     <->A1       mismatching edges=0
+  a31o_2_168820_108800         sky130_fd_sc_hd__a31o_2        B1     <->A2       mismatching edges=16
+  dfrtp_2_115920_209440        sky130_fd_sc_hd__dfrtp_2       D      <->RESET_B  mismatching edges=0
+  mux2_1_70380_141440          sky130_fd_sc_hd__mux2_1        S      <->A1       mismatching edges=0
+  dfrtp_2_115920_228480        sky130_fd_sc_hd__dfrtp_2       CLK    <->D        mismatching edges=0
+  a21oi_2_178020_201280        sky130_fd_sc_hd__a21oi_2       B1     <->A1       mismatching edges=0
+  mux2_1_178020_43520          sky130_fd_sc_hd__mux2_1        A1     <->A0       mismatching edges=0
+  dfrtp_2_80960_92480          sky130_fd_sc_hd__dfrtp_2       RESET_B<->CLK      mismatching edges=0
+  a21o_2_112700_92480          sky130_fd_sc_hd__a21o_2        B1     <->A1       mismatching edges=0
+  o21a_2_124660_247520         sky130_fd_sc_hd__o21a_2        A1     <->B1       mismatching edges=0
+  a21o_2_171120_106080         sky130_fd_sc_hd__a21o_2        B1     <->A2       mismatching edges=6
+  and3b_2_161000_174080        sky130_fd_sc_hd__and3b_2       C      <->A_N      mismatching edges=0
+  a22o_2_170200_228480         sky130_fd_sc_hd__a22o_2        B1     <->A2       mismatching edges=0
+  mux2_1_74980_160480          sky130_fd_sc_hd__mux2_1        A1     <->S        mismatching edges=0
+  o21a_2_184000_195840         sky130_fd_sc_hd__o21a_2        A2     <->B1       mismatching edges=0
+  nand2b_2_109940_78880        sky130_fd_sc_hd__nand2b_2      A_N    <->B        mismatching edges=0
+  a21oi_2_157320_38080         sky130_fd_sc_hd__a21oi_2       A2     <->B1       mismatching edges=0
+  mux2_1_177100_35360          sky130_fd_sc_hd__mux2_1        S      <->A0       mismatching edges=0
+  dfrtp_2_116380_217600        sky130_fd_sc_hd__dfrtp_2       RESET_B<->D        mismatching edges=0
+  nand2b_2_114080_261120       sky130_fd_sc_hd__nand2b_2      B      <->A_N      mismatching edges=0
+  dfrtp_2_115920_76160         sky130_fd_sc_hd__dfrtp_2       CLK    <->D        mismatching edges=0
+  o211a_2_166520_46240         sky130_fd_sc_hd__o211a_2       A2     <->B1       mismatching edges=0
+  and2b_2_174340_127840        sky130_fd_sc_hd__and2b_2       B      <->A_N      mismatching edges=0
+  mux2_1_177100_35360          sky130_fd_sc_hd__mux2_1        A0     <->A1       mismatching edges=0
+  mux2_1_80960_100640          sky130_fd_sc_hd__mux2_1        A1     <->S        mismatching edges=0
+  a22o_2_174340_209440         sky130_fd_sc_hd__a22o_2        A1     <->B1       mismatching edges=0
+  dfrtp_2_114080_214880        sky130_fd_sc_hd__dfrtp_2       D      <->RESET_B  mismatching edges=0
+  or4b_2_111320_70720          sky130_fd_sc_hd__or4b_2        D_N    <->A        mismatching edges=0
+  a21o_2_157320_193120         sky130_fd_sc_hd__a21o_2        A1     <->B1       mismatching edges=0
+  o21a_2_108100_255680         sky130_fd_sc_hd__o21a_2        B1     <->A2       mismatching edges=0
+  dfrtp_2_26220_144160         sky130_fd_sc_hd__dfrtp_2       D      <->RESET_B  mismatching edges=18
+  a21boi_2_171120_255680       sky130_fd_sc_hd__a21boi_2      B1_N   <->A2       mismatching edges=18
+  dfrtp_2_82800_141440         sky130_fd_sc_hd__dfrtp_2       CLK    <->RESET_B  mismatching edges=0
+  and2b_2_158700_195840        sky130_fd_sc_hd__and2b_2       B      <->A_N      mismatching edges=0
+  mux2_1_77740_157760          sky130_fd_sc_hd__mux2_1        A1     <->A0       mismatching edges=0
+  dfrtp_2_113620_258400        sky130_fd_sc_hd__dfrtp_2       CLK    <->D        mismatching edges=0
+  mux2_1_70380_144160          sky130_fd_sc_hd__mux2_1        S      <->A0       mismatching edges=0
+  dfrtp_2_28980_97920          sky130_fd_sc_hd__dfrtp_2       RESET_B<->D        mismatching edges=18
+  o22a_2_171120_97920          sky130_fd_sc_hd__o22a_2        B2     <->A2       mismatching edges=0
+  dfstp_2_166980_187680        sky130_fd_sc_hd__dfstp_2       CLK    <->SET_B    mismatching edges=0
+  and2b_2_74520_57120          sky130_fd_sc_hd__and2b_2       B      <->A_N      mismatching edges=0
+  dfrtp_2_114080_62560         sky130_fd_sc_hd__dfrtp_2       D      <->RESET_B  mismatching edges=0
+  dfrtp_2_113620_231200        sky130_fd_sc_hd__dfrtp_2       RESET_B<->CLK      mismatching edges=0
+  nand2b_2_113160_184960       sky130_fd_sc_hd__nand2b_2      A_N    <->B        mismatching edges=0
+  a22o_2_168820_206720         sky130_fd_sc_hd__a22o_2        A2     <->B2       mismatching edges=0
+  nor3b_2_168820_212160        sky130_fd_sc_hd__nor3b_2       A      <->C_N      mismatching edges=0
+  and2b_2_184460_176800        sky130_fd_sc_hd__and2b_2       B      <->A_N      mismatching edges=0
+  a211o_2_174800_116960        sky130_fd_sc_hd__a211o_2       A2     <->C1       mismatching edges=4
+  a21oi_2_78660_97920          sky130_fd_sc_hd__a21oi_2       B1     <->A2       mismatching edges=0
+
+functionally-real mutants : 60
+detected by the replay    : 6 (10%)
+unsimulatable mutants     : 0
+
+Reading: the undetected mutants sit in the key-comparison cone, whose
+only observable is `success` -- and `success` is 0 for every attempt the
+VCD records.  The replay therefore validates the control path (reset,
+the 121-cycle shift window, the output FSM and the message ROM) far more
+strongly than it validates the comparator.

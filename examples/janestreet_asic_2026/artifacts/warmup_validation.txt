@@ -1,0 +1,35 @@
+== extracting D:\hal\examples\janestreet_asic_2026\warmup\04_final.gds
+DEF   : 230 components, 84 nets, 8 pins
+GDS   : 230 instances, 84 nets, 6 ports
+
+-- instance matching --
+matched            : 230 / 230
+GDS without DEF    : 0
+DEF without GDS    : 0
+orientation mismatches: 0
+
+-- pin inventory --
+signal pins on placed cells (from GDS cell labels): 285
+pins named in DEF NETS                            : 285
+DEF terminals with no matching GDS pin            : 0
+pins present in GDS but absent from DEF NETS      : 0
+
+-- net partition isomorphism (over 285 shared pins) --
+DEF nets with cell terminals : 84
+bijectively matched nets     : 84
+pins in correctly matched nets: 285 / 285  (100.00%)
+defects                      : 0
+
+-- top-level ports --
+   A        DEF net A          -> GDS net A            OK
+   B        DEF net B          -> GDS net B            OK
+   S        DEF net S          -> GDS net S            OK
+   clk      DEF net clk        -> GDS net clk          OK
+   en       DEF net en         -> GDS net en           OK
+   rst_n    DEF net rst_n      -> GDS net rst_n        OK
+
+-- cross-check against 01_netlist.v --
+verilog terminals shared with GDS: 285
+verilog nets: 84, mismatching: 0
+
+RESULT: PASS

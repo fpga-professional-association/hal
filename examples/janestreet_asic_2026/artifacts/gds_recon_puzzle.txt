@@ -1,0 +1,298 @@
+==============================================================================
+LIBRARY: name='LIB' unit=1e-06 precision=1e-09
+==============================================================================
+top-level cells: ['puzzle']
+total cells: 81
+
+==============================================================================
+CELL INVENTORY (non sky130 std cells + anything with properties)
+==============================================================================
+  INTERNAL_3                   bbox_size=(1.38, 2.72) polys=1 paths=0 labels=0 refs=0
+      layers: 200/0x1
+  INTERNAL_7                   bbox_size=(4.14, 2.72) polys=1 paths=0 labels=0 refs=0
+      layers: 200/0x1
+  VIA_L1M1_PR_MR               bbox_size=(0.29, 0.23) polys=3 paths=0 labels=0 refs=0
+      layers: 67/20x1, 67/44x1, 68/20x1
+  VIA_M1M2_PR                  bbox_size=(0.32, 0.32) polys=3 paths=0 labels=0 refs=0
+      layers: 68/20x1, 68/44x1, 69/20x1
+  VIA_M1M2_PR_MR               bbox_size=(0.26, 0.32) polys=3 paths=0 labels=0 refs=0
+      layers: 68/20x1, 68/44x1, 69/20x1
+  VIA_M2M3_PR                  bbox_size=(0.33, 0.37) polys=3 paths=0 labels=0 refs=0
+      layers: 69/20x1, 69/44x1, 70/20x1
+  VIA_M3M4_PR                  bbox_size=(0.38, 0.33) polys=3 paths=0 labels=0 refs=0
+      layers: 70/20x1, 70/44x1, 71/20x1
+  VIA_via2_3_2000_480_1_6_320_320 bbox_size=(1.92, 0.48) polys=8 paths=0 labels=0 refs=0
+      layers: 68/20x1, 68/44x6, 69/20x1
+  VIA_via3_4_2000_480_1_5_400_400 bbox_size=(1.93, 0.37) polys=7 paths=0 labels=0 refs=0
+      layers: 69/20x1, 69/44x5, 70/20x1
+  VIA_via4_5_2000_480_1_5_400_400 bbox_size=(2.0, 0.33) polys=7 paths=0 labels=0 refs=0
+      layers: 70/20x1, 70/44x5, 71/20x1
+  VIA_via5_6_2000_2000_1_1_1600_1600 bbox_size=(2.0, 2.0) polys=3 paths=0 labels=0 refs=0
+      layers: 71/20x1, 71/44x1, 72/20x1
+  puzzle                       bbox_size=(200.0, 352.72) polys=1499 paths=7061 labels=17 refs=9875
+      layers: 68/20x3724, 69/20x3787, 70/16x13, 70/20x909, 71/16x12, 71/20x60, 72/16x18, 72/20x36, 235/4x1
+
+cells containing layer 200: ['INTERNAL_3', 'INTERNAL_7']
+
+==============================================================================
+ALL GDS PROPERTIES FOUND ANYWHERE (cells, refs, polys, paths, labels)
+==============================================================================
+  (none -- no GDS PROPATTR/PROPVALUE records survive in this file)
+
+==============================================================================
+TOP CELL 'puzzle' LABELS
+==============================================================================
+  'O[7]'           layer=70/5 origin=(199.700,13.940) rot=0.0 mag=1.0 anchor=nw
+  'O[6]'           layer=70/5 origin=(199.700,41.140) rot=0.0 mag=1.0 anchor=nw
+  'O[5]'           layer=70/5 origin=(199.700,68.340) rot=0.0 mag=1.0 anchor=nw
+  'I'              layer=70/5 origin=(0.300,79.220) rot=0.0 mag=1.0 anchor=nw
+  'O[4]'           layer=70/5 origin=(199.700,95.540) rot=0.0 mag=1.0 anchor=nw
+  'O[3]'           layer=70/5 origin=(199.700,122.740) rot=0.0 mag=1.0 anchor=nw
+  'enable'         layer=70/5 origin=(0.300,132.260) rot=0.0 mag=1.0 anchor=nw
+  'O[2]'           layer=70/5 origin=(199.700,149.940) rot=0.0 mag=1.0 anchor=nw
+  'O[1]'           layer=70/5 origin=(199.700,177.140) rot=0.0 mag=1.0 anchor=nw
+  'rst_n'          layer=70/5 origin=(0.300,185.300) rot=0.0 mag=1.0 anchor=nw
+  'O[0]'           layer=70/5 origin=(199.700,204.340) rot=0.0 mag=1.0 anchor=nw
+  'clk'            layer=70/5 origin=(0.300,238.340) rot=0.0 mag=1.0 anchor=nw
+  'success'        layer=70/5 origin=(199.700,285.940) rot=0.0 mag=1.0 anchor=nw
+  'VPWR'           layer=71/5 origin=(26.440,149.600) rot=0.0 mag=1.0 anchor=nw
+  'VGND'           layer=71/5 origin=(30.140,149.600) rot=0.0 mag=1.0 anchor=nw
+  'VPWR'           layer=72/5 origin=(100.050,27.530) rot=0.0 mag=1.0 anchor=nw
+  'VGND'           layer=72/5 origin=(100.050,31.230) rot=0.0 mag=1.0 anchor=nw
+
+==============================================================================
+MARKER INSTANCES (cells drawing on layer 200)
+==============================================================================
+  cell INTERNAL_3: size=(1.38, 2.72) polys=1
+      poly layer=200/0 bbox=((0.0, 0.0), (1.3800000000000001, 2.72))
+  cell INTERNAL_7: size=(4.14, 2.72) polys=1
+      poly layer=200/0 bbox=((0.0, 0.0), (4.14, 2.72))
+
+marker instances in top cell: 36
+   # cell              x(um)      y(um)    rot  xrefl   mag
+   0 INTERNAL_3        1.330    -52.720    0.0  False   1.0
+   1 INTERNAL_7        4.090    -52.720    0.0  False   1.0
+   2 INTERNAL_7        9.610    -52.720    0.0  False   1.0
+   3 INTERNAL_3       15.130    -52.720    0.0  False   1.0
+   4 INTERNAL_3       20.650    -52.720    0.0  False   1.0
+   5 INTERNAL_3       26.170    -52.720    0.0  False   1.0
+   6 INTERNAL_7       28.930    -52.720    0.0  False   1.0
+   7 INTERNAL_3       34.450    -52.720    0.0  False   1.0
+   8 INTERNAL_3       45.490    -52.720    0.0  False   1.0
+   9 INTERNAL_7       48.250    -52.720    0.0  False   1.0
+  10 INTERNAL_3       56.530    -52.720    0.0  False   1.0
+  11 INTERNAL_7       59.290    -52.720    0.0  False   1.0
+  12 INTERNAL_3       64.810    -52.720    0.0  False   1.0
+  13 INTERNAL_3       70.330    -52.720    0.0  False   1.0
+  14 INTERNAL_7       75.850    -52.720    0.0  False   1.0
+  15 INTERNAL_3       81.370    -52.720    0.0  False   1.0
+  16 INTERNAL_3       86.890    -52.720    0.0  False   1.0
+  17 INTERNAL_7       89.650    -52.720    0.0  False   1.0
+  18 INTERNAL_7       97.930    -52.720    0.0  False   1.0
+  19 INTERNAL_7      103.450    -52.720    0.0  False   1.0
+  20 INTERNAL_3      117.250    -52.720    0.0  False   1.0
+  21 INTERNAL_7      120.010    -52.720    0.0  False   1.0
+  22 INTERNAL_7      128.290    -52.720    0.0  False   1.0
+  23 INTERNAL_3      133.810    -52.720    0.0  False   1.0
+  24 INTERNAL_3      136.570    -52.720    0.0  False   1.0
+  25 INTERNAL_3      147.610    -52.720    0.0  False   1.0
+  26 INTERNAL_7      150.370    -52.720    0.0  False   1.0
+  27 INTERNAL_3      158.650    -52.720    0.0  False   1.0
+  28 INTERNAL_3      161.410    -52.720    0.0  False   1.0
+  29 INTERNAL_3      164.170    -52.720    0.0  False   1.0
+  30 INTERNAL_7      169.690    -52.720    0.0  False   1.0
+  31 INTERNAL_3      177.970    -52.720    0.0  False   1.0
+  32 INTERNAL_7      180.730    -52.720    0.0  False   1.0
+  33 INTERNAL_3      186.250    -52.720    0.0  False   1.0
+  34 INTERNAL_3      191.770    -52.720    0.0  False   1.0
+  35 INTERNAL_7      194.530    -52.720    0.0  False   1.0
+
+==============================================================================
+MARKER ROWS (grouped by y), left-to-right, with x-gaps
+==============================================================================
+  y=-52.72  n=36
+     x=    1.330 w=1.38   INTERNAL_3   sym=.
+     x=    4.090 w=4.14   INTERNAL_7   sym=-
+     x=    9.610 w=4.14   INTERNAL_7   sym=-
+     x=   15.130 w=1.38   INTERNAL_3   sym=.
+     x=   20.650 w=1.38   INTERNAL_3   sym=.
+     x=   26.170 w=1.38   INTERNAL_3   sym=.
+     x=   28.930 w=4.14   INTERNAL_7   sym=-
+     x=   34.450 w=1.38   INTERNAL_3   sym=.
+     x=   45.490 w=1.38   INTERNAL_3   sym=.
+     x=   48.250 w=4.14   INTERNAL_7   sym=-
+     x=   56.530 w=1.38   INTERNAL_3   sym=.
+     x=   59.290 w=4.14   INTERNAL_7   sym=-
+     x=   64.810 w=1.38   INTERNAL_3   sym=.
+     x=   70.330 w=1.38   INTERNAL_3   sym=.
+     x=   75.850 w=4.14   INTERNAL_7   sym=-
+     x=   81.370 w=1.38   INTERNAL_3   sym=.
+     x=   86.890 w=1.38   INTERNAL_3   sym=.
+     x=   89.650 w=4.14   INTERNAL_7   sym=-
+     x=   97.930 w=4.14   INTERNAL_7   sym=-
+     x=  103.450 w=4.14   INTERNAL_7   sym=-
+     x=  117.250 w=1.38   INTERNAL_3   sym=.
+     x=  120.010 w=4.14   INTERNAL_7   sym=-
+     x=  128.290 w=4.14   INTERNAL_7   sym=-
+     x=  133.810 w=1.38   INTERNAL_3   sym=.
+     x=  136.570 w=1.38   INTERNAL_3   sym=.
+     x=  147.610 w=1.38   INTERNAL_3   sym=.
+     x=  150.370 w=4.14   INTERNAL_7   sym=-
+     x=  158.650 w=1.38   INTERNAL_3   sym=.
+     x=  161.410 w=1.38   INTERNAL_3   sym=.
+     x=  164.170 w=1.38   INTERNAL_3   sym=.
+     x=  169.690 w=4.14   INTERNAL_7   sym=-
+     x=  177.970 w=1.38   INTERNAL_3   sym=.
+     x=  180.730 w=4.14   INTERNAL_7   sym=-
+     x=  186.250 w=1.38   INTERNAL_3   sym=.
+     x=  191.770 w=1.38   INTERNAL_3   sym=.
+     x=  194.530 w=4.14   INTERNAL_7   sym=-
+     gaps: [1.38, 1.38, 1.38, 4.14, 4.14, 1.38, 1.38, 9.66, 1.38, 4.14, 1.38, 1.38, 4.14, 4.14, 1.38, 4.14, 1.38, 4.14, 1.38, 9.66, 1.38, 4.14, 1.38, 1.38, 9.66, 1.38, 4.14, 1.38, 1.38, 4.14, 4.14, 1.38, 1.38, 4.14, 1.38]
+     symbol string: .--...-..-.-..-..---.--...-...-.-..-
+
+==============================================================================
+MORSE DECODE ATTEMPTS (narrow=dot, wide=dash)
+==============================================================================
+  row y=-52.72: distinct gaps = [1.38, 4.14, 9.66]
+    letter_gap>=1.38 word_gap>=1.38: 'ETTEEETEETETEETEETTTETTEEETEEETETEET'  (. - - . . . - . . - . - . . - . . - - - . - - . . . - . . . - . - . . -)
+    letter_gap>=1.38 word_gap>=4.14: 'ETTE E ETE ET ETE E TE ET TT ET TEE ET EEE T ETE ET '  (. - - . / . / . - . / . - / . - . / . / - . / . - / - - / . - / - . . / . - / . . . / - / . - . / . - /)
+    letter_gap>=1.38 word_gap>=9.66: 'ETTEEETE ETETEETEETTT ETTEE ETEEETETEET '  (. - - . . . - . / . - . - . . - . . - - - / . - - . . / . - . . . - . - . . - /)
+    letter_gap>=4.14 word_gap>=4.14: 'PERARENAMADASTRA'  (.--. . .-. .- .-. . -. .- -- .- -.. .- ... - .-. .-)
+    letter_gap>=4.14 word_gap>=9.66: 'PER ARENAM AD ASTRA '  (.--. . .-. / .- .-. . -. .- -- / .- -.. / .- ... - .-. .- /)
+
+==============================================================================
+BINARY DECODE ATTEMPTS (narrow=0/wide=1 and inverse), per row and global
+==============================================================================
+  row y=-52.72 (.=0) msb: 'bRv"'
+  row y=-52.72 (.=0) lsb: 'FJnD'
+  row y=-52.72 (.=0) 5-bit A1Z26: 'LIIGLHT'
+  row y=-52.72 (.=0) 6-bit A1Z26: 'X?I?H?'
+  row y=-52.72 (.=1) msb: '....'
+  row y=-52.72 (.=1) lsb: '....'
+  row y=-52.72 (.=1) 5-bit A1Z26: 'SVVXSWK'
+  row y=-52.72 (.=1) 6-bit A1Z26: '?Z?I?V'
+  ALL ROWS (.=0) msb: 'bRv"'
+  ALL ROWS (.=0) lsb: 'FJnD'
+  ALL ROWS (.=0) 5-bit A1Z26: 'LIIGLHT'
+  ALL ROWS (.=0) 6-bit A1Z26: 'X?I?H?'
+  ALL ROWS (.=1) msb: '....'
+  ALL ROWS (.=1) lsb: '....'
+  ALL ROWS (.=1) 5-bit A1Z26: 'SVVXSWK'
+  ALL ROWS (.=1) 6-bit A1Z26: '?Z?I?V'
+
+==============================================================================
+RAW ASCII SCAN of puzzle.gds (1421700 bytes), runs >= 6 chars
+==============================================================================
+  151 distinct runs; non-boilerplate ones:
+    'nand3b_2'
+    '@3333334'
+    'dfxtp_2'
+    'nand3_2'
+    'o21ba_2'
+    'o211ai_2'
+    'o31ai_2'
+    'a21bo_2'
+    'o311a_2'
+    'o22ai_2'
+    'o2bb2a_2'
+    'a32o_2'
+    'o32ai_2'
+    'a311o_2'
+    'a31oi_2'
+    'o21bai_2'
+    'nor4b_2'
+    'a22oi_2'
+    'or3b_2'
+    'a211o_2'
+    'dfstp_2'
+    'o22a_2'
+    'o32a_2'
+    'a21boi_2'
+    'o21ai_2'
+    'o221a_2'
+    'and3b_2'
+    'a2111oi_2'
+    'o211a_2'
+    'o31a_2'
+    'nor3_2'
+    'nor3b_2'
+    'a221oi_2'
+    'a41oi_2'
+    'xor2_2'
+    'a211oi_2'
+    'a21oi_2'
+    'xnor2_2'
+    'and4b_2'
+    'and4bb_2'
+    'a21o_2'
+    'nor2_2'
+    'nand2_2'
+    'or4b_2'
+    'and2_2'
+    'nand2b_2'
+    'o21a_2'
+    'nand4_2'
+    'nor4_2'
+    'and2b_2'
+    'and3_2'
+    'and4_2'
+    'conb_1'
+    'resistive_li1_ok'
+    'no_jumper_check'
+    'or4bb_2'
+    'RESET_B'
+    'dfrtp_2'
+    'a31o_2'
+    'a221o_2'
+    'a22o_2'
+    'mux2_1'
+    'clkbuf_4'
+    'clkbuf_8'
+    'clkbuf_16'
+    'tapvpwrvgnd_1'
+    'decap_3'
+    'diode_2'
+    'enable'
+    'success'
+
+  boilerplate-looking runs (first 40 distinct):
+    'INTERNAL_7'
+    'INTERNAL_3'
+    'VIA_M1M2_PR_MR'
+    'VIA_M3M4_PR'
+    'VIA_M2M3_PR'
+    'VIA_M1M2_PR'
+    'VIA_L1M1_PR_MR'
+    'VIA_via2_3_2000_480_1_6_320_320'
+    'VIA_via3_4_2000_480_1_5_400_400'
+    'VIA_via4_5_2000_480_1_5_400_400'
+    'VIA_via5_6_2000_2000_1_1_1600_1600'
+    'sky130_fd_sc_hd__nand3b_2'
+    'nand3b_2'
+    'sky130_fd_sc_hd__dfxtp_2'
+    '@3333334'
+    'dfxtp_2'
+    'sky130_fd_sc_hd__nand3_2'
+    'nand3_2'
+    'sky130_fd_sc_hd__o21ba_2'
+    'o21ba_2'
+    'sky130_fd_sc_hd__o211ai_2'
+    'o211ai_2'
+    'sky130_fd_sc_hd__o31ai_2'
+    'o31ai_2'
+    'sky130_fd_sc_hd__a21bo_2'
+    'a21bo_2'
+    'sky130_fd_sc_hd__o311a_2'
+    'o311a_2'
+    'sky130_fd_sc_hd__o22ai_2'
+    'o22ai_2'
+    'sky130_fd_sc_hd__o2bb2a_2'
+    'o2bb2a_2'
+    'sky130_fd_sc_hd__a32o_2'
+    'a32o_2'
+    'sky130_fd_sc_hd__o32ai_2'
+    'o32ai_2'
+    'sky130_fd_sc_hd__a311o_2'
+    'a311o_2'
+    'sky130_fd_sc_hd__a31oi_2'
+    'a31oi_2'
