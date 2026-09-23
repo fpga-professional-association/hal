@@ -1,0 +1,105 @@
+==============================================================================
+END-TO-END REPLAY VALIDATION -- example_inputs.vcd vs extracted netlist
+==============================================================================
+vcd      : D:\hal\examples\janestreet_asic_2026\example_inputs.vcd
+netlist  : D:\hal\examples\janestreet_asic_2026\artifacts\puzzle_netlist.json
+simulator: tools/sc_sim.py (cycle-based, 2-valued, zero-delay)
+
+Sampling model
+--------------
+  stimulus (rst_n/enable/I) sampled at the value in effect *entering*
+  each clk 0->1 timestamp (they change on falling edges);
+  response (O[7:0]/success) compared against the value in effect after
+  that timestamp's events (registered outputs, dumped with the edge).
+  No stimulus signal changes in a rising-edge timestamp block, so the
+  pre/post split above is unambiguous for this VCD.
+
+Timeline
+--------
+  rising edges found : 312
+  first / last time  : 5000 ps / 3115000 ps
+  attempts (rst_n low runs) : 2
+    attempt 1: edges 0..155  (156 edges), enable=1 for 121 edges, payload='The night s'
+    attempt 2: edges 156..311  (156 edges), enable=1 for 121 edges, payload='ky awaits  '
+
+Undriven net n278
+------------------------------------------------------------------------------
+  simulator's undriven list : ['n278']
+  transitive fan-out: 10 nets, 10 combinational cells
+  reaches flop pins : (none)
+  reaches outputs   : O[1], O[4]
+  cells in cone     : a31oi_2_172960_89760, a311o_2_177560_89760, o31a_2_172960_84320, a22o_2_166980_209440, o31a_2_167900_223040, and3_2_176640_242080, o32ai_2_171580_87040, a22o_2_170660_209440, o31a_2_168820_220320, and3_2_180320_247520
+  cone boundary inputs : 19 (n247, n252, n257, n265, n267, n268, n276, n279, n542, n543, n591, n595, n597, n605, n611, n638, n644, n665, n666)
+  exhaustive check over all 524288 boundary assignments:
+    n278 flips O[1]/O[4] in 556 of them (0.106%)
+    -> the net IS structurally observable at O[1]/O[4], but only for
+       boundary states that the recorded stimulus never reaches.
+    -> it reaches NO flip-flop and NOT `success`, so the value chosen
+       for it cannot affect the key search, which keys on `success`.
+
+Replay with n278 = 0
+------------------------------------------------------------------------------
+  clock edges simulated        : 312
+  edge/value comparisons made  : 624  (O and success at 312 edges)
+  edges skipped (VCD value x)  : 0
+  mismatches                   : 0
+  attempt 1 output byte stream (enable=0 window):
+      sim : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      vcd : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      identical over the whole window: True
+  attempt 2 output byte stream (enable=0 window):
+      sim : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      vcd : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      identical over the whole window: True
+  success asserted at any edge : False
+  verdict                      : EXACT MATCH
+
+Replay with n278 = 1
+------------------------------------------------------------------------------
+  clock edges simulated        : 312
+  edge/value comparisons made  : 624  (O and success at 312 edges)
+  edges skipped (VCD value x)  : 0
+  mismatches                   : 0
+  attempt 1 output byte stream (enable=0 window):
+      sim : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      vcd : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      identical over the whole window: True
+  attempt 2 output byte stream (enable=0 window):
+      sim : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      vcd : 00 00 00 00 54 52 59 20 41 47 41 49  |\0\0\0\0TRY AGAI|
+      identical over the whole window: True
+  success asserted at any edge : False
+  verdict                      : EXACT MATCH
+
+Summary
+------------------------------------------------------------------------------
+  100% agreement with the recorded VCD for n278 in {0, 1}.
+  312 clock edges, 624 value comparisons (O[7:0] as a byte + success), 0 mismatches.
+  n278=0 vs n278=1 produce an IDENTICAL observable output sequence.
+  final flop state differs in 0 of 92 flops
+  cone nets that ever differ between the two runs: 5 of 11 -> n255, n256, n258, n269, n278
+    (the difference is masked before it reaches O/success)
+
+Alignment cross-check (is the chosen edge alignment uniquely right?)
+------------------------------------------------------------------------------
+  sim edge k vs VCD edge k-2 : 20/310 edges disagree
+  sim edge k vs VCD edge k-1 : 20/311 edges disagree
+  sim edge k vs VCD edge k+0 : 0/312 edges disagree   <== chosen alignment
+  sim edge k vs VCD edge k+1 : 20/311 edges disagree
+  sim edge k vs VCD edge k+2 : 20/310 edges disagree
+  A non-zero count at every shift except 0 means the match is not an
+  artefact of a constant output sequence.
+
+Discriminating power of this test
+------------------------------------------------------------------------------
+  flops that toggled at least once : 71 of 92
+  never-toggling flops             : dfrtp_2_113620_258400, dfrtp_2_113620_274720, dfrtp_2_113620_285600, dfrtp_2_113620_78880, dfrtp_2_113620_95200, dfrtp_2_114080_272000, dfrtp_2_115000_146880, dfrtp_2_115000_73440, dfrtp_2_115000_81600, dfrtp_2_115920_255680 ...
+  distinct O values produced       : 0x00 0x20 0x41 0x47 0x49 0x4e 0x52 0x54 0x59
+  NOTE: both recorded attempts fail, so `success` is 0 at all 312 edges.
+  This validates reset behaviour, the 121-cycle shift/enable window, the
+  output FSM timing and the failure-message ROM -- it does NOT prove the
+  key-comparison logic is correct, only that it rejects both payloads.
+  Quantified by tools/replay_mutation_check.py -> artifacts/replay_mutation_check.txt:
+  single-cell pin-swap mutants that genuinely change a cell's truth table
+  are caught only ~10% of the time, because the comparator cone is
+  unobservable while every recorded attempt fails.

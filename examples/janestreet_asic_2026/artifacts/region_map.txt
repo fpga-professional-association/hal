@@ -1,0 +1,16 @@
+Star Battle region map recovered from the gate netlist
+(rows = character index, columns = bit index)
+
+6 6 6 6 6 8 8 5 4 4 9
+6 6 0 6 6 8 5 5 4 4 9
+6 6 0 8 8 8 8 5 5 4 9
+6 6 0 8 1 1 1 9 5 5 9
+0 6 0 8 1 9 9 9 9 9 9
+0 0 0 8 1 1 1 9 2 2 2
+8 8 8 8 8 8 1 9 2 A A
+8 7 7 7 1 1 1 9 2 A A
+8 7 7 3 9 9 9 9 2 A A
+8 8 7 3 3 9 9 9 2 2 2
+8 7 7 3 9 9 9 9 9 9 9
+
+region sizes: 0:8, 1:11, 2:9, 3:4, 4:5, 5:7, 6:14, 7:8, 8:21, 9:28, A:6

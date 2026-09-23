@@ -1,0 +1,302 @@
+{
+ "widths": {
+  "INTERNAL_3": [
+   1.38,
+   2.72
+  ],
+  "INTERNAL_7": [
+   4.14,
+   2.72
+  ]
+ },
+ "instances": [
+  {
+   "cell": "INTERNAL_7",
+   "x": 97.93,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 48.25,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 1.33,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 4.09,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 9.61,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 15.13,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 20.650000000000002,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 26.17,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 28.93,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 34.45,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 45.49,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 59.29,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 64.81,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 70.33,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 56.53,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 81.37,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 86.89,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 89.65,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 75.85000000000001,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 103.45,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 117.25,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 120.01,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 128.29,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 133.81,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 136.57,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 147.61,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 150.37,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 158.65,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 161.41,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 164.17000000000002,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 169.69,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 177.97,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 180.73,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 186.25,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_3",
+   "x": 191.77,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  },
+  {
+   "cell": "INTERNAL_7",
+   "x": 194.53,
+   "y": -52.72,
+   "rot": 0.0,
+   "xrefl": false,
+   "mag": 1.0
+  }
+ ]
+}

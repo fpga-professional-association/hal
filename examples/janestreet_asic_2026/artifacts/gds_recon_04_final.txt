@@ -1,0 +1,138 @@
+==============================================================================
+LIBRARY: name='LIB' unit=1e-06 precision=1e-09
+==============================================================================
+top-level cells: ['adder_demo']
+total cells: 27
+
+==============================================================================
+CELL INVENTORY (non sky130 std cells + anything with properties)
+==============================================================================
+  VIA_L1M1_PR_MR               bbox_size=(0.29, 0.23) polys=3 paths=0 labels=0 refs=0
+      layers: 67/20x1, 67/44x1, 68/20x1
+  VIA_M1M2_PR                  bbox_size=(0.32, 0.32) polys=3 paths=0 labels=0 refs=0
+      layers: 68/20x1, 68/44x1, 69/20x1
+  VIA_M2M3_PR                  bbox_size=(0.33, 0.37) polys=3 paths=0 labels=0 refs=0
+      layers: 69/20x1, 69/44x1, 70/20x1
+  VIA_M3M4_PR                  bbox_size=(0.38, 0.33) polys=3 paths=0 labels=0 refs=0
+      layers: 70/20x1, 70/44x1, 71/20x1
+  VIA_via2_3_2000_480_1_6_320_320 bbox_size=(1.92, 0.48) polys=8 paths=0 labels=0 refs=0
+      layers: 68/20x1, 68/44x6, 69/20x1
+  VIA_via3_4_2000_480_1_5_400_400 bbox_size=(1.93, 0.37) polys=7 paths=0 labels=0 refs=0
+      layers: 69/20x1, 69/44x5, 70/20x1
+  VIA_via4_5_2000_480_1_5_400_400 bbox_size=(2.0, 0.33) polys=7 paths=0 labels=0 refs=0
+      layers: 70/20x1, 70/44x5, 71/20x1
+  VIA_via5_6_2000_2000_1_1_1600_1600 bbox_size=(2.0, 2.0) polys=3 paths=0 labels=0 refs=0
+      layers: 71/20x1, 71/44x1, 72/20x1
+  adder_demo                   bbox_size=(100.0, 100.0) polys=1404 paths=724 labels=10 refs=1099
+      layers: 68/20x367, 69/20x1596, 70/16x6, 70/20x125, 71/16x5, 71/20x13, 72/16x5, 72/20x10, 235/4x1
+
+cells containing layer 200: []
+
+==============================================================================
+ALL GDS PROPERTIES FOUND ANYWHERE (cells, refs, polys, paths, labels)
+==============================================================================
+  (none -- no GDS PROPATTR/PROPVALUE records survive in this file)
+
+==============================================================================
+TOP CELL 'adder_demo' LABELS
+==============================================================================
+  'S'              layer=70/5 origin=(99.700,16.660) rot=0.0 mag=1.0 anchor=nw
+  'en'             layer=70/5 origin=(0.300,30.260) rot=0.0 mag=1.0 anchor=nw
+  'B'              layer=70/5 origin=(0.300,35.700) rot=0.0 mag=1.0 anchor=nw
+  'A'              layer=70/5 origin=(0.300,41.140) rot=0.0 mag=1.0 anchor=nw
+  'rst_n'          layer=70/5 origin=(0.300,57.460) rot=0.0 mag=1.0 anchor=nw
+  'clk'            layer=70/5 origin=(0.300,73.780) rot=0.0 mag=1.0 anchor=nw
+  'VPWR'           layer=71/5 origin=(26.440,50.320) rot=0.0 mag=1.0 anchor=nw
+  'VGND'           layer=71/5 origin=(30.140,50.320) rot=0.0 mag=1.0 anchor=nw
+  'VPWR'           layer=72/5 origin=(49.910,27.530) rot=0.0 mag=1.0 anchor=nw
+  'VGND'           layer=72/5 origin=(49.910,31.230) rot=0.0 mag=1.0 anchor=nw
+
+==============================================================================
+MARKER INSTANCES (cells drawing on layer 200)
+==============================================================================
+
+marker instances in top cell: 0
+   # cell              x(um)      y(um)    rot  xrefl   mag
+
+==============================================================================
+MARKER ROWS (grouped by y), left-to-right, with x-gaps
+==============================================================================
+
+==============================================================================
+MORSE DECODE ATTEMPTS (narrow=dot, wide=dash)
+==============================================================================
+
+==============================================================================
+BINARY DECODE ATTEMPTS (narrow=0/wide=1 and inverse), per row and global
+==============================================================================
+  ALL ROWS (.=0) 5-bit A1Z26: ''
+  ALL ROWS (.=0) 6-bit A1Z26: ''
+  ALL ROWS (.=1) 5-bit A1Z26: ''
+  ALL ROWS (.=1) 6-bit A1Z26: ''
+
+==============================================================================
+RAW ASCII SCAN of 04_final.gds (306242 bytes), runs >= 6 chars
+==============================================================================
+  46 distinct runs; non-boilerplate ones:
+    'decap_3'
+    'tapvpwrvgnd_1'
+    'nand2_2'
+    'and2_2'
+    '@3333334'
+    'xor2_2'
+    'xnor2_2'
+    'a31o_2'
+    'nor2_2'
+    'a21bo_2'
+    'a21o_2'
+    'a21boi_2'
+    'o21bai_2'
+    'clkbuf_16'
+    'and3_2'
+    'and4bb_2'
+    'mux2_1'
+    'RESET_B'
+    'dfrtp_2'
+    'adder_demo'
+
+  boilerplate-looking runs (first 40 distinct):
+    'sky130_fd_sc_hd__decap_3'
+    'decap_3'
+    'sky130_fd_sc_hd__tapvpwrvgnd_1'
+    'tapvpwrvgnd_1'
+    'sky130_fd_sc_hd__nand2_2'
+    'nand2_2'
+    'sky130_fd_sc_hd__and2_2'
+    'and2_2'
+    'sky130_fd_sc_hd__xor2_2'
+    '@3333334'
+    'xor2_2'
+    'sky130_fd_sc_hd__xnor2_2'
+    'xnor2_2'
+    'sky130_fd_sc_hd__a31o_2'
+    'a31o_2'
+    'sky130_fd_sc_hd__or2_2'
+    'sky130_fd_sc_hd__nor2_2'
+    'nor2_2'
+    'sky130_fd_sc_hd__a21bo_2'
+    'a21bo_2'
+    'sky130_fd_sc_hd__a21o_2'
+    'a21o_2'
+    'sky130_fd_sc_hd__a21boi_2'
+    'a21boi_2'
+    'sky130_fd_sc_hd__o21bai_2'
+    'o21bai_2'
+    'sky130_fd_sc_hd__clkbuf_16'
+    'clkbuf_16'
+    'sky130_fd_sc_hd__and3_2'
+    'and3_2'
+    'sky130_fd_sc_hd__and4bb_2'
+    'and4bb_2'
+    'sky130_fd_sc_hd__mux2_1'
+    'mux2_1'
+    'sky130_fd_sc_hd__dfrtp_2'
+    'RESET_B'
+    'dfrtp_2'
+    'VIA_via5_6_2000_2000_1_1_1600_1600'
+    'VIA_via4_5_2000_480_1_5_400_400'
+    'VIA_via3_4_2000_480_1_5_400_400'
