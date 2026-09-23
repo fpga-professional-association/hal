@@ -1,0 +1,238 @@
+{
+  "bit_order": [
+    "dfrtp_2_26220_144160",
+    "dfrtp_2_26220_149600",
+    "dfrtp_2_28980_157760",
+    "dfrtp_2_30820_146880"
+  ],
+  "complete": true,
+  "initial_state": 0,
+  "notes": [],
+  "signals": {
+    "net_26": {
+      "name": "enable",
+      "net_id": 26,
+      "role": "input"
+    },
+    "net_557": {
+      "name": "n575",
+      "net_id": 557,
+      "role": "external_state"
+    }
+  },
+  "solver": "smt",
+  "states": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "transitions": [
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 0,
+      "target": 0,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 0,
+      "target": 2,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 1,
+      "target": 1,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 1,
+      "target": 3,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 2,
+      "target": 2,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 2,
+      "target": 8,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 3,
+      "target": 3,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 3,
+      "target": 9,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 4,
+      "target": 4,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 4,
+      "target": 6,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 6,
+      "target": 6,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 6,
+      "target": 12,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 8,
+      "target": 8,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 8,
+      "target": 10,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 9,
+      "target": 9,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 9,
+      "target": 11,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 10,
+      "target": 1,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 10,
+      "target": 10,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 11,
+      "target": 4,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 11,
+      "target": 11,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "(net_26 & (! net_557))",
+      "source": 12,
+      "target": 0,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    },
+    {
+      "condition": "((! net_26) | net_557)",
+      "source": 12,
+      "target": 12,
+      "variables": [
+        "net_26",
+        "net_557"
+      ]
+    }
+  ],
+  "width": 4
+}

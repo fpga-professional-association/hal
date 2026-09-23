@@ -1,0 +1,2440 @@
+{
+  "analysis": {
+    "configuration": {
+      "ambiguity_margin": 0.05,
+      "config_version": "1.0.0",
+      "diagram_base": 2,
+      "emit_diagram": true,
+      "initial_state_encoding": "auto",
+      "limits": {
+        "brute_force_max_states": 256,
+        "max_candidates": 8,
+        "max_condition_vars": 16,
+        "max_cycles": 32,
+        "max_diagram_states": 64,
+        "max_solved_candidates": 1,
+        "max_state_bits": 12,
+        "max_states": 1024,
+        "max_transitions": 8192,
+        "smt_timeout_s": 60.0,
+        "wall_time_s": 600.0
+      },
+      "min_confidence": 0.0,
+      "solve": "best",
+      "solver": "auto",
+      "targets": [
+        2
+      ]
+    },
+    "duration_s": 1.309,
+    "entry_point": "solve_fsm.solve_fsm",
+    "finished_at": "2026-09-23T17:21:18Z",
+    "plugin": {
+      "description": "state transition graph reconstruction (solve_fsm)",
+      "name": "solve_fsm",
+      "version": "0.1"
+    },
+    "started_at": "2026-09-23T17:21:17Z"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "netlist",
+      "design_name": "puzzle",
+      "gate_count": 1618,
+      "gate_library": {
+        "name": "SKY130_FD_SC_HD",
+        "path": "/work/plugins/gate_libraries/definitions/SKY130_FD_SC_HD.hgl",
+        "sha256": "6a7e871b99ce5471d428697da1e07dd59cd472e51ca1920cb87142f35458bcf6"
+      },
+      "kind": "netlist",
+      "net_count": 739,
+      "netlist_id": 1,
+      "path": "/work/examples/janestreet_asic_2026/artifacts/puzzle_netlist.v",
+      "sha256": "bcabda1d686fc85504633b8d276e69b0eb17443339e7dbc80f7577c444522ce5",
+      "size_bytes": 139491
+    }
+  ],
+  "findings": [
+    {
+      "confidence": 0.9484,
+      "data": {
+        "ambiguous_with": [
+          [
+            "dfxtp_2_168820_242080",
+            "dfxtp_2_167900_247520",
+            "dfxtp_2_169740_250240",
+            "dfxtp_2_168820_252960"
+          ]
+        ],
+        "features": {
+          "agreement": 0.6,
+          "closure": 0.7895,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          814,
+          834,
+          853,
+          909
+        ],
+        "gate_names": [
+          "dfrtp_2_26220_144160",
+          "dfrtp_2_30820_146880",
+          "dfrtp_2_26220_149600",
+          "dfrtp_2_28980_157760"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 4 flip-flops form a strongly connected component of the next-state dependency graph",
+          "79% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 2 net(s) from outside the register",
+          "the register drives logic outside its own transition cone"
+        ],
+        "score": 0.9484,
+        "sources": [
+          "dataflow"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/001",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow. the 4 flip-flops form a strongly connected component of the next-state dependency graph 79% of the set's sequential dependencies stay inside it the next-state cone reads 2 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 4 flip-flop(s) [dfrtp_2_26220_144160, dfrtp_2_30820_146880, dfrtp_2_26220_149600, dfrtp_2_28980_157760]"
+    },
+    {
+      "confidence": 0.9,
+      "data": {
+        "ambiguous_with": [
+          [
+            "dfrtp_2_26220_144160",
+            "dfrtp_2_30820_146880",
+            "dfrtp_2_26220_149600",
+            "dfrtp_2_28980_157760"
+          ]
+        ],
+        "features": {
+          "agreement": 0.6,
+          "closure": 0.8,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 0.5
+        },
+        "gate_ids": [
+          1389,
+          1422,
+          1438,
+          1453
+        ],
+        "gate_names": [
+          "dfxtp_2_168820_242080",
+          "dfxtp_2_167900_247520",
+          "dfxtp_2_169740_250240",
+          "dfxtp_2_168820_252960"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 4 flip-flops form a strongly connected component of the next-state dependency graph",
+          "80% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 1 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "the flip-flops do not share a single gate type and clock net, which is unusual for one state register"
+        ],
+        "score": 0.9,
+        "sources": [
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/002",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 4
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1389,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_242080",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1422,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_167900_247520",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1438,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_169740_250240",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1453,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_252960",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by scc. the 4 flip-flops form a strongly connected component of the next-state dependency graph 80% of the set's sequential dependencies stay inside it the next-state cone reads 1 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 4 flip-flop(s) [dfxtp_2_168820_242080, dfxtp_2_167900_247520, dfxtp_2_169740_250240, dfxtp_2_168820_252960]"
+    },
+    {
+      "confidence": 0.89,
+      "data": {
+        "features": {
+          "agreement": 0.6,
+          "closure": 0.4,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          1389,
+          1438
+        ],
+        "gate_names": [
+          "dfxtp_2_168820_242080",
+          "dfxtp_2_169740_250240"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 2 flip-flops form a strongly connected component of the next-state dependency graph",
+          "40% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 3 net(s) from outside the register",
+          "the register drives logic outside its own transition cone"
+        ],
+        "score": 0.89,
+        "sources": [
+          "dataflow"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/003",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1389,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_242080",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1438,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_169740_250240",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow. the 2 flip-flops form a strongly connected component of the next-state dependency graph 40% of the set's sequential dependencies stay inside it the next-state cone reads 3 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [dfxtp_2_168820_242080, dfxtp_2_169740_250240]"
+    },
+    {
+      "confidence": 0.89,
+      "data": {
+        "features": {
+          "agreement": 0.6,
+          "closure": 0.4,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          1422,
+          1453
+        ],
+        "gate_names": [
+          "dfxtp_2_167900_247520",
+          "dfxtp_2_168820_252960"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 2 flip-flops form a strongly connected component of the next-state dependency graph",
+          "40% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 3 net(s) from outside the register",
+          "the register drives logic outside its own transition cone"
+        ],
+        "score": 0.89,
+        "sources": [
+          "dataflow"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/004",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfxtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1422,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_167900_247520",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1453,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_252960",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow. the 2 flip-flops form a strongly connected component of the next-state dependency graph 40% of the set's sequential dependencies stay inside it the next-state cone reads 3 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [dfxtp_2_167900_247520, dfxtp_2_168820_252960]"
+    },
+    {
+      "confidence": 0.855,
+      "data": {
+        "features": {
+          "agreement": 0.6,
+          "closure": 1.0,
+          "control_fanout": 1.0,
+          "input_pressure": 1.0,
+          "mutual_feedback": 1.0,
+          "size_fit": 0.5,
+          "uniformity": 0.5
+        },
+        "gate_ids": [
+          514,
+          555,
+          595,
+          631,
+          814,
+          834,
+          853,
+          909,
+          1154
+        ],
+        "gate_names": [
+          "dfrtp_2_32200_92480",
+          "dfrtp_2_28980_97920",
+          "dfrtp_2_33120_103360",
+          "dfrtp_2_28980_108800",
+          "dfrtp_2_26220_144160",
+          "dfrtp_2_30820_146880",
+          "dfrtp_2_26220_149600",
+          "dfrtp_2_28980_157760",
+          "dfrtp_2_29900_201280"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 9 flip-flops form a strongly connected component of the next-state dependency graph",
+          "all of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 1 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "the flip-flops do not share a single gate type and clock net, which is unusual for one state register"
+        ],
+        "score": 0.855,
+        "sources": [
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/005",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 9
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 514,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_32200_92480",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 555,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_97920",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 595,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_33120_103360",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 631,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_108800",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1154,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_29900_201280",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by scc. the 9 flip-flops form a strongly connected component of the next-state dependency graph all of the set's sequential dependencies stay inside it the next-state cone reads 1 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 9 flip-flop(s) [dfrtp_2_32200_92480, dfrtp_2_28980_97920, dfrtp_2_33120_103360, dfrtp_2_28980_108800, dfrtp_2_26220_144160, dfrtp_2_30820_146880 ...]"
+    },
+    {
+      "confidence": 0.8479,
+      "data": {
+        "features": {
+          "agreement": 1.0,
+          "closure": 0.2857,
+          "control_fanout": 1.0,
+          "input_pressure": 0.7,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          561,
+          635
+        ],
+        "gate_names": [
+          "dfrtp_2_81880_97920",
+          "dfrtp_2_79120_108800"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 2 flip-flops form a strongly connected component of the next-state dependency graph",
+          "29% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 7 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "proposed independently by dataflow, scc"
+        ],
+        "score": 0.8479,
+        "sources": [
+          "dataflow",
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/006",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 561,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_81880_97920",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 635,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_79120_108800",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-state dependency graph 29% of the set's sequential dependencies stay inside it the next-state cone reads 7 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [dfrtp_2_81880_97920, dfrtp_2_79120_108800]"
+    },
+    {
+      "confidence": 0.8479,
+      "data": {
+        "features": {
+          "agreement": 1.0,
+          "closure": 0.2857,
+          "control_fanout": 1.0,
+          "input_pressure": 0.7,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          1038,
+          1056
+        ],
+        "gate_names": [
+          "dfrtp_2_114080_182240",
+          "dfrtp_2_116380_184960"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 2 flip-flops form a strongly connected component of the next-state dependency graph",
+          "29% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 7 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "proposed independently by dataflow, scc"
+        ],
+        "score": 0.8479,
+        "sources": [
+          "dataflow",
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/007",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1038,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_114080_182240",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1056,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_116380_184960",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-state dependency graph 29% of the set's sequential dependencies stay inside it the next-state cone reads 7 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [dfrtp_2_114080_182240, dfrtp_2_116380_184960]"
+    },
+    {
+      "confidence": 0.8479,
+      "data": {
+        "features": {
+          "agreement": 1.0,
+          "closure": 0.2857,
+          "control_fanout": 1.0,
+          "input_pressure": 0.7,
+          "mutual_feedback": 1.0,
+          "size_fit": 1.0,
+          "uniformity": 1.0
+        },
+        "gate_ids": [
+          1176,
+          1192
+        ],
+        "gate_names": [
+          "dfrtp_2_113620_204000",
+          "dfrtp_2_115920_206720"
+        ],
+        "origin": "heuristic",
+        "reasons": [
+          "the 2 flip-flops form a strongly connected component of the next-state dependency graph",
+          "29% of the set's sequential dependencies stay inside it",
+          "the next-state cone reads 7 net(s) from outside the register",
+          "the register drives logic outside its own transition cone",
+          "proposed independently by dataflow, scc"
+        ],
+        "score": 0.8479,
+        "sources": [
+          "dataflow",
+          "scc"
+        ],
+        "weights": {
+          "agreement": 0.05,
+          "closure": 0.15,
+          "control_fanout": 0.1,
+          "input_pressure": 0.15,
+          "mutual_feedback": 0.3,
+          "size_fit": 0.15,
+          "uniformity": 0.1
+        }
+      },
+      "id": "fsm/candidate/008",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "metrics": {
+        "state_bits": 2
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops proposed as one state register",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2"
+        ],
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 1176,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_113620_204000",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1192,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_115920_206720",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "heuristic",
+      "summary": "Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-state dependency graph 29% of the set's sequential dependencies stay inside it the next-state cone reads 7 net(s) from outside the register",
+      "tags": [
+        "candidate",
+        "fsm",
+        "register-candidate"
+      ],
+      "title": "Candidate state register: 2 flip-flop(s) [dfrtp_2_113620_204000, dfrtp_2_115920_206720]"
+    },
+    {
+      "data": {
+        "ambiguity_margin": 0.05,
+        "candidates": [
+          {
+            "gate_ids": [
+              814,
+              834,
+              853,
+              909
+            ],
+            "gate_names": [
+              "dfrtp_2_26220_144160",
+              "dfrtp_2_30820_146880",
+              "dfrtp_2_26220_149600",
+              "dfrtp_2_28980_157760"
+            ],
+            "score": 0.9484
+          },
+          {
+            "gate_ids": [
+              1389,
+              1422,
+              1438,
+              1453
+            ],
+            "gate_names": [
+              "dfxtp_2_168820_242080",
+              "dfxtp_2_167900_247520",
+              "dfxtp_2_169740_250240",
+              "dfxtp_2_168820_252960"
+            ],
+            "score": 0.9
+          }
+        ]
+      },
+      "id": "fsm/candidates/ambiguous",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "flip-flops of every candidate that ties for the best score",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1389,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_242080",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1422,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_167900_247520",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1438,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_169740_250240",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 1453,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfxtp_2_168820_252960",
+            "type": "sky130_fd_sc_hd__dfxtp_2"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "heuristic",
+      "summary": "2 candidate state registers score within the ambiguity margin of 0.05. The highest-scoring one was used; the choice between them is not supported by the structural evidence and should be made in the configuration file (state_registers).",
+      "tags": [
+        "ambiguous",
+        "candidate",
+        "fsm"
+      ],
+      "title": "Candidate selection is ambiguous: 2 registers score within 0.05"
+    },
+    {
+      "id": "fsm/coverage/uncovered-sequential-gates",
+      "method": {
+        "bounded": false,
+        "description": "Flip-flops are grouped by the feedback structure of their next-state functions: strongly connected components of the flip-flop dependency graph, clusters of self-dependent flip-flops, and -- when available -- DANA register groups. The score is a weighted sum of published structural features. It is evidence for a guess, never a proof that these flip-flops are the state register.",
+        "kind": "structural",
+        "name": "state-register candidate proposal",
+        "parameters": {
+          "weights": {
+            "agreement": 0.05,
+            "closure": 0.15,
+            "control_fanout": 0.1,
+            "input_pressure": 0.15,
+            "mutual_feedback": 0.3,
+            "size_fit": 0.15,
+            "uniformity": 0.1
+          }
+        }
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "sequential gates that no solved machine covers",
+        "gate_types": [
+          "sky130_fd_sc_hd__dfrtp_2",
+          "sky130_fd_sc_hd__dfstp_2",
+          "sky130_fd_sc_hd__dfxtp_2"
+        ]
+      },
+      "severity": "info",
+      "status": "unsupported",
+      "summary": "3 sequential gate type(s) are present in gates that no solved state register contains. That they produced no FSM is not evidence that they implement none.",
+      "tags": [
+        "coverage",
+        "fsm"
+      ],
+      "title": "Sequential gates outside every solved state register",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 80,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 186,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfrtp_2_77740_35360",
+                "type": "sky130_fd_sc_hd__dfrtp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 207,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfrtp_2_80960_38080",
+                "type": "sky130_fd_sc_hd__dfrtp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 226,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfrtp_2_76820_40800",
+                "type": "sky130_fd_sc_hd__dfrtp_2"
+              }
+            ],
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "sequential gates of this type are present but are not part of any state register that was solved; no statement is made about them"
+          },
+          {
+            "count": 4,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 1028,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfstp_2_167900_179520",
+                "type": "sky130_fd_sc_hd__dfstp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 1082,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfstp_2_166980_187680",
+                "type": "sky130_fd_sc_hd__dfstp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 1099,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfstp_2_167900_190400",
+                "type": "sky130_fd_sc_hd__dfstp_2"
+              }
+            ],
+            "gate_type": "sky130_fd_sc_hd__dfstp_2",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "sequential gates of this type are present but are not part of any state register that was solved; no statement is made about them"
+          },
+          {
+            "count": 4,
+            "example_gates": [
+              {
+                "artifact_id": "netlist",
+                "id": 1389,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfxtp_2_168820_242080",
+                "type": "sky130_fd_sc_hd__dfxtp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 1422,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfxtp_2_167900_247520",
+                "type": "sky130_fd_sc_hd__dfxtp_2"
+              },
+              {
+                "artifact_id": "netlist",
+                "id": 1438,
+                "module": {
+                  "id": 1,
+                  "name": "top_module"
+                },
+                "name": "dfxtp_2_169740_250240",
+                "type": "sky130_fd_sc_hd__dfxtp_2"
+              }
+            ],
+            "gate_type": "sky130_fd_sc_hd__dfxtp_2",
+            "properties": [
+              "ff",
+              "sequential"
+            ],
+            "reason": "sequential gates of this type are present but are not part of any state register that was solved; no statement is made about them"
+          }
+        ],
+        "reason": "hal_fsm only reports the machines it solved; the gates below were either not proposed as a state register, not selected, or not solvable"
+      }
+    },
+    {
+      "data": {
+        "control_inputs": [
+          {
+            "constant": null,
+            "gate_id": 814,
+            "gate_name": "dfrtp_2_26220_144160",
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "net_id": 27,
+            "net_name": "rst_n",
+            "pin": "RESET_B",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 834,
+            "gate_name": "dfrtp_2_30820_146880",
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "net_id": 27,
+            "net_name": "rst_n",
+            "pin": "RESET_B",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 853,
+            "gate_name": "dfrtp_2_26220_149600",
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "net_id": 27,
+            "net_name": "rst_n",
+            "pin": "RESET_B",
+            "pin_type": "reset"
+          },
+          {
+            "constant": null,
+            "gate_id": 909,
+            "gate_name": "dfrtp_2_28980_157760",
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "net_id": 27,
+            "net_name": "rst_n",
+            "pin": "RESET_B",
+            "pin_type": "reset"
+          }
+        ]
+      },
+      "id": "fsm/machine01/asynchronous-control",
+      "method": {
+        "bounded": false,
+        "description": "the fan-in of every set/reset pin of the state register is resolved and classified as constant (inactive) or driven",
+        "kind": "structural",
+        "name": "control-pin inspection"
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "state flip-flops whose asynchronous control inputs are driven",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 27,
+            "name": "rst_n",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 27,
+            "name": "rst_n",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 27,
+            "name": "rst_n",
+            "role": "reset"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 27,
+            "name": "rst_n",
+            "role": "reset"
+          }
+        ]
+      },
+      "severity": "high",
+      "status": "unsupported",
+      "summary": "4 asynchronous control input(s) of the state register are driven by logic rather than tied to their inactive value. solve_fsm builds its next-state function from the gate library's next_state expression only, so these inputs do not appear in any recovered condition. Every transition below is conditional on them staying inactive.",
+      "tags": [
+        "coverage",
+        "fsm",
+        "reset"
+      ],
+      "title": "Asynchronous set/reset inputs are driven by logic and are not modelled",
+      "unsupported": {
+        "kind": "primitive",
+        "primitives": [
+          {
+            "count": 4,
+            "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+            "reason": "the reset pin(s) of this flip-flop type are not part of the library's next-state function, and solve_fsm models only that function; an asynchronous clear or preset driven by real logic is therefore invisible in the recovered graph"
+          }
+        ],
+        "reason": "asynchronous set/reset behaviour of the state flip-flops is outside the model solve_fsm uses"
+      }
+    },
+    {
+      "data": {
+        "external_state": [
+          {
+            "driver_gate_id": 1154,
+            "driver_gate_name": "dfrtp_2_29900_201280",
+            "net_id": 557,
+            "net_name": "n575",
+            "variable": "net_557"
+          }
+        ]
+      },
+      "id": "fsm/machine01/external-state-dependence",
+      "method": {
+        "bounded": false,
+        "description": "Every variable left in a recovered condition is resolved back to its net and classified: a primary input, or the output of a flip-flop outside the state register.",
+        "kind": "structural",
+        "name": "condition variable classification"
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "nets driven by flip-flops outside the state register that the transition conditions read",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ],
+        "nets": [
+          {
+            "artifact_id": "netlist",
+            "id": 557,
+            "name": "n575",
+            "role": "external_state"
+          }
+        ]
+      },
+      "severity": "medium",
+      "status": "unsupported",
+      "summary": "The transition relation is conditioned on n575, which dfrtp_2_29900_201280 drives. This is not necessarily wrong -- a controller may react to a counter -- but the recovered graph describes this register's behaviour *given* those signals, not a closed machine driven by inputs alone. If they were meant to be part of the machine, the state register selection is too small.",
+      "tags": [
+        "coverage",
+        "fsm",
+        "scope"
+      ],
+      "title": "The recovered conditions depend on 1 signal(s) from outside the state register",
+      "unsupported": {
+        "kind": "construct",
+        "primitives": [],
+        "reason": "hal_fsm solves one state register at a time; a machine whose transitions depend on another register is only described relative to that register's outputs"
+      }
+    },
+    {
+      "assumptions": [
+        {
+          "description": "asynchronous set/reset inputs of the state register stay inactive. solve_fsm models only the gate library's next_state expression, so these pins never appear in a recovered condition. 4 of 4 such pin(s) are driven by logic, so the assumption is NOT discharged: the recovered graph describes the machine only while they are inactive.",
+          "discharged": false,
+          "id": "hal_fsm.asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "every condition is over primary inputs of this machine. NOT satisfied: 1 condition variable(s) are driven by flip-flops outside the state register (n575), so the graph describes this machine *given* those signals.",
+          "discharged": false,
+          "id": "hal_fsm.closed-machine",
+          "kind": "structural"
+        },
+        {
+          "description": "the machine starts in state 0 (0000). Source: assumed all-zero (solve_fsm's own default).",
+          "discharged": false,
+          "id": "hal_fsm.initial-state",
+          "kind": "initial_state"
+        },
+        {
+          "description": "the gate library's next_state expression is a faithful model of the state flip-flops, and the netlist is X-free: solve_fsm evaluates that expression symbolically and treats an X result as a failure rather than a state.",
+          "discharged": false,
+          "id": "hal_fsm.library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "all state flip-flops are clocked by the same net; solve_fsm has no notion of clock domains and would silently mix them. Checked: 1 clock net(s).",
+          "discharged": true,
+          "id": "hal_fsm.single-clock-domain",
+          "kind": "structural"
+        },
+        {
+          "description": "state bit i is the output of [dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880] -- state values in this document mean nothing under any other order",
+          "discharged": true,
+          "id": "hal_fsm.state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "these 4 flip-flops are the state register: dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880. This is a structural heuristic scoring 0.95 (see fsm/candidate/*), not a proven decomposition of the design.",
+          "discharged": false,
+          "id": "hal_fsm.state-register",
+          "kind": "structural"
+        },
+        {
+          "description": "the combinational gates handed to solve_fsm close the cone between the state flip-flops; any net left as a free variable really is an input. Checked: every free variable in the recovered conditions is a primary input or another register's output.",
+          "discharged": true,
+          "id": "hal_fsm.transition-cone-complete",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "the closure was computed to a fixpoint, so it covers every number of cycles",
+        "unbounded": true
+      },
+      "data": {
+        "explored_mismatch": null,
+        "initial_state_encoding": "transition_index",
+        "reachable": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "reachable_count": 11,
+        "state_names": {
+          "0": "0000",
+          "1": "0001",
+          "10": "1010",
+          "11": "1011",
+          "12": "1100",
+          "2": "0010",
+          "3": "0011",
+          "4": "0100",
+          "6": "0110",
+          "8": "1000",
+          "9": "1001"
+        },
+        "truncated": false
+      },
+      "id": "fsm/machine01/reachable-states",
+      "method": {
+        "bounded": false,
+        "description": "Breadth-first closure of the transition relation returned by solve_fsm, computed by hal_fsm from the relation itself rather than taken from the solver's own exploration -- which is what makes the cross-check below meaningful.",
+        "kind": "symbolic",
+        "name": "reachability over the recovered relation"
+      },
+      "metrics": {
+        "encodable_states": 16,
+        "reachable_states": 11
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the states the machine can occupy from its initial state",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "11 of 16 encodable states are reachable from the initial state 0000 (0). States outside this set were never visited by the solver; because the exploration ran to a fixpoint that is a statement about reachability, not about the encoding as a whole.",
+      "tags": [
+        "fsm",
+        "reachability"
+      ],
+      "title": "Reachable state set: 11 state(s)"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "asynchronous set/reset inputs of the state register stay inactive. solve_fsm models only the gate library's next_state expression, so these pins never appear in a recovered condition. 4 of 4 such pin(s) are driven by logic, so the assumption is NOT discharged: the recovered graph describes the machine only while they are inactive.",
+          "discharged": false,
+          "id": "hal_fsm.asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "every condition is over primary inputs of this machine. NOT satisfied: 1 condition variable(s) are driven by flip-flops outside the state register (n575), so the graph describes this machine *given* those signals.",
+          "discharged": false,
+          "id": "hal_fsm.closed-machine",
+          "kind": "structural"
+        },
+        {
+          "description": "the machine starts in state 0 (0000). Source: assumed all-zero (solve_fsm's own default).",
+          "discharged": false,
+          "id": "hal_fsm.initial-state",
+          "kind": "initial_state"
+        },
+        {
+          "description": "the gate library's next_state expression is a faithful model of the state flip-flops, and the netlist is X-free: solve_fsm evaluates that expression symbolically and treats an X result as a failure rather than a state.",
+          "discharged": false,
+          "id": "hal_fsm.library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "all state flip-flops are clocked by the same net; solve_fsm has no notion of clock domains and would silently mix them. Checked: 1 clock net(s).",
+          "discharged": true,
+          "id": "hal_fsm.single-clock-domain",
+          "kind": "structural"
+        },
+        {
+          "description": "state bit i is the output of [dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880] -- state values in this document mean nothing under any other order",
+          "discharged": true,
+          "id": "hal_fsm.state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "these 4 flip-flops are the state register: dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880. This is a structural heuristic scoring 0.95 (see fsm/candidate/*), not a proven decomposition of the design.",
+          "discharged": false,
+          "id": "hal_fsm.state-register",
+          "kind": "structural"
+        },
+        {
+          "description": "the combinational gates handed to solve_fsm close the cone between the state flip-flops; any net left as a free variable really is an input. Checked: every free variable in the recovered conditions is a primary input or another register's output.",
+          "discharged": true,
+          "id": "hal_fsm.transition-cone-complete",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "a property of the one-cycle relation, and therefore of every cycle",
+        "unbounded": true
+      },
+      "data": {
+        "checked_assignments": 44,
+        "checked_states": 11,
+        "skipped_states": []
+      },
+      "id": "fsm/machine01/relation-consistency",
+      "method": {
+        "bounded": false,
+        "description": "For every state, every assignment of the variables its outgoing conditions mention is enumerated and the conditions are evaluated. Exactly one successor must be enabled per assignment: two mean the recovery is ambiguous, none mean it is incomplete.",
+        "kind": "symbolic",
+        "name": "exhaustive evaluation of the recovered conditions"
+      },
+      "metrics": {
+        "checked_assignments": 44,
+        "checked_states": 11
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the outgoing conditions of every recovered state",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "Every one of the 44 input assignments enumerated across 11 state(s) enables exactly one successor.",
+      "tags": [
+        "consistency",
+        "fsm"
+      ],
+      "title": "The recovered transition relation is deterministic and total"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "asynchronous set/reset inputs of the state register stay inactive. solve_fsm models only the gate library's next_state expression, so these pins never appear in a recovered condition. 4 of 4 such pin(s) are driven by logic, so the assumption is NOT discharged: the recovered graph describes the machine only while they are inactive.",
+          "discharged": false,
+          "id": "hal_fsm.asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "every condition is over primary inputs of this machine. NOT satisfied: 1 condition variable(s) are driven by flip-flops outside the state register (n575), so the graph describes this machine *given* those signals.",
+          "discharged": false,
+          "id": "hal_fsm.closed-machine",
+          "kind": "structural"
+        },
+        {
+          "description": "the machine starts in state 0 (0000). Source: assumed all-zero (solve_fsm's own default).",
+          "discharged": false,
+          "id": "hal_fsm.initial-state",
+          "kind": "initial_state"
+        },
+        {
+          "description": "the gate library's next_state expression is a faithful model of the state flip-flops, and the netlist is X-free: solve_fsm evaluates that expression symbolically and treats an X result as a failure rather than a state.",
+          "discharged": false,
+          "id": "hal_fsm.library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "all state flip-flops are clocked by the same net; solve_fsm has no notion of clock domains and would silently mix them. Checked: 1 clock net(s).",
+          "discharged": true,
+          "id": "hal_fsm.single-clock-domain",
+          "kind": "structural"
+        },
+        {
+          "description": "state bit i is the output of [dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880] -- state values in this document mean nothing under any other order",
+          "discharged": true,
+          "id": "hal_fsm.state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "these 4 flip-flops are the state register: dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880. This is a structural heuristic scoring 0.95 (see fsm/candidate/*), not a proven decomposition of the design.",
+          "discharged": false,
+          "id": "hal_fsm.state-register",
+          "kind": "structural"
+        },
+        {
+          "description": "the combinational gates handed to solve_fsm close the cone between the state flip-flops; any net left as a free variable really is an input. Checked: every free variable in the recovered conditions is a primary input or another register's output.",
+          "discharged": true,
+          "id": "hal_fsm.transition-cone-complete",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "the transition relation holds in every clock cycle; no cycle bound is involved",
+        "unbounded": true
+      },
+      "data": {
+        "bit_order": [
+          "dfrtp_2_26220_144160",
+          "dfrtp_2_26220_149600",
+          "dfrtp_2_28980_157760",
+          "dfrtp_2_30820_146880"
+        ],
+        "bit_order_note": "state bit i is the output of bit_order[i]; a state value is meaningless without this list",
+        "determinism_check": {
+          "checked_assignments": 44,
+          "checked_states": 11,
+          "incomplete": [],
+          "nondeterministic": [],
+          "ok": true,
+          "skipped_states": [],
+          "undecided": []
+        },
+        "initial_state": 0,
+        "initial_state_bits": "0000",
+        "signals": {
+          "net_26": {
+            "name": "enable",
+            "net_id": 26,
+            "role": "input"
+          },
+          "net_557": {
+            "name": "n575",
+            "net_id": 557,
+            "role": "external_state"
+          }
+        },
+        "solver_mode": "smt",
+        "states": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "transition_cone": {
+          "attempts": [
+            {
+              "mode": "smt",
+              "ok": true,
+              "wall_time_s": 0.752
+            }
+          ],
+          "external_state": [
+            {
+              "driver_gate_id": 1154,
+              "driver_gate_name": "dfrtp_2_29900_201280",
+              "net_id": 557,
+              "net_name": "n575",
+              "variable": "net_557"
+            }
+          ],
+          "gates": 11,
+          "holes": [],
+          "unmodelled_control": [
+            {
+              "constant": null,
+              "gate_id": 814,
+              "gate_name": "dfrtp_2_26220_144160",
+              "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+              "net_id": 27,
+              "net_name": "rst_n",
+              "pin": "RESET_B",
+              "pin_type": "reset"
+            },
+            {
+              "constant": null,
+              "gate_id": 834,
+              "gate_name": "dfrtp_2_30820_146880",
+              "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+              "net_id": 27,
+              "net_name": "rst_n",
+              "pin": "RESET_B",
+              "pin_type": "reset"
+            },
+            {
+              "constant": null,
+              "gate_id": 853,
+              "gate_name": "dfrtp_2_26220_149600",
+              "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+              "net_id": 27,
+              "net_name": "rst_n",
+              "pin": "RESET_B",
+              "pin_type": "reset"
+            },
+            {
+              "constant": null,
+              "gate_id": 909,
+              "gate_name": "dfrtp_2_28980_157760",
+              "gate_type": "sky130_fd_sc_hd__dfrtp_2",
+              "net_id": 27,
+              "net_name": "rst_n",
+              "pin": "RESET_B",
+              "pin_type": "reset"
+            }
+          ]
+        },
+        "transitions": [
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 0,
+            "target": 0
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 0,
+            "target": 2
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 1,
+            "target": 1
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 1,
+            "target": 3
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 2,
+            "target": 2
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 2,
+            "target": 8
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 3,
+            "target": 3
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 3,
+            "target": 9
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 4,
+            "target": 4
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 4,
+            "target": 6
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 6,
+            "target": 6
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 6,
+            "target": 12
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 8,
+            "target": 8
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 8,
+            "target": 10
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 9,
+            "target": 9
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 9,
+            "target": 11
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 10,
+            "target": 1
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 10,
+            "target": 10
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 11,
+            "target": 4
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 11,
+            "target": 11
+          },
+          {
+            "condition": "(net_26 & (! net_557))",
+            "source": 12,
+            "target": 0
+          },
+          {
+            "condition": "((! net_26) | net_557)",
+            "source": 12,
+            "target": 12
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "description": "the state transition graph solve_fsm wrote itself",
+          "kind": "dot",
+          "path": "solve_fsm-814.dot"
+        },
+        {
+          "description": "the recovered transition table, machine readable",
+          "kind": "report",
+          "path": "transitions-machine01.json"
+        },
+        {
+          "description": "state diagram with the initial state, reachability and the witness path marked",
+          "kind": "dot",
+          "path": "state-diagram-machine01.dot"
+        }
+      ],
+      "id": "fsm/machine01/transitions",
+      "limits": {
+        "cycle_limit": 32,
+        "hit": false,
+        "timeout_s": 60.0,
+        "wall_time_s": 0.752
+      },
+      "method": {
+        "bounded": false,
+        "description": "solve_fsm builds the next-state function of every state flip-flop from the transition cone and enumerates successors with an SMT solver, then derives the condition of each transition symbolically.",
+        "kind": "symbolic",
+        "name": "solve_fsm (smt)"
+      },
+      "metrics": {
+        "state_bits": 4,
+        "states": 11,
+        "transitions": 22
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "the state register and its transition relation",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "solver": {
+        "name": "solve_fsm (smt)",
+        "wall_time_s": 0.752
+      },
+      "status": "proven_under_assumptions",
+      "summary": "Every transition below was derived from the netlist by solve_fsm's SMT exploration forward from the initial state. The relation is a statement about the design only as far as the listed assumptions hold -- in particular the choice of state register, which is a heuristic (finding fsm/candidate/*).",
+      "tags": [
+        "fsm",
+        "smt",
+        "transitions"
+      ],
+      "title": "Recovered state transition relation: 11 states, 22 transitions"
+    },
+    {
+      "assumptions": [
+        {
+          "description": "asynchronous set/reset inputs of the state register stay inactive. solve_fsm models only the gate library's next_state expression, so these pins never appear in a recovered condition. 4 of 4 such pin(s) are driven by logic, so the assumption is NOT discharged: the recovered graph describes the machine only while they are inactive.",
+          "discharged": false,
+          "id": "hal_fsm.asynchronous-control-inactive",
+          "kind": "structural"
+        },
+        {
+          "description": "every condition is over primary inputs of this machine. NOT satisfied: 1 condition variable(s) are driven by flip-flops outside the state register (n575), so the graph describes this machine *given* those signals.",
+          "discharged": false,
+          "id": "hal_fsm.closed-machine",
+          "kind": "structural"
+        },
+        {
+          "description": "the machine starts in state 0 (0000). Source: assumed all-zero (solve_fsm's own default).",
+          "discharged": false,
+          "id": "hal_fsm.initial-state",
+          "kind": "initial_state"
+        },
+        {
+          "description": "the gate library's next_state expression is a faithful model of the state flip-flops, and the netlist is X-free: solve_fsm evaluates that expression symbolically and treats an X result as a failure rather than a state.",
+          "discharged": false,
+          "id": "hal_fsm.library-next-state",
+          "kind": "library"
+        },
+        {
+          "description": "all state flip-flops are clocked by the same net; solve_fsm has no notion of clock domains and would silently mix them. Checked: 1 clock net(s).",
+          "discharged": true,
+          "id": "hal_fsm.single-clock-domain",
+          "kind": "structural"
+        },
+        {
+          "description": "state bit i is the output of [dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880] -- state values in this document mean nothing under any other order",
+          "discharged": true,
+          "id": "hal_fsm.state-bit-order",
+          "kind": "tool"
+        },
+        {
+          "description": "these 4 flip-flops are the state register: dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880. This is a structural heuristic scoring 0.95 (see fsm/candidate/*), not a proven decomposition of the design.",
+          "discharged": false,
+          "id": "hal_fsm.state-register",
+          "kind": "structural"
+        },
+        {
+          "description": "the combinational gates handed to solve_fsm close the cone between the state flip-flops; any net left as a free variable really is an input. Checked: every free variable in the recovered conditions is a primary input or another register's output.",
+          "discharged": true,
+          "id": "hal_fsm.transition-cone-complete",
+          "kind": "structural"
+        }
+      ],
+      "bounds": {
+        "description": "a concrete finite path; nothing about it is limited to a cycle bound",
+        "unbounded": true
+      },
+      "data": {
+        "cycles": 1,
+        "external_state_inputs": [
+          "n575"
+        ],
+        "initial_state": 0,
+        "path": [
+          0,
+          2
+        ],
+        "path_bits": [
+          "0000",
+          "0010"
+        ],
+        "steps": [
+          {
+            "condition": "(net_26 & (! net_557))",
+            "cycle": 0,
+            "inputs": {
+              "net_26": 1,
+              "net_557": 0
+            },
+            "source": 0,
+            "target": 2
+          }
+        ],
+        "target_state": 2,
+        "target_state_bits": "0010"
+      },
+      "evidence": [
+        {
+          "description": "per-cycle input assignment of the witness",
+          "inline": [
+            {
+              "condition": "(net_26 & (! net_557))",
+              "cycle": 0,
+              "inputs": {
+                "net_26": 1,
+                "net_557": 0
+              },
+              "source": 0,
+              "target": 2
+            }
+          ],
+          "kind": "inline"
+        }
+      ],
+      "id": "fsm/machine01/witness/2",
+      "method": {
+        "bounded": false,
+        "description": "A breadth-first search over the recovered relation produces the shortest state path to the target; every step's condition is then solved for a concrete input assignment and re-evaluated under it, so a witness that is reported is a witness that was checked.",
+        "kind": "symbolic",
+        "name": "bounded reachability witness"
+      },
+      "metrics": {
+        "cycles": 1
+      },
+      "scope": {
+        "artifact_ids": [
+          "netlist"
+        ],
+        "description": "a path from the initial state to state 2",
+        "gates": [
+          {
+            "artifact_id": "netlist",
+            "id": 814,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_144160",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 834,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_30820_146880",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 853,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_26220_149600",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          },
+          {
+            "artifact_id": "netlist",
+            "id": 909,
+            "module": {
+              "id": 1,
+              "name": "top_module"
+            },
+            "name": "dfrtp_2_28980_157760",
+            "type": "sky130_fd_sc_hd__dfrtp_2"
+          }
+        ]
+      },
+      "severity": "info",
+      "status": "proven_under_assumptions",
+      "summary": "Starting from the initial state 0000 (0), the recorded input sequence drives the machine to state 0010 (2) in 1 cycle(s). Each step's condition was evaluated under the inputs reported here.",
+      "tags": [
+        "fsm",
+        "reachability",
+        "witness"
+      ],
+      "title": "State 0010 (2) is reached in 1 cycle(s)"
+    }
+  ],
+  "generated_at": "2026-09-23T17:21:18Z",
+  "notes": [
+    "37 single-flip-flop dataflow group(s) were closed up into one candidate because their next-state functions read each other: dfrtp_2_77740_35360, dfrtp_2_80960_38080, dfrtp_2_76820_40800, dfrtp_2_82800_43520, dfrtp_2_75900_46240, dfrtp_2_81880_48960, dfrtp_2_80960_54400, dfrtp_2_77740_57120, dfrtp_2_114080_62560, dfrtp_2_32200_92480, dfrtp_2_80960_92480, dfrtp_2_77740_133280, dfrtp_2_81880_136000, dfrtp_2_76820_138720, dfrtp_2_82800_141440, dfrtp_2_74980_144160, dfrtp_2_118220_144160, dfrtp_2_75440_146880, dfrtp_2_85100_146880, dfrtp_2_115000_146880, dfrtp_2_77740_149600, dfrtp_2_87860_149600, dfrtp_2_84180_152320, dfrtp_2_77740_155040, dfrtp_2_81880_157760, dfrtp_2_76820_163200, dfrtp_2_168820_176800, dfstp_2_167900_179520, dfrtp_2_174800_182240, dfstp_2_166980_187680, dfstp_2_167900_190400, dfrtp_2_173880_193120, dfrtp_2_167900_195840, dfstp_2_172960_198560, dfrtp_2_29900_201280, dfrtp_2_113160_212160, dfrtp_2_167900_282880. A counter is a chain of one-bit groups to DANA, and its bits are not separate state registers",
+    "2 candidate(s) exceed the max_state_bits limit of 12 and will not be handed to the solver: 92 flip-flops; 37 flip-flops",
+    "38 candidates were proposed; only the 8 highest scoring are reported (max_candidates)",
+    "no INIT attribute could be read for dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880; the initial state is *assumed* to be all-zero, which is also what solve_fsm defaults to",
+    "state values are relative to the bit order recorded on each transitions finding; gate references are scoped to artifact 'netlist'"
+  ],
+  "producer": {
+    "command": [
+      "python",
+      "tools/hal_fsm",
+      "analyze",
+      "/work/examples/janestreet_asic_2026/artifacts/puzzle_netlist.v"
+    ],
+    "name": "hal_fsm",
+    "version": "1.0.0"
+  },
+  "schema_version": "1.0.0"
+}

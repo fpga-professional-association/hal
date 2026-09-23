@@ -1,0 +1,97 @@
+HAL netlist_simulator replay vs. sc_sim -- Jane Street ASIC puzzle
+==================================================================
+netlist      : examples/janestreet_asic_2026/artifacts/puzzle_netlist.v (1618 gates, 739 nets)
+gate library : plugins/gate_libraries/definitions/SKY130_FD_SC_HD.hgl
+reference    : examples/janestreet_asic_2026/tools/sc_sim.py
+engine       : hal_simulator of netlist_simulator_controller
+clock        : 1000 ps period, rising edge at k*P+P/2, sampled at k*P+3P/4
+protocol     : 3 reset + 1 idle + 121 payload + 16 output = 141 edges
+harness      : conb tie nets and the unrouted net held at constants (TIE0_250=0, TIE0_338=0, TIE0_361=0, TIE0_410=0, TIE0_470=0, TIE1_306=1, n278=0)
+
+recorded -- the example VCD's failing attempt, ASCII "The night s"
+------------------------------------------------------------------
+  payload    : 0010101000000010110000101001100000000010000001110110000100101100001110011000000010110000001011100000000010000011001110000
+  sc_sim   O : 54 52 59 20 41 47 41 49 4e 00 00 00 00 00 00 00
+  HAL      O : 54 52 59 20 41 47 41 49 4e 00 00 00 00 00 00 00
+  sc_sim msg : 'TRY AGAIN'
+  HAL    msg : 'TRY AGAIN'
+  sc_sim success : 0 (max over the run), first high at never
+  HAL    success : 0 (max over the run), first high at never
+  [ok] HAL and sc_sim agree on O and success at all 141 clock edges
+  [ok] HAL streams the expected message 'TRY AGAIN'
+  [ok] HAL's success is 0, as expected
+
+solution -- the unique Star Battle key (artifacts/solution.txt)
+---------------------------------------------------------------
+  payload    : 0000000101010000100000000000010101010000000000001010000001000001000000100000101000010000000100000010000010010001010000000
+  sc_sim   O : 28 2a 20 54 57 4f 20 53 54 41 52 53 20 2a 29 00
+  HAL      O : 28 2a 20 54 57 4f 20 53 54 41 52 53 20 2a 29 00
+  sc_sim msg : '(* TWO STARS *)'
+  HAL    msg : '(* TWO STARS *)'
+  sc_sim success : 1 (max over the run), first high at edge 125 (out[0])
+  HAL    success : 1 (max over the run), first high at edge 125 (out[0])
+  [ok] HAL and sc_sim agree on O and success at all 141 clock edges
+  [ok] HAL streams the expected message '(* TWO STARS *)'
+  [ok] HAL's success is 1, as expected
+
+zeros -- 121 zero bits
+----------------------
+  payload    : 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  sc_sim   O : 45 4d 50 54 59 20 53 4b 59 00 00 00 00 00 00 00
+  HAL      O : 45 4d 50 54 59 20 53 4b 59 00 00 00 00 00 00 00
+  sc_sim msg : 'EMPTY SKY'
+  HAL    msg : 'EMPTY SKY'
+  sc_sim success : 0 (max over the run), first high at never
+  HAL    success : 0 (max over the run), first high at never
+  [ok] HAL and sc_sim agree on O and success at all 141 clock edges
+  [ok] HAL streams the expected message 'EMPTY SKY'
+  [ok] HAL's success is 0, as expected
+
+ones -- 121 one bits
+--------------------
+  payload    : 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+  sc_sim   O : 42 49 47 20 42 41 4e 47 00 00 00 00 00 00 00 00
+  HAL      O : 42 49 47 20 42 41 4e 47 00 00 00 00 00 00 00 00
+  sc_sim msg : 'BIG BANG'
+  HAL    msg : 'BIG BANG'
+  sc_sim success : 0 (max over the run), first high at never
+  HAL    success : 0 (max over the run), first high at never
+  [ok] HAL and sc_sim agree on O and success at all 141 clock edges
+  [ok] HAL streams the expected message 'BIG BANG'
+  [ok] HAL's success is 0, as expected
+
+the conb tie cells, and what the harness workaround is worth
+------------------------------------------------------------
+  Values HAL gave the nets that no gate in the simulation set drives,
+  sampled from its waveforms at the last clock edge (-1 is X):
+    TIE0_250   0
+    TIE0_338   0
+    TIE0_361   0
+    TIE0_410   0
+    TIE0_470   0
+    TIE1_306   1
+    n278       0
+  Replaying the same stimulus with --no-workarounds instead:
+    TIE0_250   -1
+    TIE0_338   -1
+    TIE0_361   -1
+    TIE0_410   -1
+    TIE0_470   -1
+    TIE1_306   -1
+    n278       -1
+  and the resulting disagreement with sc_sim, per payload:
+    recorded   15 of 141 edges differ, message '???????????????'
+    solution    0 of 141 edges differ, message '(* TWO STARS *)'
+    zeros      15 of 141 edges differ, message '???????????????'
+    ones       15 of 141 edges differ, message '???????????????'
+  A sky130 conb tie cell has no input pins, so hal_simulator never
+  evaluates it -- a combinational gate is only evaluated when one of its
+  input nets sees an event -- and GateLibrary::mark_gnd_gate_type /
+  mark_vcc_gate_type reject a gate type with two output pins, so HAL does
+  not give it a start value either.  Its constant 1 and 0 therefore stay X
+  for the whole run.  This is a HAL finding, not a netlist one; see
+  artifacts/hal_sim_issue_draft.md.
+
+summary
+-------
+  12 checks, 0 failures -- PASS
