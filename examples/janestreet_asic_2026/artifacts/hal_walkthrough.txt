@@ -1,0 +1,397 @@
+HAL-native walkthrough of the Jane Street ASIC puzzle netlist
+============================================================
+netlist      : examples/janestreet_asic_2026/artifacts/puzzle_netlist.v
+gate library : plugins/gate_libraries/definitions/SKY130_FD_SC_HD.hgl
+
+1. census
+=========
+design name        : puzzle
+gates              : 1618
+nets               : 739
+modules            : 1  (flat export -- no hierarchy survived the GDS)
+distinct gate types: 69
+flip-flops         : 92   <- hard upper bound on state
+
+physical-only cells (no signal pin connected at all):
+  sky130_fd_sc_hd__decap_3                 204
+  sky130_fd_sc_hd__tapvpwrvgnd_1           676
+  TOTAL                                    880  (of 1618 gates -> 738 logic cells)
+
+flip-flop families:
+  sky130_fd_sc_hd__dfrtp_2         84  reset=(! RESET_B) set=-         
+  sky130_fd_sc_hd__dfstp_2          4  reset=-          set=(! SET_B) 
+  sky130_fd_sc_hd__dfxtp_2          4  reset=-          set=-         
+
+top-level ports:
+  inputs : I, clk, enable, rst_n
+  outputs: O(0), O(1), O(2), O(3), O(4), O(5), O(6), O(7), success
+
+combinational gate histogram (logic cells only, top 25):
+  sky130_fd_sc_hd__nor2_2                  49
+  sky130_fd_sc_hd__nand2_2                 39
+  sky130_fd_sc_hd__o21a_2                  31
+  sky130_fd_sc_hd__and2b_2                 30
+  sky130_fd_sc_hd__xnor2_2                 29
+  sky130_fd_sc_hd__and3_2                  26
+  sky130_fd_sc_hd__a31o_2                  26
+  sky130_fd_sc_hd__inv_2                   25
+  sky130_fd_sc_hd__nand2b_2                24
+  sky130_fd_sc_hd__a22o_2                  23
+  sky130_fd_sc_hd__mux2_1                  21
+  sky130_fd_sc_hd__xor2_2                  21
+  sky130_fd_sc_hd__a21oi_2                 20
+  sky130_fd_sc_hd__a21o_2                  19
+  sky130_fd_sc_hd__or3_2                   18
+  sky130_fd_sc_hd__and2_2                  17
+  sky130_fd_sc_hd__clkbuf_8                16
+  sky130_fd_sc_hd__nand4_2                 15
+  sky130_fd_sc_hd__clkbuf_4                15
+  sky130_fd_sc_hd__and4bb_2                14
+  sky130_fd_sc_hd__or2_2                   13
+  sky130_fd_sc_hd__o211a_2                 12
+  sky130_fd_sc_hd__o31a_2                  11
+  sky130_fd_sc_hd__or4_2                   10
+  sky130_fd_sc_hd__diode_2                 10
+  sky130_fd_sc_hd__or4b_2                  9
+  sky130_fd_sc_hd__and4_2                  8
+  sky130_fd_sc_hd__a221o_2                 6
+  sky130_fd_sc_hd__o21ai_2                 6
+  sky130_fd_sc_hd__conb_1                  6
+  sky130_fd_sc_hd__a32o_2                  5
+  sky130_fd_sc_hd__a211o_2                 5
+  sky130_fd_sc_hd__nor3b_2                 5
+  sky130_fd_sc_hd__o22a_2                  4
+  sky130_fd_sc_hd__o32a_2                  4
+  sky130_fd_sc_hd__nor3_2                  4
+  sky130_fd_sc_hd__and3b_2                 4
+  sky130_fd_sc_hd__and4b_2                 4
+  sky130_fd_sc_hd__a21boi_2                4
+  sky130_fd_sc_hd__o221a_2                 3
+  sky130_fd_sc_hd__a211oi_2                3
+  sky130_fd_sc_hd__a311o_2                 2
+  sky130_fd_sc_hd__a21bo_2                 2
+  sky130_fd_sc_hd__o31ai_2                 2
+  sky130_fd_sc_hd__o21ba_2                 2
+  sky130_fd_sc_hd__o311a_2                 2
+  sky130_fd_sc_hd__o22ai_2                 2
+  sky130_fd_sc_hd__nor4b_2                 2
+  sky130_fd_sc_hd__nor4_2                  2
+  sky130_fd_sc_hd__nand3_2                 2
+  sky130_fd_sc_hd__o2bb2a_2                1
+  sky130_fd_sc_hd__o211ai_2                1
+  sky130_fd_sc_hd__o32ai_2                 1
+  sky130_fd_sc_hd__a31oi_2                 1
+  sky130_fd_sc_hd__o21bai_2                1
+  sky130_fd_sc_hd__nand3b_2                1
+  sky130_fd_sc_hd__buf_2                   1
+  sky130_fd_sc_hd__or4bb_2                 1
+  sky130_fd_sc_hd__a2111oi_2               1
+  sky130_fd_sc_hd__a41oi_2                 1
+  sky130_fd_sc_hd__a221oi_2                1
+  sky130_fd_sc_hd__clkbuf_16               1
+  sky130_fd_sc_hd__or3b_2                  1
+  sky130_fd_sc_hd__a22oi_2                 1
+
+2. flip-flop control-pin signatures
+===================================
+cell                             clock net    reset net    set net      count
+sky130_fd_sc_hd__dfrtp_2         n131         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n148         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n196         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n285         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n343         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n366         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n413         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n433         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n588         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n671         rst_n        -            6
+sky130_fd_sc_hd__dfrtp_2         n272         rst_n        -            5
+sky130_fd_sc_hd__dfrtp_2         n403         rst_n        -            5
+sky130_fd_sc_hd__dfrtp_2         n663         rst_n        -            5
+sky130_fd_sc_hd__dfrtp_2         n517         rst_n        -            3
+sky130_fd_sc_hd__dfrtp_2         n579         rst_n        -            3
+sky130_fd_sc_hd__dfrtp_2         n641         rst_n        -            3
+sky130_fd_sc_hd__dfstp_2         n517         -            rst_n        3
+sky130_fd_sc_hd__dfxtp_2         n579         -            -            2
+sky130_fd_sc_hd__dfxtp_2         n641         -            -            2
+sky130_fd_sc_hd__dfstp_2         n579         -            rst_n        1
+
+distinct clock nets on flop CLK pins: 16 -> n131, n148, n196, n272, n285, n343, n366, n403, n413, n433, n517, n579, n588, n641, n663, n671
+...but walking each of them back through single-input cells:
+  16 leaf net(s) -> clk      at buffer depth 2
+So this is *one* clock domain wearing a clock tree, not 16 domains --
+the 32 clkbuf cells in the census are exactly that tree.
+
+No flop has an enable pin: sky130's df*tp family has none, so every
+register in this design is gated by a multiplexer in its D cone, not by
+a control pin.  Step 2 therefore separates *reset polarity* here and
+nothing else -- the enable-group split the method expects on an FPGA
+export does not exist in a standard-cell flow.
+
+3. gate-level strongly connected components
+===========================================
+connected cells        : 738
+non-trivial SCCs       : 51
+SCC size histogram     : 19x size 2, 1x size 3, 5x size 4, 22x size 6, 1x size 9, 1x size 13, 1x size 34, 1x size 46
+  size 46    8 flop(s): dfrtp_2_167900_195840, dfrtp_2_168820_176800, dfrtp_2_173880_193120, dfrtp_2_174800_182240, dfstp_2_166980_187680, dfstp
+  size 34    9 flop(s): dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_108800, dfrtp_2_28980_157760, dfrtp_2_28980_97920, dfrtp_2_299
+  size 13    4 flop(s): dfxtp_2_167900_247520, dfxtp_2_168820_242080, dfxtp_2_168820_252960, dfxtp_2_169740_250240
+  size 9     2 flop(s): dfrtp_2_79120_108800, dfrtp_2_81880_97920
+  size 6     2 flop(s): dfrtp_2_115000_48960, dfrtp_2_118220_46240
+  size 6     2 flop(s): dfrtp_2_114080_62560, dfrtp_2_115000_70720
+
+Reading: a cycle in the cell graph is a value feeding its own future.
+
+4. flip-flop-only dependency graph
+==================================
+edges are 'this flop's D cone reads that flop's Q', combinational only.
+flops                  : 92
+D-cone edges           : 709
+SCCs of the FF graph   : 51  (25 of size 1, 23 of size 2, 1 of size 4, 1 of size 8, 1 of size 9)
+flops in a cycle       : 67
+flops outside any cycle: 25  <- these can only pass a value along
+
+cyclic components (the real state cores):
+  size 9   : dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_108800, dfrtp_2_28980_157760, dfrtp_2_28980_97920, dfrtp_2_29900_201280, ... (+3)
+  size 8   : dfrtp_2_167900_195840, dfrtp_2_168820_176800, dfrtp_2_173880_193120, dfrtp_2_174800_182240, dfstp_2_166980_187680, dfstp_2_167900_179520, ... (+2)
+  size 4   : dfxtp_2_167900_247520, dfxtp_2_168820_242080, dfxtp_2_168820_252960, dfxtp_2_169740_250240
+  size 2   : dfrtp_2_115000_48960, dfrtp_2_118220_46240
+  size 2   : dfrtp_2_114080_62560, dfrtp_2_115000_70720
+  size 2   : dfrtp_2_115000_73440, dfrtp_2_115000_81600
+  size 2   : dfrtp_2_113620_78880, dfrtp_2_115920_76160
+  size 2   : dfrtp_2_113620_95200, dfrtp_2_115920_92480
+  size 2   : dfrtp_2_115000_97920, dfrtp_2_123280_95200
+  size 2   : dfrtp_2_115000_108800, dfrtp_2_118220_106080
+  size 2   : dfrtp_2_114080_122400, dfrtp_2_115920_114240
+  size 2   : dfrtp_2_114080_136000, dfrtp_2_115000_127840
+  size 2   : dfrtp_2_115000_138720, dfrtp_2_118220_133280
+  size 2   : dfrtp_2_115000_146880, dfrtp_2_118220_144160
+  size 2   : dfrtp_2_79120_108800, dfrtp_2_81880_97920
+  size 2   : dfrtp_2_114080_182240, dfrtp_2_116380_184960
+  size 2   : dfrtp_2_113620_204000, dfrtp_2_115920_206720
+  size 2   : dfrtp_2_113160_212160, dfrtp_2_115920_209440
+  size 2   : dfrtp_2_114080_214880, dfrtp_2_116380_217600
+  size 2   : dfrtp_2_113620_231200, dfrtp_2_115920_228480
+  size 2   : dfrtp_2_113620_236640, dfrtp_2_115920_239360
+  size 2   : dfrtp_2_114080_242080, dfrtp_2_116380_244800
+  size 2   : dfrtp_2_113620_258400, dfrtp_2_115920_255680
+  size 2   : dfrtp_2_114080_272000, dfrtp_2_116380_277440
+  size 2   : dfrtp_2_113620_274720, dfrtp_2_115920_280160
+  size 2   : dfrtp_2_113620_285600, dfrtp_2_115920_282880
+
+pure shift chains (D cone reads exactly one flop, >=3 deep), by predecessor:
+  none
+
+broadcast control flops (in >= 25% of all D cones): dfrtp_2_32200_92480 (26 cones), dfrtp_2_28980_97920 (25 cones), dfrtp_2_33120_103360 (26 cones), dfrtp_2_28980_108800 (26 cones), dfrtp_2_26220_144160 (56 cones), dfrtp_2_30820_146880 (56 cones), dfrtp_2_26220_149600 (56 cones), dfrtp_2_28980_157760 (55 cones), dfrtp_2_29900_201280 (87 cones)
+the same chain test with those held out:
+  12 stages: dfrtp_2_84180_152320 <- dfrtp_2_85100_146880 <- dfrtp_2_82800_141440 <- dfrtp_2_81880_136000 <- dfrtp_2_77740_133280 <- dfrtp_2_75440_146880 <- dfrtp_2_76820_138720 <- dfrtp_2_74980_144160 <- dfrtp_2_77740_149600 <- dfrtp_2_76820_163200 <- dfrtp_2_77740_155040 <- dfrtp_2_81880_157760
+
+widest next-state cones (combinational cells between Q and D):
+  dfrtp_2_115000_70720         154 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_115920_76160         154 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_113620_95200         154 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_114080_136000        154 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_115000_48960         152 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_114080_62560         152 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_115000_73440         152 cells, 10 flop sources, primary inputs I, enable
+  dfrtp_2_113620_78880         152 cells, 10 flop sources, primary inputs I, enable
+
+5. DANA register grouping vs. the hand-made flop map
+====================================================
+flop_map.md: 92 flops, 13 coarse groups, 36 word-level banks
+
+[SCC baseline    ] step 4's flip-flop SCC decomposition, used as a grouping
+   51 groups covering 92/92 flops
+   vs. 2-bit-bank truth : P=0.73 R=0.42 F1=0.53, 29 exact group(s)
+[default         ] stock with_flip_flops(): min_group_size 8, no size hints
+   54 groups covering 92/92 flops; sizes 37x1, 10x2, 1x3, 1x4, 2x5, 3x6
+   vs. 2-bit-bank truth : P=0.29 R=0.15 F1=0.20, 11 exact group(s)
+   vs. coarse-map truth : P=0.90 R=0.13 F1=0.23, 3 exact group(s)
+   purity               : 47/54 groups single-register, 53/54 single-block
+[min2            ] min_group_size 2 -- this design's registers are mostly 2 bits wide
+   35 groups covering 92/92 flops; sizes 12x1, 12x2, 1x3, 2x4, 3x5, 5x6
+   vs. 2-bit-bank truth : P=0.48 R=0.39 F1=0.43, 10 exact group(s)
+   vs. coarse-map truth : P=0.87 R=0.20 F1=0.33, 2 exact group(s)
+   purity               : 26/35 groups single-register, 32/35 single-block
+[min2+size2      ] min_group_size 2, expected size 2 -- 22 of the 36 banks are 2 bits
+   51 groups covering 92/92 flops; sizes 19x1, 29x2, 1x4, 1x5, 1x6
+   vs. 2-bit-bank truth : P=0.58 R=0.22 F1=0.32, 15 exact group(s)
+   vs. coarse-map truth : P=0.88 R=0.09 F1=0.17, 2 exact group(s)
+   purity               : 44/51 groups single-register, 48/51 single-block
+[min2+sizes+types] min_group_size 2, expected sizes 2/4/8/12, gate-type consistency
+   53 groups covering 92/92 flops; sizes 22x1, 28x2, 2x4, 1x6
+   vs. 2-bit-bank truth : P=0.62 R=0.21 F1=0.31, 15 exact group(s)
+   vs. coarse-map truth : P=0.87 R=0.08 F1=0.15, 2 exact group(s)
+   purity               : 46/53 groups single-register, 50/53 single-block
+[min2+stages     ] min_group_size 2 plus DANA's stage identification
+   38 groups covering 92/92 flops; sizes 13x1, 16x2, 1x3, 1x4, 2x5, 5x6
+   vs. 2-bit-bank truth : P=0.45 R=0.33 F1=0.38, 10 exact group(s)
+   vs. coarse-map truth : P=0.88 R=0.19 F1=0.31, 2 exact group(s)
+   purity               : 29/38 groups single-register, 35/38 single-block
+
+best configuration by bank F1: min2 -- its group listing is examples/janestreet_asic_2026/artifacts/hal_dataflow.txt
+
+per-register agreement: step 4 SCCs vs. DANA (min2)
+---------------------------------------------------
+hand register          bits  SCC baseline                 DANA min2
+adj_bad                1     exact                        merged with sr
+col                    4     merged with done, row        exact
+col_cnt[0]             2     exact                        exact
+col_cnt[10]            2     exact                        split across 2 groups
+col_cnt[1]             2     exact                        exact
+col_cnt[2]             2     exact                        split across 2 groups
+col_cnt[3]             2     exact                        merged with col_cnt[2], col_cnt[4], col_cnt[5]
+col_cnt[4]             2     exact                        merged with col_cnt[2], col_cnt[3], col_cnt[5]
+col_cnt[5]             2     exact                        split across 2 groups
+col_cnt[6]             2     exact                        split across 2 groups
+col_cnt[7]             2     exact                        split across 2 groups
+col_cnt[8]             2     exact                        split across 2 groups
+col_cnt[9]             2     exact                        merged with col_cnt[10], col_cnt[6], col_cnt[7], col_cnt[8]
+done                   1     merged with col, row         exact
+lfsr                   8     exact                        split across 3 groups
+near                   1     exact                        merged with success
+outcnt                 4     exact                        split across 2 groups
+outphase               1     exact                        exact
+pop                    8     split across 8 groups        split across 3 groups
+reg_cnt[0]             2     exact                        merged with reg_cnt[1], reg_cnt[2], reg_cnt[4]
+reg_cnt[10]            2     exact                        split across 2 groups
+reg_cnt[1]             2     exact                        split across 2 groups
+reg_cnt[2]             2     exact                        merged with reg_cnt[0], reg_cnt[1], reg_cnt[4]
+reg_cnt[3]             2     exact                        exact
+reg_cnt[4]             2     exact                        split across 2 groups
+reg_cnt[5]             2     exact                        merged with reg_cnt[4], reg_cnt[6]
+reg_cnt[6]             2     exact                        merged with reg_cnt[4], reg_cnt[5]
+reg_cnt[7]             2     exact                        exact
+reg_cnt[8]             2     exact                        exact
+reg_cnt[9]             2     exact                        exact
+row                    4     merged with col, done        split across 2 groups
+row_bad                1     exact                        exact
+row_prev               1     merged with row_two          merged with row_two
+row_two                1     merged with row_prev         merged with row_prev
+sr                     12    split across 12 groups       split across 5 groups
+success                1     exact                        merged with near
+
+DANA groups, and what the hand map calls them
+---------------------------------------------
+group  bits  hand registers covered
+0      2     outcnt(2/4)
+1      2     outcnt(2/4)
+2      6     pop(5/8), row(1/4)
+3      2     near(1/1), success(1/1)
+4      6     col_cnt[10](1/2), col_cnt[6](1/2), col_cnt[7](1/2), col_cnt[8](1/2), col_cnt[9](2/2)
+5      5     col_cnt[10](1/2), col_cnt[5](1/2), col_cnt[6](1/2), col_cnt[7](1/2), col_cnt[8](1/2)
+6      6     col_cnt[2](1/2), col_cnt[3](2/2), col_cnt[4](2/2), col_cnt[5](1/2)
+7      6     lfsr(6/8)
+8      5     adj_bad(1/1), sr(4/12)
+9      2     reg_cnt[7](2/2)
+10     3     row(3/4)
+11     5     reg_cnt[4](1/2), reg_cnt[5](2/2), reg_cnt[6](2/2)
+12     2     pop(2/8)
+13     6     reg_cnt[0](2/2), reg_cnt[1](1/2), reg_cnt[2](2/2), reg_cnt[4](1/2)
+14     4     col(4/4)
+15     2     col_cnt[0](2/2)
+16     4     sr(4/12)
+17     2     row_prev(1/1), row_two(1/1)
+18     2     sr(2/12)
+19     2     col_cnt[1](2/2)
+20     2     reg_cnt[3](2/2)
+21     2     reg_cnt[9](2/2)
+22     2     reg_cnt[8](2/2)
+23     1     done(1/1)
+24     1     lfsr(1/8)
+25     1     outphase(1/1)
+26     1     sr(1/12)
+27     1     sr(1/12)
+28     1     pop(1/8)
+29     1     lfsr(1/8)
+30     1     reg_cnt[10](1/2)
+31     1     row_bad(1/1)
+32     1     col_cnt[2](1/2)
+33     1     reg_cnt[1](1/2)
+34     1     reg_cnt[10](1/2)
+
+flops in no DANA group: 0
+
+6. the success cone
+===================
+the output port 'success' is driven by dfrtp_2_172040_280160 (sky130_fd_sc_hd__dfrtp_2), not by combinational logic
+its D cone: 47 combinational cells, 57 flop sources, primary inputs none
+
+which hand-named registers the verdict flop reads:
+  adj_bad                1 bit(s)
+  col_cnt[0]             2 bit(s)
+  col_cnt[10]            2 bit(s)
+  col_cnt[1]             2 bit(s)
+  col_cnt[2]             2 bit(s)
+  col_cnt[3]             2 bit(s)
+  col_cnt[4]             2 bit(s)
+  col_cnt[5]             2 bit(s)
+  col_cnt[6]             2 bit(s)
+  col_cnt[7]             2 bit(s)
+  col_cnt[8]             2 bit(s)
+  col_cnt[9]             2 bit(s)
+  done                   1 bit(s)
+  outphase               1 bit(s)
+  pop                    8 bit(s)
+  reg_cnt[0]             2 bit(s)
+  reg_cnt[10]            2 bit(s)
+  reg_cnt[1]             2 bit(s)
+  reg_cnt[2]             2 bit(s)
+  reg_cnt[3]             2 bit(s)
+  reg_cnt[4]             2 bit(s)
+  reg_cnt[5]             2 bit(s)
+  reg_cnt[6]             2 bit(s)
+  reg_cnt[7]             2 bit(s)
+  reg_cnt[8]             2 bit(s)
+  reg_cnt[9]             2 bit(s)
+  row_bad                1 bit(s)
+  success                1 bit(s)
+
+Every constraint the chip checks has to reach this one cone, so the
+set above is the whole judging rule stated as a register list -- with
+no puzzle-specific knowledge, one backward walk names the checkers.
+
+transitively, 79 of 92 flops can influence 'success'; the 13 that cannot are:
+  dfrtp_2_167900_195840        lfsr[1]
+  dfrtp_2_167900_272000        near
+  dfrtp_2_168820_176800        lfsr[6]
+  dfrtp_2_173880_193120        lfsr[3]
+  dfrtp_2_174800_182240        lfsr[4]
+  dfstp_2_166980_187680        lfsr[5]
+  dfstp_2_167900_179520        lfsr[7]
+  dfstp_2_167900_190400        lfsr[2]
+  dfstp_2_172960_198560        lfsr[0]
+  dfxtp_2_167900_247520        outcnt[0]
+  dfxtp_2_168820_242080        outcnt[3]
+  dfxtp_2_168820_252960        outcnt[1]
+  dfxtp_2_169740_250240        outcnt[2]
+
+7. hal_fsm on the control registers
+===================================
+hal_fsm findings (verbatim ids and statuses):
+  fsm/candidate/001                  heuristic                  Proposed by dataflow. the 4 flip-flops form a strongly connected component of the next-state dep
+  fsm/candidate/002                  heuristic                  Proposed by scc. the 4 flip-flops form a strongly connected component of the next-state dependen
+  fsm/candidate/003                  heuristic                  Proposed by dataflow. the 2 flip-flops form a strongly connected component of the next-state dep
+  fsm/candidate/004                  heuristic                  Proposed by dataflow. the 2 flip-flops form a strongly connected component of the next-state dep
+  fsm/candidate/005                  heuristic                  Proposed by scc. the 9 flip-flops form a strongly connected component of the next-state dependen
+  fsm/candidate/006                  heuristic                  Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-stat
+  fsm/candidate/007                  heuristic                  Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-stat
+  fsm/candidate/008                  heuristic                  Proposed by dataflow, scc. the 2 flip-flops form a strongly connected component of the next-stat
+  fsm/candidates/ambiguous           heuristic                  2 candidate state registers score within the ambiguity margin of 0.05. The highest-scoring one w
+  fsm/coverage/uncovered-sequential-gates unsupported                3 sequential gate type(s) are present in gates that no solved state register contains. That they
+  fsm/machine01/asynchronous-control unsupported                4 asynchronous control input(s) of the state register are driven by logic rather than tied to th
+  fsm/machine01/external-state-dependence unsupported                The transition relation is conditioned on n575, which dfrtp_2_29900_201280 drives. This is not n
+  fsm/machine01/reachable-states     proven_under_assumptions   11 of 16 encodable states are reachable from the initial state 0000 (0). States outside this set
+  fsm/machine01/relation-consistency proven_under_assumptions   Every one of the 44 input assignments enumerated across 11 state(s) enables exactly one successo
+  fsm/machine01/transitions          proven_under_assumptions   Every transition below was derived from the netlist by solve_fsm's SMT exploration forward from 
+  fsm/machine01/witness/2            proven_under_assumptions   Starting from the initial state 0000 (0), the recorded input sequence drives the machine to stat
+
+transitions-machine01.json: 4 flop(s), 11 state(s), 22 transition(s), solver smt
+  bit order as hal_fsm returned it: dfrtp_2_26220_144160, dfrtp_2_26220_149600, dfrtp_2_28980_157760, dfrtp_2_30820_146880
+  the hand map calls those: col[2], col[0], col[3], col[1]
+  external signals it needed: enable, n575
+  re-indexed by those names: states [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  non-self transitions     : 0->1, 1->2, 2->3, 3->4, 4->5, 5->6, 6->7, 7->8, 8->9, 9->10, 10->0
+  => a modulo-11 counter, proven by SMT, from the netlist alone.
+
+wrote the flip-flop dependency graph (DANA boxes, flop_map colours) to examples/janestreet_asic_2026/images/hal_register_graph.dot

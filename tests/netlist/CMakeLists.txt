@@ -15,6 +15,7 @@ add_executable(runTest-boolean_function boolean_function.cpp)
 add_executable(runTest-gate_library gate_library.cpp)
 add_executable(runTest-netlist_utils netlist_utils.cpp)
 add_executable(runTest-decorators decorators.cpp)
+add_executable(runTest-gate_library_sky130 gate_library_sky130.cpp)
 
 target_link_libraries(runTest-netlist pthread gtest hal::core hal::netlist test_utils)
 target_link_libraries(runTest-gate_type pthread gtest hal::core hal::netlist test_utils)
@@ -31,6 +32,7 @@ target_link_libraries(runTest-boolean_function pthread gtest hal::core hal::netl
 target_link_libraries(runTest-gate_library pthread gtest hal::core hal::netlist test_utils)
 target_link_libraries(runTest-netlist_utils pthread gtest hal::core hal::netlist test_utils)
 target_link_libraries(runTest-decorators pthread gtest hal::core hal::netlist test_utils)
+target_link_libraries(runTest-gate_library_sky130 pthread gtest hal::core hal::netlist test_utils)
 
 add_test(runTest-netlist ${CMAKE_BINARY_DIR}/bin/runTest-netlist --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
 add_test(runTest-gate_type ${CMAKE_BINARY_DIR}/bin/runTest-gate_type --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
@@ -47,6 +49,7 @@ add_test(runTest-boolean_function ${CMAKE_BINARY_DIR}/bin/runTest-boolean_functi
 add_test(runTest-gate_library ${CMAKE_BINARY_DIR}/bin/runTest-gate_library --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
 add_test(runTest-netlist_utils ${CMAKE_BINARY_DIR}/bin/runTest-netlist_utils --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
 add_test(runTest-decorators ${CMAKE_BINARY_DIR}/bin/runTest-decorators --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
+add_test(runTest-gate_library_sky130 ${CMAKE_BINARY_DIR}/bin/runTest-gate_library_sky130 --gtest_output=xml:${CMAKE_BINARY_DIR}/gtestresults-runBasicTests.xml)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_sanitizers(runTest-netlist)
@@ -64,4 +67,10 @@ if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_sanitizers(runTest-gate_library)
     add_sanitizers(runTest-netlist_utils)
     add_sanitizers(runTest-decorators)
+    add_sanitizers(runTest-gate_library_sky130)
 endif()
+
+# runTest-gate_library_sky130 parses tests/fixtures/sky130_cells/sky130_cells.v against the shipped
+# SKY130_FD_SC_HD.hgl. The fixture is copied next to the test binaries the same way the other test
+# input files are, so the test can find it below utils::get_base_directory().
+configure_file(${CMAKE_SOURCE_DIR}/tests/fixtures/sky130_cells/sky130_cells.v ${CMAKE_BINARY_DIR}/bin/test-files/sky130_cells/sky130_cells.v COPYONLY)

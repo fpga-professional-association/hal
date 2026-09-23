@@ -1,0 +1,74 @@
+HAL gate library load check -- sky130_fd_sc_hd
+==============================================
+gate library : plugins/gate_libraries/definitions/SKY130_FD_SC_HD.hgl
+artifacts    : examples/janestreet_asic_2026/artifacts
+
+gate library
+------------
+  [ok]   library parsed                                 plugins/gate_libraries/definitions/SKY130_FD_SC_HD.hgl
+  [ok]   library name                                   SKY130_FD_SC_HD
+  gate types   : 426 (incl. HAL's auto-generated GND/VDD helpers)
+  ff types     : 39
+
+library semantics vs. sc_sim
+----------------------------
+  [ok]   every gate type maps to an sc_sim cell         
+  [ok]   pin rosters match sc_sim                       
+  [ok]   Boolean functions match sc_sim                 424 gate types, 4642 truth-table rows evaluated through hal_py
+
+warmup (adder_demo)
+-------------------
+  [ok]   design name                                    adder_demo
+  [ok]   gate count                                     230
+  [ok]   distinct cell types                            18
+  [ok]   per-cell-type census matches the extractor     230 instances over 18 gate types
+  [ok]   no unresolved / fallback gate types            
+  [ok]   net count                                      84
+  [ok]   net names identical to the extractor's         
+  [ok]   global input nets                              ['A', 'B', 'clk', 'en', 'rst_n']
+  [ok]   global output nets                             ['S']
+  [ok]   flip-flop gates                                16
+       sky130_fd_sc_hd__dfrtp_2         16
+  [ok]   sky130_fd_sc_hd__dfrtp_2: has an FFComponent   
+  [ok]   sky130_fd_sc_hd__dfrtp_2: clock function       CLK
+  [ok]   sky130_fd_sc_hd__dfrtp_2: async reset          (! RESET_B)
+  [ok]   sky130_fd_sc_hd__dfrtp_2: async set            None
+  [ok]   sky130_fd_sc_hd__dfrtp_2: next state           D
+  [ok]   conb constant cells                            0
+
+puzzle (puzzle)
+---------------
+  [ok]   design name                                    puzzle
+  [ok]   gate count                                     1618
+  [ok]   distinct cell types                            69
+  [ok]   per-cell-type census matches the extractor     1618 instances over 69 gate types
+  [ok]   no unresolved / fallback gate types            
+  [ok]   net count                                      739
+  [ok]   net names identical to the extractor's         
+  [ok]   global input nets                              ['I', 'clk', 'enable', 'rst_n']
+  [ok]   global output nets                             ['O[0]', 'O[1]', 'O[2]', 'O[3]', 'O[4]', 'O[5]', 'O[6]', 'O[7]', 'success']
+  [ok]   flip-flop gates                                92
+       sky130_fd_sc_hd__dfrtp_2         84
+  [ok]   sky130_fd_sc_hd__dfrtp_2: has an FFComponent   
+  [ok]   sky130_fd_sc_hd__dfrtp_2: clock function       CLK
+  [ok]   sky130_fd_sc_hd__dfrtp_2: async reset          (! RESET_B)
+  [ok]   sky130_fd_sc_hd__dfrtp_2: async set            None
+  [ok]   sky130_fd_sc_hd__dfrtp_2: next state           D
+       sky130_fd_sc_hd__dfstp_2         4
+  [ok]   sky130_fd_sc_hd__dfstp_2: has an FFComponent   
+  [ok]   sky130_fd_sc_hd__dfstp_2: clock function       CLK
+  [ok]   sky130_fd_sc_hd__dfstp_2: async reset          None
+  [ok]   sky130_fd_sc_hd__dfstp_2: async set            (! SET_B)
+  [ok]   sky130_fd_sc_hd__dfstp_2: next state           D
+       sky130_fd_sc_hd__dfxtp_2         4
+  [ok]   sky130_fd_sc_hd__dfxtp_2: has an FFComponent   
+  [ok]   sky130_fd_sc_hd__dfxtp_2: clock function       CLK
+  [ok]   sky130_fd_sc_hd__dfxtp_2: async reset          None
+  [ok]   sky130_fd_sc_hd__dfxtp_2: async set            None
+  [ok]   sky130_fd_sc_hd__dfxtp_2: next state           D
+  [ok]   conb constant cells                            6
+  [ok]   conb HI/LO are constant 1/0 and drive a net    HI -> ['TIE1_251', 'TIE1_306', 'TIE1_339', 'TIE1_362', 'TIE1_411', 'TIE1_471'], LO -> ['TIE0_250', 'TIE0_307', 'TIE0_338', 'TIE0_361', 'TIE0_410', 'TIE0_470']
+
+summary
+-------
+  48 checks, 0 failures -- PASS
